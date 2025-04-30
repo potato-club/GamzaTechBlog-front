@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="px-[42px]">
+      <body className="mx-[48px]">
         <BlogHeader />
         {children}
       </body>
