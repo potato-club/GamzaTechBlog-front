@@ -1,10 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
 import blogLogo from "../../public/logo.png";
 
 export default function BlogHeader() {
   return (
     <header className="h-14 flex justify-between">
-      <div className="flex items-center text-[18px]">
+      <Link href="/" className="flex items-center text-[18px] cursor-pointer">
         <Image
           src={blogLogo}
           alt="감자 기술 블로그 로고"
@@ -16,7 +17,7 @@ export default function BlogHeader() {
           <span className="font-bold">감자 </span>
           <span className="font-light">Tech Blog</span>
         </span>
-      </div>
+      </Link>
       <div className="flex items-center gap-2">
         <button className="bg-[#FAA631] px-3 py-1.5 rounded-[63px] text-white">
           로그인
