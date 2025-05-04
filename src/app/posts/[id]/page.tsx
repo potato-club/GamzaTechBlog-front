@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function PostPage() {
   return (
-    <div className="mx-16">
+    <div className="mx-16 mt-16">
       <div className="border-b-1 border-[#D5D9E3] py-8">
         <div className="text-[32px] font-extrabold text-[#1C222E]">
           제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다
