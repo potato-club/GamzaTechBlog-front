@@ -3,12 +3,12 @@ import profileImg from "../../public/profileEX.png";
 
 export default function Home() {
   return (
-    <div className="w-full flex mt-16 gap-30">
+    <div className="mt-16 flex w-full gap-30">
       <div className="flex-3">
-        <span className="text-[#FAA631] text-2xl">Posts</span>
+        <span className="text-2xl text-[#FAA631]">Posts</span>
         <div>
-          <div className="py-8 border-b-1 border-[#D5D9E3]">
-            <div className="font-extrabold text-2xl text-[#1C222E]">
+          <div className="border-b-1 border-[#D5D9E3] py-8">
+            <div className="text-2xl font-extrabold text-[#1C222E]">
               제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다
             </div>
             <div className="my-6 text-[#B5BBC7]">
@@ -21,8 +21,8 @@ export default function Home() {
               obcaecati culpa ex libero tempore consequuntur sapiente incidunt
               sint!
             </div>
-            <div className="flex gap-4 text-[14px] items-center h-12">
-              <div className="flex border-r-1 border-[#B5BBC7] items-center h-5 pr-1.5">
+            <div className="flex h-12 items-center gap-4 text-[14px]">
+              <div className="flex h-5 items-center border-r-1 border-[#B5BBC7] pr-1.5">
                 <Image
                   src={profileImg}
                   alt="사용사 이미지"
@@ -30,13 +30,13 @@ export default function Home() {
                   height={35}
                   className="m-2"
                 />
-                <span className="m-2 text-[#798191] font-medium">
+                <span className="m-2 font-medium text-[#798191]">
                   GyeongHwan Lee
                 </span>
               </div>
               <div className="text-[#B5BBC7]">2025. 04. 28</div>
               <div className="flex gap-2">
-                <div className="bg-[#F2F4F6] text-[#848484] px-2 py-1.5 rounded-2xl">
+                <div className="rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]">
                   # java
                 </div>
               </div>
@@ -44,13 +44,13 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="flex-1 px-10">
-        <span className="text-[#FAA631] text-2xl">Tags</span>
-        <div className="flex gap-2 flex-col mt-7 text-[14px]">
-          <div className="bg-[#F2F4F6] text-[#848484] px-2 py-1.5 rounded-2xl w-fit">
-            # java
+      <div className="flex-1 pl-20">
+        <span className="text-2xl text-[#FAA631]">Tags</span>
+        <div className="mt-7 flex flex-col gap-2 text-[14px]">
+          <div className="w-fit rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]">
+            # javajavajavajavajavajavajavajavajavajava
           </div>
-          <div className="bg-[#F2F4F6] text-[#848484] px-2 py-1.5 rounded-2xl w-fit">
+          <div className="w-fit rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]">
             # java
           </div>
         </div>
