@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@import "@toast-ui/editor/dist/toastui-editor.css";
+
 @font-face {
   font-family: "Pretendard";
   font-weight: 45 920;
