@@ -55,7 +55,7 @@ export default function Home() {
           {tags.map((tag, idx) => (
             <div
               key={idx}
-              className="w-fit rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]"
+              className="w-fit rounded-3xl px-2 py-1.5 text-[#FAA631] border border-[#FAA631]"
             >
               {tag}
             </div>
@@ -95,7 +95,7 @@ export default function Home() {
                     {post.tags.map((tag, i) => (
                       <div
                         key={i}
-                        className="w-fit rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]"
+                        className="w-fit rounded-3xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]"
                       >
                         {tag}
                       </div>
@@ -103,8 +103,9 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="h-[150px] w-[200px] shrink-0 border">
-                <Image src={mainLogo} alt="임시" width={200} height={150} />
+              <div className="h-[150px] w-[200px] shrink-0 rounded-3xl bg-[#D9D9D9]">
+                {/* <Image src={mainLogo} alt="임시" width={200} height={150} /> */}
+
               </div>
             </div>
           ))}
