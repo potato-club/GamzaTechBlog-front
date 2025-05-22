@@ -23,7 +23,7 @@ export default function BlogHeader() {
         <button className="rounded-[63px] bg-[#FAA631] px-3 py-1.5 text-white">
           로그인
         </button>
-        <button className="rounded-[63px] bg-[#F2F4F6] px-3 py-1.5">
+        <button className="rounded-[63px] bg-[#F2F4F6] px-3 py-1.5 text-[#798191]">
           회원가입
         </button>
       </div>
