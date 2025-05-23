@@ -36,7 +36,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="mt-16 flex w-full flex-col gap-20">
+    <div className="flex w-full flex-col gap-20">
       {/* 로고 */}
       <Link href="/">
         <Image
