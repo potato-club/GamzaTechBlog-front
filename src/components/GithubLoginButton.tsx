@@ -12,12 +12,13 @@ export default function GithubLoginButton() {
     <button
       onClick={handleGithubLogin}
       type="button"
+      className="hover:cursor-pointer"
     >
       <Image
         src={githubLoginImage}
         alt="GitHub 로고"
         className="mr-2"
-      />      GitHub로 로그인
+      />
     </button>
   );
 }
