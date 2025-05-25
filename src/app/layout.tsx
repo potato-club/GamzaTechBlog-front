@@ -25,7 +25,7 @@ export default async function RootLayout({
     pathname = "";
   }
 
-  const hideHeaderPaths = ["/login"];
+  const hideHeaderPaths = ["/login", "/signup"];
   const hideHeader = hideHeaderPaths.some((path) => pathname.startsWith(path));
 
   return (
