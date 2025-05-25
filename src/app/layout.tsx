@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="mx-[80px]">
+      <body className="w-full max-w-[1000px] mx-auto px-6">
         <BlogHeader />
         {children}
       </body>
