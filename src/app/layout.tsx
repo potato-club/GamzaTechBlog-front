@@ -7,14 +7,14 @@ export const metadata: Metadata = {
   description: "안녕하세요. 감자 기술 블로그입니다.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
-      <body className="mx-[80px]">
+      <body className="w-full max-w-[1000px] mx-auto px-6">
         <BlogHeader />
         {children}
       </body>
