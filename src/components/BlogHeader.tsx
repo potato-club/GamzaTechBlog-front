@@ -4,8 +4,7 @@ import blogLogo from "../../public/logo.png";
 
 export default function BlogHeader() {
   return (
-    // <header className="flex h-14 justify-between">
-    <header className="fixed top-0 left-0 z-50 flex h-14 w-full items-center justify-between bg-white px-[80px]">
+    <header className="fixed top-0 left-1/2 z-50 flex h-14 w-full max-w-[1100px] -translate-x-1/2 items-center justify-between bg-white">
       <Link href="/" className="flex cursor-pointer items-center text-[18px]">
         <Image
           src={blogLogo}

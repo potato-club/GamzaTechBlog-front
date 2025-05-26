@@ -25,13 +25,14 @@ export default async function RootLayout({
     pathname = "";
   }
 
-  const hideHeaderPaths = ["/login"];
+  const hideHeaderPaths = ["/login", "/signup"];
   const hideHeader = hideHeaderPaths.some((path) => pathname.startsWith(path));
 
   return (
     <html lang="en">
-      <body className={`${!hideHeader && `mt-16`}  mx-[80px]`}>
+      <body className={`${!hideHeader && `mt-16`}  w-full max-w-[1000px] mx-auto px-6`}>
         {!hideHeader && <BlogHeader />}
+        <BlogHeader />
         {children}
       </body>
     </html>
