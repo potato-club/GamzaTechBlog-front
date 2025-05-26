@@ -37,3 +37,78 @@ body {
   font-family: "Pretendard", sans-serif;
   font-weight: 400;
 }
+
+.toastui-editor-defaultUI {
+  /* 전체 배경 제거 */
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-top: 1px solid #f2f2f2 !important;
+}
+
+/* 툴바 전체 배경 및 그림자 제거, 높이 조정 */
+.toastui-editor-toolbar {
+  background: transparent !important;
+  box-shadow: none !important;
+  /* border-bottom: 1px solid #f2f2f2 !important; */
+  min-height: 38px !important;
+  padding: 0 8px !important;
+}
+.toastui-editor-defaultUI-toolbar {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid #f2f2f2 !important;
+  min-height: 38px !important;
+  padding: 0 8px !important;
+}
+
+/* 툴바 그룹 간 구분선 스타일 */
+/* .toastui-editor-toolbar-group:not(:last-child) {
+  border-right: 1px solid #f2f2f2 !important;
+  margin-right: 8px !important;
+  padding-right: 8px !important;
+} */
+
+/* 버튼 스타일: 배경, 테두리, 그림자 제거 및 플랫하게 */
+.toastui-editor-toolbar-group button {
+  /* background: none !important; */
+  border: none !important;
+  box-shadow: none !important;
+  color: #222 !important;
+  font-size: 18px !important;
+  padding: 0 6px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  border-radius: 6px !important;
+  transition: background 0.15s;
+}
+
+.toastui-editor-dropdown-toolbar {
+  /* 드롭다운 툴바 배경 제거 */
+  background: #fff !important;
+  box-shadow: none !important;
+  border: 1px solid #f2f2f2 !important;
+}
+
+/* 버튼 hover/active 효과 */
+/* .toastui-editor-toolbar-group button:hover,
+.toastui-editor-toolbar-group button:active,
+.toastui-editor-toolbar-group button[aria-pressed="true"] {
+  background: #f7f9fc !important;
+  color: #111 !important;
+} */
+
+/* 아이콘 크기 조정 */
+/* .toastui-editor-toolbar-group svg,
+.toastui-editor-toolbar-group .toastui-editor-toolbar-icons {
+  width: 20px !important;
+  height: 20px !important;
+} */
+
+/* 드롭다운(글꼴 등) 스타일 */
+.toastui-editor-toolbar-dropdown {
+  background: #fff !important;
+  border: 1px solid #f2f2f2 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  border-radius: 6px !important;
+}
