@@ -1,8 +1,17 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import blogLogo from "../../public/logo.png";
 
 export default function BlogHeader() {
+
+  const pathname = usePathname();
+  const hideHeaderPaths = ["/login", "/signup"];
+  const hideHeader = hideHeaderPaths.some((path) => pathname.startsWith(path));
+
+  if (hideHeader) return null;
   return (
     <header className="fixed top-0 left-1/2 z-50 flex h-14 w-full max-w-[1100px] -translate-x-1/2 items-center justify-between bg-white">
       <Link href="/" className="flex cursor-pointer items-center text-[18px]">
