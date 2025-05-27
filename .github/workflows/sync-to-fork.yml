@@ -1,0 +1,25 @@
+name: Sync develop branch to personal fork
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: develop
+
+      - name: Push to personal fork
+        env:
+          PERSONAL_GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add fork https://tnemnorivnelee:${PERSONAL_GITHUB_TOKEN}@github.com/tnemnorivnelee/GamzaTechBlog-front.git
+          git push fork develop:develop --force
