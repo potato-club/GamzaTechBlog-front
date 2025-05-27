@@ -1,12 +1,12 @@
 "use client";
 
+import { Button } from "@/components/ui/button"; // shadcn Button import
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import blogLogo from "../../public/logo.png";
 
 export default function BlogHeader() {
-
   const pathname = usePathname();
   const hideHeaderPaths = ["/login", "/signup"];
   const hideHeader = hideHeaderPaths.some((path) => pathname.startsWith(path));
@@ -28,12 +28,12 @@ export default function BlogHeader() {
         </span>
       </Link>
       <div className="flex items-center gap-2">
-        <button className="rounded-[63px] bg-[#FAA631] px-3 py-1.5 text-white">
+        <Button className="rounded-[63px] bg-[#FAA631] px-3 py-1.5 text-white hover:bg-[#e09a2c]">
           로그인
-        </button>
-        <button className="rounded-[63px] bg-[#F2F4F6] px-3 py-1.5 text-[#798191]">
+        </Button>
+        <Button variant="secondary" className="rounded-[63px] px-3 py-1.5 text-[#798191]">
           회원가입
-        </button>
+        </Button>
       </div>
     </header>
   );
