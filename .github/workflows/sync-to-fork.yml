@@ -1,0 +1,34 @@
+name: Synchronize to forked repo
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  sync:
+    name: Sync develop to forked repo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with: 
+          token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+          fetch-depth: 0
+          ref: develop
+
+      - name: Add remote-url
+        run: |
+          git remote add forked-repo https://tnemnorivnelee:${{ secrets.PERSONAL_GITHUB_TOKEN }}@github.com/tnemnorivnelee/GamzaTechBlog-front
+          git config user.name tnemnorivnelee
+          git config user.email tnemnorivnelee@gmail.com
+
+      - name: Push develop to forked repo
+        run: |
+          git push -f forked-repo develop
+
+      - name: Clean up
+        run: |
+          git remote remove forked-repo
