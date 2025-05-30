@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import BlogHeader from "../components/BlogHeader";
 import "./globals.css";
 
@@ -13,26 +12,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headerList = await headers();
-  const fullURL = headerList.get("referer") || "";
-
-  let pathname = "";
-  try {
-    if (fullURL) {
-      pathname = new URL(fullURL).pathname;
-    }
-  } catch (e) {
-    pathname = "";
-  }
-
-  const hideHeaderPaths = ["/login", "/signup"];
-  const hideHeader = hideHeaderPaths.some((path) => pathname.startsWith(path));
-
   return (
     <html lang="en">
-      <body className={`${!hideHeader && `mt-16`}  mx-[80px]`}>
-        {!hideHeader && <BlogHeader />}
-        {children}
+      <body className="w-full max-w-[1100px] mx-auto px-6">
+        <BlogHeader />
+        <div className="mt-16">
+          {children}
+        </div>
       </body>
     </html>
   );
