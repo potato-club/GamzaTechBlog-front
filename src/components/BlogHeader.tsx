@@ -28,12 +28,16 @@ export default function BlogHeader() {
         </span>
       </Link>
       <div className="flex items-center gap-2">
-        <Button className="rounded-[63px] bg-[#FAA631] px-3 py-1.5 text-white hover:bg-[#e09a2c]">
-          로그인
-        </Button>
-        <Button variant="secondary" className="rounded-[63px] px-3 py-1.5 text-[#798191]">
-          회원가입
-        </Button>
+        <Link href="/login" passHref>
+          <Button className="rounded-[63px] bg-[#20242B] px-3 py-1.5 text-white hover:bg-[#1C222E] hover:cursor-pointer">
+            로그인
+          </Button>
+        </Link>
+        <Link href="/signup" passHref>
+          <Button variant="secondary" className="rounded-[63px] px-3 py-1.5 text-[#798191] hover:cursor-pointer">
+            회원가입
+          </Button>
+        </Link>
       </div>
     </header>
   );

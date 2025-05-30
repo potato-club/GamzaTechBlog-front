@@ -1,3 +1,4 @@
+import Link from "next/link";
 import PostMeta from "./PostMeta";
 
 export default function PostCard({
@@ -11,10 +12,12 @@ export default function PostCard({
     >
       {/* 썸네일 자리 */}
       <div className="flex-1 w-[500px] h-[140px]">
-        <h2 className={`text-xl font-bold truncate`}>
-          {post.title}
-        </h2>
-        <p className="text-[#B5BBC7] text-sm mt-3.5 truncate">{post.summary}</p>
+        <Link href={`/posts/${post.id}`}>
+          <h2 className={`text-xl font-bold truncate`}>
+            {post.title}
+          </h2>
+          <p className="text-[#B5BBC7] text-sm mt-3.5 truncate">{post.summary}</p>
+        </Link>
         <PostMeta author={post.author} date={post.date} tags={post.tags} />
       </div>
       <div className="w-44 h-28 bg-gray-100 rounded-2xl shrink-0" />

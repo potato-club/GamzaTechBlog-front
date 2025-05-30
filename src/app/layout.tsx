@@ -14,7 +14,7 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="w-full max-w-[1000px] mx-auto px-6">
+      <body className="w-full max-w-[1100px] mx-auto px-6">
         <BlogHeader />
         <div className="mt-16">
           {children}
