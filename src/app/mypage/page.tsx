@@ -1,10 +1,10 @@
 "use client";
 
+import CommentList from "@/components/CommentList";
+import PostList from "@/components/mypage/PostList";
+import Sidebar from "@/components/mypage/Sidebar";
+import TabMenu from "@/components/mypage/TabMenu";
 import { useState } from "react";
-import CommentList from "../../components/CommentList";
-import PostList from "../../components/mypage/PostList";
-import Sidebar from "../../components/mypage/Sidebar";
-import TabMenu from "../../components/mypage/TabMenu";
 
 export default function MyPage() {
   const [tab, setTab] = useState("posts");
