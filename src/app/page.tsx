@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import mainLogo from "../../public/logo2.png";
+import mainLogo from "../../public/logo2.svg";
 import PostList from "../components/mypage/PostList";
 import TagBadge from "../components/TagBadge";
 
