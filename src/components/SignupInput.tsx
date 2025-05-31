@@ -16,8 +16,8 @@ export default function SignupInput({
   error,
 }: SignupInputProps) {
   return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-[#222] text-base font-medium">
+    <div className="flex items-center">
+      <label htmlFor={id} className="text-[#B5BBC7] text-[16px] w-25">
         {label}
       </label>
       <input
@@ -25,7 +25,7 @@ export default function SignupInput({
         id={id}
         {...register(id)}
         placeholder={placeholder}
-        className="rounded-full px-6 py-3 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent"
+        className="rounded-full px-6 py-3 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full"
       />
       {error && <span className="text-red-500 text-sm">{error}</span>}
     </div>
