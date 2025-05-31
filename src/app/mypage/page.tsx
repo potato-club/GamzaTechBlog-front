@@ -1,8 +1,13 @@
+"use client";
+
+import { useState } from "react";
+import CommentList from "../../components/CommentList";
 import PostList from "../../components/mypage/PostList";
 import Sidebar from "../../components/mypage/Sidebar";
 import TabMenu from "../../components/mypage/TabMenu";
 
 export default function MyPage() {
+  const [tab, setTab] = useState("posts");
 
   const posts = [
     {
@@ -25,12 +30,33 @@ export default function MyPage() {
     },
   ];
 
+  const comments = [
+    {
+      id: 1,
+      comment:
+        "첫 댓글 달아봤습니다 하하.",
+      author: "GyeongHwan Lee",
+      date: "2025. 04. 28",
+    },
+    {
+      id: 2,
+      comment:
+        "좋은 글 감사합니다! Next.js에 대해 더 배우고 싶어요.",
+      author: "Jinwoo Park",
+      date: "2025. 04. 27",
+    },
+  ];
+
   return (
     <main className="flex mt-20">
       <Sidebar />
       <section className="flex-1 ml-12">
-        <TabMenu />
-        <PostList posts={posts} />
+        <TabMenu tab={tab} setTab={setTab} />
+        {tab === "posts" ? (
+          <PostList posts={posts} />
+        ) : (
+          <CommentList comments={comments} />
+        )}
       </section>
     </main>
   );
