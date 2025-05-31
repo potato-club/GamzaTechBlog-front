@@ -1,8 +1,25 @@
 'use client';
 
 import Image from 'next/image';
+import CommentList from "../../../components/CommentList";
 
 export default function PostPage() {
+  const comments = [
+    {
+      id: 1,
+      comment:
+        "첫 댓글 달아봤습니다 하하.",
+      author: "GyeongHwan Lee",
+      date: "2025. 04. 28",
+    },
+    {
+      id: 2,
+      comment:
+        "좋은 글 감사합니다! Next.js에 대해 더 배우고 싶어요.",
+      author: "Jinwoo Park",
+      date: "2025. 04. 27",
+    },
+  ];
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -106,29 +123,7 @@ export default function PostPage() {
           </div>
         </form>
 
-        {/* 댓글 리스트 */}
-        <div className="mt-8 flex flex-col gap-4">
-          {[1, 2, 3].map((_, index) => (
-            <div key={index} className="bg-[#FAFBFF] w-full rounded-xl px-6 py-5">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-full overflow-hidden">
-                  <Image
-                    src="/profileSVG.svg"
-                    alt="유저 이미지"
-                    width={36}
-                    height={36}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <span className="text-[14px] font-medium text-[#1C222E]">GyeongHwan Lee</span>
-              </div>
-              <div className="mt-2 text-[14px] text-[#464C58]">
-                어플리케이션을 운영하다 보면, 트래픽 증가나 사용자 경험 개선,<br />
-                비용 절감 등 다양한 요인으로 인한 성능 개선 요구가 꾸준히 제기됩니다.
-              </div>
-            </div>
-          ))}
-        </div>
+        <CommentList comments={comments} />
       </div>
     </div>
   );
