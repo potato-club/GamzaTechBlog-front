@@ -13,14 +13,13 @@ export default function BlogHeader() {
 
   if (hideHeader) return null;
   return (
-    <header className="fixed top-0 left-1/2 z-50 flex h-14 w-full max-w-[1100px] -translate-x-1/2 items-center justify-between bg-white">
+    <header className="fixed top-0 left-1/2 z-50 flex h-14 w-full max-w-[1100px] -translate-x-1/2 items-center justify-between bg-white px-6">
       <Link href="/" className="flex cursor-pointer items-center text-[18px]">
         <Image
           src={blogLogo}
           alt="감자 기술 블로그 로고"
           width={43}
           height={43}
-          className="opacity-55"
         />
         <span>
           <span className="font-bold">감자 </span>
