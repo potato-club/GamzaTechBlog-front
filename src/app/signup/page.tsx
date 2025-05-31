@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import mainLogo from "../../../public/logo2.png";
+import mainLogo from "../../../public/logo2.svg";
 import SignupInput from "../../components/SignupInput";
 import signupFields from "../../constants/signupFields";
 
@@ -37,12 +37,12 @@ export default function SignupPage() {
       <Image
         src={mainLogo}
         alt="메인페이지 로고"
-        width={250}
+        width={220}
         height={180}
         className="mx-auto"
       />
       <form
-        className="w-[380px] max-w-md flex flex-col mt-20"
+        className="w-[380px] max-w-md flex flex-col mt-15"
         onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
