@@ -17,6 +17,8 @@ export default function GithubLoginButton() {
         src="/githubLoginBtn.svg"
         alt="GitHub 로고"
         className="mr-2"
+        width={380}
+        height={56}
       />
     </button>
   );
