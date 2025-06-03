@@ -2,6 +2,7 @@
 
 import CommentList from "@/components/CommentList";
 import Image from 'next/image';
+import { Button } from "../../../components/ui/button";
 
 export default function PostPage() {
   const comments = [
@@ -114,12 +115,9 @@ export default function PostPage() {
           />
 
           <div className="flex justify-end">
-            <button
-              type="submit"
-              className="rounded-full bg-[#FAA631] px-4 py-1.5 text-sm text-white hover:bg-[#f89f20] transition hover:cursor-pointer"
-            >
+            <Button className="rounded-[63px] bg-[#20242B] px-3 py-1.5 text-white hover:bg-[#1C222E] hover:cursor-pointer text-[12px]">
               등록
-            </button>
+            </Button>
           </div>
         </form>
 
