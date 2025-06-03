@@ -1,7 +1,7 @@
 'use client';
 
+import CommentList from "@/components/CommentList";
 import Image from 'next/image';
-import CommentList from "../../../components/CommentList";
 
 export default function PostPage() {
   const comments = [
