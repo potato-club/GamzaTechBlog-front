@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button"; // shadcn Button import
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 export default function BlogHeader() {
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const pathname = usePathname();
   const hideHeaderPaths = ["/login", "/signup"];
   const hideHeader = hideHeaderPaths.some((path) => pathname.startsWith(path));
@@ -33,9 +37,36 @@ export default function BlogHeader() {
                 로그인
               </Button>
             </Link>
+            <Button>
+              <div className="relative"></div>
+              <Button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                메뉴
+              </Button>
+              {isDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-md bg-white shadow-lg border border-gray-200 z-50">
+                  <div className="py-1">
+                    <Link href="/mypage" className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">
+                      내 정보
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:cursor-pointer"
+                      onClick={() => {
+                        console.log("로그아웃");
+                      }}
+                    >
+                      로그아웃
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </Button>
           </>
         )}
       </div>
-    </header>
+    </header >
   );
 }
