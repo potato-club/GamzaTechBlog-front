@@ -45,15 +45,15 @@ export default function BlogHeader() {
                 메뉴
               </Button>
               {isDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-md bg-white shadow-lg border border-gray-200 z-50">
+                <div className="absolute right-0 top-full mt-2 w-36 rounded-md bg-white shadow-lg border border-gray-200 z-50">
                   <div className="py-1">
-                    <Link href="/mypage" className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">
+                    <Link href="/mypage" className="block w-full h-9 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">
                       내 정보
                     </Link>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:cursor-pointer"
+                      className="block w-full h-9 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:cursor-pointer"
                       onClick={() => {
                         console.log("로그아웃");
                       }}
