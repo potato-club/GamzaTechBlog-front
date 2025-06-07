@@ -5,6 +5,7 @@ import PostList from "@/components/mypage/PostList";
 import Sidebar from "@/components/mypage/Sidebar";
 import TabMenu from "@/components/mypage/TabMenu";
 import { useState } from "react";
+import LikeList from "../../components/mypage/LikeList";
 
 export default function MyPage() {
   const [tab, setTab] = useState("posts");
@@ -47,6 +48,27 @@ export default function MyPage() {
     },
   ];
 
+  const likes = [
+    {
+      id: 1,
+      title: "좋아요 누른 게시글 제목",
+      summary:
+        "와우 좋아요 누른 게시글 내용이에용용",
+      author: "GyeongHwan Lee",
+      date: "2025. 04. 28",
+      tags: ["# java", "# spring", "# backend"],
+    },
+    {
+      id: 2,
+      title: "Next.js로 무한스크롤 구현하기",
+      summary:
+        "Next.js에서 Intersection Observer API를 사용해 무한스크롤을 구현하는 방법을 정리합니다.",
+      author: "Jinwoo Park",
+      date: "2025. 04. 27",
+      tags: ["# nextjs", "# react", "# frontend"],
+    },
+  ];
+
   return (
     <main className="flex mt-20">
       <Sidebar />
@@ -54,9 +76,11 @@ export default function MyPage() {
         <TabMenu tab={tab} setTab={setTab} />
         {tab === "posts" ? (
           <PostList posts={posts} />
-        ) : (
+        ) : tab === "comments" ? (
           <CommentList comments={comments} />
-        )}
+        ) : tab === "likes" ? (
+          <LikeList likes={likes} />
+        ) : null}
       </section>
     </main>
   );
