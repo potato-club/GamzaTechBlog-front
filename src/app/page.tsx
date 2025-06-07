@@ -1,8 +1,7 @@
+import PostList from "@/components/mypage/PostList";
+import TagBadge from "@/components/TagBadge";
 import Image from "next/image";
 import Link from "next/link";
-import mainLogo from "../../public/logo2.svg";
-import PostList from "../components/mypage/PostList";
-import TagBadge from "../components/TagBadge";
 
 export default function Home() {
   const tags = [
@@ -42,7 +41,7 @@ export default function Home() {
       {/* 로고 */}
       <Link href="/">
         <Image
-          src={mainLogo}
+          src="/logo2.svg"
           alt="메인페이지 로고"
           width={320}
           height={230}
