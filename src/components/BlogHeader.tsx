@@ -37,8 +37,7 @@ export default function BlogHeader() {
                 로그인
               </Button>
             </Link>
-            <Button>
-              <div className="relative"></div>
+            <div className="relative">
               <Button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
@@ -63,10 +62,10 @@ export default function BlogHeader() {
                   </div>
                 </div>
               )}
-            </Button>
+            </div>
           </>
         )}
       </div>
-    </header >
+    </header>
   );
 }
