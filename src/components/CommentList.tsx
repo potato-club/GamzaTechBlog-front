@@ -7,7 +7,7 @@ export default function CommentList({ comments }: { comments: any[]; }) {
         <div key={comment.id} className="bg-[#FAFBFF] w-full rounded-xl px-6 py-5">
           <div className="relative">
             <Image
-              src="dot3.svg"
+              src="/dot3.svg"
               alt="더보기"
               width={18}
               height={4}
