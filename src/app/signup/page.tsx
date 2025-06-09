@@ -1,12 +1,11 @@
 "use client";
 
+import SignupInput from "@/components/SignupInput";
+import signupFields from "@/constants/signupFields";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import mainLogo from "../../../public/logo2.svg";
-import SignupInput from "../../components/SignupInput";
-import signupFields from "../../constants/signupFields";
 
 const schema = z.object({
   email: z.string().email("올바른 이메일을 입력해주세요").optional(),
@@ -35,7 +34,7 @@ export default function SignupPage() {
   return (
     <main className="flex flex-col items-center justify-centerbg-white">
       <Image
-        src={mainLogo}
+        src="/logo2.svg"
         alt="메인페이지 로고"
         width={220}
         height={180}
