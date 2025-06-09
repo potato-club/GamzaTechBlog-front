@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function GithubLoginButton() {
   const handleGithubLogin = () => {
-    window.location.href = "https://your-backend-domain.com/api/auth/github/login";
+    window.location.href = "http://gamzatech.site:8888/login/oauth2/code/github";
   };
 
   return (
