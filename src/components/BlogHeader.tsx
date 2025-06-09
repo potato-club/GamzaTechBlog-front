@@ -24,12 +24,12 @@ export default function BlogHeader() {
           width={43}
           height={43}
         />
-        <span>
+        <h1 className="ml-2">
           <span className="font-bold">감자 </span>
           <span className="font-light">Tech Blog</span>
-        </span>
+        </h1>
       </Link>
-      <div className="flex items-center gap-2">
+      <nav className="flex items-center gap-2">
         {!hideHeader && (
           <>
             <Link href="/login">
@@ -40,32 +40,47 @@ export default function BlogHeader() {
             <div className="relative">
               <Button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                aria-expanded={isDropdownOpen}
+                aria-haspopup="menu"
+                aria-label="사용자 메뉴"
               >
                 메뉴
               </Button>
               {isDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-36 rounded-md bg-white shadow-lg border border-gray-200 z-50">
-                  <div className="py-1">
-                    <Link href="/mypage" className="block w-full h-9 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100">
-                      내 정보
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="block w-full h-9 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:cursor-pointer"
-                      onClick={() => {
-                        console.log("로그아웃");
-                      }}
-                    >
-                      로그아웃
-                    </Button>
-                  </div>
-                </div>
+                <nav
+                  role="menu"
+                  className="absolute right-0 top-full mt-2 w-36 rounded-md bg-white shadow-lg border border-gray-200 z-50"
+                >
+                  <ul className="py-1" role="none">
+                    <li role="none">
+                      <Link
+                        href="/mypage"
+                        role="menuitem"
+                        className="block w-full h-9 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        내 정보
+                      </Link>
+                    </li>
+                    <li role="none">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        role="menuitem"
+                        className="block w-full h-9 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:cursor-pointer"
+                        onClick={() => {
+                          console.log("로그아웃");
+                        }}
+                      >
+                        로그아웃
+                      </Button>
+                    </li>
+                  </ul>
+                </nav>
               )}
             </div>
           </>
         )}
-      </div>
+      </nav>
     </header>
   );
 }
