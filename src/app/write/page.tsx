@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
-import tagDeleteBtn from "../../../public/tagDeleteBtn.svg";
 
 const ToastEditor = dynamic(() => import("@/components/ToastEditor"), {
   ssr: false,
@@ -54,9 +53,11 @@ export default function WritePage() {
           >
             <span>{tag}</span>
             <Image
-              src={tagDeleteBtn}
+              src="/tagDeleteBtn.svg"
               alt="태그 삭제 버튼"
               className="cursor-pointer hover:opacity-70"
+              width={10}
+              height={10}
             />
           </div>
         ))}

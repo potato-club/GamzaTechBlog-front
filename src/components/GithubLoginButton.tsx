@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import githubLoginImage from "../../public/githubLoginBtn.svg";
 
 export default function GithubLoginButton() {
   const handleGithubLogin = () => {
@@ -15,9 +14,11 @@ export default function GithubLoginButton() {
       className="hover:cursor-pointer"
     >
       <Image
-        src={githubLoginImage}
+        src="/githubLoginBtn.svg"
         alt="GitHub 로고"
         className="mr-2"
+        width={380}
+        height={56}
       />
     </button>
   );
