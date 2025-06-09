@@ -1,18 +1,39 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { TabType } from "@/types/mypage";
 
-export default function TabMenu({
-  tab,
-  setTab,
-}: {
-  tab: string;
-  setTab: (value: string) => void;
-}) {
+interface TabMenuProps {
+  tab: TabType;
+  onTabChange: (value: TabType) => void;
+}
+
+const TAB_LABELS = {
+  posts: "작성 글",
+  comments: "작성 댓글",
+  likes: "좋아요"
+} as const;
+
+export default function TabMenu({ tab, onTabChange }: TabMenuProps) {
+  const handleValueChange = (value: string) => {
+    onTabChange(value as TabType);
+  };
+
   return (
     <div className="w-full">
-      <Tabs value={tab} onValueChange={setTab} className="w-full">
+      <Tabs
+        value={tab}
+        onValueChange={handleValueChange}
+        className="w-full"
+      >
         <TabsList className="flex w-full border-b border-[#F2F4F6] bg-transparent p-0">
-          <TabsTrigger value="posts">작성 글</TabsTrigger>
-          <TabsTrigger value="comments">작성 댓글</TabsTrigger>
+          {Object.entries(TAB_LABELS).map(([value, label]) => (
+            <TabsTrigger
+              key={value}
+              value={value}
+              id={`${value}-tab`}
+            >
+              {label}
+            </TabsTrigger>
+          ))}
         </TabsList>
       </Tabs>
     </div>
