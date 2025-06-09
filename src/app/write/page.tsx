@@ -56,6 +56,8 @@ export default function WritePage() {
               src="/tagDeleteBtn.svg"
               alt="태그 삭제 버튼"
               className="cursor-pointer hover:opacity-70"
+              width={10}
+              height={10}
             />
           </div>
         ))}
