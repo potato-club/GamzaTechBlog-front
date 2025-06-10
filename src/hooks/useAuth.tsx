@@ -7,7 +7,12 @@ export function useAuth() {
 
   useEffect(() => {
     const checkAuthStatus = async () => {
+      console.log('Checking auth status...');
       try {
+        // const response = await fetch('https://gamzatech.site/api/v1/users/me/get/profile', {
+        //   credentials: 'include', // httpOnly 쿠키 포함
+        // });
+
         const response = await fetch('https://gamzatech.site/api/v1/users/me/get/profile', {
           credentials: 'include', // httpOnly 쿠키 포함
         });

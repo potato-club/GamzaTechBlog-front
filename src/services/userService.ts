@@ -1,7 +1,7 @@
 import { API_CONFIG } from '@/config/api';
 import type { ApiResponse } from '@/types/api';
 import type { AuthResponse } from '@/types/auth';
-import type { UserProfile, UserProfileData } from '@/types/user';
+import type { UserProfileData } from '@/types/user';
 
 // 커스텀 에러 클래스
 export class AuthError extends Error {
@@ -43,8 +43,20 @@ async function apiRequest<T>(
 }
 
 export const userService = {
-  async getProfile(): Promise<UserProfile> {
-    const response = await apiRequest<ApiResponse<UserProfile>>(
+  async loginWithGithub(): Promise<UserProfileData> {
+    const response = await apiRequest<ApiResponse<UserProfileData>>(
+      "/login/oauth2/code/github",
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  },
+  async getProfile(): Promise<UserProfileData> {
+    const response = await apiRequest<ApiResponse<UserProfileData>>(
       API_CONFIG.ENDPOINTS.USER.PROFILE
     );
     return response.data;
@@ -68,8 +80,8 @@ export const userService = {
     }
   },
 
-  async updateProfile(profileData: UserProfileData): Promise<UserProfile> {
-    const response = await apiRequest<ApiResponse<UserProfile>>(
+  async updateProfile(profileData: UserProfileData): Promise<UserProfileData> {
+    const response = await apiRequest<ApiResponse<UserProfileData>>(
       API_CONFIG.ENDPOINTS.USER.UPDATE_PROFILE,
       {
         method: 'PUT',
@@ -79,8 +91,8 @@ export const userService = {
     return response.data;
   },
 
-  async completeProfile(profileData: UserProfileData): Promise<UserProfile> {
-    const response = await apiRequest<ApiResponse<UserProfile>>(
+  async completeProfile(profileData: UserProfileData): Promise<UserProfileData> {
+    const response = await apiRequest<ApiResponse<UserProfileData>>(
       API_CONFIG.ENDPOINTS.USER.COMPLETE_PROFILE,
       {
         method: 'POST',

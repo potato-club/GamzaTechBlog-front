@@ -9,6 +9,8 @@ interface HeaderNavigationProps {
 
 export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ hideHeader }) => {
 
+  const loginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "";
+
   const { isLoggedIn, userProfile } = useAuth();
 
   return (
