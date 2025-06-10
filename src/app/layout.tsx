@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import BlogHeader from "../components/BlogHeader";
+import QueryProvider from "../providers/QueryProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -38,7 +39,9 @@ export default async function RootLayout({
             id="main-content"
             className="flex-1 mt-16"
           >
-            {children}
+            <QueryProvider>
+              {children}
+            </QueryProvider>
           </div>
 
           <footer className="mt-auto py-8 border-t border-gray-200 text-center text-sm text-gray-500">
