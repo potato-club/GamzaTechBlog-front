@@ -43,18 +43,6 @@ async function apiRequest<T>(
 }
 
 export const userService = {
-  async loginWithGithub(): Promise<UserProfileData> {
-    const response = await apiRequest<ApiResponse<UserProfileData>>(
-      "/login/oauth2/code/github",
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    return response.data;
-  },
   async getProfile(): Promise<UserProfileData> {
     const response = await apiRequest<ApiResponse<UserProfileData>>(
       API_CONFIG.ENDPOINTS.USER.PROFILE
