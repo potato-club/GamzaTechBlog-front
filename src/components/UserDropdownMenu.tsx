@@ -5,10 +5,14 @@ import Link from "next/link";
 import { useState } from "react";
 
 interface UserDropdownMenuProps {
+  userProfile: any; // 또는 구체적인 타입 정의
   className?: string;
 }
 
-export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({ className = "" }) => {
+export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
+  userProfile,
+  className = ""
+}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleLogout = () => {
@@ -23,8 +27,19 @@ export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({ className = 
         aria-expanded={isDropdownOpen}
         aria-haspopup="menu"
         aria-label="사용자 메뉴"
+        className="rounded-full p-2"
       >
-        메뉴
+        {userProfile?.profileImageUrl ? (
+          <img
+            src={userProfile.profileImageUrl}
+            alt={`${userProfile.nickname || '사용자'} 프로필`}
+            className="w-8 h-8 rounded-full"
+          />
+        ) : (
+          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+            {userProfile?.nickname?.[0] || 'U'}
+          </div>
+        )}
       </Button>
       {isDropdownOpen && (
         <nav
