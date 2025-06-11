@@ -28,13 +28,13 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ hideHeader }
   // }
 
   return (
-    <nav className="flex items-center gap-2">
+    <nav className="flex gap-2">
       {!hideHeader && (
         <>
           {isLoggedIn && userProfile ? (
             // 로그인된 상태: 프로필 이미지 표시
             // UserDropdownMenu에 logout 함수 전달
-            <UserDropdownMenu userProfile={userProfile} onLogout={logout} />
+            <UserDropdownMenu userProfile={userProfile} />
           ) : (
             // 로그인되지 않은 상태: 로그인 버튼 표시
             <Link href={githubLoginUrl} target="_self"> {/* legacyBehavior와 passHref 제거, target 속성 직접 전달 */}

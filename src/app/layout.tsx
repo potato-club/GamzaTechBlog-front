@@ -39,7 +39,7 @@ export default async function RootLayout({
 
             <div
               id="main-content"
-              className="flex-1 mt-16"
+              className="mt-16"
             >
               {children}
             </div>
