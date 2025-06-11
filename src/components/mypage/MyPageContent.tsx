@@ -1,16 +1,19 @@
 "use client";
 
 import CommentList from "@/components/CommentList";
-import { useMyPageData } from "@/hooks/useMyPageData";
 import { useMyPageTab } from "@/hooks/useMyPageTab";
+import { useMyPageData } from "../../hooks/useMyPageData";
 import LikeList from "./LikeList";
 import PostList from "./PostList";
 import Sidebar from "./Sidebar";
 import TabMenu from "./TabMenu";
 
-export default function MyPageContent() {
+export default async function MyPageContent() {
   const { currentTab, handleTabChange } = useMyPageTab();
   const { posts, comments, likes } = useMyPageData();
+  // const postResponse = await postService.getPosts();
+
+  // const posts = postResponse.content;
 
   const renderTabContent = () => {
     switch (currentTab) {
