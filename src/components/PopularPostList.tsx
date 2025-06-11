@@ -1,9 +1,9 @@
 import PopularPost from './PopularPost';
 
 interface Post {
-  id: number;
+  postId: number;
   title: string;
-  author: string;
+  writer: string;
 }
 
 interface PopularPostListProps {
@@ -15,7 +15,7 @@ export default function PopularPostList({ posts }: PopularPostListProps) {
     <section>
       <h3 className="text-[18px] text-[#838C9D]">인기 게시물</h3>
       {posts.map((post) => (
-        <PopularPost key={post.id} title={post.title} author={post.author} />
+        <PopularPost key={post.postId} title={post.title} author={post.writer} />
       ))}
     </section>
   );

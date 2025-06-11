@@ -1,7 +1,7 @@
 import TagBadge from './TagBadge';
 
 interface TagSectionProps {
-  tags: string[];
+  tags: any[];
 }
 
 export default function TagSection({ tags }: TagSectionProps) {
@@ -10,7 +10,7 @@ export default function TagSection({ tags }: TagSectionProps) {
       <h3 className="text-[18px] text-[#838C9D]">Tags</h3>
       <nav className="mt-7 flex flex-wrap gap-2 text-[14px]">
         {tags.map((tag, idx) => (
-          <TagBadge key={idx} tag={tag} variant="outline" />
+          <TagBadge key={idx} tag={tag.tagName} variant="outline" />
         ))}
       </nav>
     </section>
