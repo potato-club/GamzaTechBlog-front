@@ -1,10 +1,19 @@
 import Image from "next/image";
 
 export default function CommentList({ comments }: { comments: any[]; }) {
+
+  if (!comments || comments.length === 0) {
+    return (
+      <div className="mt-8 text-center text-gray-500">
+        <p>아직 작성된 댓글이 없어요. 첫 댓글을 남겨주세요!</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-8 flex flex-col gap-4">
       {comments.map((comment) => (
-        <div key={comment.id} className="bg-[#FAFBFF] w-full rounded-xl px-6 py-5">
+        <div key={comment.commentId} className="bg-[#FAFBFF] w-full rounded-xl px-6 py-5">
           <div className="relative">
             <Image
               src="/dot3.svg"
@@ -24,10 +33,10 @@ export default function CommentList({ comments }: { comments: any[]; }) {
                 className="w-full h-full object-cover"
               />
             </div>
-            <span className="text-[14px] font-medium text-[#1C222E]">{comment.author}</span>
+            <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer}</span>
           </div>
           <div className="mt-2 text-[14px] text-[#464C58]">
-            {comment.comment}
+            {comment.content}
           </div>
 
         </div>
