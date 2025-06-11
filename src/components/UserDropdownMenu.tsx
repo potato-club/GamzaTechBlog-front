@@ -6,17 +6,20 @@ import { useState } from "react";
 
 interface UserDropdownMenuProps {
   userProfile: any; // 또는 구체적인 타입 정의
+  logout: () => void; // 로그아웃 함수
   className?: string;
 }
 
 export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
   userProfile,
+  logout,
   className = ""
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     console.log("로그아웃");
+    logout();
     setIsDropdownOpen(false);
   };
 

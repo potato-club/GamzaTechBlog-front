@@ -25,6 +25,22 @@ export const userService = {
     // ⭐️ 3. 직접 fetchWithAuth를 호출합니다.
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, { next: nextOptions });
 
+    // console.log('!response! :', response); // 디버깅 로그
+
+    // const accessToken = getCookie('authorization'); // 쿠키에서 토큰을 가져옵니다.
+
+    // console.log('!!authorization:', accessToken); // 디버깅 로그
+
+    // const response = await fetch(API_CONFIG.BASE_URL + endpoint, {
+    //   headers: {
+    //     Authorization: `Bearer ${accessToken}`, // 쿠키에서 토큰을 가져옵니다.
+    //   },
+    //   credentials: 'include', // RT 자동 전송을 위해 계속 포함
+    // });
+
+    // console.log('!!!Response!!! :', response); // 디버깅 로그
+
+
     if (!response.ok) {
       throw new AuthError(response.status, 'Failed to get user profile', endpoint);
     }
@@ -34,7 +50,7 @@ export const userService = {
   },
 
   async logout(): Promise<void> {
-    const endpoint = '/api/v1/auth/logout';
+    const endpoint = '/api/auth/me/logout';
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST'
     });
@@ -91,7 +107,7 @@ export async function getCurrentUser(): Promise<UserProfileData | null> {
   try {
     // userService.getProfile이 내부적으로 fetchWithAuth를 사용하므로
     // 서버 환경에서도 인증 헤더가 자동으로 처리됩니다.
-    const userProfile = await userService.getProfile({ cache: 'no-store' });
+    const userProfile = await userService.getProfile({ revalidate: 0 });
     return userProfile;
   } catch (error) {
     if (error instanceof AuthError && error.status === 401) {

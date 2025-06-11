@@ -1,6 +1,7 @@
-import { userService } from '@/services/userService'; // userService 경로 확인 필요
+import { getCurrentUser, userService } from '@/services/userService'; // userService 경로 확인 필요
 import { AuthResponse } from "@/types/auth";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { UserProfileData } from "../types/user";
 
 // 쿼리 키를 상수로 정의하면 오타 방지 및 재사용에 용이
 const AUTH_QUERY_KEY = ['authStatus'];
@@ -21,15 +22,14 @@ export function useAuth(options?: UseAuthOptions) {
     refetch, // 수동으로 쿼리를 다시 실행하는 함수
   } = useQuery<AuthResponse, Error>({ // 첫 번째 제네릭: queryFn의 반환 타입, 두 번째 제네릭: 에러 타입
     queryKey: AUTH_QUERY_KEY,
-    queryFn: async () => {
-      console.log('Fetching auth status via React Query...'); // 디버깅 로그
-      // userService.checkAuthStatus()가 Promise<AuthResponse>를 반환해야 합니다.
-      // 이 함수 내부에서 API 호출 및 응답 처리가 이루어집니다.
-      // 예: const response = await fetch('/api/v1/users/me/get/profile', { credentials: 'include' });
-      //     if (response.ok) { const data = await response.json(); return { isAuthenticated: true, user: data.data }; }
-      //     else { return { isAuthenticated: false, user: null }; }
-      // userService.checkAuthStatus()가 위와 같은 로직을 포함하고 있다고 가정합니다.
-      return userService.checkAuthStatus();
+    queryFn: async (): Promise<AuthResponse> => {
+      console.log('Fetching auth status via React Query using getCurrentUser...'); // 디버깅 로그
+      const userProfile: UserProfileData | null = await getCurrentUser();
+      if (userProfile) {
+        return { isAuthenticated: true, user: userProfile };
+      } else {
+        return { isAuthenticated: false, user: null };
+      }
     },
     // staleTime, cacheTime 등은 QueryClientProvider에서 설정한 기본값을 따르거나,
     // 여기서 개별적으로 재정의할 수 있습니다.
@@ -52,7 +52,8 @@ export function useAuth(options?: UseAuthOptions) {
   // 로그아웃 처리 함수
   const logout = async () => {
     try {
-      await userService.logout(); // 실제 백엔드 로그아웃 API 호출
+      const response = await userService.logout(); // 실제 백엔드 로그아웃 API 호출
+      console.log('Logout response:', response);
       // 로그아웃 성공 시 인증 상태 캐시 업데이트
       queryClient.setQueryData(AUTH_QUERY_KEY, { isAuthenticated: false, user: null });
       console.log('Auth status cache updated after logout.');
