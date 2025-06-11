@@ -23,9 +23,9 @@ export default function PostCard({
           <h2 className={`text-xl font-bold truncate`}>
             {post.title}
           </h2>
-          <p className="text-[#B5BBC7] text-sm mt-3.5 truncate">{post.summary}</p>
+          <p className="text-[#B5BBC7] text-sm mt-3.5 truncate">{post.contentSnippet}</p>
         </Link>
-        <PostMeta author={post.author} date={post.date} tags={post.tags} />
+        <PostMeta author={post.writer} date={post.createdAt.split("T")[0]} tags={post.tags} />
       </div>
       <div className="relative w-44 h-32">
         {isMyPage && (
