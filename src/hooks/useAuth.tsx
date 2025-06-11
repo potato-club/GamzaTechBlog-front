@@ -56,6 +56,12 @@ export function useAuth(options?: UseAuthOptions) {
       console.log('Logout response:', response);
       // 로그아웃 성공 시 인증 상태 캐시 업데이트
       queryClient.setQueryData(AUTH_QUERY_KEY, { isAuthenticated: false, user: null });
+      // 쿠키에 저장된 인증 정보 삭제 (예: 쿠키 클리어)
+      // document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      // 또는 쿠키 라이브러리를 사용하여 삭제할 수 있습니다.
+      // destroyCookie(null, 'authToken');
+      // 캐시 업데이트 후 추가 작업 (예: UI 알림, 페이지 리다이렉트 등)
+
       console.log('Auth status cache updated after logout.');
       // 또는 특정 쿼리를 무효화하여 다시 가져오도록 할 수 있습니다.
       // queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
