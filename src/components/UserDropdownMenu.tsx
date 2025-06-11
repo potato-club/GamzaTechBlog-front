@@ -53,10 +53,7 @@ export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({ userProfile,
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <Link href="/profile">프로필</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link href="/settings">설정</Link>
+          <Link href="/mypage">마이페이지</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
