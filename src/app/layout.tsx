@@ -33,22 +33,23 @@ export default async function RootLayout({
         </Link>
 
         <div className="min-h-screen flex flex-col">
-          <BlogHeader />
+          <QueryProvider>
 
-          <div
-            id="main-content"
-            className="flex-1 mt-16"
-          >
-            <QueryProvider>
+            <BlogHeader />
+
+            <div
+              id="main-content"
+              className="flex-1 mt-16"
+            >
               {children}
-            </QueryProvider>
-          </div>
+            </div>
+          </QueryProvider>
 
           <footer className="mt-auto py-8 border-t border-gray-200 text-center text-sm text-gray-500">
             <p>&copy; Gamza Tech Blog. All rights reserved.</p>
           </footer>
         </div>
       </body>
-    </html>
+    </html >
   );
 }

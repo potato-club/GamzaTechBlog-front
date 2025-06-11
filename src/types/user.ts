@@ -1,8 +1,13 @@
 export interface UserProfileData {
-  email: string;
-  studentNumber: string;
-  gamzaBatch: number;
-  position: string;
+  githubId: string,
+  nickname: string,
+  name: string,
+  email: string,
+  profileImageUrl: string,
+  role: string,
+  gamjaBatch: number,
+  createdAt: string,
+  updatedAt: string;
 }
 
 // export interface UserProfile extends UserProfileData {
