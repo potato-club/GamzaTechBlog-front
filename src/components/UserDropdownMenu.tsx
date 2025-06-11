@@ -6,17 +6,20 @@ import { useState } from "react";
 
 interface UserDropdownMenuProps {
   userProfile: any; // 또는 구체적인 타입 정의
+  logout: () => void; // 로그아웃 함수
   className?: string;
 }
 
 export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
   userProfile,
+  logout,
   className = ""
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     console.log("로그아웃");
+    logout();
     setIsDropdownOpen(false);
   };
 
@@ -27,7 +30,8 @@ export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
         aria-expanded={isDropdownOpen}
         aria-haspopup="menu"
         aria-label="사용자 메뉴"
-        className="rounded-full p-2"
+        variant="ghost" // ghost variant 추가 또는 다른 투명 배경 variant
+        className="rounded-full p-0" // p-2 대신 p-0 또는 필요한 최소 패딩으로 변경 고려
       >
         {userProfile?.profileImageUrl ? (
           <img
