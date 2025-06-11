@@ -40,14 +40,20 @@ export default async function Home() {
 
   // 예시로 posts를 하드코딩했습니다. 실제로는 API 호출 등을 통해 데이터를 가져와야 합니다.
   // const tags = await postService.getTags(); // 태그 목록을 가져오는 서비스 
-  const postResponse = await postService.getPosts();
+  const postResponse = await postService.getPosts({
+    sort: [
+      "createdAt",
+    ]
+  });
   const tags = await postService.getTags();
+
+  console.log("postResponse", postResponse);
 
   const posts = postResponse.content;
   // const tags = tagResponse.;
 
 
-  // console.log("posts", posts);
+  console.log("posts", posts);
 
 
   return (

@@ -53,9 +53,15 @@ export const postService = {
     let url = API_CONFIG.BASE_URL + endpoint;
 
     const queryParams = new URLSearchParams();
+
+    const page = params?.page !== undefined ? params.page : 0;
+    const size = params?.size !== undefined ? params.size : 10;
+
+
+    queryParams.append('page', String(page));
+    queryParams.append('size', String(size));
+
     if (params) {
-      if (params.page !== undefined) queryParams.append('page', String(params.page));
-      if (params.size !== undefined) queryParams.append('size', String(params.size));
       if (params.sort && params.sort.length > 0) {
         params.sort.forEach(sortOption => queryParams.append('sort', sortOption));
       }
@@ -67,6 +73,8 @@ export const postService = {
     if (queryParams.toString()) {
       url += `?${queryParams.toString()}`;
     }
+
+    console.log("queryParams", queryParams.toString());
 
     try {
       const response = await fetch(url, {
@@ -84,6 +92,7 @@ export const postService = {
       }
 
       const apiResponse: ApiResponseWrapper<PageableContent<PostData>> = await response.json();
+      console.log("apiResponse", apiResponse);
       return apiResponse.data;
     } catch (error) {
       if (error instanceof PostServiceError) {
