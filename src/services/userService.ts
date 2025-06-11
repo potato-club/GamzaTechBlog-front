@@ -1,9 +1,9 @@
-import { API_CONFIG } from '@/config/api';
+import { fetchWithAuth } from '@/lib/api';
 import type { ApiResponse } from '@/types/api';
-import type { AuthResponse } from '@/types/auth';
 import type { UserProfileData } from '@/types/user';
+import { API_CONFIG } from "../config/api";
 
-// 커스텀 에러 클래스
+// --- 커스텀 에러 클래스 (기존과 동일) ---
 export class AuthError extends Error {
   constructor(public status: number, message: string, public endpoint?: string) {
     super(message);
@@ -11,113 +11,93 @@ export class AuthError extends Error {
   }
 }
 
-// 공통 API 요청 함수 (getProfile, logout 등에서 계속 사용)
-async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+// ⭐️ 2. 기존의 apiRequest 함수는 이제 필요 없으므로 삭제합니다.
 
-  const response = await fetch(url, {
-    ...API_CONFIG.REQUEST_CONFIG, // credentials: 'include' 등 기본 설정 포함 가정
-    headers: {
-      ...API_CONFIG.DEFAULT_HEADERS,
-      ...options.headers,
-    },
-    ...options,
-  });
-
-  if (response.status === 401) {
-    // AuthError를 throw하면 React Query의 useQuery에서 error로 잡힘
-    throw new AuthError(401, 'Authentication required', endpoint);
-  }
-
-  if (!response.ok) {
-    throw new AuthError(
-      response.status,
-      `API Error: ${response.status} - ${endpoint}`,
-      endpoint
-    );
-  }
-
-  return response.json();
-}
-
+// --- Next.js에 최적화된 새로운 userService 객체 ---
 export const userService = {
-  async getProfile(): Promise<UserProfileData> {
-    const response = await apiRequest<ApiResponse<UserProfileData>>(
-      API_CONFIG.ENDPOINTS.USER.PROFILE
-    );
-    return response.data;
+  /**
+   * 사용자 프로필 정보를 가져옵니다.
+   * @param nextOptions - Next.js fetch 캐싱 옵션
+   */
+  async getProfile(nextOptions?: NextFetchRequestConfig): Promise<UserProfileData> {
+    const endpoint = '/api/v1/users/me/get/profile'; // 엔드포인트 명시
+
+    // ⭐️ 3. 직접 fetchWithAuth를 호출합니다.
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, { next: nextOptions });
+
+    if (!response.ok) {
+      throw new AuthError(response.status, 'Failed to get user profile', endpoint);
+    }
+
+    const apiResponse: ApiResponse<UserProfileData> = await response.json();
+    return apiResponse.data;
   },
 
   async logout(): Promise<void> {
-    // 로그아웃은 성공/실패 여부만 중요하고, 실패 시 apiRequest가 에러를 throw 할 것임
-    await apiRequest(API_CONFIG.ENDPOINTS.AUTH.LOGOUT, {
+    const endpoint = '/api/v1/auth/logout';
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST'
     });
-  },
 
-  // 수정된 checkAuthStatus 함수
-  async checkAuthStatus(): Promise<AuthResponse> {
-    try {
-      // API_CONFIG.REQUEST_CONFIG에 credentials: 'include'가 있다고 가정
-      // 또는 여기서 명시적으로 추가:
-      // const requestOptions = {
-      //   ...API_CONFIG.REQUEST_CONFIG,
-      //   credentials: API_CONFIG.REQUEST_CONFIG.credentials || 'include',
-      // };
-      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.USER.PROFILE}`, API_CONFIG.REQUEST_CONFIG);
-
-      if (response.ok) { // 200-299 상태 코드 (성공)
-        const apiResponse: ApiResponse<UserProfileData> = await response.json();
-        return { isAuthenticated: true, user: apiResponse.data };
-      } else if (response.status === 401) { // 401 Unauthorized (인증되지 않음)
-        console.log('checkAuthStatus: User is not authenticated (401).');
-        return { isAuthenticated: false, user: null };
-      } else { // 그 외의 에러 상태 코드 (예: 403 Forbidden, 500 Internal Server Error 등)
-        // 이 경우, React Query의 useQuery는 error 상태가 되지 않고,
-        // { isAuthenticated: false, user: null } 데이터를 받게 됨.
-        // 만약 useQuery에서 error 상태로 만들고 싶다면 여기서 에러를 throw 해야 함.
-        // 하지만 현재 useAuth 훅은 AuthResponse를 기대하므로, 이대로 반환.
-        console.error(`checkAuthStatus: Auth check failed with status: ${response.status}`);
-        return { isAuthenticated: false, user: null };
-      }
-    } catch (error) {
-      // 네트워크 에러 (fetch 자체가 실패한 경우) 또는 JSON 파싱 에러 등
-      // 이 경우도 React Query의 useQuery는 error 상태가 되지 않고,
-      // { isAuthenticated: false, user: null } 데이터를 받게 됨.
-      // useQuery에서 error 상태로 만들고 싶다면 여기서 에러를 throw 해야 함.
-      console.error('Error in userService.checkAuthStatus (network or parsing error):', error);
-      return { isAuthenticated: false, user: null };
+    if (!response.ok) {
+      throw new AuthError(response.status, 'Failed to logout', endpoint);
     }
   },
 
-  async updateProfile(profileData: Partial<UserProfileData>): Promise<UserProfileData> { // Partial로 변경
-    const response = await apiRequest<ApiResponse<UserProfileData>>(
-      API_CONFIG.ENDPOINTS.USER.UPDATE_PROFILE,
-      {
-        method: 'PUT',
-        body: JSON.stringify(profileData),
-      }
-    );
-    return response.data;
+  async updateProfile(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
+    const endpoint = '/api/v1/users/me/update/profile';
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      throw new AuthError(response.status, 'Failed to update profile', endpoint);
+    }
+
+    const apiResponse: ApiResponse<UserProfileData> = await response.json();
+    return apiResponse.data;
   },
 
   async completeProfile(profileData: UserProfileData): Promise<UserProfileData> {
-    const response = await apiRequest<ApiResponse<UserProfileData>>(
-      API_CONFIG.ENDPOINTS.USER.COMPLETE_PROFILE,
-      {
-        method: 'POST',
-        body: JSON.stringify(profileData),
-      }
-    );
-    return response.data;
+    const endpoint = '/api/v1/users/me/complete/profile';
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: 'POST',
+      body: JSON.stringify(profileData),
+    });
+    if (!response.ok) {
+      throw new AuthError(response.status, 'Failed to complete profile', endpoint);
+    }
+    const apiResponse: ApiResponse<UserProfileData> = await response.json();
+    return apiResponse.data;
   },
 
   async withdrawAccount(): Promise<void> {
-    await apiRequest(API_CONFIG.ENDPOINTS.USER.WITHDRAW, {
+    const endpoint = '/api/v1/users/me/withdraw';
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'DELETE'
     });
+    if (!response.ok) {
+      throw new AuthError(response.status, 'Failed to withdraw account', endpoint);
+    }
   },
 } as const;
+
+
+/**
+ * [추천] 서버 컴포넌트/액션 등에서 사용할 현재 사용자 정보 조회 함수입니다.
+ */
+export async function getCurrentUser(): Promise<UserProfileData | null> {
+  try {
+    // userService.getProfile이 내부적으로 fetchWithAuth를 사용하므로
+    // 서버 환경에서도 인증 헤더가 자동으로 처리됩니다.
+    const userProfile = await userService.getProfile({ cache: 'no-store' });
+    return userProfile;
+  } catch (error) {
+    if (error instanceof AuthError && error.status === 401) {
+      return null;
+    }
+    console.error('Failed to get current user:', error);
+    return null;
+  }
+}
