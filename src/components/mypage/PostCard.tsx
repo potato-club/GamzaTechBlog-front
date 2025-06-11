@@ -19,7 +19,7 @@ export default function PostCard({
     >
       {/* 썸네일 자리 */}
       <div className="flex-1 h-[140px]">
-        <Link href={`/posts/${post.id}`}>
+        <Link href={`/posts/${post.postId}`}>
           <h2 className={`text-xl font-bold truncate`}>
             {post.title}
           </h2>

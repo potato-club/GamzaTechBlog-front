@@ -2,37 +2,114 @@
 
 import CommentList from "@/components/CommentList";
 import Image from 'next/image';
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "../../../components/ui/button";
+import { commentService } from "../../../services/commentService";
+import { postService } from "../../../services/postService";
+import { PostDetailData } from "../../../types/comment";
+
+interface UiComment {
+  commentId: number;
+  writer: string;
+  content: string;
+  createdAt: string;
+  replies: string[];
+}
 
 export default function PostPage() {
-  const comments = [
-    {
-      id: 1,
-      comment:
-        "첫 댓글 달아봤습니다 하하.",
-      author: "GyeongHwan Lee",
-      date: "2025. 04. 28",
-    },
-    {
-      id: 2,
-      comment:
-        "좋은 글 감사합니다! Next.js에 대해 더 배우고 싶어요.",
-      author: "Jinwoo Park",
-      date: "2025. 04. 27",
-    },
-  ];
+  const params = useParams(); // URL 파라미터 가져오기
+  const postId = params.id ? Number(params.id) : null;
+
+  const [post, setPost] = useState<PostDetailData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [displayComments, setDisplayComments] = useState<UiComment[]>([]);
+
+
+  useEffect(() => {
+    if (postId) {
+      const fetchPost = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const postData = await postService.getPostById(postId);
+          setPost(postData);
+          // API에서 가져온 댓글을 UI용 댓글 형식으로 변환
+          const fetchedCommentsForUi: UiComment[] = postData.comments.map(comment => ({
+            commentId: comment.commentId,
+            writer: comment.writer,
+            content: comment.content,
+            createdAt: new Date(comment.createdAt).toLocaleDateString(), // 날짜 형식 변환
+            replies: comment.replies,
+          }));
+          setDisplayComments(fetchedCommentsForUi);
+        } catch (err) {
+          console.error("Failed to fetch post:", err);
+          setError(err instanceof Error ? err.message : "게시물을 불러오는데 실패했습니다.");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchPost();
+    } else {
+      setError("유효한 게시물 ID가 없습니다.");
+      setIsLoading(false);
+    }
+  }, [postId]);
+
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // Handle form submission logic here
+    const form = event.currentTarget;
+    const commentInput = form.querySelector<HTMLInputElement>("#comment-input");
+    if (!commentInput || !commentInput.value.trim()) {
+      alert("댓글 내용을 입력해주세요.");
+      return;
+    }
+    const newComment = {
+      content: commentInput.value.trim(),
+      parentCommentId: null, // 부모 댓글 ID가 없으므로 null로 설정
+    };
+
+    // 여기에 댓글 작성 API 호출 로직을 추가할 수 있습니다.
+    if (postId === null) {
+      alert("유효한 게시물 ID가 없습니다.");
+      return;
+    }
+
+    console.log("new comment", newComment);
+
+    commentService.registerComment(postId, newComment)
+      .then((comment) => {
+        // 댓글 작성 성공 시 UI에 추가
+        const newUiComment = {
+          commentId: comment.commentId,
+          writer: comment.writer,
+          content: comment.content,
+          createdAt: comment.createdAt.split("T")[0],
+          replies: comment.replies,
+        };
+        setDisplayComments((prevComments) => [...prevComments, newUiComment]);
+        commentInput.value = ""; // 입력 필드 초기화
+      })
+      .catch((err) => {
+        console.error("댓글 작성 실패:", err);
+        alert("댓글 작성에 실패했습니다. 다시 시도해주세요.");
+      });
+
+
   };
 
+  // 이곳에 댓글 작성 로직을 추가할 수 있습니다.
   return (
     <main className="mx-16 my-16">
       <article className="border-b border-[#D5D9E3] py-8">
         <header>
           <h1 className="text-[32px] font-extrabold text-[#1C222E]">
-            제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다
+            {post?.title}
           </h1>
 
           <div className="flex h-12 items-center gap-4 text-[14px]">
@@ -45,60 +122,33 @@ export default function PostPage() {
                 className="rounded-full"
               />
               <span className="ml-2 font-medium text-[#798191]">
-                GyeongHwan Lee
+                {post?.writer}
               </span>
             </div>
             <time dateTime="2025-04-28" className="text-[#B5BBC7]">
-              2025. 04. 28
+              {post?.createdAt.split("T")[0]}
             </time>
           </div>
 
           <ul className="flex gap-2 text-[14px]" role="list">
             <li className="rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]">
-              # java
+              {post?.tags.map((tag, index) => (
+                <span key={index} className="mr-1">
+                  # {tag}
+                  {index < post.tags.length - 1 && ", "}
+                </span>
+              ))}
             </li>
           </ul>
         </header>
 
         <div className="my-6 text-[17px] text-[#474F5D] leading-relaxed">
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Minima aperiam
-          animi libero quae sint nobis molestiae suscipit perferendis facere quia!
-          Vel obcaecati culpa ex libero tempore consequuntur sapiente incidunt
-          sint! Lorem ipsum dolor, sit amet consectetur adipisicing elit. Minima
-          aperiam animi libero quae sint nobis molestiae suscipit perferendis
-          facere quia! Vel obcaecati culpa ex libero tempore consequuntur sapiente
-          incidunt sint!Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-          Minima aperiam animi libero quae sint nobis molestiae suscipit
-          perferendis facere quia! Vel obcaecati culpa ex libero tempore
-          consequuntur sapiente incidunt sint! Lorem ipsum dolor, sit amet
-          consectetur adipisicing elit. Minima aperiam animi libero quae sint
-          nobis molestiae suscipit perferendis facere quia! Vel obcaecati culpa ex
-          libero tempore consequuntur sapiente incidunt sint! Lorem ipsum dolor,
-          sit amet consectetur adipisicing elit. Minima aperiam animi libero quae
-          sint nobis molestiae suscipit perferendis facere quia! Vel obcaecati
-          culpa ex libero tempore consequuntur sapiente incidunt sint! Lorem ipsum
-          dolor, sit amet consectetur adipisicing elit. Minima aperiam animi
-          libero quae sint nobis molestiae suscipit perferendis facere quia! Vel
-          obcaecati culpa ex libero tempore consequuntur sapiente incidunt sint!
-
-          <br />
-          <br />
-
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio, voluptatum. Quis, officiis autem ab quaerat accusantium reiciendis magni modi aut aliquam corporis est ea similique iusto enim voluptas fuga architecto?
-
-          <br />
-          <br />
-
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio, voluptatum. Quis, officiis autem ab quaerat accusantium reiciendis magni modi aut aliquam corporis est ea similique iusto enim voluptas fuga architecto?
-          <br />
-          <br />
-
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio, voluptatum. Quis, officiis autem ab quaerat accusantium reiciendis magni modi aut aliquam corporis est ea similique iusto enim voluptas fuga architecto?
+          {post?.content}
         </div>
       </article>
 
       <section className="mt-40 text-[#353841] text-[17px]" aria-label="댓글 섹션">
-        <h2 className="mt-7 text-lg font-semibold">댓글 1개</h2>
+        <h2 className="mt-7 text-lg font-semibold">댓글 {post?.comments.length}개</h2>
 
         {/* 댓글 작성 */}
         <form className="mt-4 flex flex-col gap-3" onSubmit={handleSubmit} aria-label="댓글 작성">
@@ -133,7 +183,7 @@ export default function PostPage() {
           </div>
         </form>
 
-        <CommentList comments={comments} />
+        <CommentList comments={displayComments} />
       </section>
     </main>
   );
