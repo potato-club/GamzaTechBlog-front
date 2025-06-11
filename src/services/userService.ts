@@ -11,9 +11,6 @@ export class AuthError extends Error {
   }
 }
 
-// ⭐️ 2. 기존의 apiRequest 함수는 이제 필요 없으므로 삭제합니다.
-
-// --- Next.js에 최적화된 새로운 userService 객체 ---
 export const userService = {
   /**
    * 사용자 프로필 정보를 가져옵니다.
@@ -24,22 +21,6 @@ export const userService = {
 
     // ⭐️ 3. 직접 fetchWithAuth를 호출합니다.
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, { next: nextOptions });
-
-    // console.log('!response! :', response); // 디버깅 로그
-
-    // const accessToken = getCookie('authorization'); // 쿠키에서 토큰을 가져옵니다.
-
-    // console.log('!!authorization:', accessToken); // 디버깅 로그
-
-    // const response = await fetch(API_CONFIG.BASE_URL + endpoint, {
-    //   headers: {
-    //     Authorization: `Bearer ${accessToken}`, // 쿠키에서 토큰을 가져옵니다.
-    //   },
-    //   credentials: 'include', // RT 자동 전송을 위해 계속 포함
-    // });
-
-    // console.log('!!!Response!!! :', response); // 디버깅 로그
-
 
     if (!response.ok) {
       throw new AuthError(response.status, 'Failed to get user profile', endpoint);

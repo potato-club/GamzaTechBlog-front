@@ -22,7 +22,7 @@ export default function PostMeta({
             key={idx}
             className="bg-[#F2F4F6] rounded-2xl px-3 py-1.5 text-[#848484]"
           >
-            {tag}
+            # {tag}
           </span>
         ))}
       </div>
