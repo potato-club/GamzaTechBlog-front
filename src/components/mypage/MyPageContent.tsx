@@ -8,7 +8,7 @@ import PostList from "./PostList";
 import Sidebar from "./Sidebar";
 import TabMenu from "./TabMenu";
 
-export default async function MyPageContent() {
+export default function MyPageContent() {
   const { currentTab, handleTabChange } = useMyPageTab();
   const { posts, comments, likes } = useMyPageData();
   // const postResponse = await postService.getPosts();

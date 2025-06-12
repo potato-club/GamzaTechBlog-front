@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react"; // useRef 추가
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 
 interface UserDropdownMenuProps {
   userProfile: any; // 또는 구체적인 타입 정의
@@ -16,6 +17,8 @@ export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
   logout,
   className = ""
 }) => {
+  const router = useRouter();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null); // 마우스 이탈 시 딜레이를 위한 ref
 
@@ -23,6 +26,8 @@ export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
     console.log("로그아웃");
     logout();
     setIsDropdownOpen(false);
+    // 로그아웃 후 메인 페이지로 강제 리디렉션
+    router.push("/");
   };
 
   const handleMouseEnter = () => {
