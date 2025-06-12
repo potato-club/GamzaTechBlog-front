@@ -1,6 +1,6 @@
+import { postService } from "@/services/postService";
 import Image from "next/image";
 import Link from "next/link";
-import { postService } from "../services/postService";
 import PostList from "./mypage/PostList";
 import Sidebar from "./Sidebar";
 
