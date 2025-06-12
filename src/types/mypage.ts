@@ -1,19 +1,20 @@
 export type TabType = "posts" | "comments" | "likes";
 
 export interface Post {
-  id: number;
+  postId: number;
   title: string;
-  summary: string;
-  author: string;
-  date: string;
+  contentSnippet: string;
+  writer: string;
+  createdAt: string;
   tags: string[];
 }
 
 export interface Comment {
-  id: number;
-  comment: string;
-  author: string;
-  date: string;
+  commentId: number;
+  writer: string;
+  content: string;
+  createdAt: string;
+  replies?: string[]; // 댓글에 대한 답글이 있을 수 있음
 }
 
 export interface Like {
@@ -21,7 +22,7 @@ export interface Like {
   title: string;
   summary: string;
   author: string;
-  date: string;
+  createdAt: string;
   tags: string[];
 }
 

@@ -18,7 +18,7 @@ export default function PostCard({
       className={`flex items-center gap-6 py-6 bg-white rounded-lg`}
     >
       {/* 썸네일 자리 */}
-      <div className="flex-1 h-[140px]">
+      <div className="flex-1 w-[500px] h-[140px]">
         <Link href={`/posts/${post.postId}`}>
           <h2 className={`text-xl font-bold truncate`}>
             {post.title}
