@@ -2,7 +2,7 @@ import PopularPostList from './PopularPostList';
 import TagSection from "./TagSection";
 
 
-export default function Sidebar({ posts, tags }: { posts: any[]; tags: any[]; }) {
+export default function MainPageSidebar({ posts, tags }: { posts: any[]; tags: any[]; }) {
   return (
     <aside className="flex-1 ml-10 border-l border-[#D5D9E3] pl-10">
       <PopularPostList posts={posts} />

@@ -21,7 +21,7 @@ interface SidebarProps {
   onProfileUpdate: (updatedProfile: Partial<UserProfileData>) => void; // 프로필 업데이트 콜백
 }
 
-export default function Sidebar({ userProfile, onProfileUpdate }: SidebarProps) {
+export default function MyPageSidebar({ userProfile, onProfileUpdate }: SidebarProps) {
   // 통계 데이터는 props로 받거나 API 호출을 통해 동적으로 가져오는 것이 좋습니다.
   const stats = [
     { icon: "/postIcon.svg", alt: "작성 글 아이콘", label: "작성 글", count: userProfile.postsCount || 0 },
