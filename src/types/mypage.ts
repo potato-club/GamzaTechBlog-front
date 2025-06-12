@@ -20,8 +20,8 @@ export interface Comment {
 export interface Like {
   id: number;
   title: string;
-  summary: string;
-  author: string;
+  contentSnippet: string;
+  writer: string;
   createdAt: string;
   tags: string[];
 }
