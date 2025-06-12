@@ -56,7 +56,7 @@ export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
         <img
           src={userProfile.profileImageUrl}
           alt={`${userProfile.nickname || '사용자'} 프로필`}
-          className="w-8 h-8 rounded-full"
+          className="w-8 h-8 rounded-full hover:cursor-pointer"
         />
       ) : (
         <Image
@@ -64,7 +64,7 @@ export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
           alt={`${userProfile?.nickname || '사용자'} 프로필`}
           width={32}
           height={32}
-          className="w-8 h-8 rounded-full" />
+          className="w-8 h-8 rounded-full hover:cursor-pointer" />
       )}
       {isDropdownOpen && (
         <nav
