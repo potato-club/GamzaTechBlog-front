@@ -1,6 +1,6 @@
+import BlogHeader from "@/components/header/BlogHeader";
 import type { Metadata } from "next";
 import Link from "next/link";
-import BlogHeader from "../components/BlogHeader";
 import QueryProvider from "../providers/QueryProvider";
 import "./globals.css";
 
@@ -38,7 +38,7 @@ export default async function RootLayout({
           <div className="min-h-screen flex flex-col">
             <QueryProvider>
               <BlogHeader />
-              <div // div 대신 main 시맨틱 태그 사용 권장
+              <div
                 id="main-content"
                 className="mt-16 flex-grow" // flex-grow 추가하여 푸터가 항상 하단에 위치하도록 도움
               >
@@ -46,7 +46,7 @@ export default async function RootLayout({
               </div>
             </QueryProvider>
 
-            <footer className="mt-auto py-8 border-t border-gray-200 text-center text-sm text-gray-500">
+            <footer className="py-8 border-t border-gray-200 text-center text-sm text-gray-500">
               <p>&copy; Gamza Tech Blog. All rights reserved.</p>
             </footer>
           </div>

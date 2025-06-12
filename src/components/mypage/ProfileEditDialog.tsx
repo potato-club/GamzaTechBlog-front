@@ -74,7 +74,7 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="mt-2 w-full max-w-[120px] rounded-lg text-sm"
+          className="mt-2 w-full max-w-[120px] rounded-lg text-sm hover:cursor-pointer"
         >
           프로필 수정
         </Button>
@@ -117,7 +117,7 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
           {/* 이름 */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name-modal" className="text-right col-span-1">
-              이름
+              닉네임
             </Label>
             <Input
               id="name-modal"
@@ -150,7 +150,7 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
               value={generation}
               onChange={(e) => setGeneration(e.target.value)}
               className="col-span-3"
-              placeholder="예: 9기"
+              placeholder="숫자만 입력하세요"
             />
           </div>
         </div>
