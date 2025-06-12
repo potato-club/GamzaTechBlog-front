@@ -65,7 +65,7 @@ export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
             href="/mypage"
             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-sm" // h-9는 py-2와 text-sm으로 유사하게 구현
           >
-            내 정보
+            마이페이지
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem

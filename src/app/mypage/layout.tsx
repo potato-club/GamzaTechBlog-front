@@ -2,48 +2,61 @@
 
 import MyPageSidebar from "@/components/mypage/MyPageSidebar";
 import MyPageSkeleton from "@/components/skeletons/MyPageSkeleton";
-import React, { Suspense } from 'react';
+import { useAuth } from "@/hooks/useAuth"; // ⭐️ useAuth 훅 가져오기
+import type { UserProfileData } from "@/types/user"; // ⭐️ 공통 UserProfileData 타입 가져오기
+import { useRouter } from "next/navigation"; // ⭐️ 라우터 추가 (로그인 안된 경우 리디렉션 등)
+import React, { Suspense, useEffect } from 'react'; // useEffect 추가 (선택적)
 
 interface MyPageLayoutProps {
   children: React.ReactNode;
 }
 
-interface UserProfileData {
-  profileImageUrl?: string;
-  nickname: string;
-  job?: string;
-  generation?: string;
-  postsCount?: number;
-  commentsCount?: number;
-  likesCount?: number;
-}
-
-// 임시 정적 사용자 프로필 데이터
-const tempUserProfile: UserProfileData = {
-  profileImageUrl: "", // 임시 이미지 URL
-  nickname: "임시 사용자",
-  job: "임시 직군",
-  generation: "X기",
-  postsCount: 10,
-  commentsCount: 5,
-  likesCount: 20,
-};
-
-// 임시 프로필 업데이트 핸들러
-const handleTempProfileUpdate = (updatedProfile: Partial<UserProfileData>) => {
-  // console.log("임시 프로필 업데이트 요청:", updatedProfile);
-  // 실제로는 여기서 API를 호출하고 상태를 업데이트해야 합니다.
-  // 예: setUserProfile(prev => ({ ...prev, ...updatedProfile }));
-  // alert(`프로필 업데이트: ${JSON.stringify(updatedProfile)} (실제 API 호출 필요)`);
-};
-
-
 export default function MyPageLayout({ children }: MyPageLayoutProps) {
+  const router = useRouter();
+  const { userProfile, isLoggedIn, isLoading, refetchAuthStatus } = useAuth();
+
+  console.log("userProfile", userProfile);
+
+  // 프로필 업데이트 핸들러 (실제 API 연동 필요)
+  const handleProfileUpdate = async (updatedData: Partial<UserProfileData>) => {
+    if (!userProfile) return; // 사용자 프로필이 없으면 중단
+
+    console.log("프로필 업데이트 시도:", updatedData);
+    try {
+      // 예시: await userService.updateProfile(updatedData); // 실제 API 호출
+      // API 호출 성공 후
+      await refetchAuthStatus(); // 사용자 정보를 다시 가져와 UI를 갱신합니다.
+      alert("프로필이 업데이트되었습니다."); // 실제 서비스에서는 토스트 메시지 등을 사용하는 것이 좋습니다.
+    } catch (error) {
+      console.error("프로필 업데이트 실패:", error);
+      alert("프로필 업데이트에 실패했습니다.");
+    }
+  };
+
+  // 로딩 중일 때 스켈레톤 UI 표시
+  if (isLoading) {
+    return <MyPageSkeleton />;
+  }
+
+  // 로그인되지 않았거나 프로필 정보가 없는 경우 처리
+  if (!isLoggedIn || !userProfile) {
+    // useEffect를 사용하여 클라이언트 사이드에서만 리디렉션 실행
+    useEffect(() => {
+      router.push("/login"); // 또는 접근 제한 페이지로 안내
+    }, [router]);
+    // 리디렉션 전까지 보여줄 간단한 메시지 또는 스켈레톤
+    return (
+      <div className="flex mt-10 justify-center items-center" style={{ minHeight: 'calc(100vh - 100px)' }}>
+        <p className="text-xl">마이페이지에 접근하려면 로그인이 필요합니다. 로그인 페이지로 이동합니다...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex mt-10">
       {/* Consider adding a MyPage specific header or navigation here */}
       <Suspense fallback={<MyPageSkeleton />}>
-        <MyPageSidebar userProfile={tempUserProfile} onProfileUpdate={handleTempProfileUpdate} />
+        <MyPageSidebar userProfile={userProfile} onProfileUpdate={handleProfileUpdate} />
         <main className="flex-1">
           {children}
         </main>
