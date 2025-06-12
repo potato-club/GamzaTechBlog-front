@@ -20,7 +20,7 @@ export const userService = {
     const endpoint = '/api/v1/users/me/get/profile'; // 엔드포인트 명시
 
     // ⭐️ 3. 직접 fetchWithAuth를 호출합니다.
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, { next: nextOptions });
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, { next: nextOptions }) as Response;
 
     if (!response.ok) {
       throw new AuthError(response.status, 'Failed to get user profile', endpoint);
@@ -34,7 +34,7 @@ export const userService = {
     const endpoint = '/api/auth/me/logout';
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST'
-    });
+    }) as Response;
 
     if (!response.ok) {
       throw new AuthError(response.status, 'Failed to logout', endpoint);
@@ -46,7 +46,7 @@ export const userService = {
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'PUT',
       body: JSON.stringify(profileData),
-    });
+    }) as Response;
 
     if (!response.ok) {
       throw new AuthError(response.status, 'Failed to update profile', endpoint);
@@ -61,7 +61,8 @@ export const userService = {
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST',
       body: JSON.stringify(profileData),
-    });
+    }) as Response;
+
     if (!response.ok) {
       throw new AuthError(response.status, 'Failed to complete profile', endpoint);
     }
@@ -73,7 +74,8 @@ export const userService = {
     const endpoint = '/api/v1/users/me/withdraw';
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'DELETE'
-    });
+    }) as Response;
+
     if (!response.ok) {
       throw new AuthError(response.status, 'Failed to withdraw account', endpoint);
     }
