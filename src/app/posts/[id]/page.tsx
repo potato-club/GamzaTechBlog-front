@@ -12,9 +12,9 @@ interface PostPageProps {
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  const postId = params.id ? Number(params.id) : null;
+  const postId = parseInt(params.id, 10);
 
-  if (!postId) {
+  if (isNaN(postId) || postId <= 0) { // 예: ID가 양수여야 하는 경우.
     notFound();
   }
 
