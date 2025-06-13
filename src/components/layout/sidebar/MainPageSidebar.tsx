@@ -1,4 +1,4 @@
-import PopularPostList from '../../PopularPostList';
+import PopularPostList from '../../features/posts/PopularPostList';
 import TagSection from "../../TagSection";
 
 

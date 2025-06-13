@@ -7,7 +7,7 @@ import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default async function MainPageContent() {
-  // await delay(2000); // 2000ms = 2초
+  await delay(2000); // 2000ms = 2초
 
   const postResponse = await postService.getPosts({
     sort: [

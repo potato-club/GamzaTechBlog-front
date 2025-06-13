@@ -10,6 +10,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { cn } from "../../../lib/utils";
 
 interface UserDropdownMenuProps {
   userProfile: any; // 또는 구체적인 타입 정의
@@ -58,19 +59,26 @@ export const UserDropdownMenu: React.FC<UserDropdownMenuProps> = ({
       <DropdownMenuContent
         align="end"
         sideOffset={8} // mt-2와 유사한 간격 (2 * 4px = 8px)
-        className="w-36 rounded-md bg-white shadow-lg border border-gray-200 z-50 p-1" // shadcn 기본 패딩(p-1) 적용 또는 필요시 제거
+        className={cn(
+          "w-36", // 특정 너비 유지
+          "shadow-lg" // 기본 shadow-md보다 강한 그림자를 원하면 유지
+          // bg-white, border-gray-200 등은 shadcn의 bg-popover, border로 대체 가능
+          // p-1, rounded-md, z-50 등은 shadcn 기본값으로 이미 적용됨
+        )}
       >
-        <DropdownMenuItem asChild className="cursor-pointer p-0">
+        {/* Link 아이템: DropdownMenuItem의 기본 패딩(p-0) 및 포커스 링 제거, Link에서 직접 스타일링 */}
+        <DropdownMenuItem asChild className="p-0 focus-visible:ring-0 focus-visible:ring-offset-0">
           <Link
             href="/mypage"
-            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-sm" // h-9는 py-2와 text-sm으로 유사하게 구현
+            className="block w-full cursor-pointer rounded-sm px-4 py-2 text-sm text-gray-700 outline-none hover:bg-gray-100 focus:bg-gray-100 focus:text-gray-700"
+
           >
             마이페이지
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={handleLogout}
-          className="w-full cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-700 rounded-sm"
+          className="w-full cursor-pointer rounded-sm px-4 py-2 text-sm text-gray-700 outline-none hover:bg-gray-100 focus:bg-gray-100 focus:text-gray-700"
         >
           로그아웃
         </DropdownMenuItem>

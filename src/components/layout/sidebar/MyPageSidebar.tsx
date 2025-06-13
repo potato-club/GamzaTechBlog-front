@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import ProfileEditDialog from "../../ProfileEditDialog"; // 분리된 Dialog 컴포넌트 import
+import ProfileEditDialog from "../../features/user/ProfileEditDialog"; // 분리된 Dialog 컴포넌트 import
 
 // UserProfileData 타입 정의 (실제 프로젝트에 맞게 수정 또는 공유 타입 사용)
 interface UserProfileData {
