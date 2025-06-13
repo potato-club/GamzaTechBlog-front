@@ -1,21 +1,8 @@
+import { CommentData } from "./comment";
+import { PostData } from "./post";
+
 export type TabType = "posts" | "comments" | "likes";
 
-export interface Post {
-  postId: number;
-  title: string;
-  contentSnippet: string;
-  writer: string;
-  createdAt: string;
-  tags: string[];
-}
-
-export interface Comment {
-  commentId: number;
-  writer: string;
-  content: string;
-  createdAt: string;
-  replies?: string[]; // 댓글에 대한 답글이 있을 수 있음
-}
 
 export interface Like {
   id: number;
@@ -27,8 +14,8 @@ export interface Like {
 }
 
 export interface MyPageData {
-  posts: Post[];
-  comments: Comment[];
+  posts: PostData[];
+  comments: CommentData[];
   likes: Like[];
 }
 

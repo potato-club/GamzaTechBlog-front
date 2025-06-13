@@ -1,15 +1,11 @@
+import { CommentData } from "@/types/comment";
 import Image from "next/image";
 
 interface CommentCardProps {
-  comment: {
-    commentId: string;
-    writer: string;
-    content: string;
-    // 필요한 경우 여기에 더 많은 comment 속성을 추가하세요.
-  };
+  comment: CommentData;
 }
 
-export default function CommentCard({ comment }: CommentCardProps) {
+export default function CommentCard({ comment }: CommentCardProps) { // 3. Props를 구조 분해 할당으로 받도록 수정
   return (
     <div key={comment.commentId} className="bg-[#FAFBFF] w-full rounded-xl px-6 py-5">
       <div className="relative">
