@@ -79,6 +79,10 @@ export const postService = {
 
     try {
       const response = await fetch(url, {
+        next: {
+          revalidate: 600, // 600초마다 캐시를 갱신
+          tags: ['posts'], // 캐시 무효화 태그
+        },
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -13,7 +13,7 @@ export const commentService = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(content),
-    });
+    }) as Response;
 
     if (!response.ok) {
       throw new Error('Failed to register comment');

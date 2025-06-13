@@ -1,6 +1,6 @@
 "use client";
 
-import SignupInput from "@/components/SignupInput";
+import SignupInput from "@/components/features/auth/SignupInput";
 import signupFields from "@/constants/signupFields";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
