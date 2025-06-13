@@ -1,7 +1,8 @@
 "use client";
 
 import { API_CONFIG } from '@/config/api'; // API_CONFIG 경로가 올바르다고 가정
-import { useQueryClient } from "@tanstack/react-query";
+import { queryClient } from '@/providers/QueryProvider'; // QueryClient 인스턴스를 직접 가져옵니다.
+
 import { deleteCookie, getCookie, setCookie } from 'cookies-next'; // setCookie, deleteCookie 추가
 
 // --- 토큰 재발급 중 상태 관리 ---
@@ -13,7 +14,6 @@ let failedRequestsQueue: Array<{ resolve: (value?: any) => void; reject: (reason
 
 // 큐에 쌓인 요청들을 처리하는 함수
 const processFailedRequestsQueue = (error: Error | null, newAccessToken: string | null = null) => {
-  const queryClient = useQueryClient(); // QueryClient 인스턴스 가져오기
 
   failedRequestsQueue.forEach(prom => {
     if (error) {
