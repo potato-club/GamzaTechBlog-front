@@ -32,7 +32,7 @@ export default function MyPage() {
           예: <Sidebar userProfile={actualUserProfile} onProfileUpdate={handleActualProfileUpdate} /> 
         */}
 
-      <section className="ml-12 flex-1" aria-label="마이페이지 콘텐츠"> {/* flex-1 추가하여 남은 공간 채우도록 */}
+      <section className="flex-1" aria-label="마이페이지 콘텐츠"> {/* flex-1 추가하여 남은 공간 채우도록 */}
         <TabMenu
           tab={currentTab}
           onTabChange={handleTabChange}
@@ -45,7 +45,11 @@ export default function MyPage() {
           key={currentTab} // 탭 변경 시 리렌더링 최적화
           className="mt-6" // 탭 콘텐츠와 탭 메뉴 사이 간격
         >
-          {renderTabContent()}
+          <div className="px-10">
+            <div className="min-w-[700px] mx-auto">
+              {renderTabContent()}
+            </div>
+          </div>
         </div>
       </section>
     </>

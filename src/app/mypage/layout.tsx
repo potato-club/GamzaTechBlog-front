@@ -53,7 +53,7 @@ export default function MyPageLayout({ children }: MyPageLayoutProps) {
   }
 
   return (
-    <div className="flex mt-10">
+    <div className="flex mt-10 gap-4">
       {/* Consider adding a MyPage specific header or navigation here */}
       <Suspense fallback={<MyPageSkeleton />}>
         <MyPageSidebar userProfile={userProfile} onProfileUpdate={handleProfileUpdate} />
