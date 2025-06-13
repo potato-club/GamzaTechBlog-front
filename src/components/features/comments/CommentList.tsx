@@ -1,6 +1,7 @@
+import { CommentListProps } from "@/types/comment";
 import CommentCard from "./CommentCard";
 
-export default function CommentList({ comments }: { comments: any[]; }) {
+export default function CommentList({ comments }: CommentListProps) { // 2. Props를 구조 분해 할당으로 받도록 수정
 
   if (!comments || comments.length === 0) {
     return (
