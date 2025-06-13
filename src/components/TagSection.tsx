@@ -1,4 +1,4 @@
-import TagBadge from './TagBadge';
+import TagBadge from "./ui/TagBadge";
 
 interface TagSectionProps {
   tags: any[];

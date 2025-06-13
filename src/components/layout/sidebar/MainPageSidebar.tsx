@@ -1,5 +1,5 @@
-import PopularPostList from './PopularPostList';
-import TagSection from "./TagSection";
+import PopularPostList from '../../features/posts/PopularPostList';
+import TagSection from "../../TagSection";
 
 
 export default function MainPageSidebar({ posts, tags }: { posts: any[]; tags: any[]; }) {

@@ -1,6 +1,6 @@
 "use client";
 
-import MyPageSidebar from "@/components/mypage/MyPageSidebar";
+import MyPageSidebar from "@/components/layout/sidebar/MyPageSidebar";
 import MyPageSkeleton from "@/components/skeletons/MyPageSkeleton";
 import { useAuth } from "@/hooks/useAuth"; // ⭐️ useAuth 훅 가져오기
 import type { UserProfileData } from "@/types/user"; // ⭐️ 공통 UserProfileData 타입 가져오기
