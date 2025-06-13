@@ -1,8 +1,8 @@
 import { postService } from "@/services/postService";
 import Image from "next/image";
 import Link from "next/link";
-import MainPageSidebar from "./MainPageSidebar";
-import PostList from "./mypage/PostList";
+import PostList from "./features/posts/PostList";
+import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 

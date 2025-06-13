@@ -1,9 +1,9 @@
 "use client";
 
-import CommentList from "@/components/CommentList";
-import LikeList from "@/components/mypage/LikeList";
-import PostList from "@/components/mypage/PostList";
-import TabMenu from "@/components/mypage/TabMenu";
+import CommentList from "@/components/features/comments/CommentList";
+import LikeList from "@/components/features/posts/LikeList";
+import PostList from "@/components/features/posts/PostList";
+import TabMenu from "@/components/TabMenu";
 import { useMyPageData } from "@/hooks/useMyPageData"; // 이 훅에서 실제 userProfile을 가져올 수 있습니다.
 import { useMyPageTab } from "@/hooks/useMyPageTab";
 

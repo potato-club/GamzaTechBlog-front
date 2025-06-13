@@ -1,6 +1,6 @@
 'use client';
 
-import CommentList from "@/components/CommentList";
+import CommentList from "@/components/features/comments/CommentList";
 import Image from 'next/image';
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
