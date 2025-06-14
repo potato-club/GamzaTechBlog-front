@@ -60,6 +60,12 @@ export default function PostCommentsSection({ postId, initialComments, totalComm
     }
   };
 
+  const handleCommentDeleted = (deletedCommentId: number) => {
+    setComments((prevComments) => prevComments.filter(comment => comment.commentId !== deletedCommentId));
+    setCommentsCount(prevCount => prevCount - 1);
+    // 필요하다면 여기에 사용자에게 알림 (예: Toast 메시지)을 표시하는 로직을 추가할 수 있습니다.
+  };
+
   return (
     <section className="mt-12 text-[#353841] text-[17px]" aria-label="댓글 섹션"> {/* mt-40에서 mt-12로 조정 */}
       <h2 className="mt-7 text-lg font-semibold">댓글 {commentsCount}개</h2>
@@ -86,7 +92,7 @@ export default function PostCommentsSection({ postId, initialComments, totalComm
         </div>
       </form>
 
-      <CommentList comments={comments} />
+      <CommentList comments={comments} onCommentDeleted={handleCommentDeleted} />
     </section>
   );
 }
