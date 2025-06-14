@@ -1,7 +1,10 @@
 import { CommentListProps } from "@/types/comment";
 import CommentCard from "./CommentCard";
 
-export default function CommentList({ comments }: CommentListProps) { // 2. Props를 구조 분해 할당으로 받도록 수정
+export default function CommentList({ comments, onCommentDeleted }: CommentListProps & {
+  onCommentDeleted?: (commentId: number) => void; // 댓글 삭제 콜백 추가
+}) {
+  // console.log("post comments", comments); // 프로덕션에서는 제거
 
   if (!comments || comments.length === 0) {
     return (
@@ -14,7 +17,11 @@ export default function CommentList({ comments }: CommentListProps) { // 2. Prop
   return (
     <div className="mt-8 flex flex-col gap-4">
       {comments.map((comment) => (
-        <CommentCard key={comment.commentId} comment={comment} />
+        <CommentCard
+          key={comment.commentId}
+          comment={comment}
+          onCommentDeleted={onCommentDeleted} // 콜백 전달
+        />
       ))}
     </div>
   );
