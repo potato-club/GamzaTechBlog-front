@@ -8,13 +8,14 @@ import { notFound } from 'next/navigation';
 // UiComment 인터페이스는 PostCommentsSection.tsx로 이동 또는 공유 타입으로 관리
 
 interface PostPageProps {
-  params: { id: string; };
+  params: Promise<{ id: string; }>; // Promise로 변경
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  const postId = params.id ? Number(params.id) : null;
+  const { id } = await params; // params를 await로 해제
+  const postId = parseInt(id, 10);
 
-  if (!postId) {
+  if (isNaN(postId) || postId <= 0) {
     notFound();
   }
 
