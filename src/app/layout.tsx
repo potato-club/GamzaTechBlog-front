@@ -1,6 +1,6 @@
+import BlogHeader from "@/components/layout/header/BlogHeader";
 import type { Metadata } from "next";
 import Link from "next/link";
-import BlogHeader from "../components/BlogHeader";
 import QueryProvider from "../providers/QueryProvider";
 import "./globals.css";
 
@@ -22,7 +22,8 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="w-full max-w-[1100px] mx-auto px-4 sm:px-6 bg-white">
+      {/* body 태그는 전체 너비를 차지하도록 기본 스타일 유지 */}
+      <body className="bg-white"> {/* 기존 max-w, mx-auto, px 제거 */}
         {/* Skip to main content for accessibility */}
         <Link
           href="#main-content"
@@ -32,24 +33,25 @@ export default async function RootLayout({
           메인 콘텐츠로 이동
         </Link>
 
-        <div className="min-h-screen flex flex-col">
-          <QueryProvider>
+        {/* 콘텐츠를 중앙 정렬하고 최대 너비를 제한하는 wrapper div 추가 */}
+        <div className="w-full max-w-[1100px] mx-auto px-4 sm:px-6">
+          <div className="min-h-screen flex flex-col">
+            <QueryProvider>
+              <BlogHeader />
+              <div
+                id="main-content"
+                className="mt-16 px-4 flex-grow" // flex-grow 추가하여 푸터가 항상 하단에 위치하도록 도움
+              >
+                {children}
+              </div>
+            </QueryProvider>
 
-            <BlogHeader />
-
-            <div
-              id="main-content"
-              className="mt-16"
-            >
-              {children}
-            </div>
-          </QueryProvider>
-
-          <footer className="mt-auto py-8 border-t border-gray-200 text-center text-sm text-gray-500">
-            <p>&copy; Gamza Tech Blog. All rights reserved.</p>
-          </footer>
+            <footer className="py-8 border-t border-gray-200 text-center text-sm text-gray-500">
+              <p>&copy; Gamza Tech Blog. All rights reserved.</p>
+            </footer>
+          </div>
         </div>
       </body>
-    </html >
+    </html>
   );
 }

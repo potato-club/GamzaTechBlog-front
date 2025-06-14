@@ -1,4 +1,5 @@
 import { API_CONFIG } from "../config/api";
+import { PostDetailData } from "../types/comment";
 import { PostData } from "../types/post";
 
 interface ApiResponseWrapper<T> {
@@ -53,9 +54,15 @@ export const postService = {
     let url = API_CONFIG.BASE_URL + endpoint;
 
     const queryParams = new URLSearchParams();
+
+    const page = params?.page !== undefined ? params.page : 0;
+    const size = params?.size !== undefined ? params.size : 10;
+
+
+    queryParams.append('page', String(page));
+    queryParams.append('size', String(size));
+
     if (params) {
-      if (params.page !== undefined) queryParams.append('page', String(params.page));
-      if (params.size !== undefined) queryParams.append('size', String(params.size));
       if (params.sort && params.sort.length > 0) {
         params.sort.forEach(sortOption => queryParams.append('sort', sortOption));
       }
@@ -68,8 +75,14 @@ export const postService = {
       url += `?${queryParams.toString()}`;
     }
 
+    console.log("queryParams", queryParams.toString());
+
     try {
       const response = await fetch(url, {
+        next: {
+          revalidate: 600, // 600초마다 캐시를 갱신
+          tags: ['posts'], // 캐시 무효화 태그
+        },
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -84,6 +97,7 @@ export const postService = {
       }
 
       const apiResponse: ApiResponseWrapper<PageableContent<PostData>> = await response.json();
+      console.log("apiResponse", apiResponse);
       return apiResponse.data;
     } catch (error) {
       if (error instanceof PostServiceError) {
@@ -119,9 +133,38 @@ export const postService = {
       }
       throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
     }
-  }
+  },
+  async getPostById(
+    postId: number,
+    nextOptions?: NextFetchRequestConfig
+  ): Promise<PostDetailData> { // 반환 타입을 PostDetailData로 수정
+    const endpoint = `/api/v1/posts/${postId}`;
+    const url = API_CONFIG.BASE_URL + endpoint;
 
-  // 여기에 다른 게시물 관련 API 함수들을 추가할 수 있습니다.
-  // 예: async getPostById(postId: number): Promise<PostDetail> { ... }
-  // 예: async createPost(postData: CreatePostDto): Promise<PostDetail> { ... }
+    console.log("Requesting URL (getPostById):", url);
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        ...nextOptions,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: `Failed to fetch post with id ${postId}` }));
+        throw new PostServiceError(response.status, errorData.message || `Failed to fetch post with id ${postId}`, endpoint);
+      }
+
+      // Swagger 응답 예시에 따라 ApiResponseWrapper<PostDetailData>로 파싱
+      const apiResponse: ApiResponseWrapper<PostDetailData> = await response.json();
+      return apiResponse.data; // data 필드에 PostDetailData 객체가 있음
+    } catch (error) {
+      if (error instanceof PostServiceError) {
+        throw error;
+      }
+      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while fetching post details', endpoint);
+    }
+  },
 } as const;

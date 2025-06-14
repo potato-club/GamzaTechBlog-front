@@ -6,3 +6,4 @@ export interface PostData {
   createdAt: string;
   tags: string[];
 }
+

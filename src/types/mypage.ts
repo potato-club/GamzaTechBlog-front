@@ -1,33 +1,21 @@
+import { CommentData } from "./comment";
+import { PostData } from "./post";
+
 export type TabType = "posts" | "comments" | "likes";
 
-export interface Post {
-  id: number;
-  title: string;
-  summary: string;
-  author: string;
-  date: string;
-  tags: string[];
-}
-
-export interface Comment {
-  id: number;
-  comment: string;
-  author: string;
-  date: string;
-}
 
 export interface Like {
   id: number;
   title: string;
-  summary: string;
-  author: string;
-  date: string;
+  contentSnippet: string;
+  writer: string;
+  createdAt: string;
   tags: string[];
 }
 
 export interface MyPageData {
-  posts: Post[];
-  comments: Comment[];
+  posts: PostData[];
+  comments: CommentData[];
   likes: Like[];
 }
 
