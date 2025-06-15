@@ -1,14 +1,13 @@
 import { postService } from "@/services/postService";
 import Image from "next/image";
 import Link from "next/link";
-import PostList from "./mypage/PostList";
-import Sidebar from "./Sidebar";
+import PostList from "./features/posts/PostList";
+import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-
 export default async function MainPageContent() {
-  // await delay(2000); // 2000ms = 2초
+  await delay(2000); // 2000ms = 2초
 
   const postResponse = await postService.getPosts({
     sort: [
@@ -27,7 +26,8 @@ export default async function MainPageContent() {
 
 
   return (
-    <>
+    <div className="flex flex-col mt-16 gap-30 mx-auto">
+
       {/* 로고 */}
       <section className="text-center">
         <Link href="/">
@@ -41,13 +41,14 @@ export default async function MainPageContent() {
         </Link>
       </section>
 
-      <main className="flex pb-10">
-        <section className="flex-3">
+      {/* 게시물 목록과 사이드바를 감싸는 flex 컨테이너 */}
+      <div className="flex pb-10">
+        <main className="flex-3"> {/* 주요 콘텐츠 영역 */}
           <h2 className="text-2xl font-semibold">Posts</h2>
           <PostList posts={posts} />
-        </section>
-        <Sidebar posts={posts} tags={tags} />
-      </main>
-    </>
+        </main>
+        <MainPageSidebar posts={posts} tags={tags} />
+      </div>
+    </div>
   );
 }

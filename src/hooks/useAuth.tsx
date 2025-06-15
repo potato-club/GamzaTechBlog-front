@@ -1,6 +1,8 @@
+import { RefreshTokenInvalidError } from '@/lib/api'; // ⭐️ RefreshTokenInvalidError import
 import { getCurrentUser, userService } from '@/services/userService'; // userService 경로 확인 필요
 import { AuthResponse } from "@/types/auth";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { deleteCookie } from 'cookies-next'; // ⭐️ deleteCookie import
 import { UserProfileData } from "../types/user";
 
 // 쿼리 키를 상수로 정의하면 오타 방지 및 재사용에 용이
@@ -23,18 +25,36 @@ export function useAuth(options?: UseAuthOptions) {
   } = useQuery<AuthResponse, Error>({ // 첫 번째 제네릭: queryFn의 반환 타입, 두 번째 제네릭: 에러 타입
     queryKey: AUTH_QUERY_KEY,
     queryFn: async (): Promise<AuthResponse> => {
-      console.log('Fetching auth status via React Query using getCurrentUser...'); // 디버깅 로그
-      const userProfile: UserProfileData | null = await getCurrentUser();
-      if (userProfile) {
-        return { isAuthenticated: true, user: userProfile };
-      } else {
-        return { isAuthenticated: false, user: null };
+      try {
+        console.log('Fetching auth status via React Query using getCurrentUser...');
+        const userProfile: UserProfileData | null = await getCurrentUser();
+        if (userProfile) {
+          return { isAuthenticated: true, user: userProfile };
+        } else {
+          return { isAuthenticated: false, user: null };
+        }
+      } catch (err: any) {
+        if (err instanceof RefreshTokenInvalidError) {
+          console.warn('Refresh token invalid during auth status fetch. Clearing auth cookie.', err.message);
+          deleteCookie('authorization', { path: '/' }); // 액세스 토큰 쿠키 삭제
+          // 인증되지 않은 상태로 응답하여 React Query 캐시를 업데이트합니다.
+          return { isAuthenticated: false, user: null };
+        }
+        // 다른 종류의 에러는 그대로 throw하여 React Query가 처리하도록 합니다.
+        console.error('Error fetching auth status in useAuth queryFn:', err);
+        throw err;
       }
     },
     // staleTime, cacheTime 등은 QueryClientProvider에서 설정한 기본값을 따르거나,
     // 여기서 개별적으로 재정의할 수 있습니다.
     // staleTime: 5 * 60 * 1000, // 예: 5분 동안 fresh 상태로 간주
     // cacheTime: 15 * 60 * 1000, // 예: 15분 동안 캐시 유지 (비활성 시)
+    retry: (failureCount, error) => {
+      if (error instanceof RefreshTokenInvalidError) {
+        return false; // RefreshTokenInvalidError의 경우 재시도하지 않음
+      }
+      return failureCount < 3; // 다른 에러는 기본 3회 재시도
+    },
     initialData: options?.initialData, // 초기 데이터 설정 (SSR 또는 다른 소스에서 주입 시)
     // enabled: boolean, // 특정 조건에서만 쿼리 실행 (예: 토큰이 있을 때만)
     // refetchOnWindowFocus: true, // 기본값은 true, 필요에 따라 false로 설정 가능
@@ -52,24 +72,21 @@ export function useAuth(options?: UseAuthOptions) {
   // 로그아웃 처리 함수
   const logout = async () => {
     try {
-      const response = await userService.logout(); // 실제 백엔드 로그아웃 API 호출
-      console.log('Logout response:', response);
+      await userService.logout(); // 실제 백엔드 로그아웃 API 호출
+      console.log('Backend logout successful.');
+    } catch (logoutError) {
+      console.error("Backend logout API call failed:", logoutError);
+      // 백엔드 로그아웃 실패 시에도 클라이언트 측 로그아웃은 계속 진행합니다.
+    } finally {
       // 로그아웃 성공 시 인증 상태 캐시 업데이트
       queryClient.setQueryData(AUTH_QUERY_KEY, { isAuthenticated: false, user: null });
-      // 쿠키에 저장된 인증 정보 삭제 (예: 쿠키 클리어)
-      // document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      // 또는 쿠키 라이브러리를 사용하여 삭제할 수 있습니다.
-      // destroyCookie(null, 'authToken');
-      // 캐시 업데이트 후 추가 작업 (예: UI 알림, 페이지 리다이렉트 등)
-
-      console.log('Auth status cache updated after logout.');
+      // 액세스 토큰 쿠키 삭제 (HttpOnly가 아닌 경우)
+      deleteCookie('authorization', { path: '/', domain: '.gamzatech.site' }); // 도메인 명시
+      console.log('Client-side logout processed: Auth status cache updated and auth cookie cleared.');
       // 또는 특정 쿼리를 무효화하여 다시 가져오도록 할 수 있습니다.
       // queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
       // 모든 캐시를 지우고 싶다면 (강력하지만, 다른 데이터도 사라짐):
       // queryClient.clear();
-    } catch (logoutError) {
-      console.error("Logout failed:", logoutError);
-      // 사용자에게 에러 알림 등의 추가 처리 가능
     }
   };
 

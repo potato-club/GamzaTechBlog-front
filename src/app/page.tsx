@@ -4,10 +4,8 @@ import { Suspense } from "react";
 
 export default async function Home() {
   return (
-    <div className="flex flex-col mt-16 gap-30 mx-auto">
-      <Suspense fallback={<MainPageSkeleton />}>
-        <MainPageContent />
-      </Suspense>
-    </div>
+    <Suspense fallback={<MainPageSkeleton />}>
+      <MainPageContent />
+    </Suspense>
   );
 }

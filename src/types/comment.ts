@@ -16,6 +16,10 @@ export interface CommentData {
   replies: string[]; // Swagger 예시에서는 string 배열
 }
 
+export interface CommentListProps {
+  comments: CommentData[];
+}
+
 export interface PostDetailData {
   postId: number;
   title: string;
@@ -26,6 +30,7 @@ export interface PostDetailData {
   tags: string[];
   comments: CommentData[];
 }
+
 
 export interface CommentRequest {
   content: string;
