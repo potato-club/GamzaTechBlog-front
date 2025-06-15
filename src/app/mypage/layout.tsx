@@ -17,6 +17,14 @@ export default function MyPageLayout({ children }: MyPageLayoutProps) {
 
   console.log("userProfile", userProfile);
 
+  // 로그인되지 않았거나 프로필 정보가 없는 경우 리디렉션
+  useEffect(() => {
+    // isLoading이 false이고, 로그인이 안 되었거나 유저 프로필이 없을 때 리디렉션
+    if (!isLoading && (!isLoggedIn || !userProfile)) {
+      router.push("/"); // 또는 접근 제한 페이지로 안내
+    }
+  }, [isLoading, isLoggedIn, userProfile, router]);
+
   // 프로필 업데이트 핸들러 (실제 API 연동 필요)
   const handleProfileUpdate = async (updatedData: Partial<UserProfileData>) => {
     if (!userProfile) return; // 사용자 프로필이 없으면 중단
@@ -40,12 +48,7 @@ export default function MyPageLayout({ children }: MyPageLayoutProps) {
 
   // 로그인되지 않았거나 프로필 정보가 없는 경우 처리
   if (!isLoggedIn || !userProfile) {
-    // useEffect를 사용하여 클라이언트 사이드에서만 리디렉션 실행
-    useEffect(() => {
-      router.push("/login"); // 또는 접근 제한 페이지로 안내
-    }, [router]);
-    // 리디렉션 전까지 보여줄 간단한 메시지 또는 스켈레톤
-    return (
+    return ( // 로딩이 끝났지만 여전히 로그인 정보가 없다면, 리디렉션 메시지 표시
       <div className="flex mt-10 justify-center items-center" style={{ minHeight: 'calc(100vh - 100px)' }}>
         <p className="text-xl">마이페이지에 접근하려면 로그인이 필요합니다. 로그인 페이지로 이동합니다...</p>
       </div>

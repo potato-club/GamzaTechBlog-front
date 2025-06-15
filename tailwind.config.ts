@@ -10,7 +10,10 @@ const config: Config = {
       },
     },
   },
-  plugins: [require('@tailwindcss/line-clamp')],
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/line-clamp'),
+  ],
 };
 
 export default config;

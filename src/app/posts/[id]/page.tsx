@@ -4,6 +4,8 @@ import { postService } from "@/services/postService";
 import { CommentData, PostDetailData } from "@/types/comment";
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import MarkdownViewer from "../../../components/features/posts/MarkdownViewer";
+
 
 // UiComment 인터페이스는 PostCommentsSection.tsx로 이동 또는 공유 타입으로 관리
 
@@ -24,6 +26,9 @@ export default async function PostPage({ params }: PostPageProps) {
 
   try {
     post = await postService.getPostById(postId);
+
+    console.log("post data", post);
+
   } catch (err) {
     console.error("Failed to fetch post:", err);
     fetchError = err instanceof Error ? err.message : "게시물을 불러오는데 실패했습니다.";
@@ -48,6 +53,8 @@ export default async function PostPage({ params }: PostPageProps) {
     createdAt: new Date(comment.createdAt).toLocaleDateString('ko-KR'), // 날짜 형식 'YYYY. MM. DD.'
     replies: comment.replies || [],
   }));
+
+
 
   return (
     <main className="mx-16 my-16">
@@ -84,9 +91,7 @@ export default async function PostPage({ params }: PostPageProps) {
           </ul>
         </header>
 
-        <div className="my-6 text-[17px] text-[#474F5D] leading-relaxed">
-          {post.content}
-        </div>
+        <MarkdownViewer content={post.content} />
       </article>
 
       {/* 댓글 섹션을 클라이언트 컴포넌트로 분리 */}
