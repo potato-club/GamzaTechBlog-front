@@ -1,0 +1,6 @@
+export enum Position {
+  BACKEND = "BACKEND",
+  FRONTEND = "FRONTEND",
+  DESIGNER = "DESIGNER",
+  APP_DEVELOPER = "APP_DEVELOPER",
+}

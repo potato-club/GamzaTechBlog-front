@@ -22,5 +22,5 @@ export interface UserProfileData {
 // }
 
 // 사용자 역할 타입
-export type UserPosition = 'BACKEND' | 'FRONTEND' | 'DESIGN' | 'PM' | 'QA';
-export type UserRole = 'USER' | 'ADMIN' | 'MODERATOR';
+export type UserPosition = 'BACKEND' | 'FRONTEND' | 'DESIGNER' | 'APP_DEVELOPER';
+// export type UserRole = 'USER' | 'ADMIN' | 'MODERATOR';
