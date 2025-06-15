@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod"; // zodResolver 추가
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; // useRouter 추가
-import React, { useRef, useState } from "react"; // useState 추가
+import React, { useEffect, useRef, useState } from "react"; // useState 추가
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod"; // z 추가
 import { postService } from "../../../services/postService";
@@ -47,9 +47,14 @@ export default function WritePage() {
   const [tags, setTags] = useState<string[]>([]); // 태그를 상태로 관리
   const [currentTag, setCurrentTag] = useState<string>("");
 
+  const [isSubmittingPost, setIsSubmittingPost] = useState(false); // 게시글 제출 상태
+  const [uploadingDots, setUploadingDots] = useState(""); // 업로드 중 점 애니메이션
+
   const onSubmit: SubmitHandler<FormValues> = async (data) => { // async 추가
     const markdown = editorRef.current?.getMarkdown() || "";
     const commitMessage = ``;
+    setIsSubmittingPost(true); // 제출 시작
+
 
     try {
       const response = await postService.createPost({
@@ -65,6 +70,8 @@ export default function WritePage() {
     } catch (error) {
       console.error("게시글 생성 실패:", error);
       alert("게시글 생성에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmittingPost(false); // 제출 완료 (성공/실패 무관)
     }
   };
 
@@ -100,6 +107,21 @@ export default function WritePage() {
       handleAddTag();
     }
   };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isSubmittingPost) {
+      interval = setInterval(() => {
+        setUploadingDots((prevDots) => {
+          if (prevDots.length >= 3) return ".";
+          return prevDots + ".";
+        });
+      }, 500); // 0.5초마다 점 변경
+    } else {
+      setUploadingDots(""); // 제출 중이 아니면 점 초기화
+    }
+    return () => clearInterval(interval);
+  }, [isSubmittingPost]);
 
   return (
     <Form {...form}>
@@ -155,10 +177,11 @@ export default function WritePage() {
 
         <Button
           type="submit"
-          className="self-end px-4 py-2 bg-[#20242B] text-white rounded-4xl hover:bg-[#33373E]/90 hover:cursor-pointer" // shadcn Button 사용 및 hover 스타일 추가
-        // variant="default" // shadcn/ui Button의 기본 variant를 사용하려면 명시
+          className={`self-end px-4 py-2 bg-[#20242B] text-white rounded-4xl transition-colors duration-150 ${isSubmittingPost ? "cursor-not-allowed opacity-70" : "hover:bg-[#33373E]/90 hover:cursor-pointer"
+            }`}
+          disabled={isSubmittingPost}
         >
-          완료
+          {isSubmittingPost ? `게시글 업로드 중${uploadingDots}` : "완료"}
         </Button>
       </form>
     </Form>
