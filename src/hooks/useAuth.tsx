@@ -81,7 +81,7 @@ export function useAuth(options?: UseAuthOptions) {
       // 로그아웃 성공 시 인증 상태 캐시 업데이트
       queryClient.setQueryData(AUTH_QUERY_KEY, { isAuthenticated: false, user: null });
       // 액세스 토큰 쿠키 삭제 (HttpOnly가 아닌 경우)
-      deleteCookie('authorization', { path: '/' }); // 쿠키 설정 시 path를 지정했다면 동일하게 명시
+      deleteCookie('authorization', { path: '/', domain: '.gamzatech.site' }); // 도메인 명시
       console.log('Client-side logout processed: Auth status cache updated and auth cookie cleared.');
       // 또는 특정 쿼리를 무효화하여 다시 가져오도록 할 수 있습니다.
       // queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
