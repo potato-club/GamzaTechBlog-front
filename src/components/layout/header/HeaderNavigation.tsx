@@ -18,6 +18,14 @@ export const HeaderNavigation = () => {
   const [isAttemptingLogin, setIsAttemptingLogin] = useState(false);
   const [loginDots, setLoginDots] = useState("");
 
+  useEffect(() => {
+    if (!isLoading && isLoggedIn && userProfile && userProfile.role === 'PRE_REGISTER') {
+      console.log("Redirecting to signup page for pre-registered user.");
+      router.push('/signup');
+    }
+  }, [isLoading, isLoggedIn, userProfile]);
+
+
   // // 로딩 중일 때 스켈레톤 UI 또는 간단한 로딩 메시지 표시 (선택 사항)
   // if (isLoading) {
   //   return (
@@ -98,6 +106,8 @@ export const HeaderNavigation = () => {
     // 로딩 중 UI (예: 스켈레톤 또는 간단한 메시지)
     return <div className="h-8 w-20 animate-pulse rounded-full bg-gray-200" />;
   }
+
+  console.log("userProfile in HeaderNavigation:", userProfile);
 
   return (
     <nav className="flex gap-2">
