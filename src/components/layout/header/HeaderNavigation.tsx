@@ -19,7 +19,6 @@ export const HeaderNavigation = () => {
   const [loginDots, setLoginDots] = useState("");
 
   useEffect(() => {
-    // 로딩이 완료되고, 로그인 상태이며, userProfile이 있고, 역할이 PRE_REGISTER인 경우
     if (!isLoading && isLoggedIn && userProfile && userProfile.role === 'PRE_REGISTER') {
       console.log("Redirecting to signup page for pre-registered user.");
       router.push('/signup');
