@@ -1,87 +1,57 @@
 "use client";
 
-import CommentList from "@/components/CommentList";
-import PostList from "@/components/mypage/PostList";
-import Sidebar from "@/components/mypage/Sidebar";
-import TabMenu from "@/components/mypage/TabMenu";
-import { useState } from "react";
-import LikeList from "../../components/mypage/LikeList";
+import CommentList from "@/components/features/comments/CommentList";
+import LikeList from "@/components/features/posts/LikeList";
+import PostList from "@/components/features/posts/PostList";
+import TabMenu from "@/components/TabMenu";
+import { useMyPageData } from "@/hooks/useMyPageData"; // 이 훅에서 실제 userProfile을 가져올 수 있습니다.
+import { useMyPageTab } from "@/hooks/useMyPageTab";
 
 export default function MyPage() {
-  const [tab, setTab] = useState("posts");
+  const { currentTab, handleTabChange } = useMyPageTab();
+  // 실제 데이터는 useMyPageData 또는 다른 훅/API 호출을 통해 가져와야 합니다.
+  const { posts, comments, likes /*, userProfile: actualUserProfile */ } = useMyPageData();
 
-  const posts = [
-    {
-      id: 1,
-      title: "제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다",
-      summary:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima aperiam animi libero quae sint nobis molestiae suscipit perferendis facere quia! Vel obcaecati culpa ex libero tempore consequuntur sapiente incidunt sint!",
-      author: "GyeongHwan Lee",
-      date: "2025. 04. 28",
-      tags: ["# java", "# spring", "# backend"],
-    },
-    {
-      id: 2,
-      title: "Next.js로 무한스크롤 구현하기",
-      summary:
-        "Next.js에서 Intersection Observer API를 사용해 무한스크롤을 구현하는 방법을 정리합니다.",
-      author: "Jinwoo Park",
-      date: "2025. 04. 27",
-      tags: ["# nextjs", "# react", "# frontend"],
-    },
-  ];
-
-  const comments = [
-    {
-      id: 1,
-      comment:
-        "첫 댓글 달아봤습니다 하하.",
-      author: "GyeongHwan Lee",
-      date: "2025. 04. 28",
-    },
-    {
-      id: 2,
-      comment:
-        "좋은 글 감사합니다! Next.js에 대해 더 배우고 싶어요.",
-      author: "Jinwoo Park",
-      date: "2025. 04. 27",
-    },
-  ];
-
-  const likes = [
-    {
-      id: 1,
-      title: "좋아요 누른 게시글 제목",
-      summary:
-        "와우 좋아요 누른 게시글 내용이에용용",
-      author: "GyeongHwan Lee",
-      date: "2025. 04. 28",
-      tags: ["# java", "# spring", "# backend"],
-    },
-    {
-      id: 2,
-      title: "Next.js로 무한스크롤 구현하기",
-      summary:
-        "Next.js에서 Intersection Observer API를 사용해 무한스크롤을 구현하는 방법을 정리합니다.",
-      author: "Jinwoo Park",
-      date: "2025. 04. 27",
-      tags: ["# nextjs", "# react", "# frontend"],
-    },
-  ];
-
+  const renderTabContent = () => {
+    switch (currentTab) {
+      case "posts":
+        return <PostList posts={posts} />;
+      case "comments":
+        return <CommentList comments={comments} />;
+      case "likes":
+        return <LikeList likes={likes} />;
+      default:
+        return <PostList posts={posts} />;
+    }
+  };
   return (
-    <main className="flex mt-20">
-      <Sidebar />
-      <section className="flex-1 ml-12">
-        <TabMenu tab={tab} setTab={setTab} />
-        {tab === "posts" ? (
-          <PostList posts={posts} />
-        ) : tab === "comments" ? (
-          <CommentList comments={comments} />
-        ) : tab === "likes" ? (
-          <LikeList likes={likes} />
-        ) : null}
+    <>
+      {/* 
+          실제 구현 시에는 useMyPageData 훅 또는 다른 방법을 통해 
+          동적으로 userProfile 데이터를 가져와서 전달해야 합니다.
+          예: <Sidebar userProfile={actualUserProfile} onProfileUpdate={handleActualProfileUpdate} /> 
+        */}
+
+      <section className="flex-1" aria-label="마이페이지 콘텐츠"> {/* flex-1 추가하여 남은 공간 채우도록 */}
+        <TabMenu
+          tab={currentTab}
+          onTabChange={handleTabChange}
+          aria-label="마이페이지 탭 메뉴"
+        />
+
+        <div
+          role="tabpanel"
+          aria-labelledby={`${currentTab}-tab`}
+          key={currentTab} // 탭 변경 시 리렌더링 최적화
+          className="mt-6" // 탭 콘텐츠와 탭 메뉴 사이 간격
+        >
+          <div className="px-10">
+            <div className="min-w-[700px] mx-auto">
+              {renderTabContent()}
+            </div>
+          </div>
+        </div>
       </section>
-    </main>
+    </>
   );
 }

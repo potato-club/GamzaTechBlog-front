@@ -1,10 +1,12 @@
-import TagBadge from './TagBadge';
+import TagBadge from "./ui/TagBadge";
 
 interface TagSectionProps {
-  tags: string[];
+  tags: any[];
 }
 
 export default function TagSection({ tags }: TagSectionProps) {
+
+  console.log("TagSection tags", tags);
   return (
     <section className="mt-20">
       <h3 className="text-[18px] text-[#838C9D]">Tags</h3>
