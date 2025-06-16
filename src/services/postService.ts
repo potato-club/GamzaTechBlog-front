@@ -18,11 +18,6 @@ interface PageableContent<T> {
   totalPages: number;
 }
 
-interface Tag {
-  tagName: string;
-}
-
-
 // API 요청 파라미터 타입
 interface GetPostsParams {
   page?: number;
@@ -108,7 +103,7 @@ export const postService = {
       throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
     }
   },
-  async getTags(nextOptions?: NextFetchRequestConfig): Promise<Tag[]> {
+  async getTags(nextOptions?: NextFetchRequestConfig): Promise<string[]> {
     const endpoint = '/api/v1/tags';
     const url = API_CONFIG.BASE_URL + endpoint;
     try {
@@ -125,7 +120,7 @@ export const postService = {
         throw new PostServiceError(response.status, errorData.message || 'Failed to fetch tags', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<Tag[]> = await response.json();
+      const apiResponse: ApiResponseWrapper<string[]> = await response.json();
       console.log("apiResponse.data", apiResponse.data);
       return apiResponse.data;
     } catch (error) {
