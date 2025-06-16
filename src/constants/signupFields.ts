@@ -16,7 +16,7 @@ const signupFields = [
   {
     id: "gamjaBatch",
     label: "감자 기수",
-    type: "text",
+    type: "number",
     placeholder: "기수를 입력해주세요",
   },
   {
