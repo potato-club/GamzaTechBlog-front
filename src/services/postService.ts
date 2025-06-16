@@ -1,6 +1,7 @@
 import { API_CONFIG } from "../config/api";
+import { fetchWithAuth } from "../lib/api"; // fetchWithAuth 임포트
 import { PostDetailData } from "../types/comment";
-import { PostData } from "../types/post";
+import { CreatePostRequest, CreatePostResponse, PostData } from "../types/post";
 
 interface ApiResponseWrapper<T> {
   status: number;
@@ -165,6 +166,35 @@ export const postService = {
         throw error;
       }
       throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while fetching post details', endpoint);
+    }
+  },
+
+  // 게시글 추가 로직 구현
+  async createPost(post: CreatePostRequest): Promise<CreatePostResponse> {
+    const endpoint = '/api/v1/posts';
+    const url = API_CONFIG.BASE_URL + endpoint;
+
+    try {
+      // 인증이 필요한 요청이므로 fetchWithAuth 사용
+      const response = await fetchWithAuth(url, {
+        method: 'POST',
+        body: JSON.stringify(post),
+      }) as Response; // fetchWithAuth는 Response를 반환하므로 타입 단언
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error occurred while creating post' }));
+        throw new PostServiceError(response.status, errorData.message || 'Failed to create post', endpoint);
+      }
+
+      const apiResponse: ApiResponseWrapper<CreatePostResponse> = await response.json();
+
+      return apiResponse.data;
+    } catch (error) {
+      if (error instanceof PostServiceError) {
+        throw error;
+      }
+      // 네트워크 에러 또는 기타 예외 처리
+      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while creating post', endpoint);
     }
   },
 } as const;

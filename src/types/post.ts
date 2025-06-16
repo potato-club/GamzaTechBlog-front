@@ -6,3 +6,23 @@ export interface PostData {
   createdAt: string;
   tags: string[];
 }
+
+// 게시글 생성을 위한 API 요청 본문 인터페이스
+export interface CreatePostRequest {
+  title: string;
+  content: string; // 전체 내용
+  tags?: string[];
+  commitMessage?: string;
+}
+
+export interface CreatePostResponse {
+  postId: number;
+  authorGithubId: string;
+  repositoryName: string;
+  title: string;
+  content: string;
+  tags: string[];
+  commitMessage: string;
+  createdAt: string;
+  updatedAt: string;
+}

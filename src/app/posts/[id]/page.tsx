@@ -1,190 +1,105 @@
-'use client';
-
-import CommentList from "@/components/features/comments/CommentList";
+import PostCommentsSection from "@/components/features/posts/PostCommentsSection";
+import TagBadge from '@/components/ui/TagBadge'; // TagBadge 컴포넌트 임포트
+import { postService } from "@/services/postService";
+import { CommentData, PostDetailData } from "@/types/comment";
 import Image from 'next/image';
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Button } from "../../../components/ui/button";
-import { commentService } from "../../../services/commentService";
-import { postService } from "../../../services/postService";
-import { PostDetailData } from "../../../types/comment";
+import { notFound } from 'next/navigation';
+import MarkdownViewer from "../../../components/features/posts/MarkdownViewer";
 
-interface UiComment {
-  commentId: number;
-  writer: string;
-  content: string;
-  createdAt: string;
-  replies: string[];
+
+// UiComment 인터페이스는 PostCommentsSection.tsx로 이동 또는 공유 타입으로 관리
+
+interface PostPageProps {
+  params: Promise<{ id: string; }>; // Promise로 변경
 }
 
-export default function PostPage() {
-  const params = useParams(); // URL 파라미터 가져오기
-  const postId = params.id ? Number(params.id) : null;
+export default async function PostPage({ params }: PostPageProps) {
+  const { id } = await params; // params를 await로 해제
+  const postId = parseInt(id, 10);
 
-  const [post, setPost] = useState<PostDetailData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  if (isNaN(postId) || postId <= 0) {
+    notFound();
+  }
 
-  const [displayComments, setDisplayComments] = useState<UiComment[]>([]);
+  let post: PostDetailData | null = null;
+  let fetchError: string | null = null;
 
+  try {
+    post = await postService.getPostById(postId);
 
-  useEffect(() => {
-    if (postId) {
-      const fetchPost = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-          const postData = await postService.getPostById(postId);
-          setPost(postData);
-          // API에서 가져온 댓글을 UI용 댓글 형식으로 변환
-          const fetchedCommentsForUi: UiComment[] = postData.comments.map(comment => ({
-            commentId: comment.commentId,
-            writer: comment.writer,
-            content: comment.content,
-            createdAt: new Date(comment.createdAt).toLocaleDateString(), // 날짜 형식 변환
-            replies: comment.replies,
-          }));
-          setDisplayComments(fetchedCommentsForUi);
-        } catch (err) {
-          console.error("Failed to fetch post:", err);
-          setError(err instanceof Error ? err.message : "게시물을 불러오는데 실패했습니다.");
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchPost();
-    } else {
-      setError("유효한 게시물 ID가 없습니다.");
-      setIsLoading(false);
-    }
-  }, [postId]);
+    console.log("post data", post);
 
+  } catch (err) {
+    console.error("Failed to fetch post:", err);
+    fetchError = err instanceof Error ? err.message : "게시물을 불러오는데 실패했습니다.";
+    // 프로덕션에서는 error.tsx 등을 통해 사용자 친화적 에러 페이지를 보여주는 것이 좋습니다.
+  }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Handle form submission logic here
-    const form = event.currentTarget;
-    const commentInput = form.querySelector<HTMLInputElement>("#comment-input");
-    if (!commentInput || !commentInput.value.trim()) {
-      alert("댓글 내용을 입력해주세요.");
-      return;
-    }
-    const newComment = {
-      content: commentInput.value.trim(),
-      parentCommentId: null, // 부모 댓글 ID가 없으므로 null로 설정
-    };
+  if (fetchError) {
+    // return <div>Error: {fetchError}</div>; // 또는 throw new Error(fetchError) 후 error.tsx로 처리
+    // 임시로 간단한 에러 메시지 표시
+    return <div className="container mx-auto py-10">게시물을 불러오는 중 오류가 발생했습니다: {fetchError}</div>;
+  }
 
-    // 여기에 댓글 작성 API 호출 로직을 추가할 수 있습니다.
-    if (postId === null) {
-      alert("유효한 게시물 ID가 없습니다.");
-      return;
-    }
+  if (!post) {
+    notFound();
+  }
 
-    console.log("new comment", newComment);
-
-    commentService.registerComment(postId, newComment)
-      .then((comment) => {
-        // 댓글 작성 성공 시 UI에 추가
-        const newUiComment = {
-          commentId: comment.commentId,
-          writer: comment.writer,
-          content: comment.content,
-          createdAt: comment.createdAt.split("T")[0],
-          replies: comment.replies,
-        };
-        setDisplayComments((prevComments) => [...prevComments, newUiComment]);
-        commentInput.value = ""; // 입력 필드 초기화
-      })
-      .catch((err) => {
-        console.error("댓글 작성 실패:", err);
-        alert("댓글 작성에 실패했습니다. 다시 시도해주세요.");
-      });
+  // API에서 가져온 댓글을 UI용 댓글 형식으로 변환 (서버에서 수행)
+  const initialUiComments: CommentData[] = post.comments.map(comment => ({
+    commentId: comment.commentId,
+    writer: comment.writer,
+    content: comment.content,
+    createdAt: new Date(comment.createdAt).toLocaleDateString('ko-KR'), // 날짜 형식 'YYYY. MM. DD.'
+    replies: comment.replies || [],
+  }));
 
 
-  };
 
-  // 이곳에 댓글 작성 로직을 추가할 수 있습니다.
   return (
     <main className="mx-16 my-16">
       <article className="border-b border-[#D5D9E3] py-8">
         <header>
           <h1 className="text-[32px] font-extrabold text-[#1C222E]">
-            {post?.title}
+            {post.title}
           </h1>
 
           <div className="flex h-12 items-center gap-4 text-[14px]">
             <div className="flex h-5 items-center border-r border-[#B5BBC7] pr-1.5">
               <Image
                 src="/profileSVG.svg"
-                alt="GyeongHwan Lee의 프로필 이미지"
+                alt={`${post.writer}의 프로필 이미지`}
                 width={24}
                 height={24}
                 className="rounded-full"
               />
               <span className="ml-2 font-medium text-[#798191]">
-                {post?.writer}
+                {post.writer}
               </span>
             </div>
-            <time dateTime="2025-04-28" className="text-[#B5BBC7]">
-              {post?.createdAt.split("T")[0]}
+            <time dateTime={new Date(post.createdAt).toISOString().split("T")[0]} className="text-[#B5BBC7]">
+              {new Date(post.createdAt).toLocaleDateString('ko-KR')}
             </time>
           </div>
 
           <ul className="flex gap-2 text-[14px]" role="list">
-            <li className="rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]">
-              {post?.tags.map((tag, index) => (
-                <span key={index} className="mr-1">
-                  # {tag}
-                  {index < post.tags.length - 1 && ", "}
-                </span>
-              ))}
-            </li>
+            {post.tags.map((tag, index) => (
+              <li key={index}>
+                <TagBadge tag={tag} />
+              </li>
+            ))}
           </ul>
         </header>
 
-        <div className="my-6 text-[17px] text-[#474F5D] leading-relaxed">
-          {post?.content}
-        </div>
+        <MarkdownViewer content={post.content} />
       </article>
 
-      <section className="mt-40 text-[#353841] text-[17px]" aria-label="댓글 섹션">
-        <h2 className="mt-7 text-lg font-semibold">댓글 {post?.comments.length}개</h2>
-
-        {/* 댓글 작성 */}
-        <form className="mt-4 flex flex-col gap-3" onSubmit={handleSubmit} aria-label="댓글 작성">
-          <div className="w-9 h-9 rounded-full overflow-hidden">
-            <Image
-              src="/profileSVG.svg"
-              alt="현재 사용자의 프로필 이미지"
-              width={36}
-              height={36}
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          <label htmlFor="comment-input" className="sr-only">
-            댓글 내용
-          </label>
-          <input
-            id="comment-input"
-            type="text"
-            placeholder="댓글을 남겨주세요."
-            className="border border-[#E7EEFE] rounded-xl w-full px-5 py-3.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#FAA631]/50 transition"
-            aria-required="true"
-          />
-
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              className="rounded-[63px] bg-[#20242B] px-3 py-1.5 text-white hover:bg-[#1C222E] hover:cursor-pointer text-[12px]"
-            >
-              등록
-            </Button>
-          </div>
-        </form>
-
-        <CommentList comments={displayComments} />
-      </section>
+      {/* 댓글 섹션을 클라이언트 컴포넌트로 분리 */}
+      <PostCommentsSection
+        postId={postId}
+        initialComments={initialUiComments}
+        totalCommentsCount={post.comments.length}
+      />
     </main>
   );
 }

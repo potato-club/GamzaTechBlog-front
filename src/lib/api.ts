@@ -3,7 +3,8 @@
 import { API_CONFIG } from '@/config/api'; // API_CONFIG 경로가 올바르다고 가정
 import { queryClient } from '@/providers/QueryProvider'; // QueryClient 인스턴스를 직접 가져옵니다.
 
-import { deleteCookie, getCookie, setCookie } from 'cookies-next'; // setCookie, deleteCookie 추가
+import { deleteCookie, getCookie, setCookie } from 'cookies-next';
+// import { useRouter } from "next/navigation"; // React Hook은 유틸리티 함수에서 직접 사용하지 않습니다.
 
 // --- 토큰 재발급 중 상태 관리 ---
 let isRefreshingToken = false;
@@ -11,6 +12,13 @@ let isRefreshingToken = false;
 let failedRequestsQueue: Array<{ resolve: (value?: any) => void; reject: (reason?: any) => void; url: string; options: RequestInit; }> = [];
 
 
+// --- 커스텀 에러: 리프레시 토큰이 유효하지 않을 때 발생 ---
+export class RefreshTokenInvalidError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RefreshTokenInvalidError';
+  }
+}
 
 // 큐에 쌓인 요청들을 처리하는 함수
 const processFailedRequestsQueue = (error: Error | null, newAccessToken: string | null = null) => {
@@ -45,10 +53,7 @@ const processFailedRequestsQueue = (error: Error | null, newAccessToken: string 
 // --- 새 액세스 토큰을 발급받는 함수 ---
 async function refreshAccessToken(): Promise<string | null> {
   // const refreshToken = getCookie('refreshToken');
-  // if (!refreshToken) {
-  //   console.error('리프레시 토큰이 없습니다.');
-  //   return null;
-  // }
+  // if (!refreshToken) { ... }
 
   try {
     // 실제 토큰 재발급 API 엔드포인트로 수정해야 합니다.
@@ -67,20 +72,12 @@ async function refreshAccessToken(): Promise<string | null> {
       const errorData = await response.json().catch(() => ({ message: 'Failed to parse refresh error' }));
       console.error('토큰 재발급 API 실패:', response.status, errorData);
       // 리프레시 토큰도 만료된 경우 (예: 401, 403 등)
-      if (response.status === 401 || response.status === 403) {
-        // 모든 인증 쿠키 삭제 및 로그아웃 처리 유도
+      if (response.status === 401 || response.status === 403 || response.status === 400) { // 400도 추가 (백엔드 상황에 따라)
         deleteCookie('authorization');
-        // deleteCookie('refreshToken'); // <--- 이 부분은 HttpOnly refreshToken에는 효과 없음
-
-        // TODO: 여기서 사용자를 로그아웃 상태로 만들고 로그인 페이지로 리디렉션하는 로직 필요
-        // 이 시점에서 백엔드에 "명시적 로그아웃" API를 호출하여 HttpOnly refreshToken을 만료시켜야 함.
-        // 또는, 이 재발급 실패 자체가 이미 refreshToken이 유효하지 않음을 의미하므로,
-        // 프론트엔드에서는 UI만 로그아웃 상태로 변경하고, 다음 로그인 시 새로운 refreshToken을 받도록 유도.
-        console.warn('리프레시 토큰이 만료되었거나 유효하지 않습니다. 로그아웃 처리가 필요합니다.');
-        if (typeof window !== 'undefined') {
-          // window.dispatchEvent(new CustomEvent('forceLogout')); // 예시 이벤트
-          // 또는 useAuth 훅의 logout 함수를 호출할 수 있는 방법 모색
-        }
+        // HttpOnly 리프레시 토큰은 서버에서 만료시켜야 합니다.
+        // 클라이언트는 이 에러를 통해 강제 로그아웃을 유도합니다.
+        console.warn('리프레시 토큰이 만료되었거나 유효하지 않습니다. 강제 로그아웃이 필요합니다.');
+        throw new RefreshTokenInvalidError('Refresh token invalid or expired.');
       }
       return null;
     }
@@ -97,6 +94,9 @@ async function refreshAccessToken(): Promise<string | null> {
     }
     return null;
   } catch (error) {
+    if (error instanceof RefreshTokenInvalidError) {
+      throw error; // RefreshTokenInvalidError는 그대로 다시 throw
+    }
     console.error('토큰 재발급 중 네트워크 또는 기타 에러:', error);
     return null;
   }
@@ -151,14 +151,20 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}, isRe
               // 현재 요청은 이미 실패한 상태이므로, 추가 처리 없이 반환 (또는 에러 throw)
               // 여기서 로그아웃 처리가 refreshAccessToken 내부에서 이미 유도되었을 수 있음
             }
-          } catch (refreshError) {
+          } catch (refreshError: any) { // refreshAccessToken에서 발생한 에러 처리
             processFailedRequestsQueue(refreshError as Error, null);
+            if (refreshError instanceof RefreshTokenInvalidError) {
+              // 이 에러는 useAuth 훅에서 감지하여 로그아웃 처리하도록 전파
+              console.error("RefreshTokenInvalidError caught during refresh, propagating for logout:", refreshError);
+              throw refreshError;
+            }
+            // 기타 재발급 에러는 기존 로직대로 처리 (원래 J004 응답 반환)
           } finally {
             isRefreshingToken = false;
           }
         } else {
           // 이미 재발급 중: 현재 요청을 큐에 추가하고 Promise 반환
-          console.log('이미 토큰 재발급 중. 현재 요청을 큐에 추가:', url);
+          console.log('이미 토큰 재발급 중. 현재 요청을 큐에 추가:', url.replace(API_CONFIG.BASE_URL, ''));
           return new Promise((resolve, reject) => {
             failedRequestsQueue.push({ resolve, reject, url, options: newOptions });
           });
