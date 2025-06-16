@@ -1,6 +1,6 @@
 import { fetchWithAuth } from '@/lib/api';
 import type { ApiResponse } from '@/types/api';
-import type { UserProfileData } from '@/types/user';
+import type { UserActivityStats, UserProfileData } from '@/types/user'; // UserActivityStats 타입 추가
 import { API_CONFIG } from "../config/api";
 
 // --- 커스텀 에러 클래스 (기존과 동일) ---
@@ -80,6 +80,58 @@ export const userService = {
       throw new AuthError(response.status, 'Failed to withdraw account', endpoint);
     }
   },
+
+  /**
+   * 사용자 활동 통계(작성 게시글 수, 댓글 수, 좋아요 수)를 가져옵니다.
+   * @param nextOptions - Next.js fetch 캐싱 옵션
+   */
+  async getActivityCounts(nextOptions?: NextFetchRequestConfig): Promise<UserActivityStats> {
+    const endpoint = '/api/v1/users/me/activity'; // 실제 엔드포인트로 변경 필요
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: 'GET', // GET 요청으로 가정
+      next: nextOptions,
+    }) as Response;
+
+    if (!response.ok) {
+      throw new AuthError(response.status, 'Failed to get user activity stats', endpoint);
+    }
+
+    const apiResponse: ApiResponse<UserActivityStats> = await response.json();
+    return apiResponse.data;
+  },
+
+  /**
+ * 사용자의 현재 역할만 가져옵니다.
+ * @param nextOptions - Next.js fetch 캐싱 옵션
+ * @returns 사용자의 역할 문자열 ('PRE_REGISTER', 'USER', 'ADMIN' 등) 또는 인증되지 않은 경우 null
+ */
+  async getUserRole(nextOptions?: NextFetchRequestConfig): Promise<string | null> {
+    const endpoint = '/api/v1/users/me/role'; // 실제 백엔드 엔드포인트로 변경 필요
+    try {
+      const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+        method: 'GET',
+        next: nextOptions,
+      }) as Response;
+
+      if (response.status === 401) {
+        // 인증되지 않은 상태
+        return null;
+      }
+
+      // 200 OK 외의 다른 에러 상태 코드 처리
+      if (!response.ok) {
+        throw new AuthError(response.status, 'Failed to get user role', endpoint);
+      }
+
+      const apiResponse: ApiResponse<string> = await response.json();
+      return apiResponse.data;
+    } catch (error) {
+      // fetchWithAuth 자체에서 발생한 에러 (네트워크 등)
+      console.error('Error fetching user role:', error);
+      throw error; // 에러를 다시 던져서 useQuery가 처리하도록 함
+    }
+  },
+
 } as const;
 
 

@@ -1,5 +1,5 @@
 import { RefreshTokenInvalidError } from '@/lib/api'; // ⭐️ RefreshTokenInvalidError import
-import { getCurrentUser, userService } from '@/services/userService'; // userService 경로 확인 필요
+import { AuthError, userService } from '@/services/userService'; // userService 및 AuthError import
 import { AuthResponse } from "@/types/auth";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { deleteCookie } from 'cookies-next'; // ⭐️ deleteCookie import
@@ -26,19 +26,41 @@ export function useAuth(options?: UseAuthOptions) {
     queryKey: AUTH_QUERY_KEY,
     queryFn: async (): Promise<AuthResponse> => {
       try {
-        console.log('Fetching auth status via React Query using getCurrentUser...');
-        const userProfile: UserProfileData | null = await getCurrentUser();
-        if (userProfile) {
-          return { isAuthenticated: true, user: userProfile };
+        console.log('Attempting to fetch user role...');
+        // 1. 먼저 사용자 역할만 가져오는 API 호출
+        const userRole = await userService.getUserRole({ revalidate: 0 }); // revalidate: 0은 서버에서 즉시 가져오도록 (필요에 따라 조정)
+
+        if (userRole === null) {
+          // getUserRole에서 401 응답을 받았거나, 인증되지 않은 상태
+          console.log('User is not authenticated (role check returned null).');
+          return { isAuthenticated: false, user: null, needsProfileCompletion: false };
+        }
+
+        console.log('User role fetched:', userRole);
+
+        if (userRole === 'PRE_REGISTER') {
+          // 역할이 PRE_REGISTER인 경우, 추가 정보 입력 필요 상태 반환
+          console.log('User role is PRE_REGISTER, needs profile completion.');
+          return { isAuthenticated: true, user: null, needsProfileCompletion: true };
         } else {
-          return { isAuthenticated: false, user: null };
+          // 역할이 PRE_REGISTER가 아닌 경우, 전체 프로필 정보 가져오기
+          console.log('User role is not PRE_REGISTER, fetching full profile...');
+          const userProfile: UserProfileData = await userService.getProfile({ revalidate: 0 }); // 전체 프로필 가져오기
+          console.log('Full user profile fetched successfully:', userProfile);
+          // 전체 프로필이 있다면 인증된 상태 반환
+          return { isAuthenticated: true, user: userProfile, needsProfileCompletion: false };
         }
       } catch (err: any) {
         if (err instanceof RefreshTokenInvalidError) {
           console.warn('Refresh token invalid during auth status fetch. Clearing auth cookie.', err.message);
           deleteCookie('authorization', { path: '/' }); // 액세스 토큰 쿠키 삭제
           // 인증되지 않은 상태로 응답하여 React Query 캐시를 업데이트합니다.
-          return { isAuthenticated: false, user: null };
+          return { isAuthenticated: false, user: null, needsProfileCompletion: false };
+        } else if (err instanceof AuthError && err.status === 401) {
+          // userService.getProfile 등에서 401 에러 발생 시 처리
+          console.warn('AuthError 401 during auth status fetch. Clearing auth cookie.', err.message);
+          deleteCookie('authorization', { path: '/', domain: '.gamzatech.site' }); // 도메인 명시
+          return { isAuthenticated: false, user: null, needsProfileCompletion: false };
         }
         // 다른 종류의 에러는 그대로 throw하여 React Query가 처리하도록 합니다.
         console.error('Error fetching auth status in useAuth queryFn:', err);
@@ -80,7 +102,7 @@ export function useAuth(options?: UseAuthOptions) {
     } finally {
       // 로그아웃 성공 시 인증 상태 캐시 업데이트
       queryClient.setQueryData(AUTH_QUERY_KEY, { isAuthenticated: false, user: null });
-      // 액세스 토큰 쿠키 삭제 (HttpOnly가 아닌 경우)
+      // 액세스 토큰 쿠키 삭제
       deleteCookie('authorization', { path: '/', domain: '.gamzatech.site' }); // 도메인 명시
       console.log('Client-side logout processed: Auth status cache updated and auth cookie cleared.');
       // 또는 특정 쿼리를 무효화하여 다시 가져오도록 할 수 있습니다.
@@ -95,6 +117,7 @@ export function useAuth(options?: UseAuthOptions) {
     isLoggedIn: data?.isAuthenticated ?? false,
     userProfile: data?.user ?? null,
     isLoading, // 데이터 로딩 중 여부
+    needsProfileCompletion: data?.needsProfileCompletion ?? false, // 새로운 상태 추가
     error,     // 에러 객체 (Error 타입)
     isError,   // 에러 발생 여부 (boolean)
     refetchAuthStatus: refetch, // 인증 상태를 수동으로 다시 가져오는 함수

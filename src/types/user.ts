@@ -21,6 +21,12 @@ export interface UserProfileData {
 //   updatedAt: string;
 // }
 
+export interface UserActivityStats {
+  likedPostCount: number;
+  writtenPostCount: number;
+  writtenCommentCount: number;
+}
+
 // 사용자 역할 타입
 export type UserPosition = 'BACKEND' | 'FRONTEND' | 'DESIGNER' | 'APP_DEVELOPER';
 // export type UserRole = 'USER' | 'ADMIN' | 'MODERATOR';
