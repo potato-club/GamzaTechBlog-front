@@ -1,11 +1,12 @@
 "use client";
 
-import type { UserProfileData } from "@/types/user"; // ⭐️ 공유 타입 사용
+import { userService } from "@/services/userService"; // ⭐️ userService import
+import type { UserActivityStats, UserProfileData } from "@/types/user"; // ⭐️ 공유 타입 사용
 import Image from "next/image";
+import { useEffect, useState } from "react"; // ⭐️ useEffect, useState import
 import ProfileEditDialog from "../../features/user/ProfileEditDialog";
 import UserActivityStatItem from "../../features/user/UserActivityStatItem";
 import UserIcon from "../../ui/UserIcon";
-
 
 // Sidebar 컴포넌트 props 정의
 interface SidebarProps {
@@ -13,13 +14,42 @@ interface SidebarProps {
   onProfileUpdate: (updatedProfile: Partial<UserProfileData>) => void; // 프로필 업데이트 콜백
 }
 
+interface StatItem {
+  icon: string;
+  alt: string;
+  label: string;
+  count: number;
+}
+
 export default function MyPageSidebar({ userProfile, onProfileUpdate }: SidebarProps) {
-  // 통계 데이터는 props로 받거나 API 호출을 통해 동적으로 가져오는 것이 좋습니다.
-  const stats = [
-    { icon: "/postIcon.svg", alt: "작성 글 아이콘", label: "작성 글", count: 0 },
-    { icon: "/commentIcon.svg", alt: "작성 댓글 아이콘", label: "작성 댓글", count: 0 },
-    { icon: "/likeIcon.svg", alt: "좋아요 아이콘", label: "좋아요", count: 0 },
+  const [activityStats, setActivityStats] = useState<UserActivityStats | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (userProfile?.githubId) { // userProfile이 있고, 식별 가능한 ID가 있을 때만 호출
+        try {
+          setIsLoadingStats(true);
+          const statsData = await userService.getActivityCounts();
+          setActivityStats(statsData);
+        } catch (error) {
+          console.error("Failed to fetch activity stats:", error);
+          // 에러 처리 (예: 사용자에게 알림)
+        } finally {
+          setIsLoadingStats(false);
+        }
+      }
+    };
+    fetchStats();
+  }, [userProfile?.githubId]); // userProfile.githubId가 변경될 때마다 실행
+
+  const stats: StatItem[] = [
+    { icon: "/postIcon.svg", alt: "작성 글 아이콘", label: "작성 글", count: activityStats?.writtenPostCount ?? 0 },
+    { icon: "/commentIcon.svg", alt: "작성 댓글 아이콘", label: "작성 댓글", count: activityStats?.writtenCommentCount ?? 0 },
+    { icon: "/likeIcon.svg", alt: "좋아요 아이콘", label: "좋아요", count: activityStats?.likedPostCount ?? 0 },
   ];
+
+  console.log('mypage activityStats', stats);
 
   // Sidebar 자체에서 관리할 상태가 있다면 여기에 둡니다.
   // 예: const [isSomethingOpen, setIsSomethingOpen] = useState(false);
@@ -65,14 +95,22 @@ export default function MyPageSidebar({ userProfile, onProfileUpdate }: SidebarP
       <section aria-labelledby="user-activity-stats-heading" className="mt-10 w-full">
         <h2 id="user-activity-stats-heading" className="sr-only">사용자 활동 통계</h2>
         <ul className="text-center flex justify-around text-sm">
-          {stats.map((stat) => (
-            <UserActivityStatItem
-              key={stat.label}
-              icon={stat.icon}
-              label={stat.label}
-              count={stat.count}
-            />
-          ))}
+          {isLoadingStats ? (
+            <>
+              <div className="h-12 w-16 animate-pulse rounded-md bg-gray-200" />
+              <div className="h-12 w-16 animate-pulse rounded-md bg-gray-200" />
+              <div className="h-12 w-16 animate-pulse rounded-md bg-gray-200" />
+            </>
+          ) : (
+            stats.map((stat) => (
+              <UserActivityStatItem
+                key={stat.label}
+                icon={stat.icon}
+                label={stat.label}
+                count={stat.count}
+              />
+            ))
+          )}
         </ul>
       </section>
     </aside>
