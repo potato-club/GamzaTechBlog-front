@@ -2,7 +2,7 @@
 
 import MyPageSidebar from "@/components/layout/sidebar/MyPageSidebar";
 import MyPageSkeleton from "@/components/skeletons/MyPageSkeleton";
-import { useAuth } from "@/hooks/useAuth"; // ⭐️ useAuth 훅 가져오기
+import { useAuth } from "@/hooks/queries/useUserQueries"; // ⭐️ 인증 상태 컴포지션 훅 직접 import
 import type { UserProfileData } from "@/types/user"; // ⭐️ 공통 UserProfileData 타입 가져오기
 import { useRouter } from "next/navigation"; // ⭐️ 라우터 추가 (로그인 안된 경우 리디렉션 등)
 import React, { Suspense, useEffect } from 'react'; // useEffect 추가 (선택적)

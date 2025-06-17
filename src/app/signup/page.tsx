@@ -9,8 +9,7 @@
 
 import SignupForm from "@/components/features/auth/SignupForm";
 import { Position } from "@/enums/position";
-import { useUpdateProfileInSignup } from "@/hooks/queries/useUserQueries";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, useUpdateProfileInSignup } from "@/hooks/queries/useUserQueries";
 import {
   SignupFormValues,
   signupSchema,
