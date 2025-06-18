@@ -11,6 +11,7 @@ import CommentList from "@/components/features/comments/CommentList";
 import LikeList from "@/components/features/posts/LikeList";
 import PostList from "@/components/features/posts/PostList";
 import TabMenu from "@/components/TabMenu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useMyPageData } from "@/hooks/queries/useMyPageQueries"; // TanStack Query 기반 훅으로 교체
 import { useMyPageTab } from "@/hooks/useMyPageTab";
 
@@ -45,21 +46,20 @@ export default function MyPage() {
    */
   const renderTabContent = () => {
     switch (currentTab) {
-      case "posts":
-        if (isLoadingPosts) {
-          return (
-            <div className="flex flex-col gap-8 mt-8">
-              {/* 게시글 로딩 스켈레톤 */}
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                </div>
-              ))}
-            </div>
-          );
-        }
+      case "posts": if (isLoadingPosts) {
+        return (
+          <div className="flex flex-col gap-8 mt-8">
+            {/* 게시글 로딩 스켈레톤 - shadcn/ui Skeleton 사용 */}
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            ))}
+          </div>
+        );
+      }
         if (postsError) {
           return (
             <div className="mt-8 text-center text-red-500">
@@ -70,20 +70,19 @@ export default function MyPage() {
         }
         return <PostList posts={posts} />;
 
-      case "comments":
-        if (isLoadingComments) {
-          return (
-            <div className="flex flex-col gap-4 mt-8">
-              {/* 댓글 로딩 스켈레톤 */}
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="animate-pulse bg-gray-100 rounded-xl px-6 py-5">
-                  <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                </div>
-              ))}
-            </div>
-          );
-        }
+      case "comments": if (isLoadingComments) {
+        return (
+          <div className="flex flex-col gap-4 mt-8">
+            {/* 댓글 로딩 스켈레톤 - shadcn/ui Skeleton 사용 */}
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="bg-gray-100 rounded-xl px-6 py-5 space-y-2">
+                <Skeleton className="h-4 w-1/4" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            ))}
+          </div>
+        );
+      }
         if (commentsError) {
           return (
             <div className="mt-8 text-center text-red-500">
@@ -97,21 +96,20 @@ export default function MyPage() {
         //       postId를 옵셔널로 변경하는 것을 고려
         return <CommentList comments={comments} postId={0} />;
 
-      case "likes":
-        if (isLoadingLikes) {
-          return (
-            <div className="flex flex-col gap-8 mt-8">
-              {/* 좋아요 목록 로딩 스켈레톤 */}
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                </div>
-              ))}
-            </div>
-          );
-        }
+      case "likes": if (isLoadingLikes) {
+        return (
+          <div className="flex flex-col gap-8 mt-8">
+            {/* 좋아요 목록 로딩 스켈레톤 - shadcn/ui Skeleton 사용 */}
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            ))}
+          </div>
+        );
+      }
         if (likesError) {
           return (
             <div className="mt-8 text-center text-red-500">
