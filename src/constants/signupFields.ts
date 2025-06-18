@@ -1,3 +1,5 @@
+import { Position } from "../enums/position";
+
 const signupFields = [
   {
     id: "email",
@@ -12,9 +14,9 @@ const signupFields = [
     placeholder: "학번을 입력해주세요",
   },
   {
-    id: "potatoGeneration",
+    id: "gamjaBatch",
     label: "감자 기수",
-    type: "text",
+    type: "number",
     placeholder: "기수를 입력해주세요",
   },
   {
@@ -22,7 +24,7 @@ const signupFields = [
     label: "직군",
     type: "option",
     placeholder: "직군 선택",
-    options: ["FE", "BE", "디자이너"],
+    options: Object.values(Position),
   },
 ];
 

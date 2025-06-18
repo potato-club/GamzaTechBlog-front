@@ -41,15 +41,15 @@ export const userService = {
     }
   },
 
-  async updateProfile(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
-    const endpoint = '/api/v1/users/me/update/profile';
+  async updateProfileInSignup(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
+    const endpoint = '/api/v1/users/me/complete';
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'PUT',
+      method: 'POST',
       body: JSON.stringify(profileData),
     }) as Response;
 
     if (!response.ok) {
-      throw new AuthError(response.status, 'Failed to update profile', endpoint);
+      throw new AuthError(response.status, 'Failed to update profile in signup', endpoint);
     }
 
     const apiResponse: ApiResponse<UserProfileData> = await response.json();
@@ -131,6 +131,26 @@ export const userService = {
       throw error; // 에러를 다시 던져서 useQuery가 처리하도록 함
     }
   },
+
+  // /**
+  //  * 사용자 프로필을 업데이트합니다.
+  //  * @param profileData - 업데이트할 프로필 데이터
+  //  * @returns 업데이트된 사용자 프로필 데이터
+  //  */
+  // async updateProfile(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
+  //   const endpoint = '/api/v1/users/me/update/profile';
+  //   const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+  //     method: 'PUT',
+  //     body: JSON.stringify(profileData),
+  //   }) as Response;
+
+  //   if (!response.ok) {
+  //     throw new AuthError(response.status, 'Failed to update profile', endpoint);
+  //   }
+
+  //   const apiResponse: ApiResponse<UserProfileData> = await response.json();
+  //   return apiResponse.data;
+  // },
 
 } as const;
 

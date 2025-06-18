@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth"; // 수정된 useAuth 훅
+import { useAuth } from "@/hooks/queries/useUserQueries"; // 인증 상태 컴포지션 훅 직접 import
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,9 +11,7 @@ import { DropdownMenuList } from "../../common/DropdownMenuList";
 
 
 export const HeaderNavigation = () => {
-  const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github"; // 환경 변수 또는 기본값
-
-  // useAuth 훅 호출. React Query가 데이터 관리
+  const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github"; // 환경 변수 또는 기본값  // useAuth 훅 호출. React Query가 데이터 관리
   const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion } = useAuth(); // needsProfileCompletion 추가
 
   const router = useRouter();

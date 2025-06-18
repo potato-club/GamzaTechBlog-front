@@ -1,5 +1,12 @@
 "use client";
 
+/**
+ * 게시글 작성 페이지
+ * 
+ * TanStack Query의 useCreatePost 뮤테이션을 사용하여
+ * 게시글 작성을 효율적으로 처리하고 캐시를 자동 관리합니다.
+ */
+
 import type { ToastEditorHandle } from "@/components/ToastEditor";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,14 +17,14 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod"; // zodResolver 추가
+import { useCreatePost } from "@/hooks/queries/usePostQueries";
+import { zodResolver } from "@hookform/resolvers/zod";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // useRouter 추가
-import React, { useEffect, useRef, useState } from "react"; // useState 추가
+import { useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { z } from "zod"; // z 추가
-import { postService } from "../../../services/postService";
+import { z } from "zod";
 
 const ToastEditor = dynamic(() => import("@/components/ToastEditor"), {
   ssr: false,
@@ -26,52 +33,61 @@ const ToastEditor = dynamic(() => import("@/components/ToastEditor"), {
 // Zod 스키마 정의
 const formSchema = z.object({
   title: z.string().min(1, { message: "제목은 필수입니다." }).max(100, { message: "제목은 100자 이내로 입력해주세요." }),
-  // content는 에디터에서 직접 가져오므로, 폼 스키마에서는 선택적으로 다루거나 제외할 수 있습니다.
-  // 여기서는 폼 데이터에 포함시키지 않는다고 가정합니다.
 });
 
-// Zod 스키마로부터 타입 추론
 type FormValues = z.infer<typeof formSchema>;
 
 export default function WritePage() {
   const editorRef = useRef<ToastEditorHandle>(null);
-  const router = useRouter(); // useRouter 훅 사용
+  const router = useRouter();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema), // zodResolver 사용
+    resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
     },
   });
 
-  const [tags, setTags] = useState<string[]>([]); // 태그를 상태로 관리
+  const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState<string>("");
+  const [uploadingDots, setUploadingDots] = useState("");
 
-  const [isSubmittingPost, setIsSubmittingPost] = useState(false); // 게시글 제출 상태
-  const [uploadingDots, setUploadingDots] = useState(""); // 업로드 중 점 애니메이션
+  /**
+   * TanStack Query 뮤테이션을 사용한 게시글 생성
+   * 
+   * 이 훅의 장점:
+   * - 자동 캐시 무효화: 게시글 목록이 자동으로 갱신됨
+   * - 로딩 상태 관리: isPending을 통한 버튼 비활성화
+   * - 에러 처리: 실패 시 자동 에러 핸들링
+   * - 성공 후 리디렉션: onSuccess 콜백을 통한 페이지 이동
+   */
+  const createPostMutation = useCreatePost();
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => { // async 추가
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const markdown = editorRef.current?.getMarkdown() || "";
-    const commitMessage = ``;
-    setIsSubmittingPost(true); // 제출 시작
 
+    if (!markdown.trim()) {
+      alert("내용을 입력해주세요.");
+      return;
+    }
 
+    // TanStack Query 뮤테이션 실행
     try {
-      const response = await postService.createPost({
+      const result = await createPostMutation.mutateAsync({
         title: data.title,
         content: markdown,
         tags: tags,
-        commitMessage: commitMessage,
+        commitMessage: `새 게시글: ${data.title}`,
       });
 
-      console.log("게시글 생성 성공:", response);
-      // 성공 시 생성된 게시글 상세 페이지로 이동
-      router.push(`/posts/${response.postId}`);
+      // 성공 시 게시글 상세 페이지로 이동
+      router.push(`/posts/${result.postId}`);
+
     } catch (error) {
-      console.error("게시글 생성 실패:", error);
-      alert("게시글 생성에 실패했습니다. 다시 시도해주세요.");
-    } finally {
-      setIsSubmittingPost(false); // 제출 완료 (성공/실패 무관)
+      // 에러는 TanStack Query의 onError에서 이미 처리됨
+      // 추가 사용자 피드백이 필요하면 여기에 추가
+      console.error('게시글 작성 중 오류:', error);
+      alert("게시글 작성에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -107,10 +123,10 @@ export default function WritePage() {
       handleAddTag();
     }
   };
-
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isSubmittingPost) {
+    // TanStack Query의 isPending 상태를 사용하여 로딩 애니메이션 처리
+    if (createPostMutation.isPending) {
       interval = setInterval(() => {
         setUploadingDots((prevDots) => {
           if (prevDots.length >= 3) return ".";
@@ -121,7 +137,7 @@ export default function WritePage() {
       setUploadingDots(""); // 제출 중이 아니면 점 초기화
     }
     return () => clearInterval(interval);
-  }, [isSubmittingPost]);
+  }, [createPostMutation.isPending]);
 
   return (
     <Form {...form}>
@@ -173,15 +189,13 @@ export default function WritePage() {
             disabled={tags.length >= 2} // 태그가 2개 이상이면 입력 비활성화
             className="h-auto p-1.5 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none bg-transparent w-auto flex-grow" // w-auto, flex-grow 추가
           />
-        </div>
-
-        <Button
+        </div>        <Button
           type="submit"
-          className={`self-end px-4 py-2 bg-[#20242B] text-white rounded-4xl transition-colors duration-150 ${isSubmittingPost ? "cursor-not-allowed opacity-70" : "hover:bg-[#33373E]/90 hover:cursor-pointer"
+          className={`self-end px-4 py-2 bg-[#20242B] text-white rounded-4xl transition-colors duration-150 ${createPostMutation.isPending ? "cursor-not-allowed opacity-70" : "hover:bg-[#33373E]/90 hover:cursor-pointer"
             }`}
-          disabled={isSubmittingPost}
+          disabled={createPostMutation.isPending} // TanStack Query 로딩 상태 사용
         >
-          {isSubmittingPost ? `게시글 업로드 중${uploadingDots}` : "완료"}
+          {createPostMutation.isPending ? `게시글 업로드 중${uploadingDots}` : "완료"}
         </Button>
       </form>
     </Form>
