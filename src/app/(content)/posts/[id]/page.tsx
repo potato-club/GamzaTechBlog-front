@@ -1,10 +1,10 @@
+import MarkdownViewer from "@/components/features/posts/MarkdownViewer";
 import PostCommentsSection from "@/components/features/posts/PostCommentsSection";
 import TagBadge from '@/components/ui/TagBadge'; // TagBadge 컴포넌트 임포트
 import { postService } from "@/services/postService";
 import { CommentData, PostDetailData } from "@/types/comment";
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import MarkdownViewer from "../../../components/features/posts/MarkdownViewer";
 
 
 // UiComment 인터페이스는 PostCommentsSection.tsx로 이동 또는 공유 타입으로 관리
