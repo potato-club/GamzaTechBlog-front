@@ -52,10 +52,6 @@ export const POST_QUERY_KEYS = {
 
   // 태그 관련 쿼리 키
   tags: () => [...POST_QUERY_KEYS.all, 'tags'] as const,
-
-  // 사용자 게시글 쿼리 키
-  userPosts: (params?: GetPostsParams) =>
-    ['posts', 'user', params] as const,
 } as const;
 
 /**
@@ -172,29 +168,6 @@ export function useTags(
 }
 
 /**
- * 사용자가 작성한 게시글 목록을 조회하는 훅
- * 인증이 필요한 사용자별 게시글 조회 기능입니다.
- * 
- * @param params - 페이지네이션 및 정렬 파라미터
- * @param options - TanStack Query 옵션
- */
-export function useUserPosts(
-  params?: GetPostsParams,
-  options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
-) {
-  return useQuery({
-    queryKey: POST_QUERY_KEYS.userPosts(params),
-    queryFn: () => postService.getUserPosts(params),
-
-    staleTime: 1000 * 60 * 2, // 2분간 fresh 상태 유지 (사용자 데이터는 더 자주 갱신)
-    gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
-    retry: 2,
-    refetchOnWindowFocus: false,
-    ...options,
-  });
-}
-
-/**
  * 새 게시글을 생성하는 뮤테이션 훅
  * 성공 시 관련 쿼리 무효화를 통해 최신 데이터로 갱신합니다.
  * 
@@ -208,16 +181,15 @@ export function useCreatePost(
   return useMutation({
     mutationFn: (postData: CreatePostRequest) => postService.createPost(postData),
 
-    onSuccess: (newPost: CreatePostResponse, variables, context) => {
-      // 새 게시글 생성 성공 시 게시글 목록 캐시를 무효화
+    onSuccess: (newPost: CreatePostResponse, variables, context) => {      // 새 게시글 생성 성공 시 게시글 목록 캐시를 무효화
       // 이렇게 하면 목록 페이지에서 자동으로 최신 데이터를 다시 가져옵니다
       queryClient.invalidateQueries({
         queryKey: POST_QUERY_KEYS.lists()
       });
 
-      // 사용자 게시글 목록도 무효화
+      // 마이페이지의 사용자 게시글 목록도 무효화
       queryClient.invalidateQueries({
-        queryKey: ['posts', 'user']
+        queryKey: ['my-posts']
       });
 
       // 새로 생성된 게시글을 상세 페이지 캐시에 미리 저장

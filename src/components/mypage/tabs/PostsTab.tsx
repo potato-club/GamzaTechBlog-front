@@ -12,7 +12,10 @@ import { useMyPosts } from "@/hooks/queries/useMyPageQueries";
 import { PostData } from "@/types/post";
 
 export default function PostsTab() {
-  const { data: posts = [], isLoading, error } = useMyPosts();
+  const { data: postsData, isLoading, error } = useMyPosts();
+
+  // 페이지네이션 데이터에서 실제 게시글 배열 추출
+  const posts = postsData?.content || [];
 
   // 로딩 상태
   if (isLoading) {

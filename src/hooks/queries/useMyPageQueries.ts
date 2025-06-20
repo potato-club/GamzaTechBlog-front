@@ -7,51 +7,47 @@
  * TanStack Query를 통해 효율적으로 관리합니다.
  */
 
+import { postService } from "@/services/postService";
 import { CommentData } from "@/types/comment";
 import { PostData } from "@/types/post";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+
+// 페이지네이션을 위한 타입
+interface PageableContent<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+// 게시글 요청 파라미터 타입
+interface GetPostsParams {
+  page?: number;
+  size?: number;
+  sort?: string[];
+}
 
 /**
- * 사용자가 작성한 게시글 목록을 가져오는 훅
+ * 사용자가 작성한 게시글 목록을 조회하는 훅
+ * 인증이 필요한 사용자별 게시글 조회 기능입니다.
  * 
- * 이 훅은 TanStack Query의 useQuery를 사용하여:
- * - 사용자의 게시글 목록을 자동 캐싱
- * - 백그라운드에서 자동 갱신
- * - 로딩/에러 상태 자동 관리
- * - 다른 컴포넌트와 데이터 공유
- * 
- * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
+ * @param params - 페이지네이션 및 정렬 파라미터
+ * @param options - TanStack Query 옵션
  */
-export function useMyPosts() {
+export function useMyPosts(
+  params?: GetPostsParams,
+  options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
+) {
   return useQuery({
-    queryKey: ["my-posts"], // 캐시 키: 사용자의 게시글 목록
-    queryFn: async (): Promise<PostData[]> => {
-      // 실제 API 호출 (현재는 목업 데이터 반환)
-      // TODO: 실제 서비스 함수로 교체
-      // return await userService.getMyPosts();
+    queryKey: ["my-posts", params], // 캐시 키: 사용자의 게시글 목록
+    queryFn: () => postService.getUserPosts(params),
 
-      // 임시 목업 데이터
-      return [
-        {
-          postId: 1,
-          title: "제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다제목입니다",
-          contentSnippet: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima aperiam animi libero quae sint nobis molestiae suscipit perferendis facere quia! Vel obcaecati culpa ex libero tempore consequuntur sapiente incidunt sint!",
-          writer: "GyeongHwan Lee",
-          createdAt: "2025-06-12T03:34:18.808237",
-          tags: ["# java", "# spring", "# backend"],
-        },
-        {
-          postId: 2,
-          title: "Next.js로 무한스크롤 구현하기",
-          contentSnippet: "Next.js에서 Intersection Observer API를 사용해 무한스크롤을 구현하는 방법을 정리합니다.",
-          writer: "Jinwoo Park",
-          createdAt: "2025-04-27T00:00:00.000Z",
-          tags: ["# nextjs", "# react", "# frontend"],
-        },
-      ] as PostData[];
-    },
-    staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
+    staleTime: 1000 * 60 * 2, // 2분간 fresh 상태 유지 (사용자 데이터는 더 자주 갱신)
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
+    retry: 2,
+    refetchOnWindowFocus: false,
+    ...options,
   });
 }
 
