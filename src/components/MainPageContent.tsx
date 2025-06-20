@@ -11,7 +11,7 @@
 import { usePosts, useTags } from "@/hooks/queries/usePostQueries";
 import Image from "next/image";
 import Link from "next/link";
-import PostList from "./features/posts/PostList";
+import PostCard from "./features/posts/PostCard";
 import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
 export default function MainPageContent() {
@@ -133,11 +133,19 @@ export default function MainPageContent() {
         </Link>
       </section>
 
-      {/* 게시물 목록과 사이드바를 감싸는 flex 컨테이너 */}
-      <div className="flex pb-10">        <main className="flex-3"> {/* 주요 콘텐츠 영역 */}
-        <h2 className="text-2xl font-semibold">Posts</h2>
-        <PostList posts={posts} />
-      </main>
+      {/* 게시물 목록과 사이드바를 감싸는 flex 컨테이너 */}      <div className="flex pb-10">
+        <main className="flex-3"> {/* 주요 콘텐츠 영역 */}
+          <h2 className="text-2xl font-semibold">Posts</h2>
+          <div className="flex flex-col gap-8 mt-8">
+            {posts.map((post) => (
+              <PostCard
+                key={post.postId}
+                post={post}
+                showLikeButton={true} // 메인 페이지에서는 좋아요 버튼 표시
+              />
+            ))}
+          </div>
+        </main>
 
         {/* 
           사이드바 컴포넌트 - TanStack Query 기반
