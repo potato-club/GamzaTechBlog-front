@@ -5,6 +5,9 @@
  * 기존의 useEffect + useState 패턴을 대체하여 더 효율적으로 
  * 서버 데이터를 캐싱, 동기화, 업데이트할 수 있습니다.
  * 
+ * postService 등과 마찬가지로 fetch의 next 캐싱 대신 
+ * TanStack Query의 클라이언트 캐싱을 활용합니다.
+ * 
  * 주요 훅들 (각각 단일 책임 원칙에 따라 독립적으로 작동):
  * - useUserProfile: 사용자 프로필 정보 조회
  * - useUserRole: 사용자 역할 정보 조회  
@@ -14,8 +17,8 @@
  */
 
 import { userService } from '@/services/userService';
-import { UserProfileData } from '@/types/user';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { UserActivityStats, UserProfileData } from '@/types/user';
+import { useMutation, UseMutationOptions, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { deleteCookie } from 'cookies-next';
 
 // Query Key 상수들 - 캐시를 식별하는 고유 키들입니다
@@ -35,14 +38,20 @@ export const USER_QUERY_KEYS = {
  * 
  * TanStack Query의 useQuery를 사용하여 서버에서 사용자 프로필을 가져옵니다.
  * 성공적으로 데이터를 가져오면 자동으로 캐시되며, staleTime 동안 캐시된 데이터를 사용합니다.
+ * 
+ * @param options - TanStack Query 옵션
  */
-export function useUserProfile() {
+export function useUserProfile(
+  options?: Omit<UseQueryOptions<UserProfileData, Error>, 'queryKey' | 'queryFn'>
+) {
   return useQuery({
     queryKey: USER_QUERY_KEYS.profile(),
     queryFn: () => userService.getProfile(),
-    staleTime: 5 * 60 * 1000, // 5분 - 프로필 정보는 자주 변하지 않으므로 적절한 캐시 시간
-    retry: 2, // 실패 시 2번까지 재시도
-    refetchOnWindowFocus: false, // 창 포커스 시 자동 refetch 비활성화
+    staleTime: 1000 * 60 * 5, // 5분간 fresh 상태 유지
+    gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
+    retry: 2,
+    refetchOnWindowFocus: false,
+    ...options,
   });
 }
 
@@ -50,16 +59,23 @@ export function useUserProfile() {
  * 사용자 활동 통계를 조회하는 훅
  * 
  * 작성한 게시글 수, 댓글 수, 좋아요 수 등의 통계 정보를 가져옵니다.
+ * TanStack Query를 통해 캐싱, 백그라운드 업데이트, 에러 처리를 자동화합니다.
+ * 
+ * @param options - TanStack Query 옵션
  */
-export function useUserActivityStats() {
+export function useUserActivityStats(
+  options?: Omit<UseQueryOptions<UserActivityStats, Error>, 'queryKey' | 'queryFn'>
+) {
   return useQuery({
     queryKey: USER_QUERY_KEYS.activityStats(),
     queryFn: () => userService.getActivityCounts(),
 
     // 통계는 자주 변하지 않으므로 더 긴 캐시 시간 설정
-    staleTime: 10 * 60 * 1000, // 10분
+    staleTime: 1000 * 60 * 10, // 10분간 fresh 상태 유지
+    gcTime: 1000 * 60 * 30, // 30분간 캐시 유지
     retry: 2,
     refetchOnWindowFocus: false,
+    ...options,
   });
 }
 
@@ -68,14 +84,20 @@ export function useUserActivityStats() {
  * 
  * TanStack Query의 useQuery를 사용하여 서버에서 사용자 역할(ROLE)을 가져옵니다.
  * 역할은 'USER', 'PRE_REGISTER' 등의 값을 가지며, 인증 상태를 판단하는 데 사용됩니다.
+ * 
+ * @param options - TanStack Query 옵션
  */
-export function useUserRole() {
+export function useUserRole(
+  options?: Omit<UseQueryOptions<string | null, Error>, 'queryKey' | 'queryFn'>
+) {
   return useQuery({
     queryKey: USER_QUERY_KEYS.role(),
     queryFn: () => userService.getUserRole(),
-    staleTime: 10 * 60 * 1000, // 10분 - 역할은 자주 변하지 않음
-    retry: 2, // 실패 시 2번까지 재시도
-    refetchOnWindowFocus: false, // 창 포커스 시 자동 refetch 비활성화
+    staleTime: 1000 * 60 * 10, // 10분간 fresh 상태 유지
+    gcTime: 1000 * 60 * 30, // 30분간 캐시 유지
+    retry: 2,
+    refetchOnWindowFocus: false,
+    ...options,
   });
 }
 
@@ -84,15 +106,19 @@ export function useUserRole() {
  * 
  * useMutation은 CREATE, UPDATE, DELETE와 같은 변경 작업에 사용합니다.
  * 성공 시 프로필 캐시를 업데이트하고 활동 통계 캐시를 무효화합니다.
+ * 
+ * @param options - TanStack Query 뮤테이션 옵션
  */
-export function useUpdateProfileInSignup() {
+export function useUpdateProfileInSignup(
+  options?: UseMutationOptions<UserProfileData, Error, Partial<UserProfileData>>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (profileData: Partial<UserProfileData>) =>
       userService.updateProfileInSignup(profileData),
 
-    onSuccess: (updatedProfile) => {
+    onSuccess: (updatedProfile, variables, context) => {
       // 프로필 업데이트 성공 시 프로필 캐시 업데이트
       queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
 
@@ -102,11 +128,17 @@ export function useUpdateProfileInSignup() {
       });
 
       console.log('프로필 업데이트 성공 - 프로필 캐시가 갱신되었습니다');
+
+      // 사용자 정의 성공 콜백 실행
+      options?.onSuccess?.(updatedProfile, variables, context);
     },
 
-    onError: (error) => {
+    onError: (error, variables, context) => {
       console.error('프로필 업데이트 실패:', error);
+      options?.onError?.(error, variables, context);
     },
+
+    ...options,
   });
 }
 
@@ -115,26 +147,34 @@ export function useUpdateProfileInSignup() {
  * 
  * 계정 탈퇴는 로그아웃과 달리 계정 자체를 삭제하는 작업입니다.
  * 성공 시 모든 캐시를 완전히 제거합니다.
+ * 
+ * @param options - TanStack Query 뮤테이션 옵션
  */
-export function useWithdrawAccount() {
+export function useWithdrawAccount(
+  options?: UseMutationOptions<void, Error, void>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: () => userService.withdrawAccount(),
 
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       // 계정 탈퇴 성공 시 모든 캐시 제거
-      queryClient.clear();
-
-      // 쿠키도 완전히 제거
+      queryClient.clear();      // 쿠키도 완전히 제거
       deleteCookie('authorization', { path: '/', domain: '.gamzatech.site' });
 
       console.log('계정 탈퇴 성공 - 모든 캐시 및 인증 정보가 제거되었습니다');
+
+      // 사용자 정의 성공 콜백 실행
+      options?.onSuccess?.(data, variables, context);
     },
 
-    onError: (error) => {
+    onError: (error, variables, context) => {
       console.error('계정 탈퇴 실패:', error);
+      options?.onError?.(error, variables, context);
     },
+
+    ...options,
   });
 }
 
