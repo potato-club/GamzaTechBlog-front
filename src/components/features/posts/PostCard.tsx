@@ -16,8 +16,10 @@ import PostMeta from "./PostMeta";
 
 export default function PostCard({
   post,
+  showLikeButton = true, // 기본적으로 좋아요 버튼 표시
 }: {
   post: any;
+  showLikeButton?: boolean;
 }) {
   const pathname = usePathname();
   const isMyPage = pathname === "/mypage";
@@ -66,19 +68,17 @@ export default function PostCard({
             {post.title}
           </h3>
           <p className="text-[#B5BBC7] text-sm mt-3.5 truncate">{post.contentSnippet}</p>
-        </Link>
-
-        <div className="flex justify-between items-center">
+        </Link>        <div className="flex justify-between items-center">
           <PostMeta author={post.writer} date={post.createdAt.split("T")[0]} tags={post.tags} />
 
-          {/* 좋아요 버튼 - 마이페이지가 아닐 때만 표시 */}
-          {!isMyPage && (
+          {/* 좋아요 버튼 - showLikeButton prop으로 제어 */}
+          {showLikeButton && (
             <button
               onClick={handleLikeToggle}
               disabled={likePostMutation.isPending}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-colors ${isLiked
-                  ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                 } ${likePostMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
               aria-label={isLiked ? '좋아요 취소' : '좋아요'}
             >
