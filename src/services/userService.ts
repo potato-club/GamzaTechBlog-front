@@ -14,13 +14,14 @@ export class AuthError extends Error {
 export const userService = {
   /**
    * 사용자 프로필 정보를 가져옵니다.
-   * @param nextOptions - Next.js fetch 캐싱 옵션
+   * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    */
-  async getProfile(nextOptions?: NextFetchRequestConfig): Promise<UserProfileData> {
-    const endpoint = '/api/v1/users/me/get/profile'; // 엔드포인트 명시
+  async getProfile(): Promise<UserProfileData> {
+    const endpoint = '/api/v1/users/me/get/profile';
 
-    // ⭐️ 3. 직접 fetchWithAuth를 호출합니다.
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, { next: nextOptions }) as Response;
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
+    }) as Response;
 
     if (!response.ok) {
       throw new AuthError(response.status, 'Failed to get user profile', endpoint);
@@ -30,6 +31,10 @@ export const userService = {
     return apiResponse.data;
   },
 
+  /**
+   * 로그아웃을 수행합니다.
+   * POST 뮤테이션 작업이므로 캐싱하지 않습니다.
+   */
   async logout(): Promise<void> {
     const endpoint = '/api/auth/me/logout';
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
@@ -41,6 +46,10 @@ export const userService = {
     }
   },
 
+  /**
+   * 회원가입 중 프로필 정보를 업데이트합니다.
+   * POST 뮤테이션 작업이므로 캐싱하지 않습니다.
+   */
   async updateProfileInSignup(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
     const endpoint = '/api/v1/users/me/complete';
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
@@ -56,6 +65,10 @@ export const userService = {
     return apiResponse.data;
   },
 
+  /**
+   * 프로필 완성을 수행합니다.
+   * POST 뮤테이션 작업이므로 캐싱하지 않습니다.
+   */
   async completeProfile(profileData: UserProfileData): Promise<UserProfileData> {
     const endpoint = '/api/v1/users/me/complete/profile';
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
@@ -70,6 +83,10 @@ export const userService = {
     return apiResponse.data;
   },
 
+  /**
+   * 계정 탈퇴를 수행합니다.
+   * DELETE 뮤테이션 작업이므로 캐싱하지 않습니다.
+   */
   async withdrawAccount(): Promise<void> {
     const endpoint = '/api/v1/users/me/withdraw';
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
@@ -83,13 +100,13 @@ export const userService = {
 
   /**
    * 사용자 활동 통계(작성 게시글 수, 댓글 수, 좋아요 수)를 가져옵니다.
-   * @param nextOptions - Next.js fetch 캐싱 옵션
+   * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    */
-  async getActivityCounts(nextOptions?: NextFetchRequestConfig): Promise<UserActivityStats> {
-    const endpoint = '/api/v1/users/me/activity'; // 실제 엔드포인트로 변경 필요
+  async getActivityCounts(): Promise<UserActivityStats> {
+    const endpoint = '/api/v1/users/me/activity';
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'GET', // GET 요청으로 가정
-      next: nextOptions,
+      method: 'GET',
+      cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
     }) as Response;
 
     if (!response.ok) {
@@ -101,16 +118,16 @@ export const userService = {
   },
 
   /**
- * 사용자의 현재 역할만 가져옵니다.
- * @param nextOptions - Next.js fetch 캐싱 옵션
- * @returns 사용자의 역할 문자열 ('PRE_REGISTER', 'USER', 'ADMIN' 등) 또는 인증되지 않은 경우 null
- */
-  async getUserRole(nextOptions?: NextFetchRequestConfig): Promise<string | null> {
-    const endpoint = '/api/v1/users/me/role'; // 실제 백엔드 엔드포인트로 변경 필요
+   * 사용자의 현재 역할만 가져옵니다.
+   * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
+   * @returns 사용자의 역할 문자열 ('PRE_REGISTER', 'USER', 'ADMIN' 등) 또는 인증되지 않은 경우 null
+   */
+  async getUserRole(): Promise<string | null> {
+    const endpoint = '/api/v1/users/me/role';
     try {
       const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
         method: 'GET',
-        next: nextOptions,
+        cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
       }) as Response;
 
       if (response.status === 401) {
@@ -157,12 +174,13 @@ export const userService = {
 
 /**
  * [추천] 서버 컴포넌트/액션 등에서 사용할 현재 사용자 정보 조회 함수입니다.
+ * TanStack Query 대신 직접 서비스를 호출하는 경우에 사용합니다.
  */
 export async function getCurrentUser(): Promise<UserProfileData | null> {
   try {
     // userService.getProfile이 내부적으로 fetchWithAuth를 사용하므로
     // 서버 환경에서도 인증 헤더가 자동으로 처리됩니다.
-    const userProfile = await userService.getProfile({ revalidate: 0 });
+    const userProfile = await userService.getProfile();
     return userProfile;
   } catch (error) {
     if (error instanceof AuthError && error.status === 401) {
