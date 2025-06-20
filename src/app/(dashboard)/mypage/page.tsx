@@ -31,7 +31,9 @@ export default function MyPage() {
       default:
         return <PostsTab />;
     }
-  }; return (
+  };
+
+  return (
     <>
       {/* 
           실제 구현 시에는 useMyPageData 훅 또는 다른 방법을 통해 
