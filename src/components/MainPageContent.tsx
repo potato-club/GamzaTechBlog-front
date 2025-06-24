@@ -8,19 +8,11 @@
  * 실시간 데이터 업데이트와 캐싱의 이점을 활용합니다.
  */
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { usePosts, useTags } from "@/hooks/queries/usePostQueries";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import CustomPagination from "./common/CustomPagination";
 import PostCard from "./features/posts/PostCard";
 import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
@@ -55,28 +47,13 @@ export default function MainPageContent() {
     isLoading: isLoadingTags,
     error: tagsError
   } = useTags();
-
   const posts = postResponse?.content || [];
   const totalPages = postResponse?.totalPages || 0;
   const totalElements = postResponse?.totalElements || 0;
-  // 페이지 변경 핸들러
+
+  // 페이지 변경 핸들러 (UI는 1부터 시작하므로 그대로 사용)
   const handlePageChange = (page: number) => {
-    setCurrentPage(page - 1); // UI는 1부터 시작, API는 0부터 시작
-  };
-
-  // 페이지 번호 배열 생성 (표시할 페이지 번호들)
-  const getVisiblePages = () => {
-    const maxVisiblePages = 5;
-    const currentPageUI = currentPage + 1; // UI용 페이지 번호 (1부터 시작)
-
-    if (totalPages <= maxVisiblePages) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-
-    const start = Math.max(1, currentPageUI - 2);
-    const end = Math.min(totalPages, start + maxVisiblePages - 1);
-
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    setCurrentPage(page - 1); // API는 0부터 시작
   };
 
   // 로딩 중일 때 스켈레톤 UI 표시
@@ -192,82 +169,12 @@ export default function MainPageContent() {
               </div>
             )}
           </div>
-
-          {/* 페이지네이션 */}
-          {totalPages > 1 && (
-            <div className="mt-12 flex justify-center">
-              <Pagination>
-                <PaginationContent>
-                  {/* 이전 페이지 */}
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => currentPage > 0 && handlePageChange(currentPage)}
-                      className={currentPage === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-
-                  {/* 첫 번째 페이지 */}
-                  {getVisiblePages()[0] > 1 && (
-                    <>
-                      <PaginationItem>
-                        <PaginationLink
-                          onClick={() => handlePageChange(1)}
-                          className="cursor-pointer"
-                        >
-                          1
-                        </PaginationLink>
-                      </PaginationItem>
-                      {getVisiblePages()[0] > 2 && (
-                        <PaginationItem>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      )}
-                    </>
-                  )}
-
-                  {/* 페이지 번호들 */}
-                  {getVisiblePages().map((pageNum) => (
-                    <PaginationItem key={pageNum}>
-                      <PaginationLink
-                        onClick={() => handlePageChange(pageNum)}
-                        isActive={pageNum === currentPage + 1}
-                        className="cursor-pointer"
-                      >
-                        {pageNum}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-
-                  {/* 마지막 페이지 */}
-                  {getVisiblePages()[getVisiblePages().length - 1] < totalPages && (
-                    <>
-                      {getVisiblePages()[getVisiblePages().length - 1] < totalPages - 1 && (
-                        <PaginationItem>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      )}
-                      <PaginationItem>
-                        <PaginationLink
-                          onClick={() => handlePageChange(totalPages)}
-                          className="cursor-pointer"
-                        >
-                          {totalPages}
-                        </PaginationLink>
-                      </PaginationItem>
-                    </>
-                  )}
-
-                  {/* 다음 페이지 */}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => currentPage < totalPages - 1 && handlePageChange(currentPage + 2)}
-                      className={currentPage >= totalPages - 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
+          <CustomPagination
+            currentPage={currentPage + 1} // UI는 1부터 시작
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            className="mt-12"
+          />
         </main>
 
         {/* 
