@@ -240,4 +240,31 @@ export const postService = {
       throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while fetching user posts', endpoint);
     }
   },
+
+  /**
+   * 게시글을 삭제합니다.
+   * @param postId - 삭제할 게시글 ID
+   */
+  async deletePost(postId: number): Promise<void> {
+    const endpoint = `/api/v1/posts/${postId}`;
+    const url = API_CONFIG.BASE_URL + endpoint;
+
+    try {
+      const response = await fetchWithAuth(url, {
+        method: 'DELETE',
+        // DELETE 작업이므로 캐싱하지 않음 (fetchWithAuth에서 기본값으로 처리)
+      }) as Response;
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: `Failed to delete post with id ${postId}` }));
+        throw new PostServiceError(response.status, errorData.message || `Failed to delete post with id ${postId}`, endpoint);
+      }
+    } catch (error) {
+      if (error instanceof PostServiceError) {
+        throw error;
+      }
+      // 네트워크 에러 또는 기타 예외 처리
+      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while deleting post', endpoint);
+    }
+  },
 } as const;
