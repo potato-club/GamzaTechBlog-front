@@ -1,22 +1,23 @@
 import { API_CONFIG } from "../config/api";
 import { fetchWithAuth } from "../lib/api";
+import { PageableContent, ApiResponseWrapper } from "../types/api";
 import { PostDetailData } from "../types/comment";
 import { CreatePostRequest, CreatePostResponse, PostData } from "../types/post";
 
-interface ApiResponseWrapper<T> {
-  status: number;
-  message: string;
-  data: T;
-  timestamp?: number;
-}
+// interface ApiResponseWrapper<T> {
+//   status: number;
+//   message: string;
+//   data: T;
+//   timestamp?: number;
+// }
 
-interface PageableContent<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
+// interface PageableContent<T> {
+//   content: T[];
+//   page: number;
+//   size: number;
+//   totalElements: number;
+//   totalPages: number;
+// }
 
 // API 요청 파라미터 타입
 interface GetPostsParams {

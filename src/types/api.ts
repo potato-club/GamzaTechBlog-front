@@ -1,3 +1,18 @@
+export interface ApiResponseWrapper<T> {
+  status: number;
+  message: string;
+  data: T;
+  timestamp?: number;
+}
+
+export interface PageableContent<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 export interface ApiResponse<T = unknown> {
   status: number;
   message: string;

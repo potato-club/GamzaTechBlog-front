@@ -39,9 +39,9 @@ export default function CustomPagination({
   showWhenSinglePage = false,
 }: CustomPaginationProps) {
   // 1페이지만 있을 때 숨김 (옵션에 따라)
-  if (!showWhenSinglePage && totalPages <= 1) {
-    return null;
-  }
+  // if (!showWhenSinglePage && totalPages <= 1) {
+  //   return null;
+  // }
 
   // 표시할 페이지 번호 배열 생성
   const getVisiblePages = (): number[] => {
