@@ -1,6 +1,6 @@
 import { API_CONFIG } from "../config/api";
 import { fetchWithAuth } from "../lib/api";
-import { PageableContent, ApiResponseWrapper } from "../types/api";
+import { ApiResponseWrapper, PageableContent, PaginationParams } from "../types/api"; // PaginationParams 추가
 import { PostDetailData } from "../types/comment";
 import { CreatePostRequest, CreatePostResponse, PostData } from "../types/post";
 
@@ -19,12 +19,7 @@ import { CreatePostRequest, CreatePostResponse, PostData } from "../types/post";
 //   totalPages: number;
 // }
 
-// API 요청 파라미터 타입
-interface GetPostsParams {
-  page?: number;
-  size?: number;
-  sort?: string[]; // 예: ["createdAt,desc"]
-}
+
 
 // --- 커스텀 에러 클래스 ---
 export class PostServiceError extends Error {
@@ -34,13 +29,12 @@ export class PostServiceError extends Error {
   }
 }
 
-export const postService = {
-  /**
+export const postService = {  /**
    * 최신순 게시물 목록을 조회합니다.
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    * @param params - 페이지네이션, 정렬, 태그 필터링 옵션
    */
-  async getPosts(params?: GetPostsParams): Promise<PageableContent<PostData>> {
+  async getPosts(params?: PaginationParams): Promise<PageableContent<PostData>> {
     const endpoint = '/api/v1/posts';
     let url = API_CONFIG.BASE_URL + endpoint;
 
@@ -54,7 +48,7 @@ export const postService = {
 
     if (params) {
       if (params.sort && params.sort.length > 0) {
-        params.sort.forEach(sortOption => queryParams.append('sort', sortOption));
+        params.sort.forEach((sortOption: string) => queryParams.append('sort', sortOption));
       }
     }
 
@@ -191,8 +185,7 @@ export const postService = {
    * 사용자가 작성한 게시글 목록을 조회합니다.
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    * @param params - 페이지네이션, 정렬 옵션
-   */
-  async getUserPosts(params?: GetPostsParams): Promise<PageableContent<PostData>> {
+   */  async getUserPosts(params?: PaginationParams): Promise<PageableContent<PostData>> {
     const endpoint = '/api/v1/posts/me';
     let url = API_CONFIG.BASE_URL + endpoint;
 
@@ -206,7 +199,7 @@ export const postService = {
 
     if (params) {
       if (params.sort && params.sort.length > 0) {
-        params.sort.forEach(sortOption => queryParams.append('sort', sortOption));
+        params.sort.forEach((sortOption: string) => queryParams.append('sort', sortOption));
       }
     }
 

@@ -1,15 +1,8 @@
 import { API_CONFIG } from "../config/api";
 import { fetchWithAuth } from "../lib/api";
-import { ApiResponse, ApiResponseWrapper, PageableContent } from "../types/api";
+import { ApiResponse, ApiResponseWrapper, PageableContent, PaginationParams } from "../types/api";
 import { CommentData, MyCommentData } from "../types/comment";
 
-
-// API 요청 파라미터 타입
-interface GetPostsParams {
-  page?: number;
-  size?: number;
-  sort?: string[]; // 예: ["createdAt,desc"]
-}
 
 // --- 커스텀 에러 클래스 ---
 export class CommentServiceError extends Error {
@@ -76,13 +69,13 @@ export const commentService = {
     }
   },
 
-  async getUserComments(params?: GetPostsParams): Promise<PageableContent<MyCommentData>> {
+  async getUserComments(params?: PaginationParams): Promise<PageableContent<MyCommentData>> {
     const endpoint = `/api/v1/comment/me/comments`;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
     if (params?.page !== undefined) url.searchParams.append('page', String(params.page));
     if (params?.size !== undefined) url.searchParams.append('size', String(params.size));
-    if (params?.sort) params.sort.forEach(sort => url.searchParams.append('sort', sort));
+    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append('sort', sort));
 
     try {
       const response = await fetchWithAuth(url.toString(), {
