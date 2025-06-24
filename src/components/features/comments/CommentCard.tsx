@@ -6,13 +6,14 @@
  */
 
 import { useDeleteComment } from "@/hooks/queries/useCommentQueries";
-import { CommentData } from "@/types/comment";
+import { MyCommentData, PostCommentData } from "@/types/comment";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
+import { useAuth } from "../../../hooks/queries/useUserQueries";
 import { DropdownMenuList } from "../../common/DropdownMenuList";
 
 interface CommentCardProps {
-  comment: CommentData;
+  comment: PostCommentData | MyCommentData;
   postId: number; // TanStack Query 뮤테이션에 필요
   onCommentDeleted?: (commentId: number) => void; // 이제 선택사항 (TanStack Query가 자동 처리)
 }
@@ -27,6 +28,9 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
    * - 로딩 상태: isPending을 통한 UI 비활성화
    * - 캐시 갱신: 성공 시 관련 쿼리 자동 무효화
    */
+
+  const { userProfile } = useAuth();
+
   const deleteCommentMutation = useDeleteComment(postId);
 
   const handleCommentEdit = () => {
@@ -111,7 +115,7 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
       </div>
 
       <div className="flex items-center gap-2 mt-1">
-        <div className="w-9 h-9 rounded-full overflow-hidden">
+        <div className="w-9 h-9 rounded-full overflow-hidden mr-2">
           <Image
             src="/profileSVG.svg" // 실제 프로필 이미지 경로로 변경해야 합니다.
             alt={`${comment.writer} 프로필 이미지`}
@@ -120,11 +124,19 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
             className="w-full h-full object-cover"
           />
         </div>
-        <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer}</span>
+        <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer || userProfile?.nickname}</span>
       </div>
 
       <div className="mt-2 text-[14px] text-[#464C58]">
         {comment.content}
+      </div>
+
+      <div className="mt-2 text-[12px] text-[#B5BBC7]">
+        <time dateTime={new Date(comment.createdAt).toISOString().split("T")[0]}>
+          {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+        </time>
+        {/* <span> | </span>
+        <span>답글</span> */}
       </div>
     </div>
   );

@@ -1,22 +1,23 @@
 import { API_CONFIG } from "../config/api";
 import { fetchWithAuth } from "../lib/api";
+import { PageableContent, ApiResponseWrapper } from "../types/api";
 import { PostDetailData } from "../types/comment";
 import { CreatePostRequest, CreatePostResponse, PostData } from "../types/post";
 
-interface ApiResponseWrapper<T> {
-  status: number;
-  message: string;
-  data: T;
-  timestamp?: number;
-}
+// interface ApiResponseWrapper<T> {
+//   status: number;
+//   message: string;
+//   data: T;
+//   timestamp?: number;
+// }
 
-interface PageableContent<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
+// interface PageableContent<T> {
+//   content: T[];
+//   page: number;
+//   size: number;
+//   totalElements: number;
+//   totalPages: number;
+// }
 
 // API 요청 파라미터 타입
 interface GetPostsParams {
@@ -238,6 +239,33 @@ export const postService = {
       }
       // 네트워크 에러 또는 기타 예외 처리
       throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while fetching user posts', endpoint);
+    }
+  },
+
+  /**
+   * 게시글을 삭제합니다.
+   * @param postId - 삭제할 게시글 ID
+   */
+  async deletePost(postId: number): Promise<void> {
+    const endpoint = `/api/v1/posts/${postId}`;
+    const url = API_CONFIG.BASE_URL + endpoint;
+
+    try {
+      const response = await fetchWithAuth(url, {
+        method: 'DELETE',
+        // DELETE 작업이므로 캐싱하지 않음 (fetchWithAuth에서 기본값으로 처리)
+      }) as Response;
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: `Failed to delete post with id ${postId}` }));
+        throw new PostServiceError(response.status, errorData.message || `Failed to delete post with id ${postId}`, endpoint);
+      }
+    } catch (error) {
+      if (error instanceof PostServiceError) {
+        throw error;
+      }
+      // 네트워크 에러 또는 기타 예외 처리
+      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while deleting post', endpoint);
     }
   },
 } as const;

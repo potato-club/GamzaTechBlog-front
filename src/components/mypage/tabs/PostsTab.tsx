@@ -5,17 +5,31 @@
  * 로딩, 에러, 빈 상태를 독립적으로 관리합니다.
  */
 
+import CustomPagination from "@/components/common/CustomPagination";
 import PostCard from "@/components/features/posts/PostCard";
 import ErrorDisplay from "@/components/mypage/shared/ErrorDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyPosts } from "@/hooks/queries/useMyPageQueries";
 import { PostData } from "@/types/post";
+import { useState } from "react";
 
 export default function PostsTab() {
-  const { data: postsData, isLoading, error } = useMyPosts();
+  const [currentPage, setCurrentPage] = useState(0);
+  const pageSize = 5;
 
-  // 페이지네이션 데이터에서 실제 게시글 배열 추출
+  const { data: postsData, isLoading, error } = useMyPosts({
+    page: currentPage,
+    size: pageSize,
+    sort: ["createdAt,desc"], // 최신순 정렬
+  });
+
   const posts = postsData?.content || [];
+  const totalPages = postsData?.totalPages || 0;
+  const totalElements = postsData?.totalElements || 0;
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page - 1); // API는 0부터 시작
+  };
 
   // 로딩 상태
   if (isLoading) {
@@ -66,6 +80,13 @@ export default function PostsTab() {
           showLikeButton={false} // 마이페이지에서는 좋아요 버튼 숨김
         />
       ))}
+      <CustomPagination
+        currentPage={currentPage + 1} // UI는 1부터 시작
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        className="mt-12"
+      />
+
     </div>
   );
 }

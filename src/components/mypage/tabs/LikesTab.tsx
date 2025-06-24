@@ -11,7 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useMyLikes } from "@/hooks/queries/useMyPageQueries";
 
 export default function LikesTab() {
+  // const [currentPage, setCurrentPage] = useState(0);
+  // const pageSize = 5;
+
   const { data: likes = [], isLoading, error } = useMyLikes();
+
+  //  const posts = likes?.content || [];
+  // const totalPages = likes?.totalPages || 0;
+  // const totalElements = likes?.totalElements || 0;
 
   // 로딩 상태
   if (isLoading) {
@@ -66,6 +73,12 @@ export default function LikesTab() {
           showLikeButton={false} // 마이페이지에서는 좋아요 버튼 숨김
         />
       ))}
+      {/* <CustomPagination
+        currentPage={currentPage + 1} // UI는 1부터 시작
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        className="mt-12"
+      /> */}
     </div>
   );
 }

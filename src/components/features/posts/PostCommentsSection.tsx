@@ -88,6 +88,7 @@ export default function PostCommentsSection({
       {/* TanStack Query가 댓글 삭제를 자동으로 처리하므로 onCommentDeleted는 선택사항 */}
       <CommentList
         comments={comments}
+        variant="post"
         postId={postId}
       />
     </section>

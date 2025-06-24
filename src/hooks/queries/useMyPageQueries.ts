@@ -8,9 +8,9 @@
  */
 
 import { postService } from "@/services/postService";
-import { CommentData } from "@/types/comment";
 import { PostData } from "@/types/post";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { commentService } from "../../services/commentService";
 
 // 페이지네이션을 위한 타입
 interface PageableContent<T> {
@@ -65,29 +65,8 @@ export function useMyPosts(
 export function useMyComments() {
   return useQuery({
     queryKey: ["my-comments"], // 캐시 키: 사용자의 댓글 목록
-    queryFn: async (): Promise<CommentData[]> => {
-      // 실제 API 호출 (현재는 목업 데이터 반환)
-      // TODO: 실제 서비스 함수로 교체
-      // return await userService.getMyComments();
+    queryFn: () => commentService.getUserComments(),
 
-      // 임시 목업 데이터
-      return [
-        {
-          commentId: 1,
-          writer: "GyeongHwan Lee",
-          content: "첫 댓글 달아봤습니다 하하.",
-          createdAt: "2025-04-28T00:00:00.000Z",
-          replies: ["첫 번째 답글입니다!", "두 번째 답글입니다!"],
-        },
-        {
-          commentId: 2,
-          writer: "Jinwoo Park",
-          content: "좋은 글 감사합니다! Next.js에 대해 더 배우고 싶어요.",
-          createdAt: "2025-04-27T00:00:00.000Z",
-          replies: ["세 번째 답글입니다!", "네 번째 답글입니다!"],
-        },
-      ] as CommentData[];
-    },
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
   });
