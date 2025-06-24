@@ -1,11 +1,14 @@
 import { CommentListProps } from "@/types/comment";
 import CommentCard from "./CommentCard";
 
-export default function CommentList({ comments, onCommentDeleted }: CommentListProps & {
-  onCommentDeleted?: (commentId: number) => void; // 댓글 삭제 콜백 추가
+export default function CommentList({
+  comments,
+  postId, // TanStack Query를 위해 postId 추가
+  onCommentDeleted
+}: CommentListProps & {
+  postId: number; // postId를 필수 prop으로 추가
+  onCommentDeleted?: (commentId: number) => void; // 댓글 삭제 콜백 (이제 선택사항)
 }) {
-  // console.log("post comments", comments); // 프로덕션에서는 제거
-
   if (!comments || comments.length === 0) {
     return (
       <div className="mt-8 text-center text-gray-500">
@@ -20,7 +23,8 @@ export default function CommentList({ comments, onCommentDeleted }: CommentListP
         <CommentCard
           key={comment.commentId}
           comment={comment}
-          onCommentDeleted={onCommentDeleted} // 콜백 전달
+          postId={postId} // TanStack Query 뮤테이션을 위해 postId 전달
+          onCommentDeleted={onCommentDeleted} // 하위 호환성을 위한 콜백 전달
         />
       ))}
     </div>

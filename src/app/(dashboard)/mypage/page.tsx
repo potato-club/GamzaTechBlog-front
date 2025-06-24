@@ -1,29 +1,38 @@
 "use client";
 
-import CommentList from "@/components/features/comments/CommentList";
-import LikeList from "@/components/features/posts/LikeList";
-import PostList from "@/components/features/posts/PostList";
+/**
+ * 마이페이지 메인 컴포넌트
+ * 
+ * 탭별 컴포넌트로 분리하여 단일 책임 원칙을 준수하고,
+ * 유지보수성과 테스트 용이성을 향상시켰습니다.
+ */
+
 import TabMenu from "@/components/TabMenu";
-import { useMyPageData } from "@/hooks/useMyPageData"; // 이 훅에서 실제 userProfile을 가져올 수 있습니다.
+import CommentsTab from "@/components/mypage/tabs/CommentsTab";
+import LikesTab from "@/components/mypage/tabs/LikesTab";
+import PostsTab from "@/components/mypage/tabs/PostsTab";
 import { useMyPageTab } from "@/hooks/useMyPageTab";
 
 export default function MyPage() {
   const { currentTab, handleTabChange } = useMyPageTab();
-  // 실제 데이터는 useMyPageData 또는 다른 훅/API 호출을 통해 가져와야 합니다.
-  const { posts, comments, likes /*, userProfile: actualUserProfile */ } = useMyPageData();
 
+  /**
+   * 현재 활성 탭에 따라 해당 탭 컴포넌트를 렌더링합니다.
+   * 각 탭 컴포넌트는 독립적으로 데이터 fetching과 상태 관리를 담당합니다.
+   */
   const renderTabContent = () => {
     switch (currentTab) {
       case "posts":
-        return <PostList posts={posts} />;
+        return <PostsTab />;
       case "comments":
-        return <CommentList comments={comments} />;
+        return <CommentsTab />;
       case "likes":
-        return <LikeList likes={likes} />;
+        return <LikesTab />;
       default:
-        return <PostList posts={posts} />;
+        return <PostsTab />;
     }
   };
+
   return (
     <>
       {/* 
