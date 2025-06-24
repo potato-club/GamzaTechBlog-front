@@ -165,8 +165,11 @@ export function useWithdrawAccount(
 
       console.log('계정 탈퇴 성공 - 모든 캐시 및 인증 정보가 제거되었습니다');
 
+      window.location.href = '/';
+
       // 사용자 정의 성공 콜백 실행
       options?.onSuccess?.(data, variables, context);
+
     },
 
     onError: (error, variables, context) => {

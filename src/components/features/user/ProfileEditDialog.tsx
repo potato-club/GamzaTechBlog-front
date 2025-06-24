@@ -13,8 +13,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
 import { Camera } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useWithdrawAccount } from "../../../hooks/queries/useUserQueries";
+import { cn } from "../../../lib/utils";
 
 // UserProfileData 타입 (Sidebar와 동일하게 유지하거나, 공유 타입으로 분리)
 interface UserProfileData {
@@ -32,9 +38,13 @@ interface ProfileEditDialogProps {
 }
 
 export default function ProfileEditDialog({ userProfile, onProfileUpdate }: ProfileEditDialogProps) {
+
+  const router = useRouter();
+
   const [nickname, setNickname] = useState(userProfile.nickname);
   const [job, setJob] = useState(userProfile.job || "");
   const [generation, setGeneration] = useState(userProfile.generation || "");
+  const [isWithdrawing, setIsWithdrawing] = useState(false); // 회원탈퇴 로딩 상태
   // TODO: 이미지 파일 상태 및 미리보기 URL 상태 추가
   // const [selectedImage, setSelectedImage] = useState<File | null>(null);
   // const [previewUrl, setPreviewUrl] = useState<string | null>(userProfile.profileImageUrl || null);
@@ -60,6 +70,13 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
     // 성공 시 Dialog는 DialogClose에 의해 자동으로 닫히거나,
     // 부모 컴포넌트에서 open 상태를 제어한다면 해당 상태를 false로 변경
   };
+
+  const withdrawAccountMutation = useWithdrawAccount();
+
+  const handleWithdrawAccount = () => {
+    withdrawAccountMutation.mutate();
+  };
+
 
   // const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   if (event.target.files && event.target.files[0]) {
@@ -155,19 +172,66 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
           </div>
         </div>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="outline">
-              취소
-            </Button>
-          </DialogClose>
-          <Button type="button" onClick={handleSaveChanges}>
-            완료
-          </Button>
+          <div className="flex justify-between w-full">
+            {/* 회원탈퇴 AlertDialog */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={cn("text-[#B5BBC7] underline")}
+                  disabled={isWithdrawing}
+                >
+                  {isWithdrawing ? "처리 중..." : "회원탈퇴"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>정말로 회원탈퇴를 하시겠습니까?</AlertDialogTitle>
+                  <AlertDialogDescription className="space-y-2">
+                    <p>회원탈퇴를 진행하면 다음과 같은 데이터가 영구적으로 삭제됩니다:</p>
+                    <ul className="list-disc list-inside text-sm space-y-1">
+                      <li>프로필 정보 및 개인정보</li>
+                      <li>작성한 모든 게시글과 댓글</li>
+                      <li>좋아요 및 활동 기록</li>
+                    </ul>
+                    <p className="font-semibold text-red-600">
+                      이 작업은 되돌릴 수 없습니다.
+                    </p>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleWithdrawAccount}
+                    disabled={isWithdrawing}
+                    className={cn(
+                      "bg-red-600 hover:bg-red-700 focus:ring-red-600",
+                      isWithdrawing && "opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    {isWithdrawing ? "처리 중..." : "회원탈퇴"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {/* 취소/완료 버튼 */}
+            <div className="flex gap-2">
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  취소
+                </Button>
+              </DialogClose>
+              <Button type="button" onClick={handleSaveChanges}>
+                완료
+              </Button>
+            </div>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 // 임시 UserIcon (실제 아이콘 라이브러리 사용 권장, 또는 공유 유틸리티로 분리)
 // function UserIcon(props: React.SVGProps<SVGSVGElement>) { ... }
