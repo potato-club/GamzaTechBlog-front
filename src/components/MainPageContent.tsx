@@ -11,10 +11,15 @@
 import { usePosts, useTags } from "@/hooks/queries/usePostQueries";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import CustomPagination from "./common/CustomPagination";
 import PostCard from "./features/posts/PostCard";
 import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
 export default function MainPageContent() {
+  const [currentPage, setCurrentPage] = useState(0);
+  const pageSize = 3;
+
   /**
    * TanStack Query로 게시글 목록을 가져옵니다.
    * 
@@ -27,7 +32,9 @@ export default function MainPageContent() {
     isLoading: isLoadingPosts,
     error: postsError
   } = usePosts({
-    sort: ["createdAt"], // 최신순 정렬
+    page: currentPage,
+    size: pageSize,
+    sort: ["createdAt,desc"], // 최신순 정렬
   });
 
   /**
@@ -40,8 +47,14 @@ export default function MainPageContent() {
     isLoading: isLoadingTags,
     error: tagsError
   } = useTags();
-
   const posts = postResponse?.content || [];
+  const totalPages = postResponse?.totalPages || 0;
+  const totalElements = postResponse?.totalElements || 0;
+
+  // 페이지 변경 핸들러 (UI는 1부터 시작하므로 그대로 사용)
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page - 1); // API는 0부터 시작
+  };
 
   // 로딩 중일 때 스켈레톤 UI 표시
   if (isLoadingPosts || isLoadingTags) {
@@ -120,7 +133,6 @@ export default function MainPageContent() {
 
   return (
     <div className="flex flex-col mt-16 gap-30 mx-auto">
-      {/* 로고 */}
       <section className="text-center">
         <Link href="/">
           <Image
@@ -132,19 +144,37 @@ export default function MainPageContent() {
           />
         </Link>
       </section>
-
-      {/* 게시물 목록과 사이드바를 감싸는 flex 컨테이너 */}      <div className="flex pb-10">
+      <div className="flex pb-10">
         <main className="flex-3"> {/* 주요 콘텐츠 영역 */}
-          <h2 className="text-2xl font-semibold">Posts</h2>
-          <div className="flex flex-col gap-8 mt-8">
-            {posts.map((post) => (
-              <PostCard
-                key={post.postId}
-                post={post}
-                showLikeButton={true} // 메인 페이지에서는 좋아요 버튼 표시
-              />
-            ))}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold">Posts</h2>
+            <p className="text-sm text-gray-500">
+              총 {totalElements}개의 게시글 (페이지 {currentPage + 1} / {totalPages})
+            </p>
           </div>
+
+          <div className="flex flex-col gap-8 mt-8">
+            {posts.length > 0 ? (
+              posts.map((post) => (
+                <PostCard
+                  key={post.postId}
+                  post={post}
+                  showLikeButton={true} // 메인 페이지에서는 좋아요 버튼 표시
+                />
+              ))
+            ) : (
+              <div className="text-center py-16 text-gray-500">
+                <p className="text-lg mb-2">게시글이 없습니다</p>
+                <p className="text-sm">첫 번째 게시글을 작성해보세요!</p>
+              </div>
+            )}
+          </div>
+          <CustomPagination
+            currentPage={currentPage + 1} // UI는 1부터 시작
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            className="mt-12"
+          />
         </main>
 
         {/* 
