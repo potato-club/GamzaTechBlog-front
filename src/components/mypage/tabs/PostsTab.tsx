@@ -10,15 +10,15 @@ import PostCard from "@/components/features/posts/PostCard";
 import ErrorDisplay from "@/components/mypage/shared/ErrorDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyPosts } from "@/hooks/queries/useMyPageQueries";
+import { usePagination } from "@/hooks/usePagination";
 import { PostData } from "@/types/post";
-import { useState } from "react";
 
 export default function PostsTab() {
-  const [currentPage, setCurrentPage] = useState(0);
+  const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 5;
 
   const { data: postsData, isLoading, error } = useMyPosts({
-    page: currentPage,
+    page: currentPageForAPI,
     size: pageSize,
     sort: ["createdAt,desc"], // 최신순 정렬
   });
@@ -26,9 +26,8 @@ export default function PostsTab() {
   const posts = postsData?.content || [];
   const totalPages = postsData?.totalPages || 0;
   const totalElements = postsData?.totalElements || 0;
-
   const handlePageChange = (page: number) => {
-    setCurrentPage(page - 1); // API는 0부터 시작
+    setPage(page); // usePagination 훅의 setPage 사용
   };
 
   // 로딩 상태
@@ -79,9 +78,8 @@ export default function PostsTab() {
           post={post}
           showLikeButton={false} // 마이페이지에서는 좋아요 버튼 숨김
         />
-      ))}
-      <CustomPagination
-        currentPage={currentPage + 1} // UI는 1부터 시작
+      ))}      <CustomPagination
+        currentPage={currentPage} // 이미 1부터 시작하는 값
         totalPages={totalPages}
         onPageChange={handlePageChange}
         className="mt-12"

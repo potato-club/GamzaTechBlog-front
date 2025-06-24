@@ -62,10 +62,12 @@ export function useMyPosts(
  * 
  * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
  */
-export function useMyComments() {
+export function useMyComments(
+  params?: GetPostsParams,
+) {
   return useQuery({
-    queryKey: ["my-comments"], // 캐시 키: 사용자의 댓글 목록
-    queryFn: () => commentService.getUserComments(),
+    queryKey: ["my-comments", params], // 캐시 키에 params 포함하여 페이지 변경 감지
+    queryFn: () => commentService.getUserComments(params),
 
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
