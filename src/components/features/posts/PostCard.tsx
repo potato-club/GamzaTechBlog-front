@@ -104,7 +104,7 @@ export default function PostCard({
           >
             <Image
               src="/dot3.svg"
-              alt=""
+              alt="더보기"
               width={18}
               height={4}
             />

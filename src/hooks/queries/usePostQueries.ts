@@ -282,6 +282,35 @@ export function useLikePost(postId: number) {
   });
 }
 
+export function useDeletePost(
+  options?: UseMutationOptions<void, Error, number>
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (postId: number) => postService.deletePost(postId),
+
+    onSuccess: (data, variables, context) => {
+      // 게시글 삭제 성공 시 관련 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(variables) });
+      queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+
+      console.log('게시글 삭제 성공 - 관련 캐시가 갱신되었습니다');
+
+      // 사용자 정의 성공 콜백 실행
+      options?.onSuccess?.(data, variables, context);
+    },
+
+    onError: (error, variables, context) => {
+      console.error('게시글 삭제 실패:', error);
+      options?.onError?.(error, variables, context);
+    },
+
+    ...options,
+  });
+}
+
 /**
  * 여러 쿼리를 무효화하는 유틸리티 함수들
  * 게시글 생성/수정/삭제 후 관련 캐시 갱신에 사용합니다.
