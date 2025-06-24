@@ -1,24 +1,8 @@
 import { API_CONFIG } from "../config/api";
 import { fetchWithAuth } from "../lib/api";
-import { ApiResponseWrapper, PageableContent, PaginationParams } from "../types/api"; // PaginationParams 추가
+import { ApiResponse, PageableContent, PaginationParams } from "../types/api"; // PaginationParams 추가
 import { PostDetailData } from "../types/comment";
 import { CreatePostRequest, CreatePostResponse, PostData } from "../types/post";
-
-// interface ApiResponseWrapper<T> {
-//   status: number;
-//   message: string;
-//   data: T;
-//   timestamp?: number;
-// }
-
-// interface PageableContent<T> {
-//   content: T[];
-//   page: number;
-//   size: number;
-//   totalElements: number;
-//   totalPages: number;
-// }
-
 
 
 // --- 커스텀 에러 클래스 ---
@@ -73,7 +57,7 @@ export const postService = {  /**
         throw new PostServiceError(response.status, errorData.message || 'Failed to fetch posts', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<PageableContent<PostData>> = await response.json();
+      const apiResponse: ApiResponse<PageableContent<PostData>> = await response.json();
       console.log("apiResponse", apiResponse);
       return apiResponse.data;
     } catch (error) {
@@ -104,7 +88,7 @@ export const postService = {  /**
         throw new PostServiceError(response.status, errorData.message || 'Failed to fetch tags', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<string[]> = await response.json();
+      const apiResponse: ApiResponse<string[]> = await response.json();
       console.log("apiResponse.data", apiResponse.data);
       return apiResponse.data;
     } catch (error) {
@@ -138,8 +122,8 @@ export const postService = {  /**
         throw new PostServiceError(response.status, errorData.message || `Failed to fetch post with id ${postId}`, endpoint);
       }
 
-      // Swagger 응답 예시에 따라 ApiResponseWrapper<PostDetailData>로 파싱
-      const apiResponse: ApiResponseWrapper<PostDetailData> = await response.json();
+      // Swagger 응답 예시에 따라 ApiResponse<PostDetailData>로 파싱
+      const apiResponse: ApiResponse<PostDetailData> = await response.json();
       return apiResponse.data; // data 필드에 PostDetailData 객체가 있음
     } catch (error) {
       if (error instanceof PostServiceError) {
@@ -170,7 +154,7 @@ export const postService = {  /**
         throw new PostServiceError(response.status, errorData.message || 'Failed to create post', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<CreatePostResponse> = await response.json();
+      const apiResponse: ApiResponse<CreatePostResponse> = await response.json();
 
       return apiResponse.data;
     } catch (error) {
@@ -221,7 +205,7 @@ export const postService = {  /**
         throw new PostServiceError(response.status, errorData.message || 'Failed to fetch user posts', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<PageableContent<PostData>> = await response.json();
+      const apiResponse: ApiResponse<PageableContent<PostData>> = await response.json();
 
       console.log("getUserPosts response:", apiResponse);
 

@@ -1,4 +1,4 @@
-export interface ApiResponseWrapper<T> {
+export interface ApiResponse<T> {
   status: number;
   message: string;
   data: T;
@@ -23,22 +23,6 @@ export interface PageableContent<T> {
   size: number;
   totalElements: number;
   totalPages: number;
-}
-
-export interface ApiResponse<T = unknown> {
-  status: number;
-  message: string;
-  data: T;
-  timestamp?: number;
-}
-
-export interface PaginatedResponse<T> extends ApiResponse<T[]> {
-  pagination: {
-    page: number;
-    size: number;
-    totalElements: number;
-    totalPages: number;
-  };
 }
 
 // API 에러 타입

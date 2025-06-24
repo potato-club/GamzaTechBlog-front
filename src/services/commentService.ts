@@ -1,6 +1,6 @@
 import { API_CONFIG } from "../config/api";
 import { fetchWithAuth } from "../lib/api";
-import { ApiResponse, ApiResponseWrapper, PageableContent, PaginationParams } from "../types/api";
+import { ApiResponse, PageableContent, PaginationParams } from "../types/api";
 import { CommentData, MyCommentData } from "../types/comment";
 
 
@@ -90,7 +90,7 @@ export const commentService = {
         throw new CommentServiceError(response.status, errorData.message || 'Failed to fetch user comments', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<PageableContent<MyCommentData>> = await response.json();
+      const apiResponse: ApiResponse<PageableContent<MyCommentData>> = await response.json();
       return apiResponse.data;
     } catch (error) {
       if (error instanceof CommentServiceError) {
