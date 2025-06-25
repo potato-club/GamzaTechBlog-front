@@ -7,6 +7,10 @@ export interface PostData {
   tags: string[];
 }
 
+export interface LikedPostData extends PostData {
+  likeId: number;
+}
+
 // 게시글 생성을 위한 API 요청 본문 인터페이스
 export interface CreatePostRequest {
   title: string;

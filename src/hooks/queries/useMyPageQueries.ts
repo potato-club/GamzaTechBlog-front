@@ -70,34 +70,11 @@ export function useMyComments(
  * 
  * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
  */
-export function useMyLikes() {
+export function useMyLikes(params?: PaginationParams) {
   return useQuery({
-    queryKey: ["my-likes"], // 캐시 키: 사용자의 좋아요 목록
-    queryFn: async () => {
-      // 실제 API 호출 (현재는 목업 데이터 반환)
-      // TODO: 실제 서비스 함수로 교체
-      // return await userService.getMyLikes();
+    queryKey: ["my-likes", params], // 캐시 키: 사용자의 좋아요 목록
+    queryFn: () => postService.getUserLikes(params),
 
-      // 임시 목업 데이터
-      return [
-        {
-          id: 1,
-          title: "좋아요 누른 게시글 제목",
-          contentSnippet: "와우 좋아요 누른 게시글 내용이에용용",
-          writer: "GyeongHwan Lee",
-          createdAt: "2025-04-27T00:00:00.000Z",
-          tags: ["# java", "# spring", "# backend"],
-        },
-        {
-          id: 2,
-          title: "Next.js로 무한스크롤 구현하기",
-          contentSnippet: "Next.js에서 Intersection Observer API를 사용해 무한스크롤을 구현하는 방법을 정리합니다.",
-          writer: "Jinwoo Park",
-          createdAt: "2025-04-27T00:00:00.000Z",
-          tags: ["# nextjs", "# react", "# frontend"],
-        },
-      ];
-    },
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
   });

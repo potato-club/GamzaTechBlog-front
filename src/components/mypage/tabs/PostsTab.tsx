@@ -15,7 +15,7 @@ import { PostData } from "@/types/post";
 
 export default function PostsTab() {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
-  const pageSize = 5;
+  const pageSize = 2;
 
   const { data: postsData, isLoading, error } = useMyPosts({
     page: currentPageForAPI,
@@ -26,6 +26,7 @@ export default function PostsTab() {
   const posts = postsData?.content || [];
   const totalPages = postsData?.totalPages || 0;
   const totalElements = postsData?.totalElements || 0;
+
   const handlePageChange = (page: number) => {
     setPage(page); // usePagination 훅의 setPage 사용
   };
@@ -78,7 +79,8 @@ export default function PostsTab() {
           post={post}
           showLikeButton={false} // 마이페이지에서는 좋아요 버튼 숨김
         />
-      ))}      <CustomPagination
+      ))}
+      <CustomPagination
         currentPage={currentPage} // 이미 1부터 시작하는 값
         totalPages={totalPages}
         onPageChange={handlePageChange}
