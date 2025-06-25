@@ -6,6 +6,7 @@ import { forwardRef, useImperativeHandle, useRef } from "react";
 
 export type ToastEditorHandle = {
   getMarkdown: () => string;
+  setMarkdown: (markdown: string) => void;
 };
 
 const ToastEditor = forwardRef<ToastEditorHandle>((_, ref) => {
@@ -13,6 +14,9 @@ const ToastEditor = forwardRef<ToastEditorHandle>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     getMarkdown: () => editorRef.current?.getInstance().getMarkdown() || "",
+    setMarkdown: (markdown: string) => {
+      editorRef.current?.getInstance().setMarkdown(markdown);
+    },
   }));
 
   return (
