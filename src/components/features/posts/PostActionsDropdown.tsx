@@ -3,6 +3,7 @@
 import { DropdownMenuList } from "@/components/common/DropdownMenuList";
 import { useDeletePost } from "@/hooks/queries/usePostQueries";
 import { DropdownActionItem } from "@/types/dropdown";
+import { useRouter } from "next/navigation";
 
 interface PostActionsDropdownProps {
   postId: number;
@@ -10,6 +11,7 @@ interface PostActionsDropdownProps {
 }
 
 export function PostActionsDropdown({ postId, triggerElement }: PostActionsDropdownProps) {
+  const router = useRouter();
   const deletePostMutation = useDeletePost();
 
   const handleDeletePost = () => {
@@ -19,6 +21,7 @@ export function PostActionsDropdown({ postId, triggerElement }: PostActionsDropd
   const handleEditPost = () => {
     // 편집 로직 구현
     console.log('Edit post:', postId);
+    router.push(`/posts/${postId}/edit`);
   };
 
   const headerDropdownItems: DropdownActionItem[] = [
