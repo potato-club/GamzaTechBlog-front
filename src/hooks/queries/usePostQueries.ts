@@ -9,6 +9,7 @@
  */
 
 import { postService } from '@/services/postService';
+import { PageableContent, PaginationParams } from '@/types/api';
 import { PostDetailData } from '@/types/comment';
 import { CreatePostRequest, CreatePostResponse, PostData } from '@/types/post';
 import {
@@ -21,21 +22,6 @@ import {
   UseQueryOptions
 } from '@tanstack/react-query';
 
-// 페이지네이션을 위한 타입 (postService와 동일)
-interface PageableContent<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
-
-// 게시글 요청 파라미터 타입 (postService와 동일)
-interface GetPostsParams {
-  page?: number;
-  size?: number;
-  sort?: string[];
-}
 
 // 게시글 관련 Query Key 팩토리 - 일관된 쿼리 키 관리
 export const POST_QUERY_KEYS = {
@@ -44,7 +30,7 @@ export const POST_QUERY_KEYS = {
 
   // 게시글 목록 쿼리 키 (페이지네이션, 필터링 포함)
   lists: () => [...POST_QUERY_KEYS.all, 'list'] as const,
-  list: (params?: GetPostsParams) => [...POST_QUERY_KEYS.lists(), params] as const,
+  list: (params?: PaginationParams) => [...POST_QUERY_KEYS.lists(), params] as const,
 
   // 게시글 상세 쿼리 키
   details: () => [...POST_QUERY_KEYS.all, 'detail'] as const,
@@ -62,7 +48,7 @@ export const POST_QUERY_KEYS = {
  * @param options - TanStack Query 옵션
  */
 export function usePosts(
-  params?: GetPostsParams,
+  params?: PaginationParams,
   options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({

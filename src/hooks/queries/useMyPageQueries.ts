@@ -8,25 +8,10 @@
  */
 
 import { postService } from "@/services/postService";
+import { PageableContent, PaginationParams } from "@/types/api";
 import { PostData } from "@/types/post";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { commentService } from "../../services/commentService";
-
-// 페이지네이션을 위한 타입
-interface PageableContent<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
-
-// 게시글 요청 파라미터 타입
-interface GetPostsParams {
-  page?: number;
-  size?: number;
-  sort?: string[];
-}
 
 /**
  * 사용자가 작성한 게시글 목록을 조회하는 훅
@@ -36,7 +21,7 @@ interface GetPostsParams {
  * @param options - TanStack Query 옵션
  */
 export function useMyPosts(
-  params?: GetPostsParams,
+  params?: PaginationParams,
   options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
@@ -62,10 +47,12 @@ export function useMyPosts(
  * 
  * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
  */
-export function useMyComments() {
+export function useMyComments(
+  params?: PaginationParams,
+) {
   return useQuery({
-    queryKey: ["my-comments"], // 캐시 키: 사용자의 댓글 목록
-    queryFn: () => commentService.getUserComments(),
+    queryKey: ["my-comments", params], // 캐시 키에 params 포함하여 페이지 변경 감지
+    queryFn: () => commentService.getUserComments(params),
 
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지

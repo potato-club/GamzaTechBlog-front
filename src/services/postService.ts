@@ -1,30 +1,9 @@
 import { API_CONFIG } from "../config/api";
 import { fetchWithAuth } from "../lib/api";
-import { PageableContent, ApiResponseWrapper } from "../types/api";
+import { ApiResponse, PageableContent, PaginationParams } from "../types/api"; // PaginationParams 추가
 import { PostDetailData } from "../types/comment";
 import { CreatePostRequest, CreatePostResponse, PostData } from "../types/post";
 
-// interface ApiResponseWrapper<T> {
-//   status: number;
-//   message: string;
-//   data: T;
-//   timestamp?: number;
-// }
-
-// interface PageableContent<T> {
-//   content: T[];
-//   page: number;
-//   size: number;
-//   totalElements: number;
-//   totalPages: number;
-// }
-
-// API 요청 파라미터 타입
-interface GetPostsParams {
-  page?: number;
-  size?: number;
-  sort?: string[]; // 예: ["createdAt,desc"]
-}
 
 // --- 커스텀 에러 클래스 ---
 export class PostServiceError extends Error {
@@ -34,13 +13,12 @@ export class PostServiceError extends Error {
   }
 }
 
-export const postService = {
-  /**
+export const postService = {  /**
    * 최신순 게시물 목록을 조회합니다.
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    * @param params - 페이지네이션, 정렬, 태그 필터링 옵션
    */
-  async getPosts(params?: GetPostsParams): Promise<PageableContent<PostData>> {
+  async getPosts(params?: PaginationParams): Promise<PageableContent<PostData>> {
     const endpoint = '/api/v1/posts';
     let url = API_CONFIG.BASE_URL + endpoint;
 
@@ -54,7 +32,7 @@ export const postService = {
 
     if (params) {
       if (params.sort && params.sort.length > 0) {
-        params.sort.forEach(sortOption => queryParams.append('sort', sortOption));
+        params.sort.forEach((sortOption: string) => queryParams.append('sort', sortOption));
       }
     }
 
@@ -79,7 +57,7 @@ export const postService = {
         throw new PostServiceError(response.status, errorData.message || 'Failed to fetch posts', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<PageableContent<PostData>> = await response.json();
+      const apiResponse: ApiResponse<PageableContent<PostData>> = await response.json();
       console.log("apiResponse", apiResponse);
       return apiResponse.data;
     } catch (error) {
@@ -110,7 +88,7 @@ export const postService = {
         throw new PostServiceError(response.status, errorData.message || 'Failed to fetch tags', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<string[]> = await response.json();
+      const apiResponse: ApiResponse<string[]> = await response.json();
       console.log("apiResponse.data", apiResponse.data);
       return apiResponse.data;
     } catch (error) {
@@ -144,8 +122,8 @@ export const postService = {
         throw new PostServiceError(response.status, errorData.message || `Failed to fetch post with id ${postId}`, endpoint);
       }
 
-      // Swagger 응답 예시에 따라 ApiResponseWrapper<PostDetailData>로 파싱
-      const apiResponse: ApiResponseWrapper<PostDetailData> = await response.json();
+      // Swagger 응답 예시에 따라 ApiResponse<PostDetailData>로 파싱
+      const apiResponse: ApiResponse<PostDetailData> = await response.json();
       return apiResponse.data; // data 필드에 PostDetailData 객체가 있음
     } catch (error) {
       if (error instanceof PostServiceError) {
@@ -176,7 +154,7 @@ export const postService = {
         throw new PostServiceError(response.status, errorData.message || 'Failed to create post', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<CreatePostResponse> = await response.json();
+      const apiResponse: ApiResponse<CreatePostResponse> = await response.json();
 
       return apiResponse.data;
     } catch (error) {
@@ -191,8 +169,7 @@ export const postService = {
    * 사용자가 작성한 게시글 목록을 조회합니다.
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    * @param params - 페이지네이션, 정렬 옵션
-   */
-  async getUserPosts(params?: GetPostsParams): Promise<PageableContent<PostData>> {
+   */  async getUserPosts(params?: PaginationParams): Promise<PageableContent<PostData>> {
     const endpoint = '/api/v1/posts/me';
     let url = API_CONFIG.BASE_URL + endpoint;
 
@@ -206,7 +183,7 @@ export const postService = {
 
     if (params) {
       if (params.sort && params.sort.length > 0) {
-        params.sort.forEach(sortOption => queryParams.append('sort', sortOption));
+        params.sort.forEach((sortOption: string) => queryParams.append('sort', sortOption));
       }
     }
 
@@ -228,7 +205,7 @@ export const postService = {
         throw new PostServiceError(response.status, errorData.message || 'Failed to fetch user posts', endpoint);
       }
 
-      const apiResponse: ApiResponseWrapper<PageableContent<PostData>> = await response.json();
+      const apiResponse: ApiResponse<PageableContent<PostData>> = await response.json();
 
       console.log("getUserPosts response:", apiResponse);
 

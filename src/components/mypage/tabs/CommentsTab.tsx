@@ -9,20 +9,28 @@ import CommentList from "@/components/features/comments/CommentList";
 import ErrorDisplay from "@/components/mypage/shared/ErrorDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyComments } from "@/hooks/queries/useMyPageQueries";
-import { useState } from "react";
+import { usePagination } from "@/hooks/usePagination";
 import CustomPagination from "../../common/CustomPagination";
 
 export default function CommentsTab() {
-  const [currentPage, setCurrentPage] = useState(0);
+  const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 5;
 
-  const { data: commentsData, isLoading, error } = useMyComments();
+  console.log("CommentsTab render - currentPage:", currentPage, "API page:", currentPageForAPI);
+
+  const { data: commentsData, isLoading, error } = useMyComments({
+    page: currentPageForAPI,
+    size: pageSize,
+    sort: ["createdAt,desc"], // 최신순 정렬
+  });
+
+  console.log("CommentsTab - commentsData:", commentsData);
 
   const totalPages = commentsData?.totalPages || 0;
-  const totalElements = commentsData?.totalElements || 0;
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page - 1); // API는 0부터 시작
+  const totalElements = commentsData?.totalElements || 0; const handlePageChange = (page: number) => {
+    console.log("Page change requested:", page, "Current page:", currentPage);
+    setPage(page); // usePagination 훅의 setPage 사용 (1부터 시작하는 페이지)
+    console.log("New currentPage will be:", page);
   };
 
 
@@ -63,7 +71,6 @@ export default function CommentsTab() {
       </div>
     );
   }
-
   // 새로운 통합 CommentList 사용 - variant='my'로 내 댓글 모드
   return (
     <>
@@ -71,13 +78,16 @@ export default function CommentsTab() {
         comments={commentsData.content}
         variant="my"
         className="mt-6"
-      />
-      <CustomPagination
-        currentPage={currentPage + 1} // UI는 1부터 시작
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        className="mt-12"
-      />
+      />      {/* 페이지네이션이 표시되는지 확인을 위한 로그 */}
+      {console.log("Pagination render check - totalPages:", totalPages, "currentPage:", currentPage)}
+      {totalPages > 1 && (
+        <CustomPagination
+          currentPage={currentPage} // 이미 1부터 시작하는 값
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          className="mt-12"
+        />
+      )}
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { fetchWithAuth } from '@/lib/api';
-import type { ApiResponse } from '@/types/api';
-import type { UserActivityStats, UserProfileData } from '@/types/user'; // UserActivityStats 타입 추가
+import type { UserActivityStats, UserProfileData } from '@/types/user';
 import { API_CONFIG } from "../config/api";
+import { ApiResponse } from "../types/api";
 
 // --- 커스텀 에러 클래스 (기존과 동일) ---
 export class AuthError extends Error {
@@ -21,9 +21,7 @@ export const userService = {
 
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
-    }) as Response;
-
-    if (!response.ok) {
+    }) as Response; if (!response.ok) {
       throw new AuthError(response.status, 'Failed to get user profile', endpoint);
     }
 
@@ -74,9 +72,7 @@ export const userService = {
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST',
       body: JSON.stringify(profileData),
-    }) as Response;
-
-    if (!response.ok) {
+    }) as Response; if (!response.ok) {
       throw new AuthError(response.status, 'Failed to complete profile', endpoint);
     }
     const apiResponse: ApiResponse<UserProfileData> = await response.json();
@@ -107,9 +103,7 @@ export const userService = {
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'GET',
       cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
-    }) as Response;
-
-    if (!response.ok) {
+    }) as Response; if (!response.ok) {
       throw new AuthError(response.status, 'Failed to get user activity stats', endpoint);
     }
 
@@ -133,9 +127,7 @@ export const userService = {
       if (response.status === 401) {
         // 인증되지 않은 상태
         return null;
-      }
-
-      // 200 OK 외의 다른 에러 상태 코드 처리
+      }      // 200 OK 외의 다른 에러 상태 코드 처리
       if (!response.ok) {
         throw new AuthError(response.status, 'Failed to get user role', endpoint);
       }

@@ -8,16 +8,16 @@
  * 실시간 데이터 업데이트와 캐싱의 이점을 활용합니다.
  */
 
-import { usePosts, useTags } from "@/hooks/queries/usePostQueries";
+import { usePosts } from "@/hooks/queries/usePostQueries";
+import { usePagination } from "@/hooks/usePagination";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import CustomPagination from "./common/CustomPagination";
 import PostCard from "./features/posts/PostCard";
 import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
 export default function MainPageContent() {
-  const [currentPage, setCurrentPage] = useState(0);
+  const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 3;
 
   /**
@@ -30,34 +30,23 @@ export default function MainPageContent() {
   const {
     data: postResponse,
     isLoading: isLoadingPosts,
-    error: postsError
-  } = usePosts({
-    page: currentPage,
-    size: pageSize,
-    sort: ["createdAt,desc"], // 최신순 정렬
-  });
+    error: postsError } = usePosts({
+      page: currentPageForAPI, // URL 기반 페이지 (0부터 시작)
+      size: pageSize,
+      sort: ["createdAt,desc"], // 최신순 정렬
+    });
 
-  /**
-   * TanStack Query로 태그 목록을 가져옵니다.
-   * 
-   * 태그는 자주 변하지 않으므로 긴 캐시 시간으로 설정되어 있습니다.
-   */
-  const {
-    data: tags,
-    isLoading: isLoadingTags,
-    error: tagsError
-  } = useTags();
+
   const posts = postResponse?.content || [];
   const totalPages = postResponse?.totalPages || 0;
   const totalElements = postResponse?.totalElements || 0;
-
-  // 페이지 변경 핸들러 (UI는 1부터 시작하므로 그대로 사용)
+  // 페이지 변경 핸들러 (URL 기반)
   const handlePageChange = (page: number) => {
-    setCurrentPage(page - 1); // API는 0부터 시작
+    setPage(page); // usePagination 훅의 setPage 사용
   };
 
   // 로딩 중일 때 스켈레톤 UI 표시
-  if (isLoadingPosts || isLoadingTags) {
+  if (isLoadingPosts) {
     return (
       <div className="flex flex-col mt-16 gap-30 mx-auto">
         <section className="text-center">
@@ -104,7 +93,7 @@ export default function MainPageContent() {
   }
 
   // 에러 발생 시 에러 메시지 표시
-  if (postsError || tagsError) {
+  if (postsError) {
     return (
       <div className="flex flex-col mt-16 gap-30 mx-auto">
         <section className="text-center">
@@ -123,7 +112,7 @@ export default function MainPageContent() {
           <div className="text-center text-red-500">
             <p>데이터를 불러오는 중 오류가 발생했습니다.</p>
             <p className="text-sm text-gray-500 mt-2">
-              {postsError?.message || tagsError?.message}
+              {postsError?.message}
             </p>
           </div>
         </div>
@@ -168,19 +157,13 @@ export default function MainPageContent() {
                 <p className="text-sm">첫 번째 게시글을 작성해보세요!</p>
               </div>
             )}
-          </div>
-          <CustomPagination
-            currentPage={currentPage + 1} // UI는 1부터 시작
+          </div>          <CustomPagination
+            currentPage={currentPage} // 이미 1부터 시작하는 값
             totalPages={totalPages}
             onPageChange={handlePageChange}
             className="mt-12"
           />
         </main>
-
-        {/* 
-          사이드바 컴포넌트 - TanStack Query 기반
-          사이드바 내부에서 자체적으로 데이터를 관리하므로 props 전달 불필요
-        */}
         <MainPageSidebar />
       </div>
     </div>
