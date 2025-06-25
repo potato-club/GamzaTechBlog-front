@@ -92,7 +92,6 @@ export default async function PostPage({ params }: PostPageProps) {
               {new Date(post.createdAt).toLocaleDateString('ko-KR')}
             </time>
 
-            {/* ✅ 클라이언트 컴포넌트로 교체 */}
             <PostActionsDropdown
               postId={postId}
               triggerElement={headerTriggerElement}

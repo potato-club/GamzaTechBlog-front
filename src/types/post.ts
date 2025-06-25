@@ -7,10 +7,22 @@ export interface PostData {
   tags: string[];
 }
 
+export interface LikedPostData extends PostData {
+  likeId: number;
+}
+
 // 게시글 생성을 위한 API 요청 본문 인터페이스
 export interface CreatePostRequest {
   title: string;
   content: string; // 전체 내용
+  tags?: string[];
+  commitMessage?: string;
+}
+
+// 게시글 수정을 위한 API 요청 본문 인터페이스
+export interface UpdatePostRequest {
+  title: string;
+  content: string;
   tags?: string[];
   commitMessage?: string;
 }

@@ -8,25 +8,10 @@
  */
 
 import { postService } from "@/services/postService";
-import { CommentData } from "@/types/comment";
+import { PageableContent, PaginationParams } from "@/types/api";
 import { PostData } from "@/types/post";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-
-// 페이지네이션을 위한 타입
-interface PageableContent<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
-
-// 게시글 요청 파라미터 타입
-interface GetPostsParams {
-  page?: number;
-  size?: number;
-  sort?: string[];
-}
+import { commentService } from "../../services/commentService";
 
 /**
  * 사용자가 작성한 게시글 목록을 조회하는 훅
@@ -36,7 +21,7 @@ interface GetPostsParams {
  * @param options - TanStack Query 옵션
  */
 export function useMyPosts(
-  params?: GetPostsParams,
+  params?: PaginationParams,
   options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
@@ -62,32 +47,13 @@ export function useMyPosts(
  * 
  * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
  */
-export function useMyComments() {
+export function useMyComments(
+  params?: PaginationParams,
+) {
   return useQuery({
-    queryKey: ["my-comments"], // 캐시 키: 사용자의 댓글 목록
-    queryFn: async (): Promise<CommentData[]> => {
-      // 실제 API 호출 (현재는 목업 데이터 반환)
-      // TODO: 실제 서비스 함수로 교체
-      // return await userService.getMyComments();
+    queryKey: ["my-comments", params], // 캐시 키에 params 포함하여 페이지 변경 감지
+    queryFn: () => commentService.getUserComments(params),
 
-      // 임시 목업 데이터
-      return [
-        {
-          commentId: 1,
-          writer: "GyeongHwan Lee",
-          content: "첫 댓글 달아봤습니다 하하.",
-          createdAt: "2025-04-28T00:00:00.000Z",
-          replies: ["첫 번째 답글입니다!", "두 번째 답글입니다!"],
-        },
-        {
-          commentId: 2,
-          writer: "Jinwoo Park",
-          content: "좋은 글 감사합니다! Next.js에 대해 더 배우고 싶어요.",
-          createdAt: "2025-04-27T00:00:00.000Z",
-          replies: ["세 번째 답글입니다!", "네 번째 답글입니다!"],
-        },
-      ] as CommentData[];
-    },
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
   });
@@ -104,34 +70,11 @@ export function useMyComments() {
  * 
  * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
  */
-export function useMyLikes() {
+export function useMyLikes(params?: PaginationParams) {
   return useQuery({
-    queryKey: ["my-likes"], // 캐시 키: 사용자의 좋아요 목록
-    queryFn: async () => {
-      // 실제 API 호출 (현재는 목업 데이터 반환)
-      // TODO: 실제 서비스 함수로 교체
-      // return await userService.getMyLikes();
+    queryKey: ["my-likes", params], // 캐시 키: 사용자의 좋아요 목록
+    queryFn: () => postService.getUserLikes(params),
 
-      // 임시 목업 데이터
-      return [
-        {
-          id: 1,
-          title: "좋아요 누른 게시글 제목",
-          contentSnippet: "와우 좋아요 누른 게시글 내용이에용용",
-          writer: "GyeongHwan Lee",
-          createdAt: "2025-04-27T00:00:00.000Z",
-          tags: ["# java", "# spring", "# backend"],
-        },
-        {
-          id: 2,
-          title: "Next.js로 무한스크롤 구현하기",
-          contentSnippet: "Next.js에서 Intersection Observer API를 사용해 무한스크롤을 구현하는 방법을 정리합니다.",
-          writer: "Jinwoo Park",
-          createdAt: "2025-04-27T00:00:00.000Z",
-          tags: ["# nextjs", "# react", "# frontend"],
-        },
-      ];
-    },
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
   });

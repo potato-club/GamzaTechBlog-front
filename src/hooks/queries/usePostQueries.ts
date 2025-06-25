@@ -9,8 +9,9 @@
  */
 
 import { postService } from '@/services/postService';
+import { PageableContent, PaginationParams } from '@/types/api';
 import { PostDetailData } from '@/types/comment';
-import { CreatePostRequest, CreatePostResponse, PostData } from '@/types/post';
+import { CreatePostRequest, CreatePostResponse, PostData, UpdatePostRequest } from '@/types/post';
 import {
   keepPreviousData,
   useInfiniteQuery,
@@ -21,21 +22,6 @@ import {
   UseQueryOptions
 } from '@tanstack/react-query';
 
-// 페이지네이션을 위한 타입 (postService와 동일)
-interface PageableContent<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
-
-// 게시글 요청 파라미터 타입 (postService와 동일)
-interface GetPostsParams {
-  page?: number;
-  size?: number;
-  sort?: string[];
-}
 
 // 게시글 관련 Query Key 팩토리 - 일관된 쿼리 키 관리
 export const POST_QUERY_KEYS = {
@@ -44,7 +30,7 @@ export const POST_QUERY_KEYS = {
 
   // 게시글 목록 쿼리 키 (페이지네이션, 필터링 포함)
   lists: () => [...POST_QUERY_KEYS.all, 'list'] as const,
-  list: (params?: GetPostsParams) => [...POST_QUERY_KEYS.lists(), params] as const,
+  list: (params?: PaginationParams) => [...POST_QUERY_KEYS.lists(), params] as const,
 
   // 게시글 상세 쿼리 키
   details: () => [...POST_QUERY_KEYS.all, 'detail'] as const,
@@ -62,7 +48,7 @@ export const POST_QUERY_KEYS = {
  * @param options - TanStack Query 옵션
  */
 export function usePosts(
-  params?: GetPostsParams,
+  params?: PaginationParams,
   options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
@@ -304,6 +290,57 @@ export function useDeletePost(
 
     onError: (error, variables, context) => {
       console.error('게시글 삭제 실패:', error);
+      options?.onError?.(error, variables, context);
+    },
+
+    ...options,
+  });
+}
+
+/**
+ * 게시글 수정 뮤테이션
+ * 
+ * TanStack Query의 useMutation을 사용하여:
+ * - 게시글 수정을 서버에 요청
+ * - 성공 시 관련 캐시 자동 무효화
+ * - 에러 처리 및 사용자 피드백
+ * 
+ * @param options - TanStack Query 뮤테이션 옵션
+ */
+export function useUpdatePost(
+  options?: UseMutationOptions<CreatePostResponse, Error, { postId: number; data: UpdatePostRequest; }>
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ postId, data }: { postId: number; data: UpdatePostRequest; }) =>
+      postService.updatePost(postId, data),
+
+    onSuccess: (updatedPost: CreatePostResponse, variables, context) => {
+      // 수정된 게시글의 상세 페이지 캐시 업데이트
+      queryClient.setQueryData(
+        POST_QUERY_KEYS.detail(variables.postId),
+        updatedPost
+      );
+
+      // 게시글 목록 캐시를 무효화하여 최신 데이터 반영
+      queryClient.invalidateQueries({
+        queryKey: POST_QUERY_KEYS.lists()
+      });
+
+      // 마이페이지의 사용자 게시글 목록도 무효화
+      queryClient.invalidateQueries({
+        queryKey: ['my-posts']
+      });
+
+      console.log('게시글 수정 성공 - 관련 캐시가 갱신되었습니다');
+
+      // 사용자 정의 성공 콜백 실행
+      options?.onSuccess?.(updatedPost, variables, context);
+    },
+
+    onError: (error, variables, context) => {
+      console.error('게시글 수정 실패:', error);
       options?.onError?.(error, variables, context);
     },
 
