@@ -14,7 +14,7 @@ import CustomPagination from "../../common/CustomPagination";
 
 export default function CommentsTab() {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
-  const pageSize = 5;
+  const pageSize = 2;
 
   console.log("CommentsTab render - currentPage:", currentPage, "API page:", currentPageForAPI);
 
@@ -27,7 +27,9 @@ export default function CommentsTab() {
   console.log("CommentsTab - commentsData:", commentsData);
 
   const totalPages = commentsData?.totalPages || 0;
-  const totalElements = commentsData?.totalElements || 0; const handlePageChange = (page: number) => {
+  const totalElements = commentsData?.totalElements || 0;
+
+  const handlePageChange = (page: number) => {
     console.log("Page change requested:", page, "Current page:", currentPage);
     setPage(page); // usePagination 훅의 setPage 사용 (1부터 시작하는 페이지)
     console.log("New currentPage will be:", page);
