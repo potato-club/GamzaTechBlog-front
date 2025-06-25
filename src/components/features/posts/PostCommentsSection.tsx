@@ -1,47 +1,96 @@
 "use client";
 
+/**
+ * 게시글 댓글 섹션 컴포넌트
+ * 
+ * TanStack Query를 사용하여 댓글 데이터를 효율적으로 관리합니다.
+ * usePost 훅을 통해 게시글 상세 정보 (댓글 포함)를 가져오고,
+ * 댓글 추가/삭제는 자동으로 캐시가 업데이트됩니다.
+ */
+
 import CommentList from "@/components/features/comments/CommentList";
+import { usePost } from "@/hooks/queries/usePostQueries";
 import { CommentData } from "@/types/comment";
-import { useEffect, useState } from "react";
 import CommentForm from "../comments/CommentForm";
 
 interface PostCommentsSectionProps {
   postId: number;
-  initialComments: CommentData[];
-  totalCommentsCount: number;
+  initialComments?: CommentData[]; // 이제 선택사항 (TanStack Query가 관리)
+  totalCommentsCount?: number; // 이제 선택사항 (TanStack Query가 관리)
 }
 
-export default function PostCommentsSection({ postId, initialComments, totalCommentsCount }: PostCommentsSectionProps) {
-  const [comments, setComments] = useState<CommentData[]>(initialComments);
-  const [commentsCount, setCommentsCount] = useState<number>(totalCommentsCount);
+export default function PostCommentsSection({
+  postId,
+  initialComments = [],
+  totalCommentsCount = 0
+}: PostCommentsSectionProps) {
+  /**
+   * TanStack Query를 사용하여 게시글 상세 정보를 가져옵니다.
+   * 
+   * 이 훅의 장점:
+   * - 자동 캐싱: 동일한 게시글을 여러 컴포넌트에서 공유
+   * - 백그라운드 갱신: 댓글 변경 시 자동으로 최신 데이터 동기화
+   * - Optimistic Update: 댓글 추가/삭제 시 즉시 UI 반영
+   * - 에러 처리: 네트워크 오류 시 자동 재시도
+   */
+  const {
+    data: post,
+    isLoading,
+    error
+  } = usePost(postId);
 
-  useEffect(() => {
-    setComments(initialComments);
-    setCommentsCount(totalCommentsCount);
-  }, [initialComments, totalCommentsCount]);
+  // TanStack Query에서 가져온 데이터 우선 사용, 없으면 fallback 데이터 사용
+  const comments = post?.comments || initialComments;
+  const commentsCount = post?.comments?.length || totalCommentsCount;
 
-  const handleCommentSubmitted = (createdComment: CommentData) => {
-    // API 응답에 따라 writer, createdAt 등을 설정해야 합니다.
-    // CommentForm에서 이미 처리된 CommentData를 받습니다.
-    const newUiComment: CommentData = {
-      ...createdComment,
-      createdAt: new Date(createdComment.createdAt).toLocaleDateString('ko-KR'), // 날짜 형식화
-    };
-    setComments((prevComments) => [...prevComments, newUiComment]);
-    setCommentsCount(prevCount => prevCount + 1);
-  };
+  // 로딩 중일 때 스켈레톤 UI 표시
+  if (isLoading) {
+    return (
+      <section className="mt-12 text-[#353841] text-[17px]" aria-label="댓글 섹션">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-32 mb-4"></div>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="bg-gray-100 rounded-xl px-6 py-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-9 h-9 bg-gray-200 rounded-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-20"></div>
+                </div>
+                <div className="h-4 bg-gray-200 rounded w-full"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
-  const handleCommentDeleted = (deletedCommentId: number) => {
-    setComments((prevComments) => prevComments.filter(comment => comment.commentId !== deletedCommentId));
-    setCommentsCount(prevCount => prevCount - 1);
-    // 필요하다면 여기에 사용자에게 알림 (예: Toast 메시지)을 표시하는 로직을 추가할 수 있습니다.
-  };
+  // 에러 발생 시 에러 메시지 표시
+  if (error) {
+    return (
+      <section className="mt-12 text-[#353841] text-[17px]" aria-label="댓글 섹션">
+        <h2 className="mt-7 text-lg font-semibold">댓글</h2>
+        <div className="mt-4 text-center text-red-500">
+          <p>댓글을 불러오는 중 오류가 발생했습니다.</p>
+          <p className="text-sm text-gray-500 mt-2">{error.message}</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="mt-12 text-[#353841] text-[17px]" aria-label="댓글 섹션"> {/* mt-40에서 mt-12로 조정 */}
+    <section className="mt-12 text-[#353841] text-[17px]" aria-label="댓글 섹션">
       <h2 className="mt-7 text-lg font-semibold">댓글 {commentsCount}개</h2>
-      <CommentForm postId={postId} onCommentSubmitted={handleCommentSubmitted} />
-      <CommentList comments={comments} onCommentDeleted={handleCommentDeleted} />
+
+      {/* TanStack Query가 댓글 추가를 자동으로 처리하므로 onCommentSubmitted는 선택사항 */}
+      <CommentForm postId={postId} />
+
+      {/* TanStack Query가 댓글 삭제를 자동으로 처리하므로 onCommentDeleted는 선택사항 */}
+      <CommentList
+        comments={comments}
+        variant="post"
+        postId={postId}
+      />
     </section>
   );
 }
