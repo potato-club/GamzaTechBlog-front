@@ -72,10 +72,6 @@ export default function PostForm({
         title: initialData.title,
       });
       setTags(initialData.tags || []);
-      // 에디터 내용 설정 (다음 렌더 사이클에서 실행)
-      setTimeout(() => {
-        editorRef.current?.setMarkdown(initialData.content || "");
-      }, 100);
     }
   }, [initialData, mode, form]);
 
@@ -174,7 +170,10 @@ export default function PostForm({
           )}
         />
 
-        <ToastEditor ref={editorRef} />
+        <ToastEditor
+          ref={editorRef}
+          initialValue={mode === 'edit' ? initialData?.content : undefined}
+        />
 
         <div className="mt-7 flex flex-wrap gap-2 text-[14px]">
           {tags.map((tag, idx) => (

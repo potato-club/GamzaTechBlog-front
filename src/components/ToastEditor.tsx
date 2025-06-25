@@ -9,7 +9,11 @@ export type ToastEditorHandle = {
   setMarkdown: (markdown: string) => void;
 };
 
-const ToastEditor = forwardRef<ToastEditorHandle>((_, ref) => {
+interface ToastEditorProps {
+  initialValue?: string;
+}
+
+const ToastEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialValue }, ref) => {
   const editorRef = useRef<Editor>(null);
 
   useImperativeHandle(ref, () => ({
@@ -26,6 +30,7 @@ const ToastEditor = forwardRef<ToastEditorHandle>((_, ref) => {
       height="500px"
       initialEditType="markdown"
       useCommandShortcut={true}
+      initialValue={initialValue || ""}
     />
   );
 });

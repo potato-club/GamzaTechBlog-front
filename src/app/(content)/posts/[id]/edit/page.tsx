@@ -8,22 +8,31 @@
 
 import PostForm, { type PostFormData } from "@/components/features/posts/PostForm";
 import { usePost, useUpdatePost } from "@/hooks/queries/usePostQueries";
+import { useAuth } from "@/hooks/queries/useUserQueries";
 import { useRouter } from "next/navigation";
+import { use } from "react";
 
 interface EditPostPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function EditPostPage({ params }: EditPostPageProps) {
   const router = useRouter();
-  const postId = parseInt(params.id);
+
+  // Next.js 15+ params는 Promise이므로 React.use()로 unwrap
+  const resolvedParams = use(params);
+  const postId = parseInt(resolvedParams.id);
+
+  // 현재 사용자 정보 조회
+  const { userProfile, isLoggedIn, isLoading: isLoadingAuth } = useAuth();
 
   // 기존 게시글 데이터 조회
   const { data: post, isLoading: isLoadingPost, error } = usePost(postId);
 
   console.log("edit post data", post);
+  console.log("current user", userProfile);
 
   const updatePostMutation = useUpdatePost();
 
@@ -42,16 +51,33 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     router.push(`/posts/${postId}`);
   };
 
-  // 로딩 중 UI
-  if (isLoadingPost) {
+  // 로딩 중 UI (인증 정보 또는 게시글 로딩 중)
+  if (isLoadingAuth || isLoadingPost) {
     return (
       <div className="mt-32 flex justify-center items-center min-h-[400px]">
-        <div className="text-lg text-gray-600">게시글을 불러오는 중...</div>
+        <div className="text-lg text-gray-600">
+          {isLoadingAuth ? "사용자 정보를 확인하는 중..." : "게시글을 불러오는 중..."}
+        </div>
       </div>
     );
   }
 
-  // 에러 처리
+  // 로그인하지 않은 경우
+  if (!isLoggedIn || !userProfile) {
+    return (
+      <div className="mt-32 flex flex-col justify-center items-center min-h-[400px] gap-4">
+        <div className="text-lg text-red-600">로그인이 필요합니다.</div>
+        <button
+          onClick={() => router.push('/login')}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          로그인하기
+        </button>
+      </div>
+    );
+  }
+
+  // 게시글 로딩 에러 또는 존재하지 않는 경우
   if (error || !post) {
     return (
       <div className="mt-32 flex flex-col justify-center items-center min-h-[400px] gap-4">
@@ -62,6 +88,34 @@ export default function EditPostPage({ params }: EditPostPageProps) {
         >
           뒤로 가기
         </button>
+      </div>
+    );
+  }
+
+  // 작성자 권한 확인 (GitHub ID 또는 닉네임으로 비교)
+  const isAuthor = userProfile.githubId === post.writer ||
+    userProfile.nickname === post.writer ||
+    userProfile.name === post.writer;
+
+  if (!isAuthor) {
+    return (
+      <div className="mt-32 flex flex-col justify-center items-center min-h-[400px] gap-4">
+        <div className="text-lg text-red-600">이 게시글을 수정할 권한이 없습니다.</div>
+        <div className="text-sm text-gray-600">본인이 작성한 게시글만 수정할 수 있습니다.</div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => router.push(`/posts/${postId}`)}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            게시글 보기
+          </button>
+          <button
+            onClick={() => router.back()}
+            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          >
+            뒤로 가기
+          </button>
+        </div>
       </div>
     );
   }
