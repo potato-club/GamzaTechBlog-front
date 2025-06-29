@@ -35,12 +35,6 @@ export default function MyPage() {
 
   return (
     <>
-      {/* 
-          실제 구현 시에는 useMyPageData 훅 또는 다른 방법을 통해 
-          동적으로 userProfile 데이터를 가져와서 전달해야 합니다.
-          예: <Sidebar userProfile={actualUserProfile} onProfileUpdate={handleActualProfileUpdate} /> 
-        */}
-
       <section className="flex-1" aria-label="마이페이지 콘텐츠"> {/* flex-1 추가하여 남은 공간 채우도록 */}
         <TabMenu
           tab={currentTab}

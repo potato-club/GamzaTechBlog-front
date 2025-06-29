@@ -5,13 +5,31 @@
 * 로딩, 에러, 빈 상태를 독립적으로 관리합니다.
 */
 
+import CustomPagination from "@/components/common/CustomPagination";
 import PostCard from "@/components/features/posts/PostCard";
 import ErrorDisplay from "@/components/mypage/shared/ErrorDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyLikes } from "@/hooks/queries/useMyPageQueries";
+import { usePagination } from "@/hooks/usePagination";
 
 export default function LikesTab() {
-  const { data: likes = [], isLoading, error } = useMyLikes();
+  const { currentPage, currentPageForAPI, setPage } = usePagination();
+  const pageSize = 2;
+
+  const { data: likes, isLoading, error } = useMyLikes({
+    page: currentPageForAPI,
+    size: pageSize,
+    sort: ["createdAt,desc"], // 최신순 정렬
+  });
+
+  const likedPosts = likes?.content || [];
+  const totalPages = likes?.totalPages || 0;
+  const totalElements = likes?.totalElements || 0;
+
+  const handlePageChange = (page: number) => {
+    setPage(page); // usePagination 훅의 setPage 사용
+  };
+
 
   // 로딩 상태
   if (isLoading) {
@@ -40,7 +58,7 @@ export default function LikesTab() {
   }
 
   // 빈 상태
-  if (likes.length === 0) {
+  if (likedPosts.length === 0) {
     return (
       <div className="text-center mt-12">
         <div className="text-gray-400 mb-4">
@@ -56,7 +74,7 @@ export default function LikesTab() {
   // 좋아요 목록 표시
   return (
     <div className="flex flex-col gap-8 mt-8">
-      {likes.map((like: any) => (
+      {likedPosts.map((like: any) => (
         <PostCard
           key={like.id}
           post={{
@@ -66,6 +84,12 @@ export default function LikesTab() {
           showLikeButton={false} // 마이페이지에서는 좋아요 버튼 숨김
         />
       ))}
+      <CustomPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        className="mt-12"
+      />
     </div>
   );
 }
