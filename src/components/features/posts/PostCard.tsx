@@ -8,6 +8,7 @@
  */
 
 import { useLikePost } from "@/hooks/queries/usePostQueries";
+import { markdownToText } from "@/utils/markdown";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -67,7 +68,9 @@ export default function PostCard({
           <h3 className={`text-xl font-bold truncate`}>
             {post.title}
           </h3>
-          <p className="text-[#B5BBC7] text-sm mt-3.5 truncate">{post.contentSnippet}</p>
+          <p className="text-[#B5BBC7] text-sm mt-3.5 truncate">
+            {markdownToText(post.contentSnippet, 100)}
+          </p>
         </Link>        <div className="flex justify-between items-center">
           <PostMeta author={post.writer} date={post.createdAt.split("T")[0]} tags={post.tags} />
 
