@@ -88,7 +88,7 @@ export const HeaderNavigation = () => {
       className="relative h-8 w-8 rounded-full p-0 focus-visible:ring-0 focus-visible:ring-offset-0 hover:cursor-pointer"
     >
       {userProfile?.profileImageUrl ? (
-        <img
+        <Image
           src={userProfile.profileImageUrl}
           alt={`${userProfile.nickname || "사용자"} 프로필`}
           className="w-8 h-8 rounded-full"
@@ -117,10 +117,19 @@ export const HeaderNavigation = () => {
       <>
         {isLoggedIn && userProfile ? (
           // 로그인된 상태: 프로필 이미지 표시
-          <DropdownMenuList
-            triggerElement={headerTriggerElement}
-            items={headerDropdownItems}
-          />
+          <>
+            <Link href="/posts/new">
+              <Button
+                variant="default" // 기본 variant 사용 또는 커스텀 스타일 유지
+                className={`rounded-full bg-[#20242B] px-4 py-2 text-white text-xs sm:text-sm flex items-center gap-2 transition-colors duration-150`}>
+                글쓰기
+              </Button>
+            </Link>
+            <DropdownMenuList
+              triggerElement={headerTriggerElement}
+              items={headerDropdownItems}
+            />
+          </>
         ) : (
           // 로그인되지 않은 상태: 로그인 버튼 표시
           <Link href={githubLoginUrl} target="_self" onClick={isAttemptingLogin ? (e) => e.preventDefault() : handleLoginClick} passHref>
@@ -130,7 +139,7 @@ export const HeaderNavigation = () => {
                 ? "cursor-not-allowed opacity-70"
                 : "hover:bg-[#33373E] hover:cursor-pointer"
                 }`}
-              disabled={isAttemptingLogin}            >
+              disabled={isAttemptingLogin}>
               {isAttemptingLogin ? `Logging in${loginDots}` : (
                 <>
                   Login with <Image src="/githubIcon.svg" alt="GitHub" width={22} height={22} />
