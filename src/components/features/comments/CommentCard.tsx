@@ -114,7 +114,7 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
         )}
       </div>
 
-      <div className="flex items-center gap-2 mt-1">
+      {/* <div className="flex items-center gap-2 mt-1">
         <div className="w-9 h-9 rounded-full overflow-hidden mr-2">
           <Image
             src="/profileSVG.svg" // 실제 프로필 이미지 경로로 변경해야 합니다.
@@ -125,7 +125,7 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
           />
         </div>
         <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer || userProfile?.nickname}</span>
-      </div>
+      </div> */}
 
       <div className="mt-2 text-[14px] text-[#464C58]">
         {comment.content}
@@ -137,6 +137,11 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
         </time>
         {/* <span> | </span>
         <span>답글</span> */}
+      </div>
+
+      <div className="mt-2 text-[12px] text-[#B5BBC7]">
+        {/* 게시글 제목 */}
+        {/* <span>{comment.postTitle}</span> */}
       </div>
     </div>
   );
