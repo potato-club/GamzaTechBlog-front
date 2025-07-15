@@ -19,6 +19,14 @@ export interface CreatePostRequest {
   commitMessage?: string;
 }
 
+// 게시글 수정을 위한 API 요청 본문 인터페이스
+export interface UpdatePostRequest {
+  title: string;
+  content: string;
+  tags?: string[];
+  commitMessage?: string;
+}
+
 export interface CreatePostResponse {
   postId: number;
   authorGithubId: string;

@@ -2,7 +2,7 @@ import { API_CONFIG } from "../config/api";
 import { fetchWithAuth } from "../lib/api";
 import { ApiResponse, PageableContent, PaginationParams } from "../types/api"; // PaginationParams 추가
 import { PostDetailData } from "../types/comment";
-import { CreatePostRequest, CreatePostResponse, LikedPostData, PostData } from "../types/post";
+import { CreatePostRequest, CreatePostResponse, LikedPostData, PostData, UpdatePostRequest } from "../types/post";
 import { CommentServiceError } from "./commentService";
 
 
@@ -280,5 +280,41 @@ export const postService = {  /**
       }
       throw new CommentServiceError(500, (error as Error).message || 'An unexpected error occurred while fetching user likes', endpoint);
     }
-  }
+  },
+
+  /**
+   * 게시글을 수정합니다.
+   * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
+   * @param postId - 수정할 게시글 ID
+   * @param postData - 수정할 게시글 데이터
+   */
+  async updatePost(postId: number, postData: UpdatePostRequest): Promise<CreatePostResponse> {
+    const endpoint = `/api/v1/posts/${postId}`;
+
+    try {
+      const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+        cache: 'no-store', // 수정 요청은 캐싱하지 않음
+      }) as Response;
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to update post' }));
+        throw new PostServiceError(response.status, errorData.message || 'Failed to update post', endpoint);
+      }
+
+      const apiResponse: ApiResponse<CreatePostResponse> = await response.json();
+
+      return apiResponse.data;
+    } catch (error) {
+      if (error instanceof PostServiceError) {
+        throw error;
+      }
+      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while updating post', endpoint);
+    }
+  },
+
 } as const;
