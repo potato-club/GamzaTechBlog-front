@@ -91,6 +91,8 @@ export const HeaderNavigation = () => {
         <Image
           src={userProfile.profileImageUrl}
           alt={`${userProfile.nickname || "사용자"} 프로필`}
+          width={32}
+          height={32}
           className="w-8 h-8 rounded-full"
         />
       ) : (
