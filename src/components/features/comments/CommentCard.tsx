@@ -7,9 +7,10 @@
 
 import { useDeleteComment } from "@/hooks/queries/useCommentQueries";
 import { shouldUseMockData } from "@/mock/mockData";
-import { MyCommentData, PostCommentData } from "@/types/comment";
+import { MyCommentData, PostCommentData, isMyComment } from "@/types/comment";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
+import Link from "next/link";
 import { useAuth } from "../../../hooks/queries/useUserQueries";
 import { DropdownMenuList } from "../../common/DropdownMenuList";
 
@@ -157,9 +158,12 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
       </div>
 
       <div className="mt-2 text-[12px] text-[#B5BBC7]">
-        {/* 게시글 제목 */}
-        {/* <span>{comment.postTitle}</span> */}
-        <span>임시 게시글 제목입니다.</span>
+        {/* 게시글 제목 - MyCommentData인 경우에만 표시 (클릭 가능한 링크) */}
+        {isMyComment(comment) && (
+          <Link href={`/posts/${comment.postId}`} className="underline">
+            {comment.postTitle}
+          </Link>
+        )}
       </div>
     </div>
   );

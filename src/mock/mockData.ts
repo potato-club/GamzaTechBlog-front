@@ -5,7 +5,7 @@
  * 환경 변수 NEXT_PUBLIC_USE_MOCK_DATA=true로 활성화됩니다.
  */
 
-import { CommentData, MyCommentData } from "@/types/comment";
+import { MyCommentData } from "@/types/comment";
 import { MyPageData } from "@/types/mypage";
 import { PostData } from "@/types/post";
 import { UserProfileData } from "@/types/user";
@@ -123,27 +123,27 @@ export const mockMyComments: MyCommentData[] = [
 ];
 
 // 더미 댓글 데이터 (게시글용 - CommentData/PostCommentData)
-export const mockComments: CommentData[] = [
+export const mockComments: MyCommentData[] = [
   {
     commentId: 1,
     content: "정말 유익한 글이네요! 많은 도움이 되었습니다.",
     createdAt: "2024-07-15T11:00:00Z",
-    writer: "프론트엔드개발자",
-    replies: []
+    postId: 1,
+    postTitle: "React 18의 새로운 기능들과 실무 적용 가이드"
   },
   {
     commentId: 2,
     content: "실무에서 바로 적용해볼 수 있는 내용들이라 좋네요. 감사합니다!",
     createdAt: "2024-07-15T12:30:00Z",
-    writer: "백엔드개발자",
-    replies: ["정말 도움되는 댓글이에요!"]
+    postId: 1,
+    postTitle: "React 18의 새로운 기능들과 실무 적용 가이드"
   },
   {
     commentId: 3,
     content: "다음 글도 기대하겠습니다.",
     createdAt: "2024-07-15T14:15:00Z",
-    writer: "풀스택개발자",
-    replies: []
+    postId: 2,
+    postTitle: "Next.js 13 App Router 마이그레이션 경험기"
   }
 ];
 
