@@ -8,8 +8,8 @@ interface TabMenuProps {
 
 const TAB_LABELS = {
   posts: "작성 글",
-  comments: "작성 댓글",
-  likes: "좋아요"
+  likes: "좋아요",
+  comments: "작성 댓글"
 } as const;
 
 export default function TabMenu({ tab, onTabChange }: TabMenuProps) {
