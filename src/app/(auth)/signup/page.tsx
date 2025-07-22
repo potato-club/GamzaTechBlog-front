@@ -82,7 +82,7 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center bg-white min-h-screen py-8">
+    <main className="flex flex-col items-center justify-center bg-white min-h-screen">
       <header className="mb-8">
         <Link href="/" aria-label="메인페이지로 이동">
           <Image

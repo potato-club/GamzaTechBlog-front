@@ -40,7 +40,7 @@ export default async function RootLayout({
               <BlogHeader />
               <div
                 id="main-content"
-                className="mt-16 px-4 flex-grow" // flex-grow 추가하여 푸터가 항상 하단에 위치하도록 도움
+                className="mt-8 px-4 flex-grow" // flex-grow 추가하여 푸터가 항상 하단에 위치하도록 도움
               >
                 {children}
               </div>
