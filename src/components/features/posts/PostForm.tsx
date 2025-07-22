@@ -10,14 +10,12 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod"; // zodResolver 추가
+import { zodResolver } from "@hookform/resolvers/zod";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // useRouter 추가
-import React, { useEffect, useRef, useState } from "react"; // useState 추가
+import React, { useEffect, useRef, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { z } from "zod"; // z 추가
-import { postService } from "../../../services/postService";
+import { z } from "zod";
 
 const ToastEditor = dynamic(() => import("@/components/ToastEditor"), {
   ssr: false,
@@ -26,52 +24,77 @@ const ToastEditor = dynamic(() => import("@/components/ToastEditor"), {
 // Zod 스키마 정의
 const formSchema = z.object({
   title: z.string().min(1, { message: "제목은 필수입니다." }).max(100, { message: "제목은 100자 이내로 입력해주세요." }),
-  // content는 에디터에서 직접 가져오므로, 폼 스키마에서는 선택적으로 다루거나 제외할 수 있습니다.
-  // 여기서는 폼 데이터에 포함시키지 않는다고 가정합니다.
 });
 
-// Zod 스키마로부터 타입 추론
 type FormValues = z.infer<typeof formSchema>;
 
-export default function WritePage() {
+export interface PostFormData {
+  title: string;
+  content: string;
+  tags: string[];
+  commitMessage: string;
+}
+
+interface PostFormProps {
+  mode: 'create' | 'edit';
+  initialData?: {
+    title: string;
+    content: string;
+    tags: string[];
+  };
+  onSubmit: (data: PostFormData) => Promise<void>;
+  isLoading: boolean;
+}
+
+export default function PostForm({
+  mode,
+  initialData,
+  onSubmit,
+  isLoading
+}: PostFormProps) {
   const editorRef = useRef<ToastEditorHandle>(null);
-  const router = useRouter(); // useRouter 훅 사용
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema), // zodResolver 사용
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+      title: initialData?.title || "",
     },
   });
 
-  const [tags, setTags] = useState<string[]>([]); // 태그를 상태로 관리
-  const [currentTag, setCurrentTag] = useState<string>("");
+  const [tags, setTags] = useState<string[]>(initialData?.tags || []);
+  const [currentTag, setCurrentTag] = useState("");
+  const [uploadingDots, setUploadingDots] = useState("");
 
-  const [isSubmittingPost, setIsSubmittingPost] = useState(false); // 게시글 제출 상태
-  const [uploadingDots, setUploadingDots] = useState(""); // 업로드 중 점 애니메이션
+  // 수정 모드일 때 초기 데이터 설정
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      form.reset({
+        title: initialData.title,
+      });
+      setTags(initialData.tags || []);
+    }
+  }, [initialData, mode, form]);
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => { // async 추가
+  const handleSubmit: SubmitHandler<FormValues> = async (data) => {
     const markdown = editorRef.current?.getMarkdown() || "";
-    const commitMessage = ``;
-    setIsSubmittingPost(true); // 제출 시작
 
+    if (!markdown.trim()) {
+      alert("내용을 입력해주세요.");
+      return;
+    }
 
     try {
-      const response = await postService.createPost({
+      await onSubmit({
         title: data.title,
         content: markdown,
         tags: tags,
-        commitMessage: commitMessage,
+        commitMessage: mode === 'create'
+          ? `새 게시글: ${data.title}`
+          : `게시글 수정: ${data.title}`,
       });
-
-      console.log("게시글 생성 성공:", response);
-      // 성공 시 생성된 게시글 상세 페이지로 이동
-      router.push(`/posts/${response.postId}`);
     } catch (error) {
-      console.error("게시글 생성 실패:", error);
-      alert("게시글 생성에 실패했습니다. 다시 시도해주세요.");
-    } finally {
-      setIsSubmittingPost(false); // 제출 완료 (성공/실패 무관)
+      console.error(`게시글 ${mode === 'create' ? '작성' : '수정'} 중 오류:`, error);
+      alert(`게시글 ${mode === 'create' ? '작성' : '수정'}에 실패했습니다. 다시 시도해주세요.`);
     }
   };
 
@@ -79,7 +102,7 @@ export default function WritePage() {
     const tagWithoutHash = currentTag.startsWith("#") ? currentTag.slice(1) : currentTag;
     const trimmedTag = tagWithoutHash.trim();
 
-    if (trimmedTag !== "" && tags.length < 2) { // 태그 개수 제한 추가
+    if (trimmedTag !== "" && tags.length < 2) {
       const capitalizedTag =
         trimmedTag.charAt(0).toUpperCase() + trimmedTag.slice(1).toLowerCase();
       const newTag = `${capitalizedTag}`;
@@ -88,7 +111,7 @@ export default function WritePage() {
         setTags([...tags, newTag]);
       }
     }
-    if (tags.length < 2) { // 태그가 2개 미만일 때만 입력 필드 초기화
+    if (tags.length < 2) {
       setCurrentTag("");
     }
   };
@@ -103,36 +126,38 @@ export default function WritePage() {
 
   const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      e.preventDefault(); // 폼 제출 방지
+      e.preventDefault();
       handleAddTag();
     }
   };
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isSubmittingPost) {
+    if (isLoading) {
       interval = setInterval(() => {
         setUploadingDots((prevDots) => {
           if (prevDots.length >= 3) return ".";
           return prevDots + ".";
         });
-      }, 500); // 0.5초마다 점 변경
+      }, 500);
     } else {
-      setUploadingDots(""); // 제출 중이 아니면 점 초기화
+      setUploadingDots("");
     }
     return () => clearInterval(interval);
-  }, [isSubmittingPost]);
+  }, [isLoading]);
+
+  const buttonText = isLoading
+    ? `게시글 ${mode === 'create' ? '업로드' : '수정'} 중${uploadingDots}`
+    : mode === 'create' ? "완료" : "수정 완료";
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-32 flex flex-col gap-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-32 flex flex-col gap-6">
         <FormField
           control={form.control}
           name="title"
-          // rules prop은 zodResolver 사용 시 필요 없음
           render={({ field }) => (
             <FormItem>
-              {/* <FormLabel className="px-4 text-4xl mb-10">글 작성하기</FormLabel> */}
               <FormControl>
                 <Input
                   {...field}
@@ -145,7 +170,10 @@ export default function WritePage() {
           )}
         />
 
-        <ToastEditor ref={editorRef} />
+        <ToastEditor
+          ref={editorRef}
+          initialValue={mode === 'edit' ? initialData?.content : undefined}
+        />
 
         <div className="mt-7 flex flex-wrap gap-2 text-[14px]">
           {tags.map((tag, idx) => (
@@ -153,7 +181,7 @@ export default function WritePage() {
               key={idx}
               className="flex items-center gap-1 w-fit rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]"
             >
-              <span># {tag}</span> {/* #이 이미 포함된 태그를 표시 */}
+              <span># {tag}</span>
               <Image
                 src="/tagDeleteBtn.svg"
                 alt="태그 삭제 버튼"
@@ -170,18 +198,18 @@ export default function WritePage() {
             value={currentTag}
             onChange={handleTagInputChange}
             onKeyDown={handleTagInputKeyDown}
-            disabled={tags.length >= 2} // 태그가 2개 이상이면 입력 비활성화
-            className="h-auto p-1.5 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none bg-transparent w-auto flex-grow" // w-auto, flex-grow 추가
+            disabled={tags.length >= 2}
+            className="h-auto p-1.5 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none bg-transparent w-auto flex-grow"
           />
         </div>
 
         <Button
           type="submit"
-          className={`self-end px-4 py-2 bg-[#20242B] text-white rounded-4xl transition-colors duration-150 ${isSubmittingPost ? "cursor-not-allowed opacity-70" : "hover:bg-[#33373E]/90 hover:cursor-pointer"
+          className={`self-end px-4 py-2 bg-[#20242B] text-white rounded-4xl transition-colors duration-150 ${isLoading ? "cursor-not-allowed opacity-70" : "hover:bg-[#33373E]/90 hover:cursor-pointer"
             }`}
-          disabled={isSubmittingPost}
+          disabled={isLoading}
         >
-          {isSubmittingPost ? `게시글 업로드 중${uploadingDots}` : "완료"}
+          {buttonText}
         </Button>
       </form>
     </Form>

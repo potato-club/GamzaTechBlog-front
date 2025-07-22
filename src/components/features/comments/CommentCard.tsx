@@ -1,26 +1,48 @@
-import { commentService, CommentServiceError } from "@/services/commentService";
-import { CommentData } from "@/types/comment";
+/**
+ * 댓글 카드 컴포넌트
+ * 
+ * TanStack Query의 useDeleteComment 뮤테이션을 사용하여
+ * 댓글 삭제 시 Optimistic Update와 자동 캐시 관리를 제공합니다.
+ */
+
+import { useDeleteComment } from "@/hooks/queries/useCommentQueries";
+import { shouldUseMockData } from "@/mock/mockData";
+import { MyCommentData, PostCommentData, isMyComment } from "@/types/comment";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
-import { useState } from "react";
+import Link from "next/link";
+import { useAuth } from "../../../hooks/queries/useUserQueries";
 import { DropdownMenuList } from "../../common/DropdownMenuList";
 
 interface CommentCardProps {
-  comment: CommentData;
-  onCommentDeleted?: (commentId: number) => void; // 댓글 삭제 성공 시 호출될 콜백
+  comment: PostCommentData | MyCommentData;
+  postId: number; // TanStack Query 뮤테이션에 필요
+  onCommentDeleted?: (commentId: number) => void; // 이제 선택사항 (TanStack Query가 자동 처리)
 }
 
-export default function CommentCard({ comment, onCommentDeleted }: CommentCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
+export default function CommentCard({ comment, postId, onCommentDeleted }: CommentCardProps) {
+  /**
+   * TanStack Query 뮤테이션을 사용한 댓글 삭제
+   * 
+   * 이 훅은 다음 기능들을 자동으로 제공합니다:
+   * - Optimistic Update: 서버 응답 전에 UI에서 댓글 즉시 제거
+   * - 에러 처리: 실패 시 이전 상태로 자동 롤백
+   * - 로딩 상태: isPending을 통한 UI 비활성화
+   * - 캐시 갱신: 성공 시 관련 쿼리 자동 무효화
+   */
+
+  const { userProfile } = useAuth();
+
+  const deleteCommentMutation = useDeleteComment(postId);
 
   const handleCommentEdit = () => {
-    if (isDeleting) return;
+    if (deleteCommentMutation.isPending) return;
     // TODO: Implement edit functionality
     alert(`댓글 수정 기능 (ID: ${comment.commentId})`);
   };
 
   const handleCommentDelete = async () => {
-    if (isDeleting) return;
+    if (deleteCommentMutation.isPending) return;
 
     const confirmDelete = window.confirm(
       `'${comment.content.substring(0, 30).trim()}${comment.content.length > 30 ? "..." : ""}' 댓글을 정말 삭제하시겠습니까?`
@@ -29,25 +51,20 @@ export default function CommentCard({ comment, onCommentDeleted }: CommentCardPr
       return;
     }
 
-    setIsDeleting(true);
+    // TanStack Query 뮤테이션 실행
     try {
-      await commentService.deleteComment(comment.commentId);
-      // 성공 알림은 부모 컴포넌트에서 Toast 등으로 관리하는 것이 더 좋을 수 있습니다.
-      // alert(`댓글 (ID: ${comment.commentId})이(가) 삭제되었습니다.`);
+      await deleteCommentMutation.mutateAsync(comment.commentId);
+
+      // 기존 prop 콜백이 있다면 호출 (하위 호환성)
       if (onCommentDeleted) {
-        onCommentDeleted(comment.commentId); // 부모 컴포넌트에 삭제 알림
+        onCommentDeleted(comment.commentId);
       }
+
     } catch (error) {
+      // 에러는 TanStack Query의 onError에서 이미 처리됨
+      // 추가 사용자 피드백이 필요하면 여기에 추가
       console.error("댓글 삭제 실패:", error);
-      let errorMessage = "댓글 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-      if (error instanceof CommentServiceError) {
-        errorMessage = `댓글 삭제 실패: ${error.message}`;
-      } else if (error instanceof Error) {
-        errorMessage = `댓글 삭제 실패: ${error.message}`;
-      }
-      alert(errorMessage);
-    } finally {
-      setIsDeleting(false);
+      alert("댓글 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
   };
 
@@ -55,7 +72,7 @@ export default function CommentCard({ comment, onCommentDeleted }: CommentCardPr
     {
       label: "수정하기",
       onClick: handleCommentEdit,
-      className: isDeleting ? "text-gray-400 cursor-not-allowed" : "",
+      className: deleteCommentMutation.isPending ? "text-gray-400 cursor-not-allowed" : "",
     },
   ];
 
@@ -63,7 +80,7 @@ export default function CommentCard({ comment, onCommentDeleted }: CommentCardPr
     <button
       type="button"
       aria-label="댓글 옵션 더보기"
-      className={`p-1 hover:cursor-pointer hover:opacity-80 ${isDeleting ? "cursor-not-allowed" : ""}`}
+      className={`p-1 hover:cursor-pointer hover:opacity-80 ${deleteCommentMutation.isPending ? "cursor-not-allowed" : ""}`}
     >
       <Image
         src="/dot3.svg"
@@ -74,29 +91,49 @@ export default function CommentCard({ comment, onCommentDeleted }: CommentCardPr
     </button>
   );
 
-  // 현재 사용자가 댓글 작성자인지 확인하는 로직 (예시, 실제 구현 필요)
-  // const isCurrentUserCommentOwner = comment.writer === currentUser?.nickname;
-  const isCurrentUserCommentOwner = true; // 임시로 항상 true로 설정 (실제 앱에서는 인증된 사용자 정보와 비교해야 함)
+  // 현재 사용자가 댓글 작성자인지 확인하는 로직
+  const isCurrentUserCommentOwner = (() => {
+    // 목 데이터 사용 시에는 모든 댓글을 편집 가능하게 설정
+    if (shouldUseMockData()) {
+      return true;
+    }
+
+    // 실제 서버 연동 시에는 사용자 정보와 댓글 작성자 비교
+    if (!userProfile) return false;
+
+    // PostCommentData인 경우 writer 속성으로 비교
+    if ('writer' in comment) {
+      return comment.writer === userProfile.nickname;
+    }
+
+    // MyCommentData인 경우는 항상 현재 사용자의 댓글이므로 true
+    return true;
+  })();
 
   if (isCurrentUserCommentOwner) {
     commentDropdownItems.push({
-      label: isDeleting ? "삭제 중..." : "삭제하기",
+      label: deleteCommentMutation.isPending ? "삭제 중..." : "삭제하기",
       onClick: handleCommentDelete,
-      className: `w-full text-left ${isDeleting ? "text-gray-400 cursor-not-allowed" : "text-red-600 hover:text-red-700 focus:text-red-700 hover:bg-red-50 focus:bg-red-50"}`,
+      className: `w-full text-left ${deleteCommentMutation.isPending ? "text-gray-400 cursor-not-allowed" : "text-red-600 hover:text-red-700 focus:text-red-700 hover:bg-red-50 focus:bg-red-50"}`,
     });
   }
 
   return (
-    <div className="bg-[#FAFBFF] w-full rounded-xl px-6 py-5"> {/* key는 부모 map에서 제공하므로 제거 */}
+    <div className="bg-[#FAFBFF] w-full rounded-xl px-6 py-5">
       <div className="relative">
         {isCurrentUserCommentOwner && commentDropdownItems.length > 0 && (
           <div className="absolute top-0 right-0">
-            <DropdownMenuList triggerElement={commentTriggerElement} items={commentDropdownItems} contentClassName="w-28" />
+            <DropdownMenuList
+              triggerElement={commentTriggerElement}
+              items={commentDropdownItems}
+              contentClassName="w-28"
+            />
           </div>
         )}
       </div>
-      <div className="flex items-center gap-2 mt-1"> {/* 드롭다운 메뉴와의 간격 확보 */}
-        <div className="w-9 h-9 rounded-full overflow-hidden">
+
+      {/* <div className="flex items-center gap-2 mt-1">
+        <div className="w-9 h-9 rounded-full overflow-hidden mr-2">
           <Image
             src="/profileSVG.svg" // 실제 프로필 이미지 경로로 변경해야 합니다.
             alt={`${comment.writer} 프로필 이미지`}
@@ -105,10 +142,28 @@ export default function CommentCard({ comment, onCommentDeleted }: CommentCardPr
             className="w-full h-full object-cover"
           />
         </div>
-        <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer}</span>
-      </div>
+        <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer || userProfile?.nickname}</span>
+      </div> */}
+
       <div className="mt-2 text-[14px] text-[#464C58]">
         {comment.content}
+      </div>
+
+      <div className="mt-2 text-[12px] text-[#B5BBC7]">
+        <time dateTime={new Date(comment.createdAt).toISOString().split("T")[0]}>
+          {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+        </time>
+        {/* <span> | </span>
+        <span>답글</span> */}
+      </div>
+
+      <div className="mt-2 text-[12px] text-[#B5BBC7]">
+        {/* 게시글 제목 - MyCommentData인 경우에만 표시 (클릭 가능한 링크) */}
+        {isMyComment(comment) && (
+          <Link href={`/posts/${comment.postId}`} className="underline">
+            {comment.postTitle}
+          </Link>
+        )}
       </div>
     </div>
   );

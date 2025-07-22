@@ -8,16 +8,41 @@ export interface CommentReply {
   // createdAt: string;
 }
 
-export interface CommentData {
+// 공통 베이스 인터페이스
+export interface BaseCommentData {
   commentId: number;
-  writer: string;
   content: string;
   createdAt: string;
+}
+
+// 게시글 댓글 (기존)
+export interface PostCommentData extends BaseCommentData {
+  writer: string;
   replies: string[]; // Swagger 예시에서는 string 배열
 }
 
+// 내 댓글 (확장)
+export interface MyCommentData extends BaseCommentData {
+  postId: number;
+  postTitle: string;
+}
+
+// 기존 CommentData를 PostCommentData로 별칭 (하위 호환성)
+export type CommentData = PostCommentData;
+
+// 통합 댓글 리스트 Props
 export interface CommentListProps {
-  comments: CommentData[];
+  comments: (PostCommentData | MyCommentData)[];
+  variant: 'post' | 'my';
+}
+
+// 기존 Props들 (하위 호환성)
+export interface PostCommentListProps {
+  comments: PostCommentData[];
+}
+
+export interface MyCommentListProps {
+  comments: MyCommentData[];
 }
 
 export interface PostDetailData {
@@ -31,8 +56,16 @@ export interface PostDetailData {
   comments: CommentData[];
 }
 
-
 export interface CommentRequest {
   content: string;
   parentCommentId?: number; // 대댓글의 경우 부모 댓글 ID
 }
+
+// 타입 가드 함수들
+export const isPostComment = (comment: BaseCommentData): comment is PostCommentData => {
+  return 'writer' in comment && 'replies' in comment;
+};
+
+export const isMyComment = (comment: BaseCommentData): comment is MyCommentData => {
+  return 'postId' in comment && 'postTitle' in comment;
+};

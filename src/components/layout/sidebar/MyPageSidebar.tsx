@@ -1,9 +1,9 @@
 "use client";
 
-import { userService } from "@/services/userService"; // ⭐️ userService import
-import type { UserActivityStats, UserProfileData } from "@/types/user"; // ⭐️ 공유 타입 사용
+// TanStack Query 훅을 사용하여 사용자 활동 통계를 효율적으로 관리합니다
+import { useUserActivityStats } from "@/hooks/queries/useUserQueries";
+import type { UserProfileData } from "@/types/user";
 import Image from "next/image";
-import { useEffect, useState } from "react"; // ⭐️ useEffect, useState import
 import ProfileEditDialog from "../../features/user/ProfileEditDialog";
 import UserActivityStatItem from "../../features/user/UserActivityStatItem";
 import UserIcon from "../../ui/UserIcon";
@@ -22,26 +22,20 @@ interface StatItem {
 }
 
 export default function MyPageSidebar({ userProfile, onProfileUpdate }: SidebarProps) {
-  const [activityStats, setActivityStats] = useState<UserActivityStats | null>(null);
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (userProfile?.githubId) { // userProfile이 있고, 식별 가능한 ID가 있을 때만 호출
-        try {
-          setIsLoadingStats(true);
-          const statsData = await userService.getActivityCounts();
-          setActivityStats(statsData);
-        } catch (error) {
-          console.error("Failed to fetch activity stats:", error);
-          // 에러 처리 (예: 사용자에게 알림)
-        } finally {
-          setIsLoadingStats(false);
-        }
-      }
-    };
-    fetchStats();
-  }, [userProfile?.githubId]); // userProfile.githubId가 변경될 때마다 실행
+  /**
+   * TanStack Query를 사용하여 사용자 활동 통계를 가져옵니다.
+   * 
+   * 기존의 useEffect + useState 패턴 대신 useUserActivityStats 훅을 사용하여:
+   * - 자동 캐싱: 동일한 데이터를 여러 컴포넌트에서 공유
+   * - 백그라운드 재검증: 데이터가 오래되면 자동으로 업데이트
+   * - 로딩/에러 상태 관리: 별도 state 없이 자동 제공
+   * - 재시도 로직: 네트워크 오류 시 자동 재시도
+   */
+  const {
+    data: activityStats,
+    isLoading: isLoadingStats,
+    error: statsError
+  } = useUserActivityStats();
 
   const stats: StatItem[] = [
     { icon: "/postIcon.svg", alt: "작성 글 아이콘", label: "작성 글", count: activityStats?.writtenPostCount ?? 0 },
@@ -93,15 +87,21 @@ export default function MyPageSidebar({ userProfile, onProfileUpdate }: SidebarP
 
       {/* 작성 글, 작성 댓글, 좋아요 수 표시 */}
       <section aria-labelledby="user-activity-stats-heading" className="mt-10 w-full">
-        <h2 id="user-activity-stats-heading" className="sr-only">사용자 활동 통계</h2>
-        <ul className="text-center flex justify-around text-sm">
+        <h2 id="user-activity-stats-heading" className="sr-only">사용자 활동 통계</h2>        <ul className="text-center flex justify-around text-sm">
           {isLoadingStats ? (
+            /* TanStack Query 로딩 상태: 스켈레톤 UI 표시 */
             <>
               <div className="h-12 w-16 animate-pulse rounded-md bg-gray-200" />
               <div className="h-12 w-16 animate-pulse rounded-md bg-gray-200" />
               <div className="h-12 w-16 animate-pulse rounded-md bg-gray-200" />
             </>
+          ) : statsError ? (
+            /* TanStack Query 에러 상태: 간단한 에러 메시지 표시 */
+            <div className="text-red-500 text-sm">
+              통계를 불러올 수 없습니다
+            </div>
           ) : (
+            /* TanStack Query 성공 상태: 실제 데이터 표시 */
             stats.map((stat) => (
               <UserActivityStatItem
                 key={stat.label}

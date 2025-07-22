@@ -1,23 +1,23 @@
+import MarkdownViewer from "@/components/features/posts/MarkdownViewer";
+import { PostActionsDropdown } from "@/components/features/posts/PostActionsDropdown"; // 추가
 import PostCommentsSection from "@/components/features/posts/PostCommentsSection";
-import TagBadge from '@/components/ui/TagBadge'; // TagBadge 컴포넌트 임포트
+import { Button } from "@/components/ui/button";
+import TagBadge from '@/components/ui/TagBadge';
+import { cn } from "@/lib/utils";
 import { postService } from "@/services/postService";
 import { CommentData, PostDetailData } from "@/types/comment";
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import MarkdownViewer from "../../../components/features/posts/MarkdownViewer";
-
-
-// UiComment 인터페이스는 PostCommentsSection.tsx로 이동 또는 공유 타입으로 관리
 
 interface PostPageProps {
-  params: Promise<{ id: string; }>; // Promise로 변경
+  params: Promise<{ id: string; }>;
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  const { id } = await params; // params를 await로 해제
-  const postId = parseInt(id, 10);
+  const { id } = await params;
+  const postId = Number(id);
 
-  if (isNaN(postId) || postId <= 0) {
+  if (!Number.isInteger(postId) || postId <= 0) {
     notFound();
   }
 
@@ -26,18 +26,13 @@ export default async function PostPage({ params }: PostPageProps) {
 
   try {
     post = await postService.getPostById(postId);
-
     console.log("post data", post);
-
   } catch (err) {
     console.error("Failed to fetch post:", err);
     fetchError = err instanceof Error ? err.message : "게시물을 불러오는데 실패했습니다.";
-    // 프로덕션에서는 error.tsx 등을 통해 사용자 친화적 에러 페이지를 보여주는 것이 좋습니다.
   }
 
   if (fetchError) {
-    // return <div>Error: {fetchError}</div>; // 또는 throw new Error(fetchError) 후 error.tsx로 처리
-    // 임시로 간단한 에러 메시지 표시
     return <div className="container mx-auto py-10">게시물을 불러오는 중 오류가 발생했습니다: {fetchError}</div>;
   }
 
@@ -45,16 +40,32 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound();
   }
 
-  // API에서 가져온 댓글을 UI용 댓글 형식으로 변환 (서버에서 수행)
   const initialUiComments: CommentData[] = post.comments.map(comment => ({
     commentId: comment.commentId,
     writer: comment.writer,
     content: comment.content,
-    createdAt: new Date(comment.createdAt).toLocaleDateString('ko-KR'), // 날짜 형식 'YYYY. MM. DD.'
+    createdAt: new Date(comment.createdAt).toLocaleDateString('ko-KR'),
     replies: comment.replies || [],
   }));
 
+  // ❌ 이 부분들을 제거
+  // const deletePostMutation = useDeletePost();
+  // const handleDeletePost = () => { ... };
+  // const headerDropdownItems = [...];
 
+  const headerTriggerElement = (
+    <Button
+      variant="ghost"
+      className={cn("relative h-8 w-8 rounded-full p-0 focus-visible:ring-0 focus-visible:ring-offset-0 hover:cursor-pointer ml-auto")}
+    >
+      <Image
+        src="/dot3.svg"
+        alt="더보기"
+        width={18}
+        height={4}
+      />
+    </Button>
+  );
 
   return (
     <main className="mx-16 my-16">
@@ -80,6 +91,11 @@ export default async function PostPage({ params }: PostPageProps) {
             <time dateTime={new Date(post.createdAt).toISOString().split("T")[0]} className="text-[#B5BBC7]">
               {new Date(post.createdAt).toLocaleDateString('ko-KR')}
             </time>
+
+            <PostActionsDropdown
+              postId={postId}
+              triggerElement={headerTriggerElement}
+            />
           </div>
 
           <ul className="flex gap-2 text-[14px]" role="list">
@@ -94,7 +110,6 @@ export default async function PostPage({ params }: PostPageProps) {
         <MarkdownViewer content={post.content} />
       </article>
 
-      {/* 댓글 섹션을 클라이언트 컴포넌트로 분리 */}
       <PostCommentsSection
         postId={postId}
         initialComments={initialUiComments}
