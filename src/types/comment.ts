@@ -25,7 +25,6 @@ export interface PostCommentData extends BaseCommentData {
 export interface MyCommentData extends BaseCommentData {
   postId: number;
   postTitle: string;
-  writer?: string; // 선택적으로 추가 (필요시)
 }
 
 // 기존 CommentData를 PostCommentData로 별칭 (하위 호환성)
