@@ -13,7 +13,7 @@ export default function ContentLayout({
   return (
     <div className="min-h-screen bg-white">
       {/* 콘텐츠 페이지들을 위한 공통 컨테이너 */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto">
         {children}
       </div>
     </div>

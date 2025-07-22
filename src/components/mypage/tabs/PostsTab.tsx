@@ -77,7 +77,6 @@ export default function PostsTab() {
         <PostCard
           key={post.postId}
           post={post}
-          showLikeButton={false} // 마이페이지에서는 좋아요 버튼 숨김
         />
       ))}
       <CustomPagination
