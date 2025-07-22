@@ -14,6 +14,8 @@ export const HeaderNavigation = () => {
   const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github"; // 환경 변수 또는 기본값  // useAuth 훅 호출. React Query가 데이터 관리
   const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion } = useAuth(); // needsProfileCompletion 추가
 
+  console.log("HeaderNavigation state:", { isLoggedIn, userProfile, isLoading, needsProfileCompletion });
+
   const router = useRouter();
   const pathname = usePathname(); // 현재 경로 가져오기
 
@@ -91,6 +93,8 @@ export const HeaderNavigation = () => {
         <Image
           src={userProfile.profileImageUrl}
           alt={`${userProfile.nickname || "사용자"} 프로필`}
+          width={32}
+          height={32}
           className="w-8 h-8 rounded-full"
         />
       ) : (
