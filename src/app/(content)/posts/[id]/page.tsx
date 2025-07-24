@@ -72,8 +72,8 @@ export default function PostPage() {
   }
 
   return (
-    <main className="mx-16 my-16">
-      <article className="border-b border-[#D5D9E3] py-8">
+    <main className="mx-16 my-16 max-w-full overflow-hidden">
+      <article className="border-b border-[#D5D9E3] py-8 max-w-full">
         <PostHeader post={post} postId={postId} />
         <MarkdownViewer content={post.content} />
         {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
