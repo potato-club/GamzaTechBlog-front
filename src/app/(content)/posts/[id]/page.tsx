@@ -43,6 +43,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const initialUiComments: CommentData[] = post.comments.map(comment => ({
     commentId: comment.commentId,
     writer: comment.writer,
+    writerProfileImageUrl: comment.writerProfileImageUrl,
     content: comment.content,
     createdAt: new Date(comment.createdAt).toLocaleDateString('ko-KR'),
     replies: comment.replies || [],
@@ -78,7 +79,7 @@ export default async function PostPage({ params }: PostPageProps) {
           <div className="flex h-12 items-center gap-4 text-[14px]">
             <div className="flex h-5 items-center border-r border-[#B5BBC7] pr-1.5">
               <Image
-                src="/profileSVG.svg"
+                src="/profileSVG.svg" // 프로필 이미지 경로를 실제 이미지로 변경해야 합니다.
                 alt={`${post.writer}의 프로필 이미지`}
                 width={24}
                 height={24}
