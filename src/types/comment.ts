@@ -51,6 +51,7 @@ export interface PostDetailData {
   title: string;
   content: string;
   writer: string;
+  writerProfileImageUrl: string;
   createdAt: string;
   updatedAt: string;
   tags: string[];
