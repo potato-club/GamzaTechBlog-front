@@ -6,9 +6,11 @@
  */
 
 import { useDeleteComment } from "@/hooks/queries/useCommentQueries";
-import { MyCommentData, PostCommentData } from "@/types/comment";
+import { shouldUseMockData } from "@/mock/mockData";
+import { MyCommentData, PostCommentData, isMyComment } from "@/types/comment";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
+import Link from "next/link";
 import { useAuth } from "../../../hooks/queries/useUserQueries";
 import { DropdownMenuList } from "../../common/DropdownMenuList";
 
@@ -89,8 +91,24 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
     </button>
   );
 
-  // 현재 사용자가 댓글 작성자인지 확인하는 로직 (예시, 실제 구현 필요)
-  const isCurrentUserCommentOwner = true; // 임시로 항상 true로 설정 (실제 앱에서는 인증된 사용자 정보와 비교해야 함)
+  // 현재 사용자가 댓글 작성자인지 확인하는 로직
+  const isCurrentUserCommentOwner = (() => {
+    // 목 데이터 사용 시에는 모든 댓글을 편집 가능하게 설정
+    if (shouldUseMockData()) {
+      return true;
+    }
+
+    // 실제 서버 연동 시에는 사용자 정보와 댓글 작성자 비교
+    if (!userProfile) return false;
+
+    // PostCommentData인 경우 writer 속성으로 비교
+    if ('writer' in comment) {
+      return comment.writer === userProfile.nickname;
+    }
+
+    // MyCommentData인 경우는 항상 현재 사용자의 댓글이므로 true
+    return true;
+  })();
 
   if (isCurrentUserCommentOwner) {
     commentDropdownItems.push({
@@ -114,7 +132,7 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
         )}
       </div>
 
-      <div className="flex items-center gap-2 mt-1">
+      {/* <div className="flex items-center gap-2 mt-1">
         <div className="w-9 h-9 rounded-full overflow-hidden mr-2">
           <Image
             src="/profileSVG.svg" // 실제 프로필 이미지 경로로 변경해야 합니다.
@@ -125,7 +143,7 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
           />
         </div>
         <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer || userProfile?.nickname}</span>
-      </div>
+      </div> */}
 
       <div className="mt-2 text-[14px] text-[#464C58]">
         {comment.content}
@@ -137,6 +155,15 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
         </time>
         {/* <span> | </span>
         <span>답글</span> */}
+      </div>
+
+      <div className="mt-2 text-[12px] text-[#B5BBC7]">
+        {/* 게시글 제목 - MyCommentData인 경우에만 표시 (클릭 가능한 링크) */}
+        {isMyComment(comment) && (
+          <Link href={`/posts/${comment.postId}`} className="underline">
+            {comment.postTitle}
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -60,9 +60,8 @@ export default function MyPageSidebar({ userProfile, onProfileUpdate }: SidebarP
             <Image
               src={userProfile.profileImageUrl}
               alt={`${userProfile.nickname} 프로필 이미지`}
-              layout="fill"
-              objectFit="cover"
-              className="rounded-full"
+              fill
+              className="rounded-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-500 rounded-full" aria-label="기본 프로필 이미지">

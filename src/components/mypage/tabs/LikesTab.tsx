@@ -79,9 +79,8 @@ export default function LikesTab() {
           key={like.id}
           post={{
             ...like,
-            postId: like.id // id를 postId로 매핑
+            postId: like.postId // id를 postId로 매핑
           }}
-          showLikeButton={false} // 마이페이지에서는 좋아요 버튼 숨김
         />
       ))}
       <CustomPagination

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
@@ -64,6 +65,7 @@ export default function PostForm({
   const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [currentTag, setCurrentTag] = useState("");
   const [uploadingDots, setUploadingDots] = useState("");
+  const [isPreviewVisible, setIsPreviewVisible] = useState(true);
 
   // 수정 모드일 때 초기 데이터 설정
   useEffect(() => {
@@ -131,6 +133,11 @@ export default function PostForm({
     }
   };
 
+  const togglePreview = () => {
+    editorRef.current?.togglePreview();
+    setIsPreviewVisible(!isPreviewVisible);
+  };
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isLoading) {
@@ -152,7 +159,7 @@ export default function PostForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-32 flex flex-col gap-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-10 flex flex-col gap-6">
         <FormField
           control={form.control}
           name="title"
@@ -169,6 +176,29 @@ export default function PostForm({
             </FormItem>
           )}
         />
+
+        {/* 미리보기 토글 버튼 */}
+        <div className="flex justify-end items-center">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={togglePreview}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+          >
+            {isPreviewVisible ? (
+              <>
+                <EyeOff size={16} />
+                <span>미리보기 숨기기</span>
+              </>
+            ) : (
+              <>
+                <Eye size={16} />
+                <span>미리보기 보기</span>
+              </>
+            )}
+          </Button>
+        </div>
 
         <ToastEditor
           ref={editorRef}

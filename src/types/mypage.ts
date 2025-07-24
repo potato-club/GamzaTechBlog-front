@@ -1,4 +1,4 @@
-import { CommentData } from "./comment";
+import { MyCommentData } from "./comment";
 import { PostData } from "./post";
 
 export type TabType = "posts" | "comments" | "likes";
@@ -15,7 +15,7 @@ export interface Like {
 
 export interface MyPageData {
   posts: PostData[];
-  comments: CommentData[];
+  comments: MyCommentData[];
   likes: Like[];
 }
 

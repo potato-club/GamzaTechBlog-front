@@ -48,13 +48,13 @@ export default function MainPageContent() {
   // 로딩 중일 때 스켈레톤 UI 표시
   if (isLoadingPosts) {
     return (
-      <div className="flex flex-col mt-16 gap-30 mx-auto">
+      <div className="flex flex-col gap-30 mx-auto">
         <section className="text-center">
           <Link href="/">
             <Image
               src="/logo2.svg"
               alt="메인페이지 로고"
-              width={320}
+              width={255}
               height={230}
               className="mx-auto"
             />
@@ -95,13 +95,13 @@ export default function MainPageContent() {
   // 에러 발생 시 에러 메시지 표시
   if (postsError) {
     return (
-      <div className="flex flex-col mt-16 gap-30 mx-auto">
+      <div className="flex flex-col gap-30 mx-auto">
         <section className="text-center">
           <Link href="/">
             <Image
               src="/logo2.svg"
               alt="메인페이지 로고"
-              width={320}
+              width={255}
               height={230}
               className="mx-auto"
             />
@@ -121,13 +121,13 @@ export default function MainPageContent() {
   }
 
   return (
-    <div className="flex flex-col mt-16 gap-30 mx-auto">
+    <div className="flex flex-col gap-20 mx-auto">
       <section className="text-center">
         <Link href="/">
           <Image
             src="/logo2.svg"
             alt="메인페이지 로고"
-            width={320}
+            width={255}
             height={230}
             className="mx-auto"
           />
@@ -138,7 +138,7 @@ export default function MainPageContent() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">Posts</h2>
             <p className="text-sm text-gray-500">
-              총 {totalElements}개의 게시글 (페이지 {currentPage + 1} / {totalPages})
+              총 {totalElements}개의 게시글 (페이지 {currentPage} / {totalPages})
             </p>
           </div>
 
@@ -148,7 +148,6 @@ export default function MainPageContent() {
                 <PostCard
                   key={post.postId}
                   post={post}
-                  showLikeButton={true} // 메인 페이지에서는 좋아요 버튼 표시
                 />
               ))
             ) : (
