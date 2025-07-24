@@ -10,6 +10,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useCreateComment } from "@/hooks/queries/useCommentQueries";
+import { useAuth } from "@/hooks/queries/useUserQueries";
 import { CommentData } from "@/types/comment";
 import Image from 'next/image';
 import { FormEvent, useState } from "react";
@@ -21,6 +22,7 @@ interface CommentFormProps {
 
 export default function CommentForm({ postId, onCommentSubmitted }: CommentFormProps) {
   const [newComment, setNewComment] = useState("");
+  const { userProfile } = useAuth();
 
   /**
    * TanStack Query 뮤테이션을 사용한 댓글 등록
@@ -68,8 +70,13 @@ export default function CommentForm({ postId, onCommentSubmitted }: CommentFormP
     <form className="mt-4 flex flex-col gap-3" onSubmit={handleSubmit} aria-label="댓글 작성">
       <div className="flex items-start gap-3">
         <div className="w-9 h-9 rounded-full overflow-hidden shrink-0">
-          {/* 실제 사용자 프로필 이미지로 교체 필요 */}
-          <Image src="/profileSVG.svg" alt="현재 사용자의 프로필 이미지" width={36} height={36} className="w-full h-full object-cover" />
+          <Image
+            src={userProfile?.profileImageUrl || "/profileSVG.svg"}
+            alt="현재 사용자의 프로필 이미지"
+            width={36}
+            height={36}
+            className="w-full h-full object-cover"
+          />
         </div>
         <textarea
           id="comment-input"

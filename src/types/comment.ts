@@ -18,6 +18,7 @@ export interface BaseCommentData {
 // 게시글 댓글 (기존)
 export interface PostCommentData extends BaseCommentData {
   writer: string;
+  writerProfileImageUrl: string;
   replies: string[]; // Swagger 예시에서는 string 배열
 }
 

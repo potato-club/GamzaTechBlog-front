@@ -132,18 +132,22 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
         )}
       </div>
 
-      {/* <div className="flex items-center gap-2 mt-1">
-        <div className="w-9 h-9 rounded-full overflow-hidden mr-2">
-          <Image
-            src="/profileSVG.svg" // 실제 프로필 이미지 경로로 변경해야 합니다.
-            alt={`${comment.writer} 프로필 이미지`}
-            width={36}
-            height={36}
-            className="w-full h-full object-cover"
-          />
+      {!isMyComment(comment) && (
+        <div className="flex items-center gap-2 mt-1">
+          <div className="w-9 h-9 rounded-full overflow-hidden mr-2">
+            <Image
+              src={comment.writerProfileImageUrl}
+              alt={`사용자 프로필 이미지`}
+              width={36}
+              height={36}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <span className="text-[14px] font-medium text-[#1C222E]">
+            {'writer' in comment ? comment.writer : userProfile?.nickname || "나"}
+          </span>
         </div>
-        <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer || userProfile?.nickname}</span>
-      </div> */}
+      )}
 
       <div className="mt-2 text-[14px] text-[#464C58]">
         {comment.content}

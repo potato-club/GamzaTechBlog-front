@@ -195,6 +195,64 @@ export function useWithdrawAccount(
 }
 
 /**
+ * 프로필 이미지를 업로드하는 뮤테이션 훅
+ * 
+ * @param options - TanStack Query 뮤테이션 옵션
+ */
+export function useUpdateProfileImage(
+  options?: UseMutationOptions<string, Error, File>
+) {
+  return useMutation({
+    mutationFn: (imageFile: File) => userService.updateProfileImage(imageFile),
+
+    onSuccess: (imageUrl, variables, context) => {
+      console.log('프로필 이미지 업로드 성공:', imageUrl);
+      options?.onSuccess?.(imageUrl, variables, context);
+    },
+
+    onError: (error, variables, context) => {
+      console.error('프로필 이미지 업로드 실패:', error);
+      options?.onError?.(error, variables, context);
+    },
+
+    ...options,
+  });
+}
+
+/**
+ * 사용자 프로필을 업데이트하는 뮤테이션 훅
+ * 
+ * @param options - TanStack Query 뮤테이션 옵션
+ */
+export function useUpdateProfile(
+  options?: UseMutationOptions<UserProfileData, Error, Partial<UserProfileData>>
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (profileData: Partial<UserProfileData>) => userService.updateProfile(profileData),
+
+    onSuccess: (updatedProfile, variables, context) => {
+      // 프로필 캐시 업데이트
+      queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
+
+      // 모든 사용자 관련 쿼리 무효화 (다른 컴포넌트들이 최신 데이터를 가져오도록)
+      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+
+      console.log('프로필 업데이트 성공:', updatedProfile);
+      options?.onSuccess?.(updatedProfile, variables, context);
+    },
+
+    onError: (error, variables, context) => {
+      console.error('프로필 업데이트 실패:', error);
+      options?.onError?.(error, variables, context);
+    },
+
+    ...options,
+  });
+}
+
+/**
  * 인증 상태를 종합적으로 관리하는 컴포지션 훅
  * 
  * 기존의 독립적인 훅들(useUserProfile, useUserRole)을 조합하여
