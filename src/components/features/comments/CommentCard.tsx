@@ -154,8 +154,15 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
       </div>
 
       <div className="mt-2 text-[12px] text-[#B5BBC7]">
-        <time dateTime={new Date(comment.createdAt).toISOString().split("T")[0]}>
-          {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+        <time dateTime={new Date(comment.createdAt).toISOString()}>
+          {new Date(comment.createdAt).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          })}
         </time>
         {/* <span> | </span>
         <span>답글</span> */}
