@@ -56,6 +56,7 @@ export interface PostDetailData {
   updatedAt: string;
   tags: string[];
   comments: CommentData[];
+  likesCount?: number; // 좋아요 개수 추가
 }
 
 export interface CommentRequest {
