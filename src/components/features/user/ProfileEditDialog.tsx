@@ -29,7 +29,7 @@ import { Camera, UserIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useWithdrawAccount } from "../../../hooks/queries/useUserQueries";
+import { useUpdateProfile, useUpdateProfileImage, useWithdrawAccount } from "../../../hooks/queries/useUserQueries";
 import { cn } from "../../../lib/utils";
 
 interface ProfileEditDialogProps {
@@ -72,21 +72,44 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
     };
   }, [previewUrl]);
 
-  const handleSaveChanges = () => {
-    // TODO: 이미지 업로드 로직이 있다면 여기서 처리 후 URL 받아오기
-    const updatedData: Partial<UserProfileData> = {
-      email,
-      studentNumber,
-      gamjaBatch: gamjaBatch ? parseInt(gamjaBatch, 10) : undefined,
-      position: position as PositionKey,
-      profileImageUrl: previewUrl || userProfile.profileImageUrl // 미리보기 URL 또는 기존 URL 사용
-    };
-    onProfileUpdate(updatedData);
-    // 성공 시 Dialog는 DialogClose에 의해 자동으로 닫히거나,
-    // 부모 컴포넌트에서 open 상태를 제어한다면 해당 상태를 false로 변경
-  };
-
+  // 뮤테이션 훅들
+  const updateProfileImageMutation = useUpdateProfileImage();
+  const updateProfileMutation = useUpdateProfile();
   const withdrawAccountMutation = useWithdrawAccount();
+
+  const handleSaveChanges = async () => {
+    try {
+      let profileImageUrl = userProfile.profileImageUrl;
+
+      // 새로운 이미지가 선택된 경우 먼저 이미지 업로드
+      if (selectedImage) {
+        console.log('프로필 이미지 업로드 중...');
+        profileImageUrl = await updateProfileImageMutation.mutateAsync(selectedImage);
+        console.log('프로필 이미지 업로드 완료:', profileImageUrl);
+      }
+
+      // 프로필 데이터 업데이트
+      const updatedData: Partial<UserProfileData> = {
+        email,
+        studentNumber,
+        gamjaBatch: gamjaBatch ? parseInt(gamjaBatch, 10) : undefined,
+        position: position as PositionKey,
+        profileImageUrl
+      };
+
+      console.log('프로필 업데이트 중...');
+      const updatedProfile = await updateProfileMutation.mutateAsync(updatedData);
+      console.log('프로필 업데이트 완료:', updatedProfile);
+
+      // 부모 컴포넌트에 업데이트된 프로필 전달
+      onProfileUpdate(updatedProfile);
+
+      alert('프로필이 성공적으로 업데이트되었습니다.');
+    } catch (error) {
+      console.error('프로필 업데이트 실패:', error);
+      alert('프로필 업데이트에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
 
   const handleWithdrawAccount = () => {
     withdrawAccountMutation.mutate();
@@ -271,8 +294,17 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
                   취소
                 </Button>
               </DialogClose>
-              <Button type="button" onClick={handleSaveChanges}>
-                완료
+              <Button
+                type="button"
+                onClick={handleSaveChanges}
+                disabled={updateProfileImageMutation.isPending || updateProfileMutation.isPending}
+              >
+                {updateProfileImageMutation.isPending
+                  ? '이미지 업로드 중...'
+                  : updateProfileMutation.isPending
+                    ? '프로필 업데이트 중...'
+                    : '완료'
+                }
               </Button>
             </div>
           </div>
