@@ -40,7 +40,7 @@ export default function PostHeader({ post, postId }: PostHeaderProps) {
       </h1>
 
       <div className="flex h-12 items-center gap-4 text-[14px]">
-        <div className="flex h-5 items-center border-r border-[#B5BBC7] pr-1.5">
+        <div className="flex h-5 items-center border-r border-[#B5BBC7] pr-3">
           <Image
             src={post.writerProfileImageUrl}
             alt={`${post.writer}의 프로필 이미지`}
