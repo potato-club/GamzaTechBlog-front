@@ -6,7 +6,6 @@
  */
 
 import { useDeleteComment } from "@/hooks/queries/useCommentQueries";
-import { shouldUseMockData } from "@/mock/mockData";
 import { MyCommentData, PostCommentData, isMyComment } from "@/types/comment";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
@@ -93,11 +92,6 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
 
   // 현재 사용자가 댓글 작성자인지 확인하는 로직
   const isCurrentUserCommentOwner = (() => {
-    // 목 데이터 사용 시에는 모든 댓글을 편집 가능하게 설정
-    if (shouldUseMockData()) {
-      return true;
-    }
-
     // 실제 서버 연동 시에는 사용자 정보와 댓글 작성자 비교
     if (!userProfile) return false;
 
@@ -154,8 +148,15 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
       </div>
 
       <div className="mt-2 text-[12px] text-[#B5BBC7]">
-        <time dateTime={new Date(comment.createdAt).toISOString().split("T")[0]}>
-          {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+        <time dateTime={new Date(comment.createdAt).toISOString()}>
+          {new Date(comment.createdAt).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          })}
         </time>
         {/* <span> | </span>
         <span>답글</span> */}

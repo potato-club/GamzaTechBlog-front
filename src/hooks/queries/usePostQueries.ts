@@ -133,11 +133,12 @@ export function usePost(
     queryKey: POST_QUERY_KEYS.detail(postId),
     queryFn: () => postService.getPostById(postId),
 
-    // 게시글 상세는 자주 변하지 않으므로 긴 캐시 시간 설정
-    staleTime: 1000 * 60 * 10, // 10분간 fresh 상태 유지
+    // 게시글 상세 데이터를 더 적극적으로 페칭하도록 설정
+    staleTime: 1000 * 60 * 5, // 5분간 fresh 상태 유지 (기존 10분에서 단축)
     gcTime: 1000 * 60 * 30, // 30분간 캐시 유지
-    retry: 2,
-    refetchOnWindowFocus: false,
+    retry: 3, // 재시도 횟수 증가 (2 -> 3)
+    refetchOnWindowFocus: true, // 윈도우 포커스 시 재페칭 활성화
+    refetchOnMount: true, // 마운트 시 재페칭 활성화
 
     // enabled: postId가 유효할 때만 쿼리 실행
     enabled: !!postId && postId > 0,

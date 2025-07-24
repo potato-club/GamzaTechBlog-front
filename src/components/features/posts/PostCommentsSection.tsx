@@ -16,13 +16,11 @@ import CommentForm from "../comments/CommentForm";
 interface PostCommentsSectionProps {
   postId: number;
   initialComments?: CommentData[]; // 이제 선택사항 (TanStack Query가 관리)
-  totalCommentsCount?: number; // 이제 선택사항 (TanStack Query가 관리)
 }
 
 export default function PostCommentsSection({
   postId,
   initialComments = [],
-  totalCommentsCount = 0
 }: PostCommentsSectionProps) {
   /**
    * TanStack Query를 사용하여 게시글 상세 정보를 가져옵니다.
@@ -41,7 +39,6 @@ export default function PostCommentsSection({
 
   // TanStack Query에서 가져온 데이터 우선 사용, 없으면 fallback 데이터 사용
   const comments = post?.comments || initialComments;
-  const commentsCount = post?.comments?.length || totalCommentsCount;
 
   // 로딩 중일 때 스켈레톤 UI 표시
   if (isLoading) {
@@ -80,8 +77,6 @@ export default function PostCommentsSection({
 
   return (
     <section className="mt-12 text-[#353841] text-[17px]" aria-label="댓글 섹션">
-      <h2 className="mt-7 text-lg font-semibold">댓글 {commentsCount}개</h2>
-
       {/* TanStack Query가 댓글 추가를 자동으로 처리하므로 onCommentSubmitted는 선택사항 */}
       <CommentForm postId={postId} />
 

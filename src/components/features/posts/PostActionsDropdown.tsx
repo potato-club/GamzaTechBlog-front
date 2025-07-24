@@ -23,6 +23,7 @@ export function PostActionsDropdown({ postId, triggerElement }: PostActionsDropd
 
   const handleDeletePost = () => {
     deletePostMutation.mutate(postId);
+    router.push("/");
   };
 
   const handleEditPost = () => {
