@@ -1,14 +1,21 @@
+import Image from "next/image";
+
 interface PopularPostProps {
   title: string;
   author: string;
+  profileImage?: string;
 }
 
-export default function PopularPost({ title, author }: PopularPostProps) {
+export default function PopularPost({ title, author, profileImage }: PopularPostProps) {
   return (
     <article>
       <h4 className="mt-7 font-medium">{title}</h4>
       <div className="flex items-center gap-1 text-[#798191] text-[12px] mt-4">
-        <span className="w-6 h-6 rounded-full bg-gray-200 inline-block" />
+        {profileImage ? (
+          <Image src={profileImage} alt={author} width={24} height={24} className="rounded-full mr-1" />
+        ) : (
+          <span className="w-6 h-6 rounded-full bg-gray-200 inline-block" />
+        )}
         {author}
       </div>
     </article>

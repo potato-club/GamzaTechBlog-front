@@ -2,7 +2,7 @@ import { API_CONFIG } from "../config/api";
 import { fetchWithAuth } from "../lib/api";
 import { ApiResponse, PageableContent, PaginationParams } from "../types/api"; // PaginationParams 추가
 import { PostDetailData } from "../types/comment";
-import { CreatePostRequest, CreatePostResponse, LikedPostData, PostData, UpdatePostRequest } from "../types/post";
+import { CreatePostRequest, CreatePostResponse, LikedPostData, PopularPostData, PostData, UpdatePostRequest } from "../types/post";
 import { CommentServiceError } from "./commentService";
 
 
@@ -67,6 +67,42 @@ export const postService = {  /**
       }
       // 네트워크 에러 또는 기타 예외 처리
       throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+    }
+  },
+
+  /**
+   * 주간 인기 게시물 목록을 조회합니다.
+   * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
+   */
+  async getPopularPosts(): Promise<PopularPostData[]> {
+    const endpoint = '/api/v1/posts/popular';
+    const url = API_CONFIG.BASE_URL + endpoint;
+
+    console.log("Requesting URL (getPopularPosts):", url);
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch popular posts' }));
+        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch popular posts', endpoint);
+      }
+
+      // Swagger 응답 예시에 따라 ApiResponse<PostData[]>로 파싱
+      const apiResponse: ApiResponse<PostData[]> = await response.json();
+      console.log("getPopularPosts response:", apiResponse);
+      return apiResponse.data; // data 필드에 PostData 배열이 있음
+    } catch (error) {
+      if (error instanceof PostServiceError) {
+        throw error;
+      }
+      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while fetching popular posts', endpoint);
     }
   },  /**
    * 태그 목록을 조회합니다.
@@ -316,5 +352,6 @@ export const postService = {  /**
       throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while updating post', endpoint);
     }
   },
+
 
 } as const;
