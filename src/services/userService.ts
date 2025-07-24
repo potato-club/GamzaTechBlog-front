@@ -141,25 +141,48 @@ export const userService = {
     }
   },
 
-  // /**
-  //  * 사용자 프로필을 업데이트합니다.
-  //  * @param profileData - 업데이트할 프로필 데이터
-  //  * @returns 업데이트된 사용자 프로필 데이터
-  //  */
-  // async updateProfile(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
-  //   const endpoint = '/api/v1/users/me/update/profile';
-  //   const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-  //     method: 'PUT',
-  //     body: JSON.stringify(profileData),
-  //   }) as Response;
+  /**
+   * 프로필 이미지를 업로드합니다.
+   * @param imageFile - 업로드할 이미지 파일
+   * @returns 업로드된 이미지의 URL
+   */
+  async updateProfileImage(imageFile: File): Promise<string> {
+    const endpoint = '/api/v1/profile-images';
 
-  //   if (!response.ok) {
-  //     throw new AuthError(response.status, 'Failed to update profile', endpoint);
-  //   }
+    const formData = new FormData();
+    formData.append('file', imageFile);
 
-  //   const apiResponse: ApiResponse<UserProfileData> = await response.json();
-  //   return apiResponse.data;
-  // },
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: 'PUT',
+      body: formData,
+      // Content-Type을 설정하지 않음 - 브라우저가 자동으로 multipart/form-data로 설정
+    }) as Response;
+
+    if (!response.ok) {
+      throw new AuthError(response.status, 'Failed to upload profile image', endpoint);
+    }
+
+    const apiResponse: ApiResponse<string> = await response.json();
+    return apiResponse.data;
+  },  /**
+   * 사용자 프로필을 업데이트합니다.
+   * @param profileData - 업데이트할 프로필 데이터
+   * @returns 업데이트된 사용자 프로필 데이터
+   */
+  async updateProfile(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
+    const endpoint = '/api/v1/users/me/update/profile';
+    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    }) as Response;
+
+    if (!response.ok) {
+      throw new AuthError(response.status, 'Failed to update profile', endpoint);
+    }
+
+    const apiResponse: ApiResponse<UserProfileData> = await response.json();
+    return apiResponse.data;
+  },
 
 } as const;
 
