@@ -41,13 +41,23 @@ export default function PostHeader({ post, postId }: PostHeaderProps) {
 
       <div className="flex h-12 items-center gap-4 text-[14px]">
         <div className="flex h-5 items-center border-r border-[#B5BBC7] pr-3">
-          <Image
-            src={post.writerProfileImageUrl}
-            alt={`${post.writer}의 프로필 이미지`}
-            width={24}
-            height={24}
-            className="rounded-full"
-          />
+          {post.writerProfileImageUrl ? (
+            <Image
+              src={post.writerProfileImageUrl}
+              alt={`${post.writer}의 프로필 이미지`}
+              width={24}
+              height={24}
+              className="rounded-full"
+              priority={true}
+              unoptimized={post.writerProfileImageUrl.includes('amazonaws.com')}
+            />
+          ) : (
+            <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
+              <span className="text-xs text-gray-600">
+                {post.writer?.[0]?.toUpperCase() || '?'}
+              </span>
+            </div>
+          )}
           <span className="ml-2 font-medium text-[#798191]">
             {post.writer}
           </span>

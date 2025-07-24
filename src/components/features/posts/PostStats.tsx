@@ -12,7 +12,7 @@ interface PostStatsProps {
   commentsCount: number;
 }
 
-export default function PostStats({ postId, initialLikesCount, initialIsLiked = false, commentsCount }: PostStatsProps) {
+export default function PostStats({ postId, initialLikesCount, initialIsLiked = false, commentsCount = 0 }: PostStatsProps) {
   const { isLoggedIn } = useAuth();
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
