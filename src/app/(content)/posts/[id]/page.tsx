@@ -75,7 +75,7 @@ export default function PostPage() {
         {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
         <PostStats
           postId={postId}
-          initialLikesCount={0} // TODO: 실제 좋아요 개수로 변경
+          initialLikesCount={post.likesCount || 0} // 실제 좋아요 개수 사용
           initialIsLiked={false} // TODO: 실제 사용자의 좋아요 상태로 변경
           commentsCount={post.comments.length}
         />
