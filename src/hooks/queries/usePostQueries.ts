@@ -33,6 +33,9 @@ export const POST_QUERY_KEYS = {
   lists: () => [...POST_QUERY_KEYS.all, 'list'] as const,
   list: (params?: PaginationParams) => [...POST_QUERY_KEYS.lists(), params] as const,
 
+  // 인기 게시글 쿼리 키
+  popular: () => [...POST_QUERY_KEYS.all, 'popular'] as const,
+
   // 게시글 상세 쿼리 키
   details: () => [...POST_QUERY_KEYS.all, 'detail'] as const,
   detail: (id: number) => [...POST_QUERY_KEYS.details(), id] as const,
@@ -421,32 +424,13 @@ export function useInvalidatePostQueries() {
  */
 export function usePopularPosts() {
   return useQuery({
-    queryKey: ["popular-posts"], // 캐시 키: 인기 게시글 목록
-    queryFn: async () => {
-      // 실제 API 호출 (현재는 목업 데이터 반환)
-      // TODO: 실제 서비스 함수로 교체
-      // return await postService.getPopularPosts();
+    queryKey: POST_QUERY_KEYS.popular(), // 일관된 캐시 키 사용
+    queryFn: () => postService.getPopularPosts(), // 실제 API 호출
 
-      // 임시 목업 데이터
-      return [
-        {
-          postId: 1,
-          title: "가장 인기 있는 게시글",
-          writer: "김개발",
-        },
-        {
-          postId: 2,
-          title: "TanStack Query 완벽 가이드",
-          writer: "이프론트",
-        },
-        {
-          postId: 3,
-          title: "Next.js 14 새로운 기능들",
-          writer: "박백엔드",
-        },
-      ];
-    },
-    staleTime: 1000 * 60 * 10, // 10분간 데이터를 신선하다고 간주 (인기글은 자주 변하지 않음)
+    // 인기 게시글은 자주 변하므로 적당한 캐시 시간 설정
+    staleTime: 1000 * 60 * 10, // 10분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 30, // 30분간 캐시 유지
+    retry: 2,
+    refetchOnWindowFocus: false,
   });
 }
