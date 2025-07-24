@@ -32,7 +32,7 @@ export default function PostCard({
             {markdownToText(post.contentSnippet, 100)}
           </p>
         </Link>
-        <PostMeta author={post.writer} date={post.createdAt.split("T")[0]} tags={post.tags} />
+        <PostMeta author={post.writer} profileImage={post.writerProfileImageUrl} date={post.createdAt.split("T")[0]} tags={post.tags} />
       </div>
 
       {/* 썸네일 및 옵션 영역 */}
