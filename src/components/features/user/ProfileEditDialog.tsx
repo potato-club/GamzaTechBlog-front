@@ -77,6 +77,10 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
   const updateProfileMutation = useUpdateProfile();
   const withdrawAccountMutation = useWithdrawAccount();
 
+  const handlePositionChange = (value: string) => {
+    setPosition(value as PositionKey);
+  };
+
   const handleSaveChanges = async () => {
     try {
       let profileImageUrl = userProfile.profileImageUrl;
@@ -201,14 +205,14 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
             </Label>
             <Select
               value={position}
-              onValueChange={(value) => setPosition(value as PositionKey)}
+              onValueChange={handlePositionChange}
             >
               <SelectTrigger className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition">
                 <SelectValue placeholder="직군을 선택하세요" />
               </SelectTrigger>
               <SelectContent>
-                {Object.values(Position).map((value) => (
-                  <SelectItem key={value} value={Object.keys(Position).find(key => Position[key as keyof typeof Position] === value) || ""}>
+                {Object.entries(Position).map(([key, value]) => (
+                  <SelectItem key={key} value={key}>
                     {value}
                   </SelectItem>
                 ))}

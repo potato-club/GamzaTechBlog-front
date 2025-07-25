@@ -1,5 +1,6 @@
 "use client";
 
+import { uploadImageForEditor } from "@/hooks/queries/useImageQueries";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import { Editor } from "@toast-ui/react-editor";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
@@ -69,6 +70,9 @@ const ToastEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialVa
       initialEditType="markdown"
       useCommandShortcut={true}
       initialValue={initialValue || ""}
+      hooks={{
+        addImageBlobHook: uploadImageForEditor
+      }}
     />
   );
 });

@@ -1,9 +1,9 @@
 "use client";
 
-import { useAddLike, useRemoveLike } from "@/hooks/queries/useLikeQueries";
+import { useAddLike, useLikeStatus, useRemoveLike } from "@/hooks/queries/useLikeQueries";
 import { useAuth } from "@/hooks/queries/useUserQueries";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface PostStatsProps {
   postId: number;
@@ -14,8 +14,18 @@ interface PostStatsProps {
 
 export default function PostStats({ postId, initialLikesCount, initialIsLiked = false, commentsCount = 0 }: PostStatsProps) {
   const { isLoggedIn } = useAuth();
-  const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
+
+  // 실제 좋아요 상태를 API에서 가져오기
+  const { data: actualLikeStatus, isLoading: isLikeStatusLoading } = useLikeStatus(postId, isLoggedIn);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
+
+  // 실제 좋아요 상태가 로드되면 상태 업데이트
+  useEffect(() => {
+    if (actualLikeStatus !== undefined) {
+      setIsLiked(actualLikeStatus);
+    }
+  }, [actualLikeStatus]);
 
   const addLikeMutation = useAddLike(postId);
   const removeLikeMutation = useRemoveLike(postId);
@@ -50,7 +60,7 @@ export default function PostStats({ postId, initialLikesCount, initialIsLiked = 
     }
   };
 
-  const isLoading = addLikeMutation.isPending || removeLikeMutation.isPending;
+  const isLoading = addLikeMutation.isPending || removeLikeMutation.isPending || isLikeStatusLoading;
 
   return (
     <div className="flex items-center gap-6 mt-4">
