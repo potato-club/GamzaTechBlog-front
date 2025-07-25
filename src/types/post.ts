@@ -8,6 +8,7 @@ export interface PostData {
 }
 
 export interface PopularPostData {
+  postId: number;
   title: string;
   writer: string;
   writerProfileImageUrl?: string; // 작성자의 프로필 이미지 URL
