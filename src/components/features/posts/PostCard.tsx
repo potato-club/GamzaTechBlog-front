@@ -50,7 +50,17 @@ export default function PostCard({
             />
           </button>
         )}
-        <div className="absolute bottom-0 left-0 w-full h-28 bg-gray-100 rounded-2xl shrink-0" />
+        {post.thumbnailImageUrl ? (
+          <Image
+            src={post.thumbnailImageUrl}
+            alt={`${post.title} 썸네일`}
+            fill
+            className="object-cover rounded-2xl"
+            sizes="(max-width: 768px) 100vw, 176px"
+          />
+        ) : (
+          <div className="absolute bottom-0 left-0 w-full h-28 bg-gray-100 rounded-2xl shrink-0" />
+        )}
       </div>
     </article>
   );
