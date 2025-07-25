@@ -156,7 +156,8 @@ export default function MainPageContent() {
                 <p className="text-sm">첫 번째 게시글을 작성해보세요!</p>
               </div>
             )}
-          </div>          <CustomPagination
+          </div>
+          <CustomPagination
             currentPage={currentPage} // 이미 1부터 시작하는 값
             totalPages={totalPages}
             onPageChange={handlePageChange}

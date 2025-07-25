@@ -12,8 +12,8 @@ interface PostActionsDropdownProps {
 }
 
 export function PostActionsDropdown({ postId, triggerElement }: PostActionsDropdownProps) {
-  const deletePostMutation = useDeletePost();
   const router = useRouter();
+  const deletePostMutation = useDeletePost();
 
   // 현재 사용자 정보 가져오기
   const { userProfile, isLoggedIn } = useAuth();
@@ -23,6 +23,7 @@ export function PostActionsDropdown({ postId, triggerElement }: PostActionsDropd
 
   const handleDeletePost = () => {
     deletePostMutation.mutate(postId);
+    router.push("/");
   };
 
   const handleEditPost = () => {

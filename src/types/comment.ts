@@ -18,6 +18,7 @@ export interface BaseCommentData {
 // 게시글 댓글 (기존)
 export interface PostCommentData extends BaseCommentData {
   writer: string;
+  writerProfileImageUrl: string;
   replies: string[]; // Swagger 예시에서는 string 배열
 }
 
@@ -50,10 +51,12 @@ export interface PostDetailData {
   title: string;
   content: string;
   writer: string;
+  writerProfileImageUrl: string;
   createdAt: string;
   updatedAt: string;
   tags: string[];
   comments: CommentData[];
+  likesCount?: number; // 좋아요 개수 추가
 }
 
 export interface CommentRequest {

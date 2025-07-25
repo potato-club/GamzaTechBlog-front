@@ -6,7 +6,6 @@
  */
 
 import { useDeleteComment } from "@/hooks/queries/useCommentQueries";
-import { shouldUseMockData } from "@/mock/mockData";
 import { MyCommentData, PostCommentData, isMyComment } from "@/types/comment";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
@@ -93,11 +92,6 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
 
   // 현재 사용자가 댓글 작성자인지 확인하는 로직
   const isCurrentUserCommentOwner = (() => {
-    // 목 데이터 사용 시에는 모든 댓글을 편집 가능하게 설정
-    if (shouldUseMockData()) {
-      return true;
-    }
-
     // 실제 서버 연동 시에는 사용자 정보와 댓글 작성자 비교
     if (!userProfile) return false;
 
@@ -132,26 +126,37 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
         )}
       </div>
 
-      {/* <div className="flex items-center gap-2 mt-1">
-        <div className="w-9 h-9 rounded-full overflow-hidden mr-2">
-          <Image
-            src="/profileSVG.svg" // 실제 프로필 이미지 경로로 변경해야 합니다.
-            alt={`${comment.writer} 프로필 이미지`}
-            width={36}
-            height={36}
-            className="w-full h-full object-cover"
-          />
+      {!isMyComment(comment) && (
+        <div className="flex items-center gap-2 mt-1">
+          <div className="w-9 h-9 rounded-full overflow-hidden mr-2">
+            <Image
+              src={comment.writerProfileImageUrl}
+              alt={`사용자 프로필 이미지`}
+              width={36}
+              height={36}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <span className="text-[14px] font-medium text-[#1C222E]">
+            {'writer' in comment ? comment.writer : userProfile?.nickname || "나"}
+          </span>
         </div>
-        <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer || userProfile?.nickname}</span>
-      </div> */}
+      )}
 
       <div className="mt-2 text-[14px] text-[#464C58]">
         {comment.content}
       </div>
 
       <div className="mt-2 text-[12px] text-[#B5BBC7]">
-        <time dateTime={new Date(comment.createdAt).toISOString().split("T")[0]}>
-          {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+        <time dateTime={new Date(comment.createdAt).toISOString()}>
+          {new Date(comment.createdAt).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          })}
         </time>
         {/* <span> | </span>
         <span>답글</span> */}
