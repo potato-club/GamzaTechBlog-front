@@ -50,6 +50,7 @@ export function useCreateComment(postId: number) {
         const optimisticComment: CommentData = {
           commentId: Date.now(), // 임시 ID (서버에서 실제 ID를 받으면 교체됨)
           writer: '현재 사용자', // 실제로는 현재 로그인한 사용자 정보 사용
+          writerProfileImageUrl: '/defaultProfileImage.png', // 임시 프로필 이미지 URL
           content: newComment.content,
           createdAt: new Date().toLocaleDateString('ko-KR'),
           replies: [],
