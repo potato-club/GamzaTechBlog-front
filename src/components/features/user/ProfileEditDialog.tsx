@@ -34,11 +34,10 @@ import { cn } from "../../../lib/utils";
 
 interface ProfileEditDialogProps {
   userProfile: UserProfileData;
-  onProfileUpdate: (updatedProfile: Partial<UserProfileData>) => void; // 업데이트된 정보를 부모로 전달
   // triggerButton?: React.ReactNode; // 외부에서 트리거 버튼을 주입하고 싶을 경우
 }
 
-export default function ProfileEditDialog({ userProfile, onProfileUpdate }: ProfileEditDialogProps) {
+export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProps) {
 
   console.log("ProfileEditDialog userProfile", userProfile);
 
@@ -121,13 +120,9 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
         console.log('프로필 정보 업데이트 중...');
         const updatedProfile = await updateProfileMutation.mutateAsync(updatedData);
         console.log('프로필 정보 업데이트 완료:', updatedProfile);
-
-        // 부모 컴포넌트에 업데이트된 프로필 전달
-        onProfileUpdate(updatedProfile);
         hasChanges = true;
       } else if (selectedImage) {
-        // 이미지만 변경된 경우, 이미지 URL만 업데이트
-        onProfileUpdate({ ...userProfile, profileImageUrl });
+        // 이미지만 변경된 경우에도 변경사항으로 처리
         hasChanges = true;
       }
 
