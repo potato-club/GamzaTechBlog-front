@@ -49,6 +49,7 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
   const [gamjaBatch, setGamjaBatch] = useState(userProfile.gamjaBatch?.toString() || "");
   const [position, setPosition] = useState(userProfile.position || "");
   const [isWithdrawing, setIsWithdrawing] = useState(false); // 회원탈퇴 로딩 상태
+  const [isEditMode, setIsEditMode] = useState(false); // 수정 모드 상태
   // TODO: 이미지 파일 상태 및 미리보기 URL 상태 추가
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(userProfile.profileImageUrl || null);
@@ -61,6 +62,7 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
     setGamjaBatch(userProfile.gamjaBatch?.toString() || "");
     setPosition(userProfile.position || "");
     setPreviewUrl(userProfile.profileImageUrl || null);
+    setIsEditMode(false); // 프로필이 변경될 때 보기 모드로 초기화
   }, [userProfile]);
 
   // 컴포넌트 언마운트 시 메모리 누수 방지를 위한 cleanup
@@ -84,35 +86,85 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
   const handleSaveChanges = async () => {
     try {
       let profileImageUrl = userProfile.profileImageUrl;
+      let hasChanges = false;
 
-      // 새로운 이미지가 선택된 경우 먼저 이미지 업로드
+      // 1. 이미지 변경 확인 및 업로드
       if (selectedImage) {
         console.log('프로필 이미지 업로드 중...');
         profileImageUrl = await updateProfileImageMutation.mutateAsync(selectedImage);
         console.log('프로필 이미지 업로드 완료:', profileImageUrl);
+        hasChanges = true;
       }
 
-      // 프로필 데이터 업데이트
-      const updatedData: Partial<UserProfileData> = {
-        email,
-        studentNumber,
-        gamjaBatch: gamjaBatch ? parseInt(gamjaBatch, 10) : undefined,
-        position: position as PositionKey,
-        profileImageUrl
-      };
+      console.log("사진 변경 여부:", selectedImage);
 
-      console.log('프로필 업데이트 중...');
-      const updatedProfile = await updateProfileMutation.mutateAsync(updatedData);
-      console.log('프로필 업데이트 완료:', updatedProfile);
 
-      // 부모 컴포넌트에 업데이트된 프로필 전달
-      onProfileUpdate(updatedProfile);
+      // 2. 프로필 정보 변경 확인
+      const hasProfileDataChanged =
+        email !== (userProfile.email || "") ||
+        studentNumber !== (userProfile.studentNumber || "") ||
+        gamjaBatch !== (userProfile.gamjaBatch?.toString() || "") ||
+        position !== (userProfile.position || "");
 
-      alert('프로필이 성공적으로 업데이트되었습니다.');
+      console.log('프로필 정보 변경 여부:', hasProfileDataChanged);
+
+      // 3. 프로필 정보가 변경된 경우에만 업데이트 API 호출
+      if (hasProfileDataChanged) {
+        const updatedData: Partial<UserProfileData> = {
+          email,
+          studentNumber,
+          gamjaBatch: gamjaBatch ? parseInt(gamjaBatch, 10) : undefined,
+          position: position as PositionKey,
+          profileImageUrl // 이미지 URL도 함께 포함 (변경되었든 안되었든)
+        };
+
+        console.log('프로필 정보 업데이트 중...');
+        const updatedProfile = await updateProfileMutation.mutateAsync(updatedData);
+        console.log('프로필 정보 업데이트 완료:', updatedProfile);
+
+        // 부모 컴포넌트에 업데이트된 프로필 전달
+        onProfileUpdate(updatedProfile);
+        hasChanges = true;
+      } else if (selectedImage) {
+        // 이미지만 변경된 경우, 이미지 URL만 업데이트
+        onProfileUpdate({ ...userProfile, profileImageUrl });
+        hasChanges = true;
+      }
+
+      if (hasChanges) {
+        // 수정 모드 종료
+        setIsEditMode(false);
+        setSelectedImage(null); // 선택된 이미지 초기화
+
+        const changeType = selectedImage && hasProfileDataChanged
+          ? '프로필 이미지와 정보가'
+          : selectedImage
+            ? '프로필 이미지가'
+            : '프로필 정보가';
+
+        alert(`${changeType} 성공적으로 업데이트되었습니다.`);
+      } else {
+        // 변경사항이 없는 경우
+        setIsEditMode(false);
+        alert('변경된 내용이 없습니다.');
+      }
     } catch (error) {
       console.error('프로필 업데이트 실패:', error);
       alert('프로필 업데이트에 실패했습니다. 다시 시도해주세요.');
     }
+  };
+
+  const handleEditToggle = () => {
+    if (isEditMode) {
+      // 수정 모드에서 보기 모드로 전환 시 변경사항 초기화
+      setEmail(userProfile.email || "");
+      setStudentNumber(userProfile.studentNumber || "");
+      setGamjaBatch(userProfile.gamjaBatch?.toString() || "");
+      setPosition(userProfile.position || "");
+      setPreviewUrl(userProfile.profileImageUrl || null);
+      setSelectedImage(null);
+    }
+    setIsEditMode(!isEditMode);
   };
 
   const handleWithdrawAccount = () => {
@@ -141,20 +193,24 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
           variant="outline"
           className="mt-2 w-full max-w-[120px] rounded-lg text-sm hover:cursor-pointer"
         >
-          프로필 수정
+          프로필 보기
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>프로필 수정</DialogTitle>
+          <DialogTitle>{isEditMode ? '프로필 수정' : '프로필 보기'}</DialogTitle>
           <DialogDescription>
-            변경사항을 입력하고 완료 버튼을 눌러주세요.
+            {isEditMode ? '변경사항을 입력하고 완료 버튼을 눌러주세요.' : '프로필 정보를 확인하고 수정 버튼을 눌러 편집할 수 있습니다.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6 py-4">
           {/* 프로필 이미지 수정 영역 */}
           <div className="flex flex-col items-center gap-2">
-            <div className="relative w-24 h-24 rounded-full bg-gray-200 group cursor-pointer" onClick={() => document.getElementById('profileImageUploadModal')?.click()}>
+            <div className={cn(
+              "relative w-24 h-24 rounded-full bg-gray-200 group",
+              isEditMode && "cursor-pointer"
+            )}
+              onClick={isEditMode ? () => document.getElementById('profileImageUploadModal')?.click() : undefined}>
               {/* 현재 프로필 이미지 또는 기본 이미지 표시 (previewUrl 사용) */}
               {previewUrl ? (
                 <Image
@@ -168,20 +224,26 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
                   <UserIcon className="w-12 h-12" />
                 </div>
               )}
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
-                <Camera className="text-white w-8 h-8" />
-              </div>
+              {isEditMode && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
+                  <Camera className="text-white w-8 h-8" />
+                </div>
+              )}
             </div>
-            <Button variant="ghost" size="sm" onClick={() => document.getElementById('profileImageUploadModal')?.click()}>
-              이미지 변경
-            </Button>
-            <Input
-              type="file"
-              className="hidden"
-              id="profileImageUploadModal"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
+            {isEditMode && (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => document.getElementById('profileImageUploadModal')?.click()}>
+                  이미지 변경
+                </Button>
+                <Input
+                  type="file"
+                  className="hidden"
+                  id="profileImageUploadModal"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+              </>
+            )}
           </div>
 
           {/* 이메일 */}
@@ -189,62 +251,86 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
             <Label htmlFor="email-modal" className="text-right col-span-1">
               이메일
             </Label>
-            <Input
-              id="email-modal"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition"
-              placeholder="이메일을 입력하세요"
-            />
+            {isEditMode ? (
+              <Input
+                id="email-modal"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition"
+                placeholder="이메일을 입력하세요"
+              />
+            ) : (
+              <div className="col-span-3 flex items-center px-6 h-12 text-base text-[#222]">
+                {email || '이메일이 설정되지 않았습니다.'}
+              </div>
+            )}
           </div>
           {/* 직군 */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="position-modal" className="text-right col-span-1">
               직군
             </Label>
-            <Select
-              value={position}
-              onValueChange={handlePositionChange}
-            >
-              <SelectTrigger className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition">
-                <SelectValue placeholder="직군을 선택하세요" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(Position).map(([key, value]) => (
-                  <SelectItem key={key} value={key}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {isEditMode ? (
+              <Select
+                value={position}
+                onValueChange={handlePositionChange}
+              >
+                <SelectTrigger className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition">
+                  <SelectValue placeholder="직군을 선택하세요" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(Position).map(([key, value]) => (
+                    <SelectItem key={key} value={key}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="col-span-3 flex items-center px-6 h-12 text-base text-[#222]">
+                {position ? Position[position as PositionKey] : '직군이 설정되지 않았습니다.'}
+              </div>
+            )}
           </div>
           {/* 학번 */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="studentNumber-modal" className="text-right col-span-1">
               학번
             </Label>
-            <Input
-              id="studentNumber-modal"
-              value={studentNumber}
-              onChange={(e) => setStudentNumber(e.target.value)}
-              className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition"
-              placeholder="학번을 입력하세요"
-            />
+            {isEditMode ? (
+              <Input
+                id="studentNumber-modal"
+                value={studentNumber}
+                onChange={(e) => setStudentNumber(e.target.value)}
+                className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition"
+                placeholder="학번을 입력하세요"
+              />
+            ) : (
+              <div className="col-span-3 flex items-center px-6 h-12 text-base text-[#222]">
+                {studentNumber || '학번이 설정되지 않았습니다.'}
+              </div>
+            )}
           </div>
           {/* 감자 기수 */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="gamjaBatch-modal" className="text-right col-span-1">
               감자 기수
             </Label>
-            <Input
-              id="gamjaBatch-modal"
-              value={gamjaBatch}
-              onChange={(e) => setGamjaBatch(e.target.value)}
-              className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition"
-              placeholder="기수를 입력하세요"
-              type="number"
-            />
+            {isEditMode ? (
+              <Input
+                id="gamjaBatch-modal"
+                value={gamjaBatch}
+                onChange={(e) => setGamjaBatch(e.target.value)}
+                className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition"
+                placeholder="기수를 입력하세요"
+                type="number"
+              />
+            ) : (
+              <div className="col-span-3 flex items-center px-6 h-12 text-base text-[#222]">
+                {gamjaBatch ? `${gamjaBatch}기` : '감자 기수가 설정되지 않았습니다.'}
+              </div>
+            )}
           </div>
         </div>
         <DialogFooter>
@@ -291,25 +377,36 @@ export default function ProfileEditDialog({ userProfile, onProfileUpdate }: Prof
               </AlertDialogContent>
             </AlertDialog>
 
-            {/* 취소/완료 버튼 */}
+            {/* 취소/수정/완료 버튼 */}
             <div className="flex gap-2">
               <DialogClose asChild>
                 <Button type="button" variant="outline">
-                  취소
+                  닫기
                 </Button>
               </DialogClose>
-              <Button
-                type="button"
-                onClick={handleSaveChanges}
-                disabled={updateProfileImageMutation.isPending || updateProfileMutation.isPending}
-              >
-                {updateProfileImageMutation.isPending
-                  ? '이미지 업로드 중...'
-                  : updateProfileMutation.isPending
-                    ? '프로필 업데이트 중...'
-                    : '완료'
-                }
-              </Button>
+              {isEditMode ? (
+                <>
+                  <Button type="button" variant="outline" onClick={handleEditToggle}>
+                    취소
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleSaveChanges}
+                    disabled={updateProfileImageMutation.isPending || updateProfileMutation.isPending}
+                  >
+                    {updateProfileImageMutation.isPending
+                      ? '이미지 업로드 중...'
+                      : updateProfileMutation.isPending
+                        ? '프로필 업데이트 중...'
+                        : '완료'
+                    }
+                  </Button>
+                </>
+              ) : (
+                <Button type="button" onClick={handleEditToggle}>
+                  수정
+                </Button>
+              )}
             </div>
           </div>
         </DialogFooter>
