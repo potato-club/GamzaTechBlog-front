@@ -14,7 +14,7 @@ import CustomPagination from "../../common/CustomPagination";
 
 export default function CommentsTab() {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
-  const pageSize = 2;
+  const pageSize = 5;
 
   console.log("CommentsTab render - currentPage:", currentPage, "API page:", currentPageForAPI);
 

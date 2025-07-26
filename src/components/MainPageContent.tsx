@@ -18,7 +18,7 @@ import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
 export default function MainPageContent() {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
-  const pageSize = 3;
+  const pageSize = 11;
 
   /**
    * TanStack Query로 게시글 목록을 가져옵니다.
