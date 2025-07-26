@@ -7,10 +7,13 @@
  * 자동으로 관리하고 로딩/에러 상태를 처리합니다.
  */
 
+import { useTagContext } from "@/contexts/TagContext";
 import { useTags } from "@/hooks/queries/usePostQueries";
 import TagBadge from "./ui/TagBadge";
 
 export default function TagSection() {
+  const { selectedTag, setSelectedTag } = useTagContext();
+
   /**
    * TanStack Query를 사용하여 태그 목록을 가져옵니다.
    * 
@@ -22,11 +25,22 @@ export default function TagSection() {
    */
   const { data: tags, isLoading, error } = useTags();
 
+  const handleTagClick = (tag: string) => {
+    console.log(`태그 "${tag}" 클릭됨`);
+    if (selectedTag === tag) {
+      // 이미 선택된 태그를 다시 클릭하면 선택 해제
+      setSelectedTag(null);
+    } else {
+      setSelectedTag(tag);
+    }
+  };
+
   console.log("태그 데이터:", tags);
+  console.log("선택된 태그:", selectedTag);
 
   return (
     <section className="mt-20">
-      <h3 className="text-[18px] text-[#838C9D]">Tags</h3>
+      <h3 className="text-[18px] text-[#838C9D]">태그</h3>
 
       {/* 로딩 상태 처리 */}
       {isLoading && (
@@ -45,11 +59,17 @@ export default function TagSection() {
           <p>태그를 불러오는 중 오류가 발생했습니다.</p>
         </div>
       )}
+
       {/* 성공 상태: 태그 목록 표시 */}
       {tags && !isLoading && !error && (
         <nav className="mt-7 flex flex-wrap gap-2 text-[14px]">
           {tags.map((tag, idx) => (
-            <TagBadge key={idx} tag={tag} variant="outline" />
+            <TagBadge
+              key={idx}
+              tag={tag}
+              variant={selectedTag === tag ? "outline" : "filled"}
+              onClick={handleTagClick}
+            />
           ))}
         </nav>
       )}
@@ -58,6 +78,21 @@ export default function TagSection() {
       {tags && tags.length === 0 && !isLoading && !error && (
         <div className="mt-7 text-gray-500 text-sm">
           <p>등록된 태그가 없습니다.</p>
+        </div>
+      )}
+
+      {/* 선택된 태그 표시 */}
+      {selectedTag && (
+        <div className="mt-4 p-3 bg-[#FAA631]/10 rounded-lg">
+          <p className="text-sm text-[#FAA631] font-medium">
+            "#{selectedTag}" 태그로 필터링된 게시물을 보고 있습니다.
+          </p>
+          <button
+            onClick={() => setSelectedTag(null)}
+            className="text-xs text-[#838C9D] hover:text-[#222] transition-colors mt-1"
+          >
+            ← 모든 게시물 보기
+          </button>
         </div>
       )}
     </section>

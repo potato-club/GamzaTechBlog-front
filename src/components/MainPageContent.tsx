@@ -8,7 +8,8 @@
  * 실시간 데이터 업데이트와 캐싱의 이점을 활용합니다.
  */
 
-import { usePosts } from "@/hooks/queries/usePostQueries";
+import { useTagContext } from "@/contexts/TagContext";
+import { usePosts, usePostsByTag } from "@/hooks/queries/usePostQueries";
 import { usePagination } from "@/hooks/usePagination";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,24 +18,29 @@ import PostCard from "./features/posts/PostCard";
 import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
 export default function MainPageContent() {
+  const { selectedTag } = useTagContext();
   const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 11;
 
   /**
    * TanStack Query로 게시글 목록을 가져옵니다.
-   * 
-   * 자동 캐싱: 동일한 요청은 캐시에서 즉시 반환
-   * 백그라운드 갱신: 데이터가 오래되면 백그라운드에서 자동 업데이트
-   * 로딩/에러 상태: 별도 state 관리 없이 자동 제공
+   * 선택된 태그가 있으면 태그별 게시물을, 없으면 전체 게시물을 조회합니다.
    */
   const {
     data: postResponse,
     isLoading: isLoadingPosts,
-    error: postsError } = usePosts({
-      page: currentPageForAPI, // URL 기반 페이지 (0부터 시작)
-      size: pageSize,
-      sort: ["createdAt,desc"], // 최신순 정렬
-    });
+    error: postsError
+  } = selectedTag
+      ? usePostsByTag(selectedTag, {
+        page: currentPageForAPI,
+        size: pageSize,
+        sort: ["createdAt,desc"],
+      })
+      : usePosts({
+        page: currentPageForAPI,
+        size: pageSize,
+        sort: ["createdAt,desc"],
+      });
 
 
   const posts = postResponse?.content || [];
@@ -136,7 +142,9 @@ export default function MainPageContent() {
       <div className="flex pb-10">
         <main className="flex-3"> {/* 주요 콘텐츠 영역 */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold">Posts</h2>
+            <h2 className="text-2xl font-semibold">
+              {selectedTag ? `#${selectedTag} 태그 게시글` : 'Posts'}
+            </h2>
             <p className="text-sm text-gray-500">
               총 {totalElements}개의 게시글 (페이지 {currentPage} / {totalPages})
             </p>
