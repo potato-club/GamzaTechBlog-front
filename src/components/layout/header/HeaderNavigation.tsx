@@ -12,7 +12,7 @@ import { DropdownMenuList } from "../../common/DropdownMenuList";
 
 export const HeaderNavigation = () => {
   const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github"; // 환경 변수 또는 기본값  // useAuth 훅 호출. React Query가 데이터 관리
-  const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion } = useAuth(); // needsProfileCompletion 추가
+  const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion, refetchAuthStatus } = useAuth(); // refetchAuthStatus 추가
 
   console.log("HeaderNavigation state:", { isLoggedIn, userProfile, isLoading, needsProfileCompletion });
 
@@ -21,6 +21,7 @@ export const HeaderNavigation = () => {
 
   const [isAttemptingLogin, setIsAttemptingLogin] = useState(false);
   const [loginDots, setLoginDots] = useState("");
+  const [forceUpdateKey, setForceUpdateKey] = useState(0); // 강제 리렌더링용 상태
 
   // PRE_REGISTER 역할인 경우 /signup 페이지로 리디렉션
   useEffect(() => {
@@ -71,12 +72,15 @@ export const HeaderNavigation = () => {
     try {
       await logout();
 
+      // 인증 상태를 강제로 새로고침하여 헤더를 즉시 업데이트
+      await refetchAuthStatus();
+
+      // 강제 리렌더링 트리거
+      setForceUpdateKey(prev => prev + 1);
+
       // 현재 페이지가 메인 페이지가 아닌 경우에만 라우터 이동
       if (pathname !== '/') {
         router.push("/");
-      } else {
-        // 메인 페이지에 있는 경우 같은 경로로 이동하여 강제 리렌더링
-        router.replace("/");
       }
     } catch (error) {
       console.error('로그아웃 중 오류 발생:', error);
@@ -130,7 +134,7 @@ export const HeaderNavigation = () => {
   // console.log("HeaderNavigation state:", { isLoggedIn, userProfile, isLoading, needsProfileCompletion });
 
   return (
-    <nav className="flex gap-2">
+    <nav className="flex gap-2" key={forceUpdateKey}>
       <>
         {isLoggedIn && userProfile ? (
           // 로그인된 상태: 프로필 이미지 표시
