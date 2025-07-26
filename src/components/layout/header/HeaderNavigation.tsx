@@ -67,9 +67,22 @@ export const HeaderNavigation = () => {
     // 만약 SPA 내에서 직접 API 호출로 로그인한다면, 성공/실패 시 isAttemptingLogin을 false로 설정해야 합니다.
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+
+      // 현재 페이지가 메인 페이지가 아닌 경우에만 라우터 이동
+      if (pathname !== '/') {
+        router.push("/");
+      } else {
+        // 메인 페이지에 있는 경우 같은 경로로 이동하여 강제 리렌더링
+        router.replace("/");
+      }
+    } catch (error) {
+      console.error('로그아웃 중 오류 발생:', error);
+      // 오류가 발생해도 메인 페이지로 이동
+      router.push("/");
+    }
   };
 
   const headerDropdownItems: DropdownActionItem[] = [
