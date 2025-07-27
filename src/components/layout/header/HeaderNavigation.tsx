@@ -126,10 +126,10 @@ export const HeaderNavigation = () => {
     </Button>
   );
 
-  if (isLoading) {
-    // 로딩 중 UI (예: 스켈레톤 또는 간단한 메시지)
-    return <div className="h-8 w-20 animate-pulse rounded-full bg-gray-200" />;
-  }
+  // if (isLoading) {
+  //   // 로딩 중 UI (예: 스켈레톤 또는 간단한 메시지)
+  //   return <div className="h-8 w-20 animate-pulse rounded-full bg-gray-200" />;
+  // }
 
   // console.log("HeaderNavigation state:", { isLoggedIn, userProfile, isLoading, needsProfileCompletion });
 
