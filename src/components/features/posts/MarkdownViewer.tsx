@@ -51,6 +51,7 @@ export default function MarkdownViewer({ content }: { content: string; }) {
               'img': ['src', 'alt', 'width', 'height'],
               'code': ['className'],
               'pre': ['className'],
+              'input': ['type', 'checked', 'disabled', 'className', 'readOnly'],
             },
           }],
           [rehypeHighlight, {  // 코드 문법 강조
