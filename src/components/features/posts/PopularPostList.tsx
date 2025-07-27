@@ -24,7 +24,7 @@ export default function PopularPostList() {
 
   return (
     <section>
-      <h3 className="text-[18px] text-[#838C9D]">주간 인기 게시물</h3>
+      <h3 className="text-[18px] text-[#838C9D] mb-7">주간 인기 게시물</h3>
 
       {/* 로딩 상태 처리 */}
       {isLoading && (
@@ -48,8 +48,8 @@ export default function PopularPostList() {
       {/* 성공 상태: 인기 게시글 목록 표시 */}
       {posts && !isLoading && !error && (
         <>
-          {posts.map((post, idx) => (
-            <PopularPost key={idx} title={post.title} author={post.writer} profileImage={post.writerProfileImageUrl} />
+          {posts.map((post) => (
+            <PopularPost key={post.postId} postId={post.postId} title={post.title} author={post.writer} profileImage={post.writerProfileImageUrl} />
           ))}
         </>
       )}

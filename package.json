@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:https": "next dev -H dev.gamzatech.site -p 3000 --experimental-https",
+    "dev:https:local": "next dev -H dev.gamzatech.site -p 3000 --experimental-https",
+    "dev:https": "next dev -H app.gamzatech.site",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

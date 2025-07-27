@@ -15,7 +15,7 @@ import { PostData } from "@/types/post";
 
 export default function PostsTab() {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
-  const pageSize = 2;
+  const pageSize = 5;
 
   const { data: postsData, isLoading, error } = useMyPosts({
     page: currentPageForAPI,
