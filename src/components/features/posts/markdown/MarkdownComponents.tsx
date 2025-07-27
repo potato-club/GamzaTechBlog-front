@@ -1,6 +1,7 @@
 import { Components } from 'react-markdown';
 import { MarkdownCode, MarkdownPre } from './CodeComponents';
 import { MarkdownInput, MarkdownLi, MarkdownOl, MarkdownUl } from './ListComponents';
+import { MarkdownMath } from './MathComponents';
 import { MarkdownImage, MarkdownLink } from './MediaComponents';
 import { MarkdownTable, MarkdownTd, MarkdownTh, MarkdownThead } from './TableComponents';
 import {
@@ -53,4 +54,12 @@ export const markdownComponents: Components = {
   thead: MarkdownThead,
   th: MarkdownTh,
   td: MarkdownTd,
+
+  // 수학 공식 지원을 위한 div 래퍼
+  div: ({ node, className, children, ...props }: any) => {
+    if (className?.includes('math')) {
+      return <MarkdownMath node={node} {...props}>{children}</MarkdownMath>;
+    }
+    return <div className={className} {...props}>{children}</div>;
+  },
 };
