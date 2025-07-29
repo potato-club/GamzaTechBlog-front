@@ -13,11 +13,28 @@ import { usePosts, usePostsByTag } from "@/hooks/queries/usePostQueries";
 import { usePagination } from "@/hooks/usePagination";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import CustomPagination from "./common/CustomPagination";
 import PostCard from "./features/posts/PostCard";
 import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
 export default function MainPageContent() {
+  // 랜덤 문장 배열
+  const blogDescriptions = [
+    "감자에서 시작되는 진짜 개발 이야기",
+    "뿌리부터 단단한 기술, 감자밭에서 캔 인사이트",
+    "우리 코드는 감자처럼 생겼지만... 돌아갑니다.",
+    "우리 얼굴은 감자처럼 생겼지만... 돌아갑니다."
+  ];
+
+  // 랜덤 문장 상태
+  const [currentDescription, setCurrentDescription] = useState("");
+
+  // 컴포넌트 마운트 시 랜덤 문장 설정
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * blogDescriptions.length);
+    setCurrentDescription(blogDescriptions[randomIndex]);
+  }, []);
   const { selectedTag } = useTagContext();
   const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 11;
@@ -137,6 +154,7 @@ export default function MainPageContent() {
             height={230}
             className="mx-auto"
           />
+          <p className="text-2xl font-light mt-2">{currentDescription}</p>
         </Link>
       </section>
       <div className="flex pb-10">
