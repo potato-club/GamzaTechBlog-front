@@ -46,7 +46,7 @@ export default async function RootLayout({
               </div>
             </QueryProvider>
 
-            <footer className="py-8 border-t border-gray-200 text-center text-sm text-gray-500">
+            <footer className="py-8 border-t border-[#F2F4F6] text-center text-sm text-gray-500">
               <p>&copy; Gamza Tech Blog. All rights reserved.</p>
             </footer>
           </div>

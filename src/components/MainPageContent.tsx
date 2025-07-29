@@ -145,9 +145,9 @@ export default function MainPageContent() {
             <h2 className="text-2xl font-semibold">
               {selectedTag ? `#${selectedTag} 태그 게시글` : 'Posts'}
             </h2>
-            <p className="text-sm text-gray-500">
+            {/* <p className="text-sm text-gray-500">
               총 {totalElements}개의 게시글 (페이지 {currentPage} / {totalPages})
-            </p>
+            </p> */}
           </div>
 
           <div className="flex flex-col gap-8 mt-8">

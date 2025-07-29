@@ -12,7 +12,7 @@ import TagSection from "../../TagSection";
 
 export default function MainPageSidebar() {
   return (
-    <aside className="flex-1 ml-10 border-l border-[#D5D9E3] pl-10">
+    <aside className="flex-1 ml-10 border-l border-[#F2F4F6] pl-10">
       {/* 
         TanStack Query 기반 컴포넌트들:
         - PopularPostList: 인기 게시글을 자동으로 로드하고 캐싱
