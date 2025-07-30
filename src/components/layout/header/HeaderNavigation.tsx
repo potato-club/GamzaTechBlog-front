@@ -43,12 +43,12 @@ export const HeaderNavigation = () => {
   useEffect(() => {
     // 로딩이 완료되고, 프로필 완성이 필요하며, 현재 페이지가 /signup이 아닌 경우
     if (!isLoading && needsProfileCompletion && pathname !== '/signup') {
-      console.log('User needs profile completion, redirecting to /signup');
-      router.push('/signup');
+      // console.log('User needs profile completion, redirecting to /signup');
+      // router.push('/signup');
       // 지금은 로그인이 불가합니다. alert 추가
-      // alert("지금은 로그인이 불가합니다. 나중에 다시 시도해주세요.");
+      alert("지금은 로그인이 불가합니다. 나중에 다시 시도해주세요.");
       // // 로그아웃 로직 실행
-      // logout();
+      logout();
     }
   }, [isLoading, needsProfileCompletion, pathname]);
 
