@@ -59,7 +59,7 @@ export default function PostCard({
             sizes="(max-width: 768px) 100vw, 176px"
           />
         ) : (
-          <div className="absolute bottom-0 left-0 w-full h-28 bg-gray-100 rounded-2xl shrink-0" />
+          <div className="absolute bottom-0 left-0 w-full h-28 bg-white rounded-2xl shrink-0" />
         )}
       </div>
     </article>

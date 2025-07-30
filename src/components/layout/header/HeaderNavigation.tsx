@@ -12,7 +12,7 @@ import { DropdownMenuList } from "../../common/DropdownMenuList";
 
 export const HeaderNavigation = () => {
   const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github"; // 환경 변수 또는 기본값  // useAuth 훅 호출. React Query가 데이터 관리
-  const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion } = useAuth(); // needsProfileCompletion 추가
+  const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion, refetchAuthStatus } = useAuth(); // refetchAuthStatus 추가
 
   console.log("HeaderNavigation state:", { isLoggedIn, userProfile, isLoading, needsProfileCompletion });
 
@@ -21,6 +21,7 @@ export const HeaderNavigation = () => {
 
   const [isAttemptingLogin, setIsAttemptingLogin] = useState(false);
   const [loginDots, setLoginDots] = useState("");
+  const [forceUpdateKey, setForceUpdateKey] = useState(0); // 강제 리렌더링용 상태
 
   // PRE_REGISTER 역할인 경우 /signup 페이지로 리디렉션
   useEffect(() => {
@@ -67,9 +68,25 @@ export const HeaderNavigation = () => {
     // 만약 SPA 내에서 직접 API 호출로 로그인한다면, 성공/실패 시 isAttemptingLogin을 false로 설정해야 합니다.
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+
+      // 인증 상태를 강제로 새로고침하여 헤더를 즉시 업데이트
+      await refetchAuthStatus();
+
+      // 강제 리렌더링 트리거
+      setForceUpdateKey(prev => prev + 1);
+
+      // 현재 페이지가 메인 페이지가 아닌 경우에만 라우터 이동
+      if (pathname !== '/') {
+        router.push("/");
+      }
+    } catch (error) {
+      console.error('로그아웃 중 오류 발생:', error);
+      // 오류가 발생해도 메인 페이지로 이동
+      router.push("/");
+    }
   };
 
   const headerDropdownItems: DropdownActionItem[] = [
@@ -109,15 +126,29 @@ export const HeaderNavigation = () => {
     </Button>
   );
 
-  if (isLoading) {
-    // 로딩 중 UI (예: 스켈레톤 또는 간단한 메시지)
-    return <div className="h-8 w-20 animate-pulse rounded-full bg-gray-200" />;
-  }
+  // if (isLoading) {
+  //   // 로딩 중 UI (예: 스켈레톤 또는 간단한 메시지)
+  //   return <div className="h-8 w-20 animate-pulse rounded-full bg-gray-200" />;
+  // }
 
   // console.log("HeaderNavigation state:", { isLoggedIn, userProfile, isLoading, needsProfileCompletion });
 
   return (
-    <nav className="flex gap-2">
+    <nav className="flex items-center gap-4 h-8" key={forceUpdateKey}>
+      {/* 검색창 */}
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <svg className="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+          </svg>
+        </div>
+        <input
+          type="search"
+          placeholder="Search"
+          className="w-48 pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full bg-gray-50 focus:ring-2 focus:ring-[#FAA631] focus:border-transparent outline-none"
+        />
+      </div>
+
       <>
         {isLoggedIn && userProfile ? (
           // 로그인된 상태: 프로필 이미지 표시

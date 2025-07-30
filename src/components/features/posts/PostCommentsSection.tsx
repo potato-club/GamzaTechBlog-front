@@ -76,7 +76,7 @@ export default function PostCommentsSection({
   }
 
   return (
-    <section className="mt-12 text-[#353841] text-[17px]" aria-label="댓글 섹션">
+    <section className="mt-12 text-[#353841] text-[17px] mx-4" aria-label="댓글 섹션">
       {/* TanStack Query가 댓글 추가를 자동으로 처리하므로 onCommentSubmitted는 선택사항 */}
       <CommentForm postId={postId} />
 

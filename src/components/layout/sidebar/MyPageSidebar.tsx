@@ -11,7 +11,6 @@ import UserIcon from "../../ui/UserIcon";
 // Sidebar 컴포넌트 props 정의
 interface SidebarProps {
   userProfile: UserProfileData; // 실제 사용자 프로필 데이터
-  onProfileUpdate: (updatedProfile: Partial<UserProfileData>) => void; // 프로필 업데이트 콜백
 }
 
 interface StatItem {
@@ -21,7 +20,7 @@ interface StatItem {
   count: number;
 }
 
-export default function MyPageSidebar({ userProfile, onProfileUpdate }: SidebarProps) {
+export default function MyPageSidebar({ userProfile }: SidebarProps) {
   /**
    * TanStack Query를 사용하여 사용자 활동 통계를 가져옵니다.
    * 
@@ -51,7 +50,7 @@ export default function MyPageSidebar({ userProfile, onProfileUpdate }: SidebarP
   console.log("mypage userProfile", userProfile);
 
   return (
-    <aside className="flex flex-col items-center w-64 py-10 pr-8 border-r border-[#D5D9E3]">
+    <aside className="flex flex-col items-center w-64 py-10 pr-8">
       <section aria-labelledby="user-profile-heading" className="flex flex-col items-center">
         <h2 id="user-profile-heading" className="sr-only">{userProfile.nickname}님의 프로필 정보</h2>
         {/* 프로필 이미지 */}
@@ -81,7 +80,7 @@ export default function MyPageSidebar({ userProfile, onProfileUpdate }: SidebarP
         </div>
 
         {/* 프로필 수정 Dialog 호출 */}
-        <ProfileEditDialog userProfile={userProfile} onProfileUpdate={onProfileUpdate} />
+        <ProfileEditDialog userProfile={userProfile} />
       </section>
 
       {/* 작성 글, 작성 댓글, 좋아요 수 표시 */}

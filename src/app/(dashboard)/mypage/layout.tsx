@@ -3,7 +3,6 @@
 import MyPageSidebar from "@/components/layout/sidebar/MyPageSidebar";
 import MyPageSkeleton from "@/components/skeletons/MyPageSkeleton";
 import { useAuth } from "@/hooks/queries/useUserQueries";
-import type { UserProfileData } from "@/types/user";
 import { useRouter } from "next/navigation";
 import React, { Suspense, useEffect } from 'react';
 
@@ -13,7 +12,7 @@ interface MyPageLayoutProps {
 
 export default function MyPageLayout({ children }: MyPageLayoutProps) {
   const router = useRouter();
-  const { userProfile, isLoggedIn, isLoading, refetchAuthStatus } = useAuth();
+  const { userProfile, isLoggedIn, isLoading } = useAuth();
 
   console.log("userProfile", userProfile);
 
@@ -24,22 +23,6 @@ export default function MyPageLayout({ children }: MyPageLayoutProps) {
       router.push("/"); // 또는 접근 제한 페이지로 안내
     }
   }, [isLoading, isLoggedIn, userProfile, router]);
-
-  // 프로필 업데이트 핸들러 (실제 API 연동 필요)
-  const handleProfileUpdate = async (updatedData: Partial<UserProfileData>) => {
-    if (!userProfile) return; // 사용자 프로필이 없으면 중단
-
-    console.log("프로필 업데이트 시도:", updatedData);
-    try {
-      // 예시: await userService.updateProfile(updatedData); // 실제 API 호출
-      // API 호출 성공 후
-      await refetchAuthStatus(); // 사용자 정보를 다시 가져와 UI를 갱신합니다.
-      alert("프로필이 업데이트되었습니다."); // 실제 서비스에서는 토스트 메시지 등을 사용하는 것이 좋습니다.
-    } catch (error) {
-      console.error("프로필 업데이트 실패:", error);
-      alert("프로필 업데이트에 실패했습니다.");
-    }
-  };
 
   // 로딩 중일 때 스켈레톤 UI 표시
   if (isLoading) {
@@ -59,7 +42,7 @@ export default function MyPageLayout({ children }: MyPageLayoutProps) {
     <div className="flex mt-10 gap-4">
       {/* Consider adding a MyPage specific header or navigation here */}
       <Suspense fallback={<MyPageSkeleton />}>
-        <MyPageSidebar userProfile={userProfile} onProfileUpdate={handleProfileUpdate} />
+        <MyPageSidebar userProfile={userProfile} />
         <main className="flex-1">
           {children}
         </main>
