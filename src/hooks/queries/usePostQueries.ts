@@ -466,3 +466,30 @@ export function usePostsByTag(
     ...options,
   });
 }
+
+/**
+ * 게시글 검색 훅
+ * @param keyword - 검색 키워드
+ * @param params - 페이지네이션 파라미터
+ * @param options - 추가 쿼리 옵션
+ */
+export function useSearchPosts(
+  keyword: string,
+  params?: PaginationParams,
+  options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: ['posts', 'search', keyword, params],
+    queryFn: () => postService.searchPosts(keyword, params),
+
+    // placeholderData: 새로운 페이지 로딩 중에도 이전 데이터를 표시
+    placeholderData: keepPreviousData,
+
+    staleTime: 1000 * 60 * 5, // 5분간 fresh 상태 유지
+    gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
+    retry: 2,
+    refetchOnWindowFocus: false,
+    enabled: !!keyword, // keyword가 있을 때만 쿼리 실행
+    ...options,
+  });
+}
