@@ -5,6 +5,7 @@
  */
 
 import { markdownToText } from "@/utils/markdown";
+import { highlightSearchKeyword } from "@/utils/textHighlight";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -12,8 +13,10 @@ import PostMeta from "./PostMeta";
 
 export default function PostCard({
   post,
+  searchKeyword,
 }: {
   post: any;
+  searchKeyword?: string;
 }) {
   const pathname = usePathname();
   const isMyPage = pathname === "/mypage";
@@ -26,7 +29,7 @@ export default function PostCard({
       <div className="flex-1 w-[500px] h-[140px]">
         <Link href={`/posts/${post.postId}`}>
           <h3 className={`text-xl font-bold truncate`}>
-            {post.title}
+            {searchKeyword ? highlightSearchKeyword(post.title, searchKeyword) : post.title}
           </h3>
           <p className="text-[#B5BBC7] text-sm mt-3.5 truncate">
             {markdownToText(post.contentSnippet, 100)}

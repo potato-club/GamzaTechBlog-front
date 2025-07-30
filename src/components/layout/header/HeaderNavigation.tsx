@@ -22,6 +22,22 @@ export const HeaderNavigation = () => {
   const [isAttemptingLogin, setIsAttemptingLogin] = useState(false);
   const [loginDots, setLoginDots] = useState("");
   const [forceUpdateKey, setForceUpdateKey] = useState(0); // 강제 리렌더링용 상태
+  const [searchKeyword, setSearchKeyword] = useState("");
+
+  // 검색 처리 함수
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchKeyword.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchKeyword.trim())}`);
+    }
+  };
+
+  // Enter 키 처리
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
+    }
+  };
 
   // PRE_REGISTER 역할인 경우 /signup 페이지로 리디렉션
   useEffect(() => {
@@ -136,7 +152,7 @@ export const HeaderNavigation = () => {
   return (
     <nav className="flex items-center gap-4 h-8" key={forceUpdateKey}>
       {/* 검색창 */}
-      <div className="relative">
+      <form onSubmit={handleSearch} className="relative">
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <svg className="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
@@ -145,9 +161,12 @@ export const HeaderNavigation = () => {
         <input
           type="search"
           placeholder="Search"
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+          onKeyPress={handleKeyPress}
           className="w-48 pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full bg-gray-50 focus:ring-2 focus:ring-[#FAA631] focus:border-transparent outline-none"
         />
-      </div>
+      </form>
 
       <>
         {isLoggedIn && userProfile ? (
