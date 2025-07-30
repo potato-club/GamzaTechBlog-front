@@ -144,8 +144,8 @@ export default function MainPageContent() {
   }
 
   return (
-    <div className="flex flex-col gap-3 mx-auto">
-      <section className="text-center">
+    <div className="flex flex-col gap-12 mx-auto">
+      <section className="text-center mt-5">
         <Link href="/">
           <Image
             src="/logo2.svg"
