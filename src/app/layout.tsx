@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   title: "감자 기술 블로그",
   description: "안녕하세요. 감자 기술 블로그입니다.",
   keywords: "개발, 기술블로그, 프로그래밍, 감자",
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
   openGraph: {
     title: "감자 기술 블로그",
     description: "안녕하세요. 감자 기술 블로그입니다.",
