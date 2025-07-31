@@ -39,13 +39,13 @@ export default async function RootLayout({
         </Link>
 
         {/* 콘텐츠를 중앙 정렬하고 최대 너비를 제한하는 wrapper div 추가 */}
-        <div className="w-full max-w-[1100px] mx-auto px-4 sm:px-6">
+        <div className="w-full max-w-[1100px] mx-auto">
           <div className="min-h-screen flex flex-col">
             <QueryProvider>
               <BlogHeader />
               <div
                 id="main-content"
-                className="px-4 flex-grow" // flex-grow 추가하여 푸터가 항상 하단에 위치하도록 도움
+                className="flex-grow" // flex-grow 추가하여 푸터가 항상 하단에 위치하도록 도움
               >
                 {children}
               </div>
