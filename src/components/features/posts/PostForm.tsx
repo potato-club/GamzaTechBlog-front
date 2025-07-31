@@ -159,7 +159,7 @@ export default function PostForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-10 flex flex-col gap-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="my-10 flex flex-col gap-6">
         <FormField
           control={form.control}
           name="title"
@@ -205,7 +205,7 @@ export default function PostForm({
           initialValue={mode === 'edit' ? initialData?.content : undefined}
         />
 
-        <div className="mt-7 flex flex-wrap gap-2 text-[14px]">
+        <div className="flex flex-wrap gap-2 text-[14px]">
           {tags.map((tag, idx) => (
             <div
               key={idx}
@@ -235,7 +235,7 @@ export default function PostForm({
 
         <Button
           type="submit"
-          className={`self-end px-4 py-2 bg-[#20242B] text-white rounded-4xl transition-colors duration-150 ${isLoading ? "cursor-not-allowed opacity-70" : "hover:bg-[#33373E]/90 hover:cursor-pointer"
+          className={`self-end px-6 py-2 bg-[#20242B] text-white rounded-4xl transition-colors duration-150 ${isLoading ? "cursor-not-allowed opacity-70" : "hover:bg-[#33373E]/90 hover:cursor-pointer"
             }`}
           disabled={isLoading}
         >

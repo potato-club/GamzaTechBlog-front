@@ -66,7 +66,7 @@ const ToastEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialVa
     <Editor
       ref={editorRef}
       previewStyle="vertical"
-      height="500px"
+      height="600px"
       initialEditType="markdown"
       useCommandShortcut={true}
       initialValue={initialValue || ""}
