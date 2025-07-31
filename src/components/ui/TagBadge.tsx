@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 type TagBadgeProps = {
   tag: string;
-  variant?: "filled" | "outline";
+  variant?: "filled" | "outline" | "gray";
   onClick?: (tag: string) => void;
   className?: string;
 };
@@ -18,6 +18,22 @@ export default function TagBadge({ tag, variant = "filled", onClick, className }
     }
   };
 
+  if (variant === "gray") {
+    // PostMeta에서 사용하는 회색 스타일
+    return (
+      <div
+        onClick={handleClick}
+        className={cn(
+          customClasses,
+          "bg-[#F2F4F6] border-none text-[#848484] inline-flex items-center justify-center",
+          onClick && "cursor-pointer",
+          className
+        )}
+      >
+        # {tag}
+      </div>
+    );
+  }
   if (variant === "outline") {
     return (
       <div

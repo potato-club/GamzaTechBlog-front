@@ -78,7 +78,7 @@ export default function PostHeader({ post, postId }: PostHeaderProps) {
       <ul className="flex gap-2 text-[14px]" role="list">
         {post.tags.map((tag, index) => (
           <li key={index}>
-            <TagBadge tag={tag} />
+            <TagBadge tag={tag} variant="gray" />
           </li>
         ))}
       </ul>

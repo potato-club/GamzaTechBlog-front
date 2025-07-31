@@ -50,7 +50,7 @@ export default function MyPageSidebar({ userProfile }: SidebarProps) {
   console.log("mypage userProfile", userProfile);
 
   return (
-    <aside className="flex flex-col items-center w-64 py-10 pr-8 border-r border-[#D5D9E3]">
+    <aside className="flex flex-col items-center w-64 py-10 pr-8">
       <section aria-labelledby="user-profile-heading" className="flex flex-col items-center">
         <h2 id="user-profile-heading" className="sr-only">{userProfile.nickname}님의 프로필 정보</h2>
         {/* 프로필 이미지 */}
