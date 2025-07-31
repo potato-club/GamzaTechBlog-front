@@ -104,7 +104,65 @@ export const postService = {  /**
       }
       throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while fetching popular posts', endpoint);
     }
-  },  /**
+  },
+
+  /**
+   * 태그별 게시물 목록을 조회합니다.
+   * @param tagName - 조회할 태그명
+   * @param params - 페이지네이션, 정렬 옵션
+   */
+  async getPostsByTag(tagName: string, params?: PaginationParams): Promise<PageableContent<PostData>> {
+    const endpoint = `/api/v1/posts/tags/${tagName}`;
+    let url = API_CONFIG.BASE_URL + endpoint;
+
+    const queryParams = new URLSearchParams();
+
+    const page = params?.page !== undefined ? params.page : 0;
+    const size = params?.size !== undefined ? params.size : 10;
+
+    queryParams.append('page', String(page));
+    queryParams.append('size', String(size));
+
+    if (params) {
+      if (params.sort && params.sort.length > 0) {
+        params.sort.forEach((sortOption: string) => queryParams.append('sort', sortOption));
+      }
+    }
+
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
+    }
+
+    console.log("태그별 게시물 조회 URL:", url);
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
+      });
+
+      if (!response.ok) {
+        // 서버에서 에러 응답이 온 경우
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error occurred' }));
+        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch posts by tag', endpoint);
+      }
+
+      const apiResponse: ApiResponse<PageableContent<PostData>> = await response.json();
+      console.log("태그별 게시물 조회 응답:", apiResponse);
+      return apiResponse.data;
+    } catch (error) {
+      if (error instanceof PostServiceError) {
+        throw error;
+      }
+      // 네트워크 에러 또는 기타 예외 처리
+      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+    }
+  },
+
+  /**
    * 태그 목록을 조회합니다.
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    */
@@ -353,5 +411,52 @@ export const postService = {  /**
     }
   },
 
+  /**
+   * 게시글을 검색합니다.
+   * @param keyword - 검색 키워드
+   * @param params - 페이지네이션 옵션
+   */
+  async searchPosts(keyword: string, params?: PaginationParams): Promise<PageableContent<PostData>> {
+    const endpoint = '/api/v1/posts/search';
+    let url = API_CONFIG.BASE_URL + endpoint;
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('keyword', keyword);
+
+    const page = params?.page !== undefined ? params.page : 0;
+    const size = params?.size !== undefined ? params.size : 10;
+
+    queryParams.append('page', String(page));
+    queryParams.append('size', String(size));
+
+    if (params?.sort && params.sort.length > 0) {
+      params.sort.forEach((sortOption: string) => queryParams.append('sort', sortOption));
+    }
+
+    url += `?${queryParams.toString()}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new PostServiceError(response.status, errorData.message || 'Failed to search posts', endpoint);
+      }
+
+      const apiResponse: ApiResponse<PageableContent<PostData>> = await response.json();
+      return apiResponse.data;
+    } catch (error) {
+      if (error instanceof PostServiceError) {
+        throw error;
+      }
+      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while searching posts', endpoint);
+    }
+  },
 
 } as const;

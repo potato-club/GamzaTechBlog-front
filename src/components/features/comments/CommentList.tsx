@@ -16,6 +16,7 @@ export default function CommentList({
 }) {
   // variant가 지정되지 않으면 postId 존재 여부로 판단 (기존 호환성)
   const resolvedVariant = variant || (postId !== undefined ? 'post' : 'my');
+  const reversedComments = [...comments].reverse();
 
   if (!comments || comments.length === 0) {
     return (
@@ -31,7 +32,7 @@ export default function CommentList({
   }
   return (
     <div className={`mt-8 flex flex-col gap-4 ${className}`}>
-      {comments.map((comment) => {
+      {reversedComments.map((comment) => {
         // 기존 PostComment 타입인 경우 기존 CommentCard 사용
         if (resolvedVariant === 'post' && isPostComment(comment)) {
           return (

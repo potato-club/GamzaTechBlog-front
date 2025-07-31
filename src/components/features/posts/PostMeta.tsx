@@ -1,3 +1,5 @@
+
+import TagBadge from '@/components/ui/TagBadge';
 import Image from 'next/image';
 
 export default function PostMeta({
@@ -30,12 +32,12 @@ export default function PostMeta({
         <span className="text-[#B5BBC7]">{date}</span>
 
         {tags.slice(0, 2).map((tag, idx) => (
-          <span
+          <TagBadge
             key={idx}
-            className="bg-[#F2F4F6] rounded-2xl px-3 py-1.5 text-[#848484]"
-          >
-            # {tag}
-          </span>
+            tag={tag}
+            variant="gray"
+            className="bg-[#F2F4F6] border-none text-[#848484]"
+          />
         ))}
       </div>
     </div>

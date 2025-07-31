@@ -14,7 +14,7 @@ import { usePagination } from "@/hooks/usePagination";
 
 export default function LikesTab() {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
-  const pageSize = 2;
+  const pageSize = 5;
 
   const { data: likes, isLoading, error } = useMyLikes({
     page: currentPageForAPI,

@@ -24,7 +24,7 @@ export default function PopularPostList() {
 
   return (
     <section>
-      <h3 className="text-[18px] text-[#838C9D]">주간 인기 게시물</h3>
+      <h3 className="text-[18px] text-[#838C9D] mb-7">주간 인기 게시물</h3>
 
       {/* 로딩 상태 처리 */}
       {isLoading && (

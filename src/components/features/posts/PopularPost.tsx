@@ -18,9 +18,9 @@ export default function PopularPost({ postId, title, author, profileImage }: Pop
   return (
     <article
       onClick={handleClick}
-      className="cursor-pointer hover:bg-gray-50 transition-colors duration-200 p-2 rounded-md -m-2"
+      className="cursor-pointer hover:bg-gray-50 transition-colors duration-200 p-2 rounded-md -m-2 mb-7"
     >
-      <h4 className="mt-7 font-medium">{title}</h4>
+      <h4 className="font-medium">{title}</h4>
       <div className="flex items-center gap-1 text-[#798191] text-[12px] mt-4">
         {profileImage ? (
           <Image src={profileImage} alt={author} width={24} height={24} className="rounded-full mr-1" />

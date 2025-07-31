@@ -42,6 +42,10 @@ export const POST_QUERY_KEYS = {
 
   // 태그 관련 쿼리 키
   tags: () => [...POST_QUERY_KEYS.all, 'tags'] as const,
+
+  // 태그별 게시물 쿼리 키
+  postsByTag: (tagName: string, params?: PaginationParams) =>
+    [...POST_QUERY_KEYS.all, 'byTag', tagName, params] as const,
 } as const;
 
 /**
@@ -432,5 +436,60 @@ export function usePopularPosts() {
     gcTime: 1000 * 60 * 30, // 30분간 캐시 유지
     retry: 2,
     refetchOnWindowFocus: false,
+  });
+}
+
+/**
+ * 특정 태그의 게시물 목록을 조회하는 훅
+ * 
+ * @param tagName - 조회할 태그명
+ * @param params - 페이지네이션, 정렬 매개변수
+ * @param options - TanStack Query 옵션
+ */
+export function usePostsByTag(
+  tagName: string,
+  params?: PaginationParams,
+  options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: POST_QUERY_KEYS.postsByTag(tagName, params),
+    queryFn: () => postService.getPostsByTag(tagName, params),
+
+    // placeholderData: 새로운 페이지 로딩 중에도 이전 데이터를 표시
+    placeholderData: keepPreviousData,
+
+    staleTime: 1000 * 60 * 5, // 5분간 fresh 상태 유지
+    gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
+    retry: 2,
+    refetchOnWindowFocus: false,
+    enabled: !!tagName, // tagName이 있을 때만 쿼리 실행
+    ...options,
+  });
+}
+
+/**
+ * 게시글 검색 훅
+ * @param keyword - 검색 키워드
+ * @param params - 페이지네이션 파라미터
+ * @param options - 추가 쿼리 옵션
+ */
+export function useSearchPosts(
+  keyword: string,
+  params?: PaginationParams,
+  options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: ['posts', 'search', keyword, params],
+    queryFn: () => postService.searchPosts(keyword, params),
+
+    // placeholderData: 새로운 페이지 로딩 중에도 이전 데이터를 표시
+    placeholderData: keepPreviousData,
+
+    staleTime: 1000 * 60 * 5, // 5분간 fresh 상태 유지
+    gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
+    retry: 2,
+    refetchOnWindowFocus: false,
+    enabled: !!keyword, // keyword가 있을 때만 쿼리 실행
+    ...options,
   });
 }
