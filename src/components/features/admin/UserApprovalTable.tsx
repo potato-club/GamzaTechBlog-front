@@ -1,5 +1,7 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -8,18 +10,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { PendingUser } from "@/app/admin/page";
+import { useApproveUser } from "@/hooks/queries/useAdminQueries";
+import { PendingUser } from "@/types/user";
 
 interface UserApprovalTableProps {
   users: PendingUser[];
 }
 
 export default function UserApprovalTable({ users }: UserApprovalTableProps) {
+  const approveUserMutation = useApproveUser();
+
   const handleApprove = (userId: string) => {
-    // TODO: Implement approve logic
-    alert(`사용자 ${userId} 승인`);
+    approveUserMutation.mutate(userId);
   };
 
   const handleReject = (userId: string) => {
@@ -40,20 +42,25 @@ export default function UserApprovalTable({ users }: UserApprovalTableProps) {
       </TableHeader>
       <TableBody>
         {users.map((user) => (
-          <TableRow key={user.id}>
+          <TableRow key={user.githubId}>
             <TableCell className="font-medium">{user.name}</TableCell>
             <TableCell>{user.email}</TableCell>
-            <TableCell>{user.signupDate}</TableCell>
+            <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
             <TableCell>
-              <Badge variant={user.status === "pending" ? "secondary" : "default"}>
-                {user.status}
+              <Badge variant={user.role === "PENDING" ? "secondary" : "default"}>
+                {user.role}
               </Badge>
             </TableCell>
             <TableCell className="text-right space-x-2">
-              <Button variant="outline" size="sm" onClick={() => handleApprove(user.id)}>
-                승인
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleApprove(user.githubId)}
+                disabled={approveUserMutation.isPending}
+              >
+                {approveUserMutation.isPending ? "승인 중..." : "승인"}
               </Button>
-              <Button variant="destructive" size="sm" onClick={() => handleReject(user.id)}>
+              <Button variant="destructive" size="sm" onClick={() => handleReject(user.githubId)}>
                 거절
               </Button>
             </TableCell>
