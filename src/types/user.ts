@@ -36,3 +36,39 @@ export interface UserActivityStats {
 // 사용자 역할 타입
 export type UserPosition = 'BACKEND' | 'FRONTEND' | 'DESIGNER' | 'APP_DEVELOPER';
 // export type UserRole = 'USER' | 'ADMIN' | 'MODERATOR';
+
+export interface PendingUser {
+  githubId: string;
+  nickname: string;
+  name: string;
+  email: string;
+  profileImageUrl: string;
+  position: string;
+  role: string;
+  studentNumber: string;
+  gamjaBatch: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Admin API 응답 타입들
+export interface AdminApiResponse {
+  status: number;
+  message: string;
+  data: any;
+  timestamp: number;
+}
+
+export interface ApproveUserResponse {
+  status: number;
+  message: string;
+  data: object;
+  timestamp: number;
+}
+
+export interface PendingUsersResponse {
+  status: number;
+  message: string;
+  data: PendingUser[];
+  timestamp: number;
+}
