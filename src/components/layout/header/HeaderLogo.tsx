@@ -9,7 +9,7 @@ export const HeaderLogo: React.FC<HeaderLogoProps> = ({ className = "" }) => {
   return (
     <Link href="/" className={`flex cursor-pointer items-center text-[18px] ${className}`}>
       <Image
-        src="/greenLogo.svg"
+        src="/logo.svg"
         alt="감자 기술 블로그 로고"
         width={23}
         height={23}
