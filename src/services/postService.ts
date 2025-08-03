@@ -411,5 +411,52 @@ export const postService = {  /**
     }
   },
 
+  /**
+   * 게시글을 검색합니다.
+   * @param keyword - 검색 키워드
+   * @param params - 페이지네이션 옵션
+   */
+  async searchPosts(keyword: string, params?: PaginationParams): Promise<PageableContent<PostData>> {
+    const endpoint = '/api/v1/posts/search';
+    let url = API_CONFIG.BASE_URL + endpoint;
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('keyword', keyword);
+
+    const page = params?.page !== undefined ? params.page : 0;
+    const size = params?.size !== undefined ? params.size : 10;
+
+    queryParams.append('page', String(page));
+    queryParams.append('size', String(size));
+
+    if (params?.sort && params.sort.length > 0) {
+      params.sort.forEach((sortOption: string) => queryParams.append('sort', sortOption));
+    }
+
+    url += `?${queryParams.toString()}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new PostServiceError(response.status, errorData.message || 'Failed to search posts', endpoint);
+      }
+
+      const apiResponse: ApiResponse<PageableContent<PostData>> = await response.json();
+      return apiResponse.data;
+    } catch (error) {
+      if (error instanceof PostServiceError) {
+        throw error;
+      }
+      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred while searching posts', endpoint);
+    }
+  },
 
 } as const;

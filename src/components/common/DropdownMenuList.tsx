@@ -47,7 +47,13 @@ export const DropdownMenuList: React.FC<DropdownMenuListProps> = ({
                   href={item.href}
                   className={commonItemClasses}
                 >
-                  {item.label}
+                  {item.label === "로그아웃" ? (
+                    <span className="text-red-600 hover:text-red-700 focus:text-red-700">
+                      {item.label}
+                    </span>
+                  ) : (
+                    item.label
+                  )}
                 </Link>
               </DropdownMenuItem>
             );
@@ -58,7 +64,13 @@ export const DropdownMenuList: React.FC<DropdownMenuListProps> = ({
               onClick={item.onClick}
               className={cn(commonItemClasses, item.className)}
             >
-              {item.label}
+              {item.label === "로그아웃" ? (
+                <span className="text-red-600 hover:text-red-700 focus:text-red-700">
+                  {item.label}
+                </span>
+              ) : (
+                item.label
+              )}
             </DropdownMenuItem>
           );
         })}
