@@ -12,7 +12,7 @@ import { useTagContext } from "@/contexts/TagContext";
 import { usePosts, usePostsByTag } from "@/hooks/queries/usePostQueries";
 import { usePagination } from "@/hooks/usePagination";
 import Image from "next/image";
-import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CustomPagination from "./common/CustomPagination";
 import PostCard from "./features/posts/PostCard";
@@ -29,6 +29,20 @@ export default function MainPageContent() {
 
   // 랜덤 문장 상태
   const [currentDescription, setCurrentDescription] = useState("");
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // 로고 클릭 핸들러
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (pathname === '/') {
+      // 메인 페이지에서 클릭 시 새로고침
+      window.location.reload();
+    } else {
+      // 다른 페이지에서 클릭 시 메인 페이지로 이동
+      router.push('/');
+    }
+  };
 
   // 컴포넌트 마운트 시 랜덤 문장 설정
   useEffect(() => {
@@ -73,7 +87,7 @@ export default function MainPageContent() {
     return (
       <div className="flex flex-col gap-30 mx-auto">
         <section className="text-center">
-          <Link href="/">
+          <div onClick={handleLogoClick} className="cursor-pointer inline-block">
             <Image
               src="/logo2.svg"
               alt="메인페이지 로고"
@@ -81,7 +95,7 @@ export default function MainPageContent() {
               height={230}
               className="mx-auto"
             />
-          </Link>
+          </div>
         </section>
 
         <div className="flex pb-10">
@@ -120,7 +134,7 @@ export default function MainPageContent() {
     return (
       <div className="flex flex-col gap-30 mx-auto">
         <section className="text-center">
-          <Link href="/">
+          <div onClick={handleLogoClick} className="cursor-pointer inline-block">
             <Image
               src="/logo2.svg"
               alt="메인페이지 로고"
@@ -128,7 +142,7 @@ export default function MainPageContent() {
               height={230}
               className="mx-auto"
             />
-          </Link>
+          </div>
         </section>
 
         <div className="flex pb-10 justify-center">
@@ -146,7 +160,7 @@ export default function MainPageContent() {
   return (
     <div className="flex flex-col gap-12 mx-auto">
       <section className="text-center mt-5">
-        <Link href="/">
+        <div onClick={handleLogoClick} className="cursor-pointer">
           <Image
             src="/logo2.svg"
             alt="메인페이지 로고"
@@ -155,7 +169,7 @@ export default function MainPageContent() {
             className="mx-auto"
           />
           <p className="text-2xl font-light mt-2">{currentDescription}</p>
-        </Link>
+        </div>
       </section>
       <div className="flex pb-10">
         <main className="flex-3"> {/* 주요 콘텐츠 영역 */}
