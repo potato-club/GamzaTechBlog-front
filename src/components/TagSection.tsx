@@ -80,21 +80,6 @@ export default function TagSection() {
           <p>등록된 태그가 없습니다.</p>
         </div>
       )}
-
-      {/* 선택된 태그 표시 */}
-      {selectedTag && (
-        <div className="mt-4 p-3 bg-[#FAA631]/10 rounded-lg">
-          <p className="text-sm text-[#FAA631] font-medium">
-            "#{selectedTag}" 태그로 필터링된 게시물을 보고 있습니다.
-          </p>
-          <button
-            onClick={() => setSelectedTag(null)}
-            className="text-xs text-[#838C9D] hover:text-[#222] transition-colors mt-1"
-          >
-            ← 모든 게시물 보기
-          </button>
-        </div>
-      )}
     </section>
   );
 }
