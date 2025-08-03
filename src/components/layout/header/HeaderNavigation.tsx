@@ -115,6 +115,12 @@ export const HeaderNavigation = () => {
       href: "/mypage",
       isLink: true,
     },
+    // ADMIN 역할일 때만 관리자 페이지 표시
+    ...(userProfile?.role === "ADMIN" ? [{
+      label: "관리자 페이지",
+      href: "/admin",
+      isLink: true,
+    }] : []),
     {
       label: "로그아웃",
       onClick: handleLogout,

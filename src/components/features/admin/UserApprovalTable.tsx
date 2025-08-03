@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -33,36 +32,32 @@ export default function UserApprovalTable({ users }: UserApprovalTableProps) {
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>아이디</TableHead>
+          <TableHead>감자 기수</TableHead>
           <TableHead>이름</TableHead>
-          <TableHead>이메일</TableHead>
-          <TableHead>가입일</TableHead>
-          <TableHead>상태</TableHead>
+          <TableHead>직군</TableHead>
           <TableHead className="text-right">작업</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {users.map((user) => (
-          <TableRow key={user.githubId}>
-            <TableCell className="font-medium">{user.name}</TableCell>
-            <TableCell>{user.email}</TableCell>
-            <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-            <TableCell>
-              <Badge variant={user.role === "PENDING" ? "secondary" : "default"}>
-                {user.role}
-              </Badge>
-            </TableCell>
+          <TableRow key={user.userId}>
+            <TableCell className="font-medium">{user.userId}</TableCell>
+            <TableCell>{user.gamjaBatch}</TableCell>
+            <TableCell>{user.name}</TableCell>
+            <TableCell>{user.position}</TableCell>
             <TableCell className="text-right space-x-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleApprove(user.githubId)}
+                onClick={() => handleApprove(user.userId)}
                 disabled={approveUserMutation.isPending}
               >
                 {approveUserMutation.isPending ? "승인 중..." : "승인"}
               </Button>
-              <Button variant="destructive" size="sm" onClick={() => handleReject(user.githubId)}>
+              {/* <Button variant="destructive" size="sm" onClick={() => handleReject(user.userId)}>
                 거절
-              </Button>
+              </Button> */}
             </TableCell>
           </TableRow>
         ))}

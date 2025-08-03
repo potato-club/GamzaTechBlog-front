@@ -38,17 +38,11 @@ export type UserPosition = 'BACKEND' | 'FRONTEND' | 'DESIGNER' | 'APP_DEVELOPER'
 // export type UserRole = 'USER' | 'ADMIN' | 'MODERATOR';
 
 export interface PendingUser {
-  githubId: string;
-  nickname: string;
-  name: string;
-  email: string;
-  profileImageUrl: string;
-  position: string;
-  role: string;
-  studentNumber: string;
+  userId: string;
   gamjaBatch: number;
+  name: string;
+  position: string;
   createdAt: string;
-  updatedAt: string;
 }
 
 // Admin API 응답 타입들
