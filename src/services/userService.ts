@@ -1,6 +1,7 @@
 import { fetchWithAuth } from '@/lib/api';
 import type { UserActivityStats, UserProfileData } from '@/types/user';
 import { API_CONFIG } from "../config/api";
+import { API_PATHS } from "../constants/apiPaths";
 import { ApiResponse } from "../types/api";
 
 // --- 커스텀 에러 클래스 (기존과 동일) ---
@@ -17,7 +18,7 @@ export const userService = {
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    */
   async getProfile(): Promise<UserProfileData> {
-    const endpoint = '/api/v1/users/me/get/profile';
+    const endpoint = API_PATHS.users.profile;
 
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
@@ -34,7 +35,7 @@ export const userService = {
    * POST 뮤테이션 작업이므로 캐싱하지 않습니다.
    */
   async logout(): Promise<void> {
-    const endpoint = '/api/auth/me/logout';
+    const endpoint = API_PATHS.users.logout;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST'
     }) as Response;
@@ -49,7 +50,7 @@ export const userService = {
    * POST 뮤테이션 작업이므로 캐싱하지 않습니다.
    */
   async updateProfileInSignup(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
-    const endpoint = '/api/v1/users/me/complete';
+    const endpoint = API_PATHS.users.completeSignup;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST',
       body: JSON.stringify(profileData),
@@ -68,7 +69,7 @@ export const userService = {
    * POST 뮤테이션 작업이므로 캐싱하지 않습니다.
    */
   async completeProfile(profileData: UserProfileData): Promise<UserProfileData> {
-    const endpoint = '/api/v1/users/me/complete/profile';
+    const endpoint = API_PATHS.users.completeProfile;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST',
       body: JSON.stringify(profileData),
@@ -84,7 +85,7 @@ export const userService = {
    * DELETE 뮤테이션 작업이므로 캐싱하지 않습니다.
    */
   async withdrawAccount(): Promise<void> {
-    const endpoint = '/api/v1/users/me/withdraw';
+    const endpoint = API_PATHS.users.withdraw;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'DELETE'
     }) as Response;
@@ -99,7 +100,7 @@ export const userService = {
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    */
   async getActivityCounts(): Promise<UserActivityStats> {
-    const endpoint = '/api/v1/users/me/activity';
+    const endpoint = API_PATHS.users.activity;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'GET',
       cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
@@ -117,7 +118,7 @@ export const userService = {
    * @returns 사용자의 역할 문자열 ('PRE_REGISTER', 'USER', 'ADMIN' 등) 또는 인증되지 않은 경우 null
    */
   async getUserRole(): Promise<string | null> {
-    const endpoint = '/api/v1/users/me/role';
+    const endpoint = API_PATHS.users.role;
     try {
       const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
         method: 'GET',
@@ -147,7 +148,7 @@ export const userService = {
    * @returns 업로드된 이미지의 URL
    */
   async updateProfileImage(imageFile: File): Promise<string> {
-    const endpoint = '/api/v1/profile-images';
+    const endpoint = API_PATHS.users.profileImage;
 
     const formData = new FormData();
     formData.append('file', imageFile);
@@ -170,7 +171,7 @@ export const userService = {
    * @returns 업데이트된 사용자 프로필 데이터
    */
   async updateProfile(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
-    const endpoint = '/api/v1/users/me/update/profile';
+    const endpoint = API_PATHS.users.updateProfile;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'PUT',
       body: JSON.stringify(profileData),

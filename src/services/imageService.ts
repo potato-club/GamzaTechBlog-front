@@ -1,4 +1,5 @@
 import { API_CONFIG } from "@/config/api";
+import { API_PATHS } from "@/constants/apiPaths";
 import { fetchWithAuth } from "@/lib/api";
 import { ApiResponse } from "@/types/api";
 
@@ -16,7 +17,7 @@ export const imageService = {
    * @returns 업로드된 이미지 URL
    */
   async uploadImage(file: File): Promise<string> {
-    const endpoint = '/api/v1/posts/images';
+    const endpoint = API_PATHS.posts.images;
 
     try {
       const formData = new FormData();

@@ -1,5 +1,6 @@
 import { fetchWithAuth } from '@/lib/api';
 import { API_CONFIG } from '../config/api';
+import { API_PATHS } from '../constants/apiPaths';
 import { ApiResponse } from '../types/api';
 import { ApproveUserResponse, PendingUser, PendingUsersResponse } from '../types/user';
 
@@ -12,7 +13,7 @@ export class AdminApiError extends Error {
 
 export const adminService = {
   async getPendingUsers(): Promise<PendingUsersResponse> {
-    const endpoint = '/api/admin/users/pending';
+    const endpoint = API_PATHS.admin.pendingUsers;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       cache: 'no-cache',
     }) as Response;
@@ -31,7 +32,7 @@ export const adminService = {
   },
 
   async approveUser(userId: string): Promise<ApproveUserResponse> {
-    const endpoint = `/api/admin/users/${userId}/approve`;
+    const endpoint = API_PATHS.admin.approveUser(userId);
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'PUT',
     }) as Response;
@@ -49,3 +50,4 @@ export const adminService = {
     };
   },
 };
+

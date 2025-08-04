@@ -1,4 +1,5 @@
 import { API_CONFIG } from "../config/api";
+import { API_PATHS } from "../constants/apiPaths";
 import { fetchWithAuth } from "../lib/api";
 import { ApiResponse, PageableContent, PaginationParams } from "../types/api";
 import { CommentData, MyCommentData } from "../types/comment";
@@ -15,7 +16,7 @@ export class CommentServiceError extends Error {
 export const commentService = {
 
   async registerComment(postId: number, content: object): Promise<CommentData> {
-    const endpoint = `/api/v1/comment/${postId}/comments`;
+    const endpoint = API_PATHS.comments.byPostId(postId);
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST',
       headers: {
@@ -58,7 +59,7 @@ export const commentService = {
   // },
 
   async deleteComment(commentId: number): Promise<void> {
-    const endpoint = `/api/v1/comment/${commentId}`;
+    const endpoint = API_PATHS.comments.byId(commentId);
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'DELETE',
     }) as Response;
@@ -70,7 +71,7 @@ export const commentService = {
   },
 
   async getUserComments(params?: PaginationParams): Promise<PageableContent<MyCommentData>> {
-    const endpoint = `/api/v1/comment/me/comments`;
+    const endpoint = API_PATHS.comments.me;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
     if (params?.page !== undefined) url.searchParams.append('page', String(params.page));

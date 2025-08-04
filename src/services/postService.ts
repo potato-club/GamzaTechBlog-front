@@ -1,4 +1,5 @@
 import { API_CONFIG } from "../config/api";
+import { API_PATHS } from "../constants/apiPaths";
 import { fetchWithAuth } from "../lib/api";
 import { ApiResponse, PageableContent, PaginationParams } from "../types/api"; // PaginationParams 추가
 import { PostDetailData } from "../types/comment";
@@ -20,7 +21,7 @@ export const postService = {  /**
    * @param params - 페이지네이션, 정렬, 태그 필터링 옵션
    */
   async getPosts(params?: PaginationParams): Promise<PageableContent<PostData>> {
-    const endpoint = '/api/v1/posts';
+    const endpoint = API_PATHS.posts.base;
     let url = API_CONFIG.BASE_URL + endpoint;
 
     const queryParams = new URLSearchParams();
@@ -75,7 +76,7 @@ export const postService = {  /**
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    */
   async getPopularPosts(): Promise<PopularPostData[]> {
-    const endpoint = '/api/v1/posts/popular';
+    const endpoint = API_PATHS.posts.popular;
     const url = API_CONFIG.BASE_URL + endpoint;
 
     console.log("Requesting URL (getPopularPosts):", url);
@@ -112,7 +113,7 @@ export const postService = {  /**
    * @param params - 페이지네이션, 정렬 옵션
    */
   async getPostsByTag(tagName: string, params?: PaginationParams): Promise<PageableContent<PostData>> {
-    const endpoint = `/api/v1/posts/tags/${tagName}`;
+    const endpoint = API_PATHS.posts.byTag(tagName);
     let url = API_CONFIG.BASE_URL + endpoint;
 
     const queryParams = new URLSearchParams();
@@ -167,7 +168,7 @@ export const postService = {  /**
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    */
   async getTags(): Promise<string[]> {
-    const endpoint = '/api/v1/tags';
+    const endpoint = API_PATHS.tags.base;
     const url = API_CONFIG.BASE_URL + endpoint;
     try {
       const response = await fetch(url, {
@@ -198,7 +199,7 @@ export const postService = {  /**
    * @param postId - 조회할 게시글 ID
    */
   async getPostById(postId: number): Promise<PostDetailData> {
-    const endpoint = `/api/v1/posts/${postId}`;
+    const endpoint = API_PATHS.posts.byId(postId);
     const url = API_CONFIG.BASE_URL + endpoint;
 
     console.log("Requesting URL (getPostById):", url);
@@ -233,7 +234,7 @@ export const postService = {  /**
    * @param post - 생성할 게시글 데이터
    */
   async createPost(post: CreatePostRequest): Promise<CreatePostResponse> {
-    const endpoint = '/api/v1/posts';
+    const endpoint = API_PATHS.posts.base;
     const url = API_CONFIG.BASE_URL + endpoint;
 
     try {
@@ -265,7 +266,7 @@ export const postService = {  /**
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    * @param params - 페이지네이션, 정렬 옵션
    */  async getUserPosts(params?: PaginationParams): Promise<PageableContent<PostData>> {
-    const endpoint = '/api/v1/posts/me';
+    const endpoint = API_PATHS.posts.me;
     let url = API_CONFIG.BASE_URL + endpoint;
 
     const queryParams = new URLSearchParams();
@@ -297,7 +298,9 @@ export const postService = {  /**
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Failed to fetch user posts' }));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch user posts', endpoint);
+        throw new PostServiceError(response.status, errorData.이제 `postService.ts` 파일이 새로운 `apiPaths.ts` 상수를 사용하도록 수정되었습니다.
+
+다음으로, 다른 서비스 파일들도 확인하여 동일한 리팩토링을 적용하겠습니다. `src/services` 디렉토리의 파일 목록을 확인해 보겠습니다.message || 'Failed to fetch user posts', endpoint);
       }
 
       const apiResponse: ApiResponse<PageableContent<PostData>> = await response.json();
@@ -319,7 +322,7 @@ export const postService = {  /**
    * @param postId - 삭제할 게시글 ID
    */
   async deletePost(postId: number): Promise<void> {
-    const endpoint = `/api/v1/posts/${postId}`;
+    const endpoint = API_PATHS.posts.byId(postId);
     const url = API_CONFIG.BASE_URL + endpoint;
 
     try {
@@ -346,7 +349,7 @@ export const postService = {  /**
    * @param params - 페이지네이션, 정렬 옵션
    */
   async getUserLikes(params?: PaginationParams): Promise<PageableContent<LikedPostData>> {
-    const endpoint = `/api/v1/likes/me`;
+    const endpoint = API_PATHS.likes.me;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
     if (params?.page !== undefined) url.searchParams.append('page', String(params.page));
@@ -383,7 +386,7 @@ export const postService = {  /**
    * @param postData - 수정할 게시글 데이터
    */
   async updatePost(postId: number, postData: UpdatePostRequest): Promise<CreatePostResponse> {
-    const endpoint = `/api/v1/posts/${postId}`;
+    const endpoint = API_PATHS.posts.byId(postId);
 
     try {
       const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
@@ -417,7 +420,7 @@ export const postService = {  /**
    * @param params - 페이지네이션 옵션
    */
   async searchPosts(keyword: string, params?: PaginationParams): Promise<PageableContent<PostData>> {
-    const endpoint = '/api/v1/posts/search';
+    const endpoint = API_PATHS.posts.search;
     let url = API_CONFIG.BASE_URL + endpoint;
 
     const queryParams = new URLSearchParams();
