@@ -298,9 +298,7 @@ export const postService = {  /**
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Failed to fetch user posts' }));
-        throw new PostServiceError(response.status, errorData.이제 `postService.ts` 파일이 새로운 `apiPaths.ts` 상수를 사용하도록 수정되었습니다.
-
-다음으로, 다른 서비스 파일들도 확인하여 동일한 리팩토링을 적용하겠습니다. `src/services` 디렉토리의 파일 목록을 확인해 보겠습니다.message || 'Failed to fetch user posts', endpoint);
+        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch user posts', endpoint);
       }
 
       const apiResponse: ApiResponse<PageableContent<PostData>> = await response.json();
