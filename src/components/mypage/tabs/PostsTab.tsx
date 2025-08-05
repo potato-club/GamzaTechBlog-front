@@ -11,7 +11,6 @@ import ErrorDisplay from "@/components/mypage/shared/ErrorDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyPosts } from "@/hooks/queries/useMyPageQueries";
 import { usePagination } from "@/hooks/usePagination";
-import { PostData } from "@/types/post";
 
 export default function PostsTab() {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
@@ -73,7 +72,7 @@ export default function PostsTab() {
   // 게시글 목록 표시
   return (
     <div className="flex flex-col gap-8 mt-8">
-      {posts.map((post: PostData) => (
+      {posts.map((post) => (
         <PostCard
           key={post.postId}
           post={post}
