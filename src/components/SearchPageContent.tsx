@@ -19,7 +19,7 @@ export default function SearchPageContent() {
   const keyword = searchParams.get('q') || '';
 
   const { currentPage, currentPageForAPI, setPage } = usePagination();
-  const pageSize = 11;
+  const pageSize = 10;
 
   /**
    * 검색 결과를 가져옵니다.
