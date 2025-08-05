@@ -51,7 +51,7 @@ export default function MainPageContent() {
   }, []);
   const { selectedTag } = useTagContext();
   const { currentPage, currentPageForAPI, setPage } = usePagination();
-  const pageSize = 11;
+  const pageSize = 5;
 
   /**
    * TanStack Query로 게시글 목록을 가져옵니다.

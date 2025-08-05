@@ -7,7 +7,6 @@
  * TanStack Query를 통해 효율적으로 관리합니다.
  */
 
-import { createMockApiResponse, mockLikes, mockMyComments, mockPosts, shouldUseMockData } from "@/mock/mockData";
 import { postService } from "@/services/postService";
 import { PageableContent, PaginationParams } from "@/types/api";
 import { PostData } from "@/types/post";
@@ -27,20 +26,7 @@ export function useMyPosts(
 ) {
   return useQuery({
     queryKey: ["my-posts", params], // 캐시 키: 사용자의 게시글 목록
-    queryFn: () => {
-      // 목 데이터 사용 여부 확인
-      if (shouldUseMockData()) {
-        const mockResponse: PageableContent<PostData> = {
-          content: mockPosts,
-          page: params?.page || 0,
-          size: params?.size || 10,
-          totalElements: mockPosts.length,
-          totalPages: 1
-        };
-        return createMockApiResponse(mockResponse);
-      }
-      return postService.getUserPosts(params);
-    },
+    queryFn: () => postService.getUserPosts(params),
 
     staleTime: 1000 * 60 * 2, // 2분간 fresh 상태 유지 (사용자 데이터는 더 자주 갱신)
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
@@ -66,20 +52,7 @@ export function useMyComments(
 ) {
   return useQuery({
     queryKey: ["my-comments", params], // 캐시 키에 params 포함하여 페이지 변경 감지
-    queryFn: () => {
-      // 목 데이터 사용 여부 확인
-      if (shouldUseMockData()) {
-        const mockResponse = {
-          content: mockMyComments,
-          page: params?.page || 0,
-          size: params?.size || 10,
-          totalElements: mockMyComments.length,
-          totalPages: 1
-        };
-        return createMockApiResponse(mockResponse);
-      }
-      return commentService.getUserComments(params);
-    },
+    queryFn: () => commentService.getUserComments(params),
 
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
@@ -100,20 +73,7 @@ export function useMyComments(
 export function useMyLikes(params?: PaginationParams) {
   return useQuery({
     queryKey: ["my-likes", params], // 캐시 키: 사용자의 좋아요 목록
-    queryFn: () => {
-      // 목 데이터 사용 여부 확인
-      if (shouldUseMockData()) {
-        const mockResponse = {
-          content: mockLikes,
-          page: params?.page || 0,
-          size: params?.size || 10,
-          totalElements: mockLikes.length,
-          totalPages: 1
-        };
-        return createMockApiResponse(mockResponse);
-      }
-      return postService.getUserLikes(params);
-    },
+    queryFn: () => postService.getUserLikes(params),
 
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지

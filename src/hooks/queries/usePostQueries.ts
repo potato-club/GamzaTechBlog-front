@@ -8,7 +8,6 @@
  * TanStack Query의 클라이언트 캐싱을 활용합니다.
  */
 
-import { createMockApiResponse, mockPosts, shouldUseMockData } from '@/mock/mockData';
 import { postService } from '@/services/postService';
 import { PageableContent, PaginationParams } from '@/types/api';
 import { PostDetailData } from '@/types/comment';
@@ -61,20 +60,7 @@ export function usePosts(
 ) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.list(params),
-    queryFn: () => {
-      // 목 데이터 사용 여부 확인
-      if (shouldUseMockData()) {
-        const mockResponse: PageableContent<PostData> = {
-          content: mockPosts,
-          page: params?.page || 0,
-          size: params?.size || 10,
-          totalElements: mockPosts.length,
-          totalPages: 1
-        };
-        return createMockApiResponse(mockResponse);
-      }
-      return postService.getPosts(params);
-    },
+    queryFn: () => postService.getPosts(params),
 
     // placeholderData: 새로운 페이지 로딩 중에도 이전 데이터를 표시
     // 이렇게 하면 페이지 전환 시 깜빡임 없이 부드러운 UX를 제공합니다

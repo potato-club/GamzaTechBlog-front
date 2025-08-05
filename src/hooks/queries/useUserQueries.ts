@@ -16,7 +16,6 @@
  * - useWithdrawAccount: 계정 탈퇴 뮤테이션
  */
 
-import { createMockApiResponse, mockUserProfile, shouldUseMockData } from '@/mock/mockData';
 import { userService } from '@/services/userService';
 import { UserActivityStats, UserProfileData } from '@/types/user';
 import { useMutation, UseMutationOptions, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
@@ -47,13 +46,7 @@ export function useUserProfile(
 ) {
   return useQuery({
     queryKey: USER_QUERY_KEYS.profile(),
-    queryFn: () => {
-      // 목 데이터 사용 여부 확인
-      if (shouldUseMockData()) {
-        return createMockApiResponse(mockUserProfile);
-      }
-      return userService.getProfile();
-    },
+    queryFn: () => userService.getProfile(),
     staleTime: 1000 * 60 * 5, // 5분간 fresh 상태 유지
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
     retry: 2,
@@ -99,13 +92,7 @@ export function useUserRole(
 ) {
   return useQuery({
     queryKey: USER_QUERY_KEYS.role(),
-    queryFn: () => {
-      // 목 데이터 사용 여부 확인
-      if (shouldUseMockData()) {
-        return createMockApiResponse('USER'); // 일반 사용자 역할 반환
-      }
-      return userService.getUserRole();
-    },
+    queryFn: () => userService.getUserRole(),
     staleTime: 1000 * 60 * 10, // 10분간 fresh 상태 유지
     gcTime: 1000 * 60 * 30, // 30분간 캐시 유지
     retry: 2,
