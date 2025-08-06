@@ -1,26 +1,58 @@
-"use client";
+'use client';
 
 /**
  * 메인 페이지 콘텐츠 컴포넌트
- * 
+ *
  * TanStack Query를 사용하여 게시글과 태그 데이터를 효율적으로 관리합니다.
- * 서버 컴포넌트에서 클라이언트 컴포넌트로 변경하여 
+ * 서버 컴포넌트에서 클라이언트 컴포넌트로 변경하여
  * 실시간 데이터 업데이트와 캐싱의 이점을 활용합니다.
  */
 
-import { useTagContext } from "@/contexts/TagContext";
-import { usePosts, usePostsByTag } from "@/hooks/queries/usePostQueries";
-import { usePagination } from "@/hooks/usePagination";
-import Image from "next/image";
-import Link from "next/link";
-import CustomPagination from "./common/CustomPagination";
-import PostCard from "./features/posts/PostCard";
-import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
+import { PostResponse } from '@/generated/api';
+import { useTagStore } from '@/store/tagStore';
+import { usePosts, usePostsByTag } from '@/hooks/queries/usePostQueries';
+import { usePagination } from '@/hooks/usePagination';
+import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import CustomPagination from './common/CustomPagination';
+import PostCard from './features/posts/PostCard';
+import MainPageSidebar from './layout/sidebar/MainPageSidebar';
 
 export default function MainPageContent() {
-  const { selectedTag } = useTagContext();
+  // 랜덤 문장 배열
+  const blogDescriptions = [
+    "감자에서 시작되는 진짜 개발 이야기",
+    '뿌리부터 단단한 기술, 감자밭에서 캔 인사이트',
+    '우리 코드는 감자처럼 생겼지만... 돌아갑니다.',
+    '우리 얼굴은 감자처럼 생겼지만... 돌아갑니다.',
+  ];
+
+  // 랜덤 문장 상태
+  const [currentDescription, setCurrentDescription] = useState('');
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // 로고 클릭 핸들러
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (pathname === '/') {
+      // 메인 페이지에서 클릭 시 새로고침
+      window.location.reload();
+    } else {
+      // 다른 페이지에서 클릭 시 메인 페이지로 이동
+      router.push('/');
+    }
+  };
+
+  // 컴포넌트 마운트 시 랜덤 문장 설정
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * blogDescriptions.length);
+    setCurrentDescription(blogDescriptions[randomIndex]);
+  }, []);
+  const { selectedTag } = useTagStore();
   const { currentPage, currentPageForAPI, setPage } = usePagination();
-  const pageSize = 11;
+  const pageSize = 10;
 
   /**
    * TanStack Query로 게시글 목록을 가져옵니다.
@@ -29,21 +61,20 @@ export default function MainPageContent() {
   const {
     data: postResponse,
     isLoading: isLoadingPosts,
-    error: postsError
+    error: postsError,
   } = selectedTag
-      ? usePostsByTag(selectedTag, {
+    ? usePostsByTag(selectedTag, {
         page: currentPageForAPI,
         size: pageSize,
-        sort: ["createdAt,desc"],
+        sort: ['createdAt,desc'],
       })
-      : usePosts({
+    : usePosts({
         page: currentPageForAPI,
         size: pageSize,
-        sort: ["createdAt,desc"],
+        sort: ['createdAt,desc'],
       });
 
-
-  const posts = postResponse?.content || [];
+  const posts = (postResponse?.content as PostResponse[]) || [];
   const totalPages = postResponse?.totalPages || 0;
   const totalElements = postResponse?.totalElements || 0;
   // 페이지 변경 핸들러 (URL 기반)
@@ -56,7 +87,7 @@ export default function MainPageContent() {
     return (
       <div className="flex flex-col gap-30 mx-auto">
         <section className="text-center">
-          <Link href="/">
+          <div onClick={handleLogoClick} className="cursor-pointer inline-block">
             <Image
               src="/logo2.svg"
               alt="메인페이지 로고"
@@ -64,7 +95,7 @@ export default function MainPageContent() {
               height={230}
               className="mx-auto"
             />
-          </Link>
+          </div>
         </section>
 
         <div className="flex pb-10">
@@ -103,7 +134,7 @@ export default function MainPageContent() {
     return (
       <div className="flex flex-col gap-30 mx-auto">
         <section className="text-center">
-          <Link href="/">
+          <div onClick={handleLogoClick} className="cursor-pointer inline-block">
             <Image
               src="/logo2.svg"
               alt="메인페이지 로고"
@@ -111,7 +142,7 @@ export default function MainPageContent() {
               height={230}
               className="mx-auto"
             />
-          </Link>
+          </div>
         </section>
 
         <div className="flex pb-10 justify-center">
@@ -127,9 +158,9 @@ export default function MainPageContent() {
   }
 
   return (
-    <div className="flex flex-col gap-20 mx-auto">
-      <section className="text-center">
-        <Link href="/">
+    <div className="flex flex-col gap-12 mx-auto">
+      <section className="text-center mt-5">
+        <div onClick={handleLogoClick} className="cursor-pointer">
           <Image
             src="/logo2.svg"
             alt="메인페이지 로고"
@@ -137,7 +168,8 @@ export default function MainPageContent() {
             height={230}
             className="mx-auto"
           />
-        </Link>
+          <p className="text-2xl font-light mt-2">{currentDescription}</p>
+        </div>
       </section>
       <div className="flex pb-10">
         <main className="flex-3"> {/* 주요 콘텐츠 영역 */}
@@ -145,9 +177,9 @@ export default function MainPageContent() {
             <h2 className="text-2xl font-semibold">
               {selectedTag ? `#${selectedTag} 태그 게시글` : 'Posts'}
             </h2>
-            <p className="text-sm text-gray-500">
+            {/* <p className="text-sm text-gray-500">
               총 {totalElements}개의 게시글 (페이지 {currentPage} / {totalPages})
-            </p>
+            </p> */}
           </div>
 
           <div className="flex flex-col gap-8 mt-8">

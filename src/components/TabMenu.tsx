@@ -9,7 +9,7 @@ interface TabMenuProps {
 const TAB_LABELS = {
   posts: "작성 글",
   likes: "좋아요",
-  comments: "작성 댓글"
+  comments: "작성 댓글",
 } as const;
 
 export default function TabMenu({ tab, onTabChange }: TabMenuProps) {
@@ -19,18 +19,10 @@ export default function TabMenu({ tab, onTabChange }: TabMenuProps) {
 
   return (
     <div className="w-full">
-      <Tabs
-        value={tab}
-        onValueChange={handleValueChange}
-        className="w-full"
-      >
+      <Tabs value={tab} onValueChange={handleValueChange} className="w-full">
         <TabsList className="flex w-full border-b border-[#F2F4F6] bg-transparent p-0">
           {Object.entries(TAB_LABELS).map(([value, label]) => (
-            <TabsTrigger
-              key={value}
-              value={value}
-              id={`${value}-tab`}
-            >
+            <TabsTrigger key={value} value={value} id={`${value}-tab`}>
               {label}
             </TabsTrigger>
           ))}

@@ -1,10 +1,11 @@
-import Image from 'next/image';
+import TagBadge from "@/components/ui/TagBadge";
+import Image from "next/image";
 
 export default function PostMeta({
   author,
   profileImage,
   date,
-  tags = []
+  tags = [],
 }: {
   author: string;
   profileImage: string;
@@ -12,16 +13,16 @@ export default function PostMeta({
   tags?: string[];
 }) {
   return (
-    <div className="flex flex-col gap-2 mt-7 text-sm text-gray-500">
+    <div className="mt-7 flex flex-col gap-2 text-sm text-gray-500">
       <div className="flex items-center gap-3 text-xs">
         <span className="flex items-center gap-1 text-[#798191]">
-          <div className="w-6 h-6 rounded-full overflow-hidden mr-1">
+          <div className="mr-1 h-6 w-6 overflow-hidden rounded-full">
             <Image
               src={profileImage}
               alt={`${author}의 프로필 이미지`}
               width={24}
               height={24}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
             />
           </div>
           {author}
@@ -30,12 +31,12 @@ export default function PostMeta({
         <span className="text-[#B5BBC7]">{date}</span>
 
         {tags.slice(0, 2).map((tag, idx) => (
-          <span
+          <TagBadge
             key={idx}
-            className="bg-[#F2F4F6] rounded-2xl px-3 py-1.5 text-[#848484]"
-          >
-            # {tag}
-          </span>
+            tag={tag}
+            variant="gray"
+            className="border-none bg-[#F2F4F6] text-[#848484]"
+          />
         ))}
       </div>
     </div>

@@ -29,21 +29,9 @@ const eslintConfig = [
       prettier: prettierPlugin,
     },
     rules: {
-      "prettier/prettier": [
-        "error",
-        {
-          semi: true,
-          singleQuote: false,
-          printWidth: 100,
-          trailingComma: "es5",
-          tabWidth: 2,
-        },
-      ],
+      "prettier/prettier": "error",
       "react/react-in-jsx-scope": "off",
-      "react/jsx-filename-extension": [
-        1,
-        { extensions: [".js", ".jsx", ".ts", ".tsx"] },
-      ],
+      "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".ts", ".tsx"] }],
       "import/prefer-default-export": "off",
     },
   },

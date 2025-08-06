@@ -5,9 +5,9 @@ import PostCommentsSection from "@/components/features/posts/PostCommentsSection
 import PostHeader from "@/components/features/posts/PostHeader";
 import PostStats from "@/components/features/posts/PostStats";
 import { usePost } from "@/hooks/queries/usePostQueries";
-import { CommentData } from "@/types/comment";
-import { notFound, useParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { notFound, useParams } from "next/navigation";
+import { useMemo } from "react";
+import { CommentResponse } from "@/generated/api";
 
 export default function PostPage() {
   const params = useParams();
@@ -19,27 +19,21 @@ export default function PostPage() {
   }
 
   // usePost 훅을 사용하여 데이터 가져오기
-  const {
-    data: post,
-    isLoading,
-    error,
-    isFetching
-  } = usePost(postId);
+  const { data: post, isLoading, error, isFetching } = usePost(postId);
 
-  console.log('Post data:', post);
-  console.log('Loading states:', { isLoading, isFetching });
+  console.log("Post data:", post);
+  console.log("Loading states:", { isLoading, isFetching });
 
   // 댓글 데이터 변환 (메모이제이션으로 최적화)
-  const initialUiComments: CommentData[] = useMemo(() => {
+  const initialUiComments: CommentResponse[] = useMemo(() => {
     if (!post?.comments || !Array.isArray(post.comments)) return [];
 
-    return post.comments.map(comment => ({
-      commentId: comment.commentId,
-      writer: comment.writer,
-      writerProfileImageUrl: comment.writerProfileImageUrl,
-      content: comment.content,
-      createdAt: new Date(comment.createdAt).toLocaleDateString('ko-KR'),
-      replies: comment.replies || [],
+    return post.comments.map((comment) => ({
+      commentId: comment.commentId ?? 0,
+      writer: comment.writer ?? "",
+      writerProfileImageUrl: comment.writerProfileImageUrl ?? "",
+      content: comment.content ?? "",
+      createdAt: comment.createdAt ? new Date(comment.createdAt) : new Date(),
     }));
   }, [post?.comments]);
 
@@ -47,7 +41,7 @@ export default function PostPage() {
   if (isLoading) {
     return (
       <main className="mx-16 my-16">
-        <div className="flex justify-center items-center py-20">
+        <div className="flex items-center justify-center py-20">
           <div className="text-lg text-gray-600">게시글을 불러오는 중...</div>
         </div>
       </main>
@@ -60,7 +54,7 @@ export default function PostPage() {
       <main className="mx-16 my-16">
         <div className="container mx-auto py-10 text-center">
           <div className="text-red-600">게시물을 불러오는 중 오류가 발생했습니다.</div>
-          <div className="text-gray-500 mt-2">{error.message}</div>
+          <div className="mt-2 text-gray-500">{error.message}</div>
         </div>
       </main>
     );
@@ -73,9 +67,9 @@ export default function PostPage() {
 
   return (
     <main className="mx-16 my-16 max-w-full overflow-hidden">
-      <article className="border-b border-[#D5D9E3] py-8 max-w-full">
+      <article className="max-w-full border-b border-[#D5D9E3] py-8">
         <PostHeader post={post} postId={postId} />
-        <MarkdownViewer content={post.content} />
+        <MarkdownViewer content={post.content || ""} />
         {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
         <PostStats
           postId={postId}
@@ -84,10 +78,7 @@ export default function PostPage() {
         />
       </article>
 
-      <PostCommentsSection
-        postId={postId}
-        initialComments={initialUiComments}
-      />
+      <PostCommentsSection postId={postId} initialComments={initialUiComments} />
     </main>
   );
 }

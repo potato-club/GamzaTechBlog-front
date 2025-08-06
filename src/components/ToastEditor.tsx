@@ -30,11 +30,11 @@ const ToastEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialVa
 
       if (isPreviewVisible) {
         // 미리보기 숨기기: tab 모드로 변경하고 markdown 탭만 활성화
-        editor.changePreviewStyle('tab');
-        editor.changeMode('markdown');
+        editor.changePreviewStyle("tab");
+        editor.changeMode("markdown");
       } else {
         // 미리보기 보이기: vertical 모드로 변경
-        editor.changePreviewStyle('vertical');
+        editor.changePreviewStyle("vertical");
       }
       setIsPreviewVisible(!isPreviewVisible);
     },
@@ -42,11 +42,11 @@ const ToastEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialVa
 
   // CSS 스타일을 동적으로 추가/제거하는 함수
   useEffect(() => {
-    const styleId = 'toast-editor-custom-style';
+    const styleId = "toast-editor-custom-style";
     let styleElement = document.getElementById(styleId);
 
     if (!styleElement) {
-      styleElement = document.createElement('style');
+      styleElement = document.createElement("style");
       styleElement.id = styleId;
       document.head.appendChild(styleElement);
     }
@@ -58,7 +58,7 @@ const ToastEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialVa
         }
       `;
     } else {
-      styleElement.textContent = '';
+      styleElement.textContent = "";
     }
   }, [isPreviewVisible]);
 
@@ -66,12 +66,12 @@ const ToastEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialVa
     <Editor
       ref={editorRef}
       previewStyle="vertical"
-      height="500px"
+      height="600px"
       initialEditType="markdown"
       useCommandShortcut={true}
       initialValue={initialValue || ""}
       hooks={{
-        addImageBlobHook: uploadImageForEditor
+        addImageBlobHook: uploadImageForEditor,
       }}
     />
   );

@@ -7,17 +7,18 @@ export function useMyPageTab() {
   const searchParams = useSearchParams();
 
   const currentTab = useMemo(() => {
-    const tab = searchParams.get('tab');
-    return tab && VALID_TABS.includes(tab as TabType)
-      ? (tab as TabType)
-      : 'posts';
+    const tab = searchParams.get("tab");
+    return tab && VALID_TABS.includes(tab as TabType) ? (tab as TabType) : "posts";
   }, [searchParams]);
 
-  const handleTabChange = useCallback((newTab: TabType) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('tab', newTab);
-    router.push(`/mypage?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
+  const handleTabChange = useCallback(
+    (newTab: TabType) => {
+      const params = new URLSearchParams(searchParams);
+      params.set("tab", newTab);
+      router.push(`/mypage?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
 
   return {
     currentTab,

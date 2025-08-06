@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 type TagBadgeProps = {
   tag: string;
-  variant?: "filled" | "outline";
+  variant?: "filled" | "outline" | "gray";
   onClick?: (tag: string) => void;
   className?: string;
 };
@@ -18,14 +18,30 @@ export default function TagBadge({ tag, variant = "filled", onClick, className }
     }
   };
 
+  if (variant === "gray") {
+    // PostMeta에서 사용하는 회색 스타일
+    return (
+      <div
+        onClick={handleClick}
+        className={cn(
+          customClasses,
+          "inline-flex items-center justify-center border-none bg-[#F2F4F6] text-[#848484]",
+          onClick && "cursor-pointer",
+          className
+        )}
+      >
+        # {tag}
+      </div>
+    );
+  }
   if (variant === "outline") {
     return (
       <div
         onClick={handleClick}
         className={cn(
           customClasses,
-          "bg-[#FAA631] border border-[#FAA631] inline-flex items-center justify-center",
-          "hover:bg-[#FAA631]/90 transition-colors",
+          "inline-flex items-center justify-center border border-[#FAA631] bg-[#FAA631]",
+          "transition-colors hover:bg-[#FAA631]/90",
           onClick && "cursor-pointer",
           className
         )}
@@ -33,10 +49,10 @@ export default function TagBadge({ tag, variant = "filled", onClick, className }
         <span
           className="font-bold text-transparent"
           style={{
-            background: 'white',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
+            background: "white",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
           }}
         >
           # {tag}
@@ -49,8 +65,8 @@ export default function TagBadge({ tag, variant = "filled", onClick, className }
       onClick={handleClick}
       className={cn(
         customClasses,
-        "bg-transparent border border-[#FAA631] text-[#FAA631] inline-flex items-center justify-center",
-        "hover:bg-[#FAA631]/5 hover:text-[#FAA631] transition-colors",
+        "inline-flex items-center justify-center border border-[#FAA631] bg-transparent text-[#FAA631]",
+        "transition-colors hover:bg-[#FAA631]/5 hover:text-[#FAA631]",
         onClick && "cursor-pointer",
         className
       )}

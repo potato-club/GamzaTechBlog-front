@@ -1,6 +1,6 @@
 /**
  * 재사용 가능한 커스텀 페이지네이션 컴포넌트
- * 
+ *
  * shadcn/ui Pagination을 기반으로 한 고도화된 페이지네이션 컴포넌트입니다.
  * 다양한 페이지 수와 현재 페이지에 따라 스마트하게 페이지 번호를 표시합니다.
  */
@@ -70,7 +70,7 @@ export default function CustomPagination({
               onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
               className={
                 currentPage === 1
-                  ? "opacity-50 cursor-not-allowed"
+                  ? "cursor-not-allowed opacity-50"
                   : "cursor-pointer hover:bg-gray-100"
               }
             />
@@ -135,7 +135,7 @@ export default function CustomPagination({
               onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
               className={
                 currentPage >= totalPages
-                  ? "opacity-50 cursor-not-allowed"
+                  ? "cursor-not-allowed opacity-50"
                   : "cursor-pointer hover:bg-gray-100"
               }
             />
