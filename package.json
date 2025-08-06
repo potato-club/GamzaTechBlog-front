@@ -48,11 +48,12 @@
     "remark-math": "^6.0.0",
     "shadcn": "^2.6.3",
     "tailwind-merge": "^3.3.0",
-    "zod": "^3.25.64"
+    "zod": "^3.25.64",
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.13.4",
     "@eslint/eslintrc": "^3",
+    "@openapitools/openapi-generator-cli": "^2.13.4",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * 메인 페이지 콘텐츠 컴포넌트
@@ -8,27 +8,27 @@
  * 실시간 데이터 업데이트와 캐싱의 이점을 활용합니다.
  */
 
-import { useTagContext } from "@/contexts/TagContext";
-import { usePosts, usePostsByTag } from "@/hooks/queries/usePostQueries";
-import { usePagination } from "@/hooks/usePagination";
-import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import CustomPagination from "./common/CustomPagination";
-import PostCard from "./features/posts/PostCard";
-import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
+import { useTagStore } from '@/store/tagStore';
+import { usePosts, usePostsByTag } from '@/hooks/queries/usePostQueries';
+import { usePagination } from '@/hooks/usePagination';
+import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import CustomPagination from './common/CustomPagination';
+import PostCard from './features/posts/PostCard';
+import MainPageSidebar from './layout/sidebar/MainPageSidebar';
 
 export default function MainPageContent() {
   // 랜덤 문장 배열
   const blogDescriptions = [
-    "감자에서 시작되는 진짜 개발 이야기",
-    "뿌리부터 단단한 기술, 감자밭에서 캔 인사이트",
-    "우리 코드는 감자처럼 생겼지만... 돌아갑니다.",
-    "우리 얼굴은 감자처럼 생겼지만... 돌아갑니다."
+    '감자에서 시작되는 진짜 개발 이야기',
+    '뿌리부터 단단한 기술, 감자밭에서 캔 인사이트',
+    '우리 코드는 감자처럼 생겼지만... 돌아갑니다.',
+    '우리 얼굴은 감자처럼 생겼지만... 돌아갑니다.',
   ];
 
   // 랜덤 문장 상태
-  const [currentDescription, setCurrentDescription] = useState("");
+  const [currentDescription, setCurrentDescription] = useState('');
   const pathname = usePathname();
   const router = useRouter();
 
@@ -49,7 +49,7 @@ export default function MainPageContent() {
     const randomIndex = Math.floor(Math.random() * blogDescriptions.length);
     setCurrentDescription(blogDescriptions[randomIndex]);
   }, []);
-  const { selectedTag } = useTagContext();
+  const { selectedTag } = useTagStore();
   const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 10;
 
@@ -60,19 +60,18 @@ export default function MainPageContent() {
   const {
     data: postResponse,
     isLoading: isLoadingPosts,
-    error: postsError
+    error: postsError,
   } = selectedTag
-      ? usePostsByTag(selectedTag, {
+    ? usePostsByTag(selectedTag, {
         page: currentPageForAPI,
         size: pageSize,
-        sort: ["createdAt,desc"],
+        sort: ['createdAt,desc'],
       })
-      : usePosts({
+    : usePosts({
         page: currentPageForAPI,
         size: pageSize,
-        sort: ["createdAt,desc"],
+        sort: ['createdAt,desc'],
       });
-
 
   const posts = postResponse?.content || [];
   const totalPages = postResponse?.totalPages || 0;

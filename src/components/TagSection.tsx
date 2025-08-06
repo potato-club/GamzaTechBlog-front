@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * 태그 섹션 컴포넌트
@@ -7,12 +7,12 @@
  * 자동으로 관리하고 로딩/에러 상태를 처리합니다.
  */
 
-import { useTagContext } from "@/contexts/TagContext";
-import { useTags } from "@/hooks/queries/usePostQueries";
-import TagBadge from "./ui/TagBadge";
+import { useTagStore } from '@/store/tagStore';
+import { useTags } from '@/hooks/queries/usePostQueries';
+import TagBadge from './ui/TagBadge';
 
 export default function TagSection() {
-  const { selectedTag, setSelectedTag } = useTagContext();
+  const { selectedTag, setSelectedTag } = useTagStore();
 
   /**
    * TanStack Query를 사용하여 태그 목록을 가져옵니다.
@@ -35,8 +35,8 @@ export default function TagSection() {
     }
   };
 
-  console.log("태그 데이터:", tags);
-  console.log("선택된 태그:", selectedTag);
+  console.log('태그 데이터:', tags);
+  console.log('선택된 태그:', selectedTag);
 
   return (
     <section className="mt-20">
@@ -67,7 +67,7 @@ export default function TagSection() {
             <TagBadge
               key={idx}
               tag={tag}
-              variant={selectedTag === tag ? "outline" : "filled"}
+              variant={selectedTag === tag ? 'outline' : 'filled'}
               onClick={handleTagClick}
             />
           ))}
