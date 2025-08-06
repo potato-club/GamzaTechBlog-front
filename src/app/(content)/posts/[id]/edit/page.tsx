@@ -31,9 +31,6 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   // 기존 게시글 데이터 조회
   const { data: post, isLoading: isLoadingPost, error } = usePost(postId);
 
-  console.log("edit post data", post);
-  console.log("current user", userProfile);
-
   const updatePostMutation = useUpdatePost();
 
   const handleSubmit = async (data: PostFormData) => {
@@ -124,11 +121,11 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     <PostForm
       mode="edit"
       initialData={{
-        title: post.title,
-        content: post.content,
+        title: post.title || '',
+        content: post.content || '',
         tags: post.tags || []
       }}
-      onSubmit={handleSubmit}
+      onSubmitAction={handleSubmit}
       isLoading={updatePostMutation.isPending}
     />
   );

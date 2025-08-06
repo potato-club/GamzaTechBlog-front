@@ -27,14 +27,12 @@ export default function CommentsTab() {
   console.log("CommentsTab - commentsData:", commentsData);
 
   const totalPages = commentsData?.totalPages || 0;
-  const totalElements = commentsData?.totalElements || 0;
 
   const handlePageChange = (page: number) => {
     console.log("Page change requested:", page, "Current page:", currentPage);
     setPage(page); // usePagination 훅의 setPage 사용 (1부터 시작하는 페이지)
     console.log("New currentPage will be:", page);
   };
-
 
   // 로딩 상태
   if (isLoading) {
@@ -60,7 +58,7 @@ export default function CommentsTab() {
     );
   }
   // 데이터 표시
-  if (!commentsData || commentsData.content.length === 0) {
+  if (!commentsData || !commentsData.content || commentsData.content.length === 0) {
     return (
       <div className="text-center mt-12">
         <div className="text-gray-400 mb-4">
@@ -73,15 +71,16 @@ export default function CommentsTab() {
       </div>
     );
   }
+
   // 새로운 통합 CommentList 사용 - variant='my'로 내 댓글 모드
   return (
     <>
       <CommentList
-        comments={commentsData.content}
+        comments={commentsData.content as any[]} // PagedResponse의 content는 object[]이므로 타입 단언 사용
         variant="my"
         className="mt-6"
-      />      {/* 페이지네이션이 표시되는지 확인을 위한 로그 */}
-      {console.log("Pagination render check - totalPages:", totalPages, "currentPage:", currentPage)}
+      />
+      {/* 페이지네이션 */}
       {totalPages > 1 && (
         <CustomPagination
           currentPage={currentPage} // 이미 1부터 시작하는 값

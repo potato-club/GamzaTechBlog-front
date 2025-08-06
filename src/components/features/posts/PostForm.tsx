@@ -43,14 +43,14 @@ interface PostFormProps {
     content: string;
     tags: string[];
   };
-  onSubmit: (data: PostFormData) => Promise<void>;
+  onSubmitAction: (data: PostFormData) => Promise<void>;
   isLoading: boolean;
 }
 
 export default function PostForm({
   mode,
   initialData,
-  onSubmit,
+  onSubmitAction,
   isLoading
 }: PostFormProps) {
   const editorRef = useRef<ToastEditorHandle>(null);
@@ -86,7 +86,7 @@ export default function PostForm({
     }
 
     try {
-      await onSubmit({
+      await onSubmitAction({
         title: data.title,
         content: markdown,
         tags: tags,

@@ -48,9 +48,18 @@ export default function PopularPostList() {
       {/* 성공 상태: 인기 게시글 목록 표시 */}
       {posts && !isLoading && !error && (
         <>
-          {posts.map((post) => (
-            <PopularPost key={post.postId} postId={post.postId} title={post.title} author={post.writer} profileImage={post.writerProfileImageUrl} />
-          ))}
+          {posts
+            .filter((post) => post.postId && post.title && post.writer) // 필수 데이터가 있는 게시글만 필터링
+            .map((post) => (
+              <PopularPost
+                key={post.postId}
+                postId={post.postId!}
+                title={post.title!}
+                author={post.writer!}
+                profileImage={post.writerProfileImageUrl}
+              />
+            ))
+          }
         </>
       )}
 

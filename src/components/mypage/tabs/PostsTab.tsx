@@ -24,7 +24,6 @@ export default function PostsTab() {
 
   const posts = postsData?.content || [];
   const totalPages = postsData?.totalPages || 0;
-  const totalElements = postsData?.totalElements || 0;
 
   const handlePageChange = (page: number) => {
     setPage(page); // usePagination 훅의 setPage 사용
@@ -72,19 +71,20 @@ export default function PostsTab() {
   // 게시글 목록 표시
   return (
     <div className="flex flex-col gap-8 mt-8">
-      {posts.map((post) => (
+      {posts.map((post, index) => (
         <PostCard
-          key={post.postId}
-          post={post}
+          key={(post as any).postId || index}
+          post={post as any}
         />
       ))}
-      <CustomPagination
-        currentPage={currentPage} // 이미 1부터 시작하는 값
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        className="mt-12"
-      />
-
+      {totalPages > 1 && (
+        <CustomPagination
+          currentPage={currentPage} // 이미 1부터 시작하는 값
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          className="mt-12"
+        />
+      )}
     </div>
   );
 }

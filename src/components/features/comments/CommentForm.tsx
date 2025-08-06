@@ -11,13 +11,13 @@
 import { Button } from "@/components/ui/button";
 import { useCreateComment } from "@/hooks/queries/useCommentQueries";
 import { useAuth } from "@/hooks/queries/useUserQueries";
-import { CommentData } from "@/types/comment";
+import { CommentResponse } from "@/generated/api";
 import Image from 'next/image';
 import { FormEvent, useState } from "react";
 
 interface CommentFormProps {
   postId: number;
-  onCommentSubmitted?: (newComment: CommentData) => void; // 이제 선택사항 (TanStack Query가 자동 처리)
+  onCommentSubmitted?: (newComment: CommentResponse) => void; // 이제 선택사항 (TanStack Query가 자동 처리)
 }
 
 export default function CommentForm({ postId, onCommentSubmitted }: CommentFormProps) {

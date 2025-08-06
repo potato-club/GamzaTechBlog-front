@@ -24,7 +24,7 @@ import {
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 import { Position } from "@/enums/position";
-import { PositionKey, UserProfileData } from "@/types/user";
+import type { UpdateProfileRequest, UserProfileResponse } from "@/generated/api";
 import { Camera, UserIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -33,7 +33,7 @@ import { useUpdateProfile, useUpdateProfileImage, useWithdrawAccount } from "../
 import { cn } from "../../../lib/utils";
 
 interface ProfileEditDialogProps {
-  userProfile: UserProfileData;
+  userProfile: UserProfileResponse;
   // triggerButton?: React.ReactNode; // 외부에서 트리거 버튼을 주입하고 싶을 경우
 }
 
@@ -79,24 +79,22 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
   const withdrawAccountMutation = useWithdrawAccount();
 
   const handlePositionChange = (value: string) => {
-    setPosition(value as PositionKey);
+    setPosition(value);
   };
 
   const handleSaveChanges = async () => {
     try {
-      let profileImageUrl = userProfile.profileImageUrl;
       let hasChanges = false;
 
       // 1. 이미지 변경 확인 및 업로드
       if (selectedImage) {
         console.log('프로필 이미지 업로드 중...');
-        profileImageUrl = await updateProfileImageMutation.mutateAsync(selectedImage);
-        console.log('프로필 이미지 업로드 완료:', profileImageUrl);
+        // 이미지 업로드 API는 별도로 프로필 URL을 반환하지 않고, 성공 여부만 알려준다고 가정합니다.
+        // 성공 후, useAuth 훅을 통해 재검증(refetch)되어 이미지가 자동으로 업데이트됩니다.
+        await updateProfileImageMutation.mutateAsync(selectedImage);
+        console.log('프로필 이미지 업로드 완료');
         hasChanges = true;
       }
-
-      console.log("사진 변경 여부:", selectedImage);
-
 
       // 2. 프로필 정보 변경 확인
       const hasProfileDataChanged =
@@ -105,24 +103,18 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
         gamjaBatch !== (userProfile.gamjaBatch?.toString() || "") ||
         position !== (userProfile.position || "");
 
-      console.log('프로필 정보 변경 여부:', hasProfileDataChanged);
-
       // 3. 프로필 정보가 변경된 경우에만 업데이트 API 호출
       if (hasProfileDataChanged) {
-        const updatedData: Partial<UserProfileData> = {
+        const updatedData: UpdateProfileRequest = {
           email,
           studentNumber,
-          gamjaBatch: gamjaBatch ? parseInt(gamjaBatch, 10) : undefined,
-          position: position as PositionKey,
-          profileImageUrl // 이미지 URL도 함께 포함 (변경되었든 안되었든)
+          gamjaBatch: gamjaBatch ? parseInt(gamjaBatch, 10) : 0, // API 스키마에 따라 적절한 기본값 설정
+          position: position as UpdateProfileRequest['position'],
         };
 
         console.log('프로필 정보 업데이트 중...');
-        const updatedProfile = await updateProfileMutation.mutateAsync(updatedData);
-        console.log('프로필 정보 업데이트 완료:', updatedProfile);
-        hasChanges = true;
-      } else if (selectedImage) {
-        // 이미지만 변경된 경우에도 변경사항으로 처리
+        await updateProfileMutation.mutateAsync(updatedData);
+        console.log('프로필 정보 업데이트 완료');
         hasChanges = true;
       }
 
@@ -284,7 +276,7 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
               </Select>
             ) : (
               <div className="col-span-3 flex items-center px-6 h-12 text-base text-[#222]">
-                {position ? Position[position as PositionKey] : '직군이 설정되지 않았습니다.'}
+                {position ? Position[position as keyof typeof Position] : '직군이 설정되지 않았습니다.'}
               </div>
             )}
           </div>

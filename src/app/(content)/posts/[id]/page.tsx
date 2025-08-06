@@ -5,9 +5,9 @@ import PostCommentsSection from "@/components/features/posts/PostCommentsSection
 import PostHeader from "@/components/features/posts/PostHeader";
 import PostStats from "@/components/features/posts/PostStats";
 import { usePost } from "@/hooks/queries/usePostQueries";
-import { CommentData } from "@/types/comment";
 import { notFound, useParams } from 'next/navigation';
 import { useMemo } from 'react';
+import { CommentResponse } from "@/generated/api";
 
 export default function PostPage() {
   const params = useParams();
@@ -30,16 +30,15 @@ export default function PostPage() {
   console.log('Loading states:', { isLoading, isFetching });
 
   // 댓글 데이터 변환 (메모이제이션으로 최적화)
-  const initialUiComments: CommentData[] = useMemo(() => {
+  const initialUiComments: CommentResponse[] = useMemo(() => {
     if (!post?.comments || !Array.isArray(post.comments)) return [];
 
     return post.comments.map(comment => ({
-      commentId: comment.commentId,
-      writer: comment.writer,
-      writerProfileImageUrl: comment.writerProfileImageUrl,
-      content: comment.content,
-      createdAt: new Date(comment.createdAt).toLocaleDateString('ko-KR'),
-      replies: comment.replies || [],
+      commentId: comment.commentId ?? 0,
+      writer: comment.writer ?? '',
+      writerProfileImageUrl: comment.writerProfileImageUrl ?? '',
+      content: comment.content ?? '',
+      createdAt: comment.createdAt ? new Date(comment.createdAt) : new Date(),
     }));
   }, [post?.comments]);
 
@@ -75,7 +74,7 @@ export default function PostPage() {
     <main className="mx-16 my-16 max-w-full overflow-hidden">
       <article className="border-b border-[#D5D9E3] py-8 max-w-full">
         <PostHeader post={post} postId={postId} />
-        <MarkdownViewer content={post.content} />
+        <MarkdownViewer content={post.content || ''} />
         {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
         <PostStats
           postId={postId}

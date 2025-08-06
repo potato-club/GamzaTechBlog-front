@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import TagBadge from '@/components/ui/TagBadge';
 import { useAuth } from "@/hooks/queries/useUserQueries";
 import { cn } from "@/lib/utils";
-import { PostDetailData } from "@/types/comment";
+import { PostDetailResponse } from "@/generated/api";
 import Image from 'next/image';
 
 interface PostHeaderProps {
-  post: PostDetailData;
+  post: PostDetailResponse;
   postId: number;
 }
 
@@ -62,8 +62,8 @@ export default function PostHeader({ post, postId }: PostHeaderProps) {
             {post.writer}
           </span>
         </div>
-        <time dateTime={new Date(post.createdAt).toISOString().split("T")[0]} className="text-[#B5BBC7]">
-          {new Date(post.createdAt).toLocaleDateString('ko-KR')}
+        <time dateTime={post.createdAt ? new Date(post.createdAt).toISOString().split("T")[0] : undefined} className="text-[#B5BBC7]">
+          {post.createdAt ? new Date(post.createdAt).toLocaleDateString('ko-KR') : '날짜 없음'}
         </time>
 
         {/* 게시글 작성자인 경우에만 액션 드롭다운 표시 */}
@@ -76,7 +76,7 @@ export default function PostHeader({ post, postId }: PostHeaderProps) {
       </div>
 
       <ul className="flex gap-2 text-[14px]" role="list">
-        {post.tags.map((tag, index) => (
+        {post.tags?.map((tag, index) => (
           <li key={index}>
             <TagBadge tag={tag} variant="gray" />
           </li>

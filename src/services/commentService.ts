@@ -1,8 +1,7 @@
-import { API_CONFIG } from "../config/api";
-import { API_PATHS } from "../constants/apiPaths";
-import { fetchWithAuth } from "../lib/api";
-import { ApiResponse, PageableContent, PaginationParams } from "../types/api";
-import { CommentData, MyCommentData } from "../types/comment";
+import { API_CONFIG } from "@/config/api";
+import { API_PATHS } from "@/constants/apiPaths";
+import { fetchWithAuth } from "@/lib/api";
+import { ResponseDto, PagedResponse, Pageable, CommentResponse } from "@/generated/api";
 
 
 // --- 커스텀 에러 클래스 ---
@@ -15,7 +14,7 @@ export class CommentServiceError extends Error {
 
 export const commentService = {
 
-  async registerComment(postId: number, content: object): Promise<CommentData> {
+  async registerComment(postId: number, content: object): Promise<CommentResponse> {
     const endpoint = API_PATHS.comments.byPostId(postId);
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST',
@@ -29,11 +28,11 @@ export const commentService = {
       throw new Error('Failed to register comment');
     }
 
-    const apiResponse: ApiResponse<CommentData> = await response.json();
+    const apiResponse: ResponseDto = await response.json();
 
     console.log("apiResponse.data", apiResponse.data);
 
-    return apiResponse.data;
+    return apiResponse.data as CommentResponse;
   },
 
   // // editComment, 댓글 수정 api 작성
@@ -70,7 +69,7 @@ export const commentService = {
     }
   },
 
-  async getUserComments(params?: PaginationParams): Promise<PageableContent<MyCommentData>> {
+  async getUserComments(params?: Pageable): Promise<PagedResponse> {
     const endpoint = API_PATHS.comments.me;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
@@ -91,8 +90,8 @@ export const commentService = {
         throw new CommentServiceError(response.status, errorData.message || 'Failed to fetch user comments', endpoint);
       }
 
-      const apiResponse: ApiResponse<PageableContent<MyCommentData>> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PagedResponse;
     } catch (error) {
       if (error instanceof CommentServiceError) {
         throw error;

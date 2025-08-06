@@ -10,12 +10,12 @@
 
 import CommentList from "@/components/features/comments/CommentList";
 import { usePost } from "@/hooks/queries/usePostQueries";
-import { CommentData } from "@/types/comment";
+import { CommentResponse } from "@/generated/api";
 import CommentForm from "../comments/CommentForm";
 
 interface PostCommentsSectionProps {
   postId: number;
-  initialComments?: CommentData[]; // 이제 선택사항 (TanStack Query가 관리)
+  initialComments?: CommentResponse[]; // 이제 선택사항 (TanStack Query가 관리)
 }
 
 export default function PostCommentsSection({

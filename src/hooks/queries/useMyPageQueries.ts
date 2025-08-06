@@ -8,10 +8,9 @@
  */
 
 import { postService } from "@/services/postService";
-import { PageableContent, PaginationParams } from "@/types/api";
-import { PostData } from "@/types/post";
+import { PagedResponse, Pageable, PostResponse } from "@/generated/api";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { commentService } from "../../services/commentService";
+import { commentService } from "@/services/commentService";
 
 /**
  * 사용자가 작성한 게시글 목록을 조회하는 훅
@@ -21,8 +20,8 @@ import { commentService } from "../../services/commentService";
  * @param options - TanStack Query 옵션
  */
 export function useMyPosts(
-  params?: PaginationParams,
-  options?: Omit<UseQueryOptions<PageableContent<PostData>, Error>, 'queryKey' | 'queryFn'>
+  params?: Pageable,
+  options?: Omit<UseQueryOptions<PagedResponse, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
     queryKey: ["my-posts", params], // 캐시 키: 사용자의 게시글 목록
@@ -48,7 +47,7 @@ export function useMyPosts(
  * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
  */
 export function useMyComments(
-  params?: PaginationParams,
+  params?: Pageable,
 ) {
   return useQuery({
     queryKey: ["my-comments", params], // 캐시 키에 params 포함하여 페이지 변경 감지
@@ -70,7 +69,7 @@ export function useMyComments(
  * 
  * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
  */
-export function useMyLikes(params?: PaginationParams) {
+export function useMyLikes(params?: Pageable) {
   return useQuery({
     queryKey: ["my-likes", params], // 캐시 키: 사용자의 좋아요 목록
     queryFn: () => postService.getUserLikes(params),

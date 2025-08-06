@@ -2,7 +2,7 @@
 
 // TanStack Query 훅을 사용하여 사용자 활동 통계를 효율적으로 관리합니다
 import { useUserActivityStats } from "@/hooks/queries/useUserQueries";
-import type { UserProfileData } from "@/types/user";
+import type { UserProfileResponse } from "@/generated/api";
 import Image from "next/image";
 import ProfileEditDialog from "../../features/user/ProfileEditDialog";
 import UserActivityStatItem from "../../features/user/UserActivityStatItem";
@@ -10,7 +10,7 @@ import UserIcon from "../../ui/UserIcon";
 
 // Sidebar 컴포넌트 props 정의
 interface SidebarProps {
-  userProfile: UserProfileData; // 실제 사용자 프로필 데이터
+  userProfile: UserProfileResponse; // 실제 사용자 프로필 데이터
 }
 
 interface StatItem {

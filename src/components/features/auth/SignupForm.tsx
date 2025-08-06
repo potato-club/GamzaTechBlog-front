@@ -27,18 +27,18 @@ const inputStyle =
 
 interface SignupFormProps {
   form: UseFormReturn<SignupFormValues>;
-  onSubmit: (data: SignupFormValues) => void;
+  onSubmitAction: (data: SignupFormValues) => void;
   isValid: boolean;
 }
 
-export default function SignupForm({ form, onSubmit, isValid }: SignupFormProps) {
+export default function SignupForm({ form, onSubmitAction, isValid }: SignupFormProps) {
   const { handleSubmit, control } = form;
 
   return (
     <Form {...form}>
       <form
         className="w-[380px] max-w-md flex flex-col"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmitAction)}
         noValidate
         aria-label="회원가입 양식"
       >

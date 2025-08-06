@@ -29,7 +29,7 @@ export default function CreatePostPage() {
   return (
     <PostForm
       mode="create"
-      onSubmit={handleSubmit}
+      onSubmitAction={handleSubmit}
       isLoading={createPostMutation.isPending}
     />
   );

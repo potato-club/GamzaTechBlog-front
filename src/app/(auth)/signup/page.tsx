@@ -14,7 +14,7 @@ import {
   SignupFormValues,
   signupSchema,
 } from "@/lib/schemas/signupSchema";
-import type { UserProfileData } from "@/types/user";
+import type { UserProfileRequest } from "@/generated/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
@@ -56,11 +56,11 @@ export default function SignupPage() {
       Object.keys(Position) as Array<keyof typeof Position>
     ).find((key) => Position[key] === data.position);
 
-    const payload: Partial<UserProfileData> = {
+    const payload: UserProfileRequest = {
       email: data.email,
       studentNumber: data.studentNumber,
       gamjaBatch: data.gamjaBatch,
-      position: positionKey,
+      position: positionKey as UserProfileRequest['position'],
     };
 
     // TanStack Query 뮤테이션 실행
@@ -97,7 +97,7 @@ export default function SignupPage() {
 
       <section aria-label="회원가입">
         <h1 className="sr-only">회원가입</h1>
-        <SignupForm form={form} onSubmit={onSubmit} isValid={isValid} />
+        <SignupForm form={form} onSubmitAction={onSubmit} isValid={isValid} />
       </section>
     </main>
   );

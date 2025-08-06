@@ -1,7 +1,7 @@
 import { API_CONFIG } from "@/config/api";
 import { API_PATHS } from "@/constants/apiPaths";
 import { fetchWithAuth } from "@/lib/api";
-import { ApiResponse } from "@/types/api";
+import { ResponseDto } from "@/generated/api";
 
 export class ImageServiceError extends Error {
   constructor(public status: number, message: string, public endpoint?: string) {
@@ -40,8 +40,8 @@ export const imageService = {
         );
       }
 
-      const apiResponse: ApiResponse<string> = await response.json();
-      return apiResponse.data; // 업로드된 이미지 URL 반환
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as string; // 타입 단언을 사용하여 string으로 캐스팅
     } catch (error) {
       if (error instanceof ImageServiceError) {
         throw error;
