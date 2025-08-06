@@ -1,42 +1,9 @@
-import { Position } from "@/enums/position";
+/**
+ * OpenAPI Spec에 포함되지 않은 관리자 API 관련 타입들입니다.
+ * 추후 백엔드 API 명세가 업데이트되면 이 파일은 삭제될 수 있습니다.
+ */
 
-export type PositionKey = keyof typeof Position;
-
-export interface UserProfileData {
-  githubId?: string; // 회원가입 단계에서는 없을 수 있으므로 optional
-  nickname: string; // 회원가입 단계에서는 없을 수 있으므로 optional
-  name?: string; // 회원가입 단계에서는 없을 수 있으므로 optional
-  email?: string;
-  profileImageUrl?: string; // 회원가입 단계에서는 없을 수 있으므로 optional
-  role?: string; // 회원가입 단계에서는 없을 수 있으므로 optional
-  studentNumber?: string;
-  gamjaBatch?: number;
-  position?: PositionKey; // 백엔드에 전송될 때는 "BACKEND"와 같은 키 값
-  createdAt?: string; // 회원가입 단계에서는 없을 수 있으므로 optional
-  updatedAt?: string; // 회원가입 단계에서는 없을 수 있으므로 optional
-}
-
-// export interface UserProfile extends UserProfileData {
-//   githubId: string;
-//   nickname: string;
-//   name: string;  
-//   profileImageUrl: string;
-//   role: string;
-//   profileComplete: boolean;
-//   createdAt: string;
-//   updatedAt: string;
-// }
-
-export interface UserActivityStats {
-  likedPostCount: number;
-  writtenPostCount: number;
-  writtenCommentCount: number;
-}
-
-// 사용자 역할 타입
-export type UserPosition = 'BACKEND' | 'FRONTEND' | 'DESIGNER' | 'APP_DEVELOPER';
-// export type UserRole = 'USER' | 'ADMIN' | 'MODERATOR';
-
+// 가입 승인 대기중인 사용자 정보
 export interface PendingUser {
   userId: string;
   gamjaBatch: number;
@@ -45,7 +12,7 @@ export interface PendingUser {
   createdAt: string;
 }
 
-// Admin API 응답 타입들
+// 범용 관리자 API 응답 타입
 export interface AdminApiResponse {
   status: number;
   message: string;
@@ -53,6 +20,7 @@ export interface AdminApiResponse {
   timestamp: number;
 }
 
+// 사용자 승인 API 응답
 export interface ApproveUserResponse {
   status: number;
   message: string;
@@ -60,6 +28,7 @@ export interface ApproveUserResponse {
   timestamp: number;
 }
 
+// 승인 대기 사용자 목록 API 응답
 export interface PendingUsersResponse {
   status: number;
   message: string;

@@ -1,5 +1,5 @@
 import { fetchWithAuth } from '@/lib/api';
-import type { UserActivityStats, UserProfileData } from '@/types/user';
+import type { UpdateProfileRequest, UserActivityResponse, UserProfileRequest, UserProfileResponse } from '@/generated/api';
 import { API_CONFIG } from "../config/api";
 import { API_PATHS } from "../constants/apiPaths";
 import { ApiResponse } from "../types/api";
@@ -17,7 +17,7 @@ export const userService = {
    * 사용자 프로필 정보를 가져옵니다.
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    */
-  async getProfile(): Promise<UserProfileData> {
+  async getProfile(): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.profile;
 
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
@@ -26,7 +26,7 @@ export const userService = {
       throw new AuthError(response.status, 'Failed to get user profile', endpoint);
     }
 
-    const apiResponse: ApiResponse<UserProfileData> = await response.json();
+    const apiResponse: ApiResponse<UserProfileResponse> = await response.json();
     return apiResponse.data;
   },
 
@@ -49,7 +49,7 @@ export const userService = {
    * 회원가입 중 프로필 정보를 업데이트합니다.
    * POST 뮤테이션 작업이므로 캐싱하지 않습니다.
    */
-  async updateProfileInSignup(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
+  async updateProfileInSignup(profileData: UserProfileRequest): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.completeSignup;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST',
@@ -60,7 +60,7 @@ export const userService = {
       throw new AuthError(response.status, 'Failed to update profile in signup', endpoint);
     }
 
-    const apiResponse: ApiResponse<UserProfileData> = await response.json();
+    const apiResponse: ApiResponse<UserProfileResponse> = await response.json();
     return apiResponse.data;
   },
 
@@ -68,7 +68,7 @@ export const userService = {
    * 프로필 완성을 수행합니다.
    * POST 뮤테이션 작업이므로 캐싱하지 않습니다.
    */
-  async completeProfile(profileData: UserProfileData): Promise<UserProfileData> {
+  async completeProfile(profileData: UserProfileRequest): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.completeProfile;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'POST',
@@ -76,7 +76,7 @@ export const userService = {
     }) as Response; if (!response.ok) {
       throw new AuthError(response.status, 'Failed to complete profile', endpoint);
     }
-    const apiResponse: ApiResponse<UserProfileData> = await response.json();
+    const apiResponse: ApiResponse<UserProfileResponse> = await response.json();
     return apiResponse.data;
   },
 
@@ -99,7 +99,7 @@ export const userService = {
    * 사용자 활동 통계(작성 게시글 수, 댓글 수, 좋아요 수)를 가져옵니다.
    * TanStack Query에서 캐싱을 담당하므로 fetch 레벨에서는 캐싱하지 않습니다.
    */
-  async getActivityCounts(): Promise<UserActivityStats> {
+  async getActivityCounts(): Promise<UserActivityResponse> {
     const endpoint = API_PATHS.users.activity;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'GET',
@@ -108,7 +108,7 @@ export const userService = {
       throw new AuthError(response.status, 'Failed to get user activity stats', endpoint);
     }
 
-    const apiResponse: ApiResponse<UserActivityStats> = await response.json();
+    const apiResponse: ApiResponse<UserActivityResponse> = await response.json();
     return apiResponse.data;
   },
 
@@ -170,7 +170,7 @@ export const userService = {
    * @param profileData - 업데이트할 프로필 데이터
    * @returns 업데이트된 사용자 프로필 데이터
    */
-  async updateProfile(profileData: Partial<UserProfileData>): Promise<UserProfileData> {
+  async updateProfile(profileData: UpdateProfileRequest): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.updateProfile;
     const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: 'PUT',
@@ -181,7 +181,7 @@ export const userService = {
       throw new AuthError(response.status, 'Failed to update profile', endpoint);
     }
 
-    const apiResponse: ApiResponse<UserProfileData> = await response.json();
+    const apiResponse: ApiResponse<UserProfileResponse> = await response.json();
     return apiResponse.data;
   },
 
@@ -192,7 +192,7 @@ export const userService = {
  * [추천] 서버 컴포넌트/액션 등에서 사용할 현재 사용자 정보 조회 함수입니다.
  * TanStack Query 대신 직접 서비스를 호출하는 경우에 사용합니다.
  */
-export async function getCurrentUser(): Promise<UserProfileData | null> {
+export async function getCurrentUser(): Promise<UserProfileResponse | null> {
   try {
     // userService.getProfile이 내부적으로 fetchWithAuth를 사용하므로
     // 서버 환경에서도 인증 헤더가 자동으로 처리됩니다.

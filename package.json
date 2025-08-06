@@ -8,7 +8,8 @@
     "dev:https": "next dev -H app.gamzatech.site",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "gen:api": "openapi-generator-cli generate -i https://gamzatech.site/v3/api-docs/all -g typescript-fetch -o src/generated/api --additional-properties=typescriptThreePlus=true,useInterfaces=true"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -50,6 +51,7 @@
     "zod": "^3.25.64"
   },
   "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.13.4",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/postcss": "^4",
