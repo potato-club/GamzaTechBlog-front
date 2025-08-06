@@ -37,14 +37,14 @@ export default function PostCard({ post, searchKeyword }: { post: any; searchKey
 
       {/* 썸네일 및 옵션 영역 */}
       <div className="relative h-32 w-44">
-        {isMyPage && (
-          <button
-            aria-label="게시글 옵션 더보기"
-            className="absolute -top-1 right-3 z-10 p-1 hover:opacity-80"
-          >
-            <Image src="/dot3.svg" alt="더보기" width={18} height={4} />
-          </button>
-        )}
+        {/*{isMyPage && (*/}
+        {/*  <button*/}
+        {/*    aria-label="게시글 옵션 더보기"*/}
+        {/*    className="absolute -top-1 right-3 z-10 p-1 hover:opacity-80"*/}
+        {/*  >*/}
+        {/*    <Image src="/dot3.svg" alt="더보기" width={18} height={4} />*/}
+        {/*  </button>*/}
+        {/*)}*/}
         {post.thumbnailImageUrl ? (
           <Image
             src={post.thumbnailImageUrl}
