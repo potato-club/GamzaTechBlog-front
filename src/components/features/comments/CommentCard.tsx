@@ -11,6 +11,7 @@ import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
 import { useAuth } from "@/hooks/queries/useUserQueries";
 import { DropdownMenuList } from "@/components/common/DropdownMenuList";
+import Link from "next/link";
 
 interface CommentCardProps {
   comment: CommentResponse;
@@ -142,6 +143,12 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
           </time>
         </div>
       )}
+
+      <div className="mt-2 text-[12px] text-[#B5BBC7]">
+          <Link href={`/posts/${comment.postId}`} className="underline">
+            {comment.postTitle}
+          </Link>
+      </div>
     </div>
   );
 }

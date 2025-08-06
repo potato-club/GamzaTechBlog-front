@@ -21,7 +21,7 @@ export default function CommentList({
   className = "",
 }: CommentListProps) {
   const resolvedVariant = variant || (postId !== undefined ? "post" : "my");
-  const reversedComments = [...comments].reverse();
+  // const reversedComments = [...comments].reverse();
 
   if (!comments || comments.length === 0) {
     return (
@@ -37,7 +37,7 @@ export default function CommentList({
 
   return (
     <div className={`mt-8 flex flex-col gap-4 ${className}`}>
-      {reversedComments.map((comment) => (
+      {comments.map((comment) => (
         <CommentCard
           key={comment.commentId}
           comment={comment}
