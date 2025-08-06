@@ -32,7 +32,7 @@
     "highlight.js": "^11.11.1",
     "lucide-react": "^0.511.0",
     "marked": "^16.0.0",
-    "next": "15.3.1",
+    "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.57.0",
