@@ -2,29 +2,35 @@
  * TanStack Query를 사용한 사용자 관련 API 훅들
  */
 
-import { userService } from '@/services/userService';
+import { userService } from "@/services/userService";
 import type {
   UpdateProfileRequest,
   UserActivityResponse,
   UserProfileRequest,
   UserProfileResponse,
-} from '@/generated/api';
-import { useMutation, UseMutationOptions, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
-import { deleteCookie } from 'cookies-next';
+} from "@/generated/api";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from "@tanstack/react-query";
+import { deleteCookie } from "cookies-next";
 
 // Query Key 상수들
 export const USER_QUERY_KEYS = {
-  all: ['user'] as const,
-  profile: () => [...USER_QUERY_KEYS.all, 'profile'] as const,
-  activityStats: () => [...USER_QUERY_KEYS.all, 'activityStats'] as const,
-  role: () => [...USER_QUERY_KEYS.all, 'role'] as const,
+  all: ["user"] as const,
+  profile: () => [...USER_QUERY_KEYS.all, "profile"] as const,
+  activityStats: () => [...USER_QUERY_KEYS.all, "activityStats"] as const,
+  role: () => [...USER_QUERY_KEYS.all, "role"] as const,
 } as const;
 
 /**
  * 사용자 프로필 정보를 조회하는 훅
  */
 export function useUserProfile(
-  options?: Omit<UseQueryOptions<UserProfileResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<UserProfileResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: USER_QUERY_KEYS.profile(),
@@ -41,7 +47,7 @@ export function useUserProfile(
  * 사용자 활동 통계를 조회하는 훅
  */
 export function useUserActivityStats(
-  options?: Omit<UseQueryOptions<UserActivityResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<UserActivityResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: USER_QUERY_KEYS.activityStats(),
@@ -58,7 +64,7 @@ export function useUserActivityStats(
  * 사용자 역할을 조회하는 훅
  */
 export function useUserRole(
-  options?: Omit<UseQueryOptions<string | null, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<string | null, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: USER_QUERY_KEYS.role(),
@@ -80,15 +86,14 @@ export function useUpdateProfileInSignup(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (profileData: UserProfileRequest) =>
-      userService.updateProfileInSignup(profileData),
+    mutationFn: (profileData: UserProfileRequest) => userService.updateProfileInSignup(profileData),
     onSuccess: (updatedProfile, variables, context) => {
       queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
       queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
       options?.onSuccess?.(updatedProfile, variables, context);
     },
     onError: (error, variables, context) => {
-      console.error('프로필 업데이트 실패:', error);
+      console.error("프로필 업데이트 실패:", error);
       options?.onError?.(error, variables, context);
     },
     ...options,
@@ -98,21 +103,19 @@ export function useUpdateProfileInSignup(
 /**
  * 계정 탈퇴 뮤테이션 훅
  */
-export function useWithdrawAccount(
-  options?: UseMutationOptions<void, Error, void>
-) {
+export function useWithdrawAccount(options?: UseMutationOptions<void, Error, void>) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: () => userService.withdrawAccount(),
     onSuccess: (data, variables, context) => {
       queryClient.clear();
-      deleteCookie('authorization', { path: '/', domain: '.gamzatech.site' });
-      window.location.href = '/';
+      deleteCookie("authorization", { path: "/", domain: ".gamzatech.site" });
+      window.location.href = "/";
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
-      console.error('계정 탈퇴 실패:', error);
+      console.error("계정 탈퇴 실패:", error);
       options?.onError?.(error, variables, context);
     },
     ...options,
@@ -122,17 +125,15 @@ export function useWithdrawAccount(
 /**
  * 프로필 이미지를 업로드하는 뮤테이션 훅
  */
-export function useUpdateProfileImage(
-  options?: UseMutationOptions<string, Error, File>
-) {
+export function useUpdateProfileImage(options?: UseMutationOptions<string, Error, File>) {
   return useMutation({
     mutationFn: (imageFile: File) => userService.updateProfileImage(imageFile),
     onSuccess: (imageUrl, variables, context) => {
-      console.log('프로필 이미지 업로드 성공:', imageUrl);
+      console.log("프로필 이미지 업로드 성공:", imageUrl);
       options?.onSuccess?.(imageUrl, variables, context);
     },
     onError: (error, variables, context) => {
-      console.error('프로필 이미지 업로드 실패:', error);
+      console.error("프로필 이미지 업로드 실패:", error);
       options?.onError?.(error, variables, context);
     },
     ...options,
@@ -155,7 +156,7 @@ export function useUpdateProfile(
       options?.onSuccess?.(updatedProfile, variables, context);
     },
     onError: (error, variables, context) => {
-      console.error('프로필 업데이트 실패:', error);
+      console.error("프로필 업데이트 실패:", error);
       options?.onError?.(error, variables, context);
     },
     ...options,
@@ -172,10 +173,11 @@ export function useAuth() {
   const roleQuery = useUserRole();
 
   const isLoggedIn = roleQuery.data !== null && roleQuery.data !== undefined;
-  const needsProfileCompletion = roleQuery.data === 'PRE_REGISTER';
+  const needsProfileCompletion = roleQuery.data === "PRE_REGISTER";
   const userProfile = needsProfileCompletion ? null : profileQuery.data;
 
-  const isLoading = roleQuery.isLoading || (isLoggedIn && !needsProfileCompletion && profileQuery.isLoading);
+  const isLoading =
+    roleQuery.isLoading || (isLoggedIn && !needsProfileCompletion && profileQuery.isLoading);
 
   const login = (userData: UserProfileResponse, userRole: string) => {
     queryClient.setQueryData(USER_QUERY_KEYS.profile(), userData);
@@ -190,15 +192,12 @@ export function useAuth() {
     } finally {
       queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.profile() });
       queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.role() });
-      deleteCookie('authorization', { path: '/', domain: '.gamzatech.site' });
+      deleteCookie("authorization", { path: "/", domain: ".gamzatech.site" });
     }
   };
 
   const refetchAuthStatus = async () => {
-    const results = await Promise.allSettled([
-      roleQuery.refetch(),
-      profileQuery.refetch()
-    ]);
+    const results = await Promise.allSettled([roleQuery.refetch(), profileQuery.refetch()]);
     return results;
   };
 

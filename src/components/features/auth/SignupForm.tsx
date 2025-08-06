@@ -37,7 +37,7 @@ export default function SignupForm({ form, onSubmitAction, isValid }: SignupForm
   return (
     <Form {...form}>
       <form
-        className="w-[380px] max-w-md flex flex-col"
+        className="flex w-[380px] max-w-md flex-col"
         onSubmit={handleSubmit(onSubmitAction)}
         noValidate
         aria-label="회원가입 양식"
@@ -52,9 +52,7 @@ export default function SignupForm({ form, onSubmitAction, isValid }: SignupForm
               name={fieldInfo.id as keyof SignupFormValues}
               render={({ field }) => (
                 <FormItem className="flex items-center">
-                  <FormLabel className="text-[#B5BBC7] text-base w-25">
-                    {fieldInfo.label}
-                  </FormLabel>
+                  <FormLabel className="w-25 text-base text-[#B5BBC7]">{fieldInfo.label}</FormLabel>
                   <div className="w-full">
                     <FormControl>
                       {fieldInfo.type === "option" ? (
@@ -85,7 +83,7 @@ export default function SignupForm({ form, onSubmitAction, isValid }: SignupForm
                         />
                       )}
                     </FormControl>
-                    <FormMessage className="text-red-500 text-sm ml-2 mt-1" />
+                    <FormMessage className="mt-1 ml-2 text-sm text-red-500" />
                   </div>
                 </FormItem>
               )}
@@ -93,7 +91,7 @@ export default function SignupForm({ form, onSubmitAction, isValid }: SignupForm
           ))}
         </fieldset>
 
-        <fieldset className="flex flex-col mt-6">
+        <fieldset className="mt-6 flex flex-col">
           <legend className="sr-only">약관 동의</legend>
 
           <FormField
@@ -107,13 +105,13 @@ export default function SignupForm({ form, onSubmitAction, isValid }: SignupForm
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       id="privacy-agree1"
-                      className="w-4 h-4 data-[state=checked]:bg-[#20242B] data-[state=checked]:text-white mr-2"
+                      className="mr-2 h-4 w-4 data-[state=checked]:bg-[#20242B] data-[state=checked]:text-white"
                       aria-describedby="privacy-agree1-desc"
                     />
                   </FormControl>
                   <FormLabel
                     htmlFor="privacy-agree1"
-                    className="text-sm font-normal text-[#B5BBC7] cursor-pointer"
+                    className="cursor-pointer text-sm font-normal text-[#B5BBC7]"
                   >
                     <span className="text-[#6A7181]" aria-label="필수">
                       [필수]{" "}
@@ -121,7 +119,7 @@ export default function SignupForm({ form, onSubmitAction, isValid }: SignupForm
                     <span id="privacy-agree1-desc">이용약관 동의</span>
                   </FormLabel>
                 </div>
-                <FormMessage className="text-red-500 text-sm pl-6" />
+                <FormMessage className="pl-6 text-sm text-red-500" />
               </FormItem>
             )}
           />
@@ -137,23 +135,21 @@ export default function SignupForm({ form, onSubmitAction, isValid }: SignupForm
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       id="privacy-agree2"
-                      className="w-4 h-4 data-[state=checked]:bg-[#20242B] data-[state=checked]:text-white mr-2"
+                      className="mr-2 h-4 w-4 data-[state=checked]:bg-[#20242B] data-[state=checked]:text-white"
                       aria-describedby="privacy-agree2-desc"
                     />
                   </FormControl>
                   <FormLabel
                     htmlFor="privacy-agree2"
-                    className="text-sm font-normal text-[#B5BBC7] cursor-pointer"
+                    className="cursor-pointer text-sm font-normal text-[#B5BBC7]"
                   >
                     <span className="text-[#6A7181]" aria-label="필수">
                       [필수]{" "}
                     </span>
-                    <span id="privacy-agree2-desc">
-                      개인정보 수집 및 이용 동의
-                    </span>
+                    <span id="privacy-agree2-desc">개인정보 수집 및 이용 동의</span>
                   </FormLabel>
                 </div>
-                <FormMessage className="text-red-500 text-sm pl-6" />
+                <FormMessage className="pl-6 text-sm text-red-500" />
               </FormItem>
             )}
           />
@@ -162,7 +158,7 @@ export default function SignupForm({ form, onSubmitAction, isValid }: SignupForm
         <div className="mt-10">
           <Button
             type="submit"
-            className="w-full h-12 rounded-full bg-[#20242B] text-white text-base disabled:bg-[#F2F4F6] disabled:text-[#B5BBC7]"
+            className="h-12 w-full rounded-full bg-[#20242B] text-base text-white disabled:bg-[#F2F4F6] disabled:text-[#B5BBC7]"
             disabled={!isValid}
             aria-label="회원가입 완료"
           >

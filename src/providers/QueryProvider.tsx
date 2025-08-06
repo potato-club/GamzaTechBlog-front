@@ -1,6 +1,9 @@
 "use client";
 
-import { QueryClient, QueryClientProvider as TanstackQueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider as TanstackQueryClientProvider,
+} from "@tanstack/react-query";
 import React from "react";
 
 // QueryClient 인스턴스를 모듈 레벨에서 생성하여 export 합니다.
@@ -15,10 +18,6 @@ export const queryClient = new QueryClient({
   },
 });
 
-export default function QueryProvider({ children }: { children: React.ReactNode; }) {
-  return (
-    <TanstackQueryClientProvider client={queryClient}>
-      {children}
-    </TanstackQueryClientProvider>
-  );
+export default function QueryProvider({ children }: { children: React.ReactNode }) {
+  return <TanstackQueryClientProvider client={queryClient}>{children}</TanstackQueryClientProvider>;
 }

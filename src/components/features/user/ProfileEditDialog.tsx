@@ -21,7 +21,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { Position } from "@/enums/position";
 import type { UpdateProfileRequest, UserProfileResponse } from "@/generated/api";
@@ -29,7 +39,11 @@ import { Camera, UserIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useUpdateProfile, useUpdateProfileImage, useWithdrawAccount } from "../../../hooks/queries/useUserQueries";
+import {
+  useUpdateProfile,
+  useUpdateProfileImage,
+  useWithdrawAccount,
+} from "../../../hooks/queries/useUserQueries";
 import { cn } from "../../../lib/utils";
 
 interface ProfileEditDialogProps {
@@ -38,7 +52,6 @@ interface ProfileEditDialogProps {
 }
 
 export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProps) {
-
   console.log("ProfileEditDialog userProfile", userProfile);
 
   const router = useRouter();
@@ -53,7 +66,6 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(userProfile.profileImageUrl || null);
 
-
   // userProfile prop이 변경될 때 내부 상태 업데이트 (선택적)
   useEffect(() => {
     setEmail(userProfile.email || "");
@@ -67,7 +79,7 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
   // 컴포넌트 언마운트 시 메모리 누수 방지를 위한 cleanup
   useEffect(() => {
     return () => {
-      if (previewUrl && previewUrl.startsWith('blob:')) {
+      if (previewUrl && previewUrl.startsWith("blob:")) {
         URL.revokeObjectURL(previewUrl);
       }
     };
@@ -88,11 +100,11 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
 
       // 1. 이미지 변경 확인 및 업로드
       if (selectedImage) {
-        console.log('프로필 이미지 업로드 중...');
+        console.log("프로필 이미지 업로드 중...");
         // 이미지 업로드 API는 별도로 프로필 URL을 반환하지 않고, 성공 여부만 알려준다고 가정합니다.
         // 성공 후, useAuth 훅을 통해 재검증(refetch)되어 이미지가 자동으로 업데이트됩니다.
         await updateProfileImageMutation.mutateAsync(selectedImage);
-        console.log('프로필 이미지 업로드 완료');
+        console.log("프로필 이미지 업로드 완료");
         hasChanges = true;
       }
 
@@ -109,12 +121,12 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
           email,
           studentNumber,
           gamjaBatch: gamjaBatch ? parseInt(gamjaBatch, 10) : 0, // API 스키마에 따라 적절한 기본값 설정
-          position: position as UpdateProfileRequest['position'],
+          position: position as UpdateProfileRequest["position"],
         };
 
-        console.log('프로필 정보 업데이트 중...');
+        console.log("프로필 정보 업데이트 중...");
         await updateProfileMutation.mutateAsync(updatedData);
-        console.log('프로필 정보 업데이트 완료');
+        console.log("프로필 정보 업데이트 완료");
         hasChanges = true;
       }
 
@@ -123,21 +135,22 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
         setIsEditMode(false);
         setSelectedImage(null); // 선택된 이미지 초기화
 
-        const changeType = selectedImage && hasProfileDataChanged
-          ? '프로필 이미지와 정보가'
-          : selectedImage
-            ? '프로필 이미지가'
-            : '프로필 정보가';
+        const changeType =
+          selectedImage && hasProfileDataChanged
+            ? "프로필 이미지와 정보가"
+            : selectedImage
+              ? "프로필 이미지가"
+              : "프로필 정보가";
 
         alert(`${changeType} 성공적으로 업데이트되었습니다.`);
       } else {
         // 변경사항이 없는 경우
         setIsEditMode(false);
-        alert('변경된 내용이 없습니다.');
+        alert("변경된 내용이 없습니다.");
       }
     } catch (error) {
-      console.error('프로필 업데이트 실패:', error);
-      alert('프로필 업데이트에 실패했습니다. 다시 시도해주세요.');
+      console.error("프로필 업데이트 실패:", error);
+      alert("프로필 업데이트에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -158,13 +171,12 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
     withdrawAccountMutation.mutate();
   };
 
-
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
 
       // 이전 blob URL 정리 (메모리 누수 방지)
-      if (previewUrl && previewUrl.startsWith('blob:')) {
+      if (previewUrl && previewUrl.startsWith("blob:")) {
         URL.revokeObjectURL(previewUrl);
       }
 
@@ -185,19 +197,27 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? '프로필 수정' : '프로필 보기'}</DialogTitle>
+          <DialogTitle>{isEditMode ? "프로필 수정" : "프로필 보기"}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? '변경사항을 입력하고 완료 버튼을 눌러주세요.' : '프로필 정보를 확인하고 수정 버튼을 눌러 편집할 수 있습니다.'}
+            {isEditMode
+              ? "변경사항을 입력하고 완료 버튼을 눌러주세요."
+              : "프로필 정보를 확인하고 수정 버튼을 눌러 편집할 수 있습니다."}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6 py-4">
           {/* 프로필 이미지 수정 영역 */}
           <div className="flex flex-col items-center gap-2">
-            <div className={cn(
-              "relative w-24 h-24 rounded-full bg-gray-200 group",
-              isEditMode && "cursor-pointer"
-            )}
-              onClick={isEditMode ? () => document.getElementById('profileImageUploadModal')?.click() : undefined}>
+            <div
+              className={cn(
+                "group relative h-24 w-24 rounded-full bg-gray-200",
+                isEditMode && "cursor-pointer"
+              )}
+              onClick={
+                isEditMode
+                  ? () => document.getElementById("profileImageUploadModal")?.click()
+                  : undefined
+              }
+            >
               {/* 현재 프로필 이미지 또는 기본 이미지 표시 (previewUrl 사용) */}
               {previewUrl ? (
                 <Image
@@ -207,19 +227,23 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                   className="rounded-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-500 rounded-full">
-                  <UserIcon className="w-12 h-12" />
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-gray-300 text-gray-500">
+                  <UserIcon className="h-12 w-12" />
                 </div>
               )}
               {isEditMode && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
-                  <Camera className="text-white w-8 h-8" />
+                <div className="bg-opacity-30 absolute inset-0 flex items-center justify-center rounded-full bg-black opacity-0 transition-opacity group-hover:opacity-100">
+                  <Camera className="h-8 w-8 text-white" />
                 </div>
               )}
             </div>
             {isEditMode && (
               <>
-                <Button variant="ghost" size="sm" onClick={() => document.getElementById('profileImageUploadModal')?.click()}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => document.getElementById("profileImageUploadModal")?.click()}
+                >
                   이미지 변경
                 </Button>
                 <Input
@@ -235,7 +259,7 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
 
           {/* 이메일 */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="email-modal" className="text-right col-span-1">
+            <Label htmlFor="email-modal" className="col-span-1 text-right">
               이메일
             </Label>
             {isEditMode ? (
@@ -244,26 +268,23 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition"
+                className="col-span-3 flex h-12 w-full items-center rounded-full border border-[#F2F4F6] bg-transparent px-6 text-base text-[#222] transition outline-none placeholder:text-[#D9D9D9] focus:ring-2 focus:ring-[#20242B]/20"
                 placeholder="이메일을 입력하세요"
               />
             ) : (
-              <div className="col-span-3 flex items-center px-6 h-12 text-base text-[#222]">
-                {email || '이메일이 설정되지 않았습니다.'}
+              <div className="col-span-3 flex h-12 items-center px-6 text-base text-[#222]">
+                {email || "이메일이 설정되지 않았습니다."}
               </div>
             )}
           </div>
           {/* 직군 */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="position-modal" className="text-right col-span-1">
+            <Label htmlFor="position-modal" className="col-span-1 text-right">
               직군
             </Label>
             {isEditMode ? (
-              <Select
-                value={position}
-                onValueChange={handlePositionChange}
-              >
-                <SelectTrigger className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition">
+              <Select value={position} onValueChange={handlePositionChange}>
+                <SelectTrigger className="col-span-3 flex h-12 w-full items-center rounded-full border border-[#F2F4F6] bg-transparent px-6 text-base text-[#222] transition outline-none placeholder:text-[#D9D9D9] focus:ring-2 focus:ring-[#20242B]/20">
                   <SelectValue placeholder="직군을 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
@@ -275,14 +296,16 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                 </SelectContent>
               </Select>
             ) : (
-              <div className="col-span-3 flex items-center px-6 h-12 text-base text-[#222]">
-                {position ? Position[position as keyof typeof Position] : '직군이 설정되지 않았습니다.'}
+              <div className="col-span-3 flex h-12 items-center px-6 text-base text-[#222]">
+                {position
+                  ? Position[position as keyof typeof Position]
+                  : "직군이 설정되지 않았습니다."}
               </div>
             )}
           </div>
           {/* 학번 */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="studentNumber-modal" className="text-right col-span-1">
+            <Label htmlFor="studentNumber-modal" className="col-span-1 text-right">
               학번
             </Label>
             {isEditMode ? (
@@ -290,18 +313,18 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                 id="studentNumber-modal"
                 value={studentNumber}
                 onChange={(e) => setStudentNumber(e.target.value)}
-                className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition"
+                className="col-span-3 flex h-12 w-full items-center rounded-full border border-[#F2F4F6] bg-transparent px-6 text-base text-[#222] transition outline-none placeholder:text-[#D9D9D9] focus:ring-2 focus:ring-[#20242B]/20"
                 placeholder="학번을 입력하세요"
               />
             ) : (
-              <div className="col-span-3 flex items-center px-6 h-12 text-base text-[#222]">
-                {studentNumber || '학번이 설정되지 않았습니다.'}
+              <div className="col-span-3 flex h-12 items-center px-6 text-base text-[#222]">
+                {studentNumber || "학번이 설정되지 않았습니다."}
               </div>
             )}
           </div>
           {/* 감자 기수 */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="gamjaBatch-modal" className="text-right col-span-1">
+            <Label htmlFor="gamjaBatch-modal" className="col-span-1 text-right">
               감자 기수
             </Label>
             {isEditMode ? (
@@ -309,19 +332,19 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                 id="gamjaBatch-modal"
                 value={gamjaBatch}
                 onChange={(e) => setGamjaBatch(e.target.value)}
-                className="col-span-3 flex items-center rounded-full px-6 h-12 border border-[#F2F4F6] outline-none text-[#222] placeholder:text-[#D9D9D9] text-base bg-transparent w-full focus:ring-2 focus:ring-[#20242B]/20 transition"
+                className="col-span-3 flex h-12 w-full items-center rounded-full border border-[#F2F4F6] bg-transparent px-6 text-base text-[#222] transition outline-none placeholder:text-[#D9D9D9] focus:ring-2 focus:ring-[#20242B]/20"
                 placeholder="기수를 입력하세요"
                 type="number"
               />
             ) : (
-              <div className="col-span-3 flex items-center px-6 h-12 text-base text-[#222]">
-                {gamjaBatch ? `${gamjaBatch}기` : '감자 기수가 설정되지 않았습니다.'}
+              <div className="col-span-3 flex h-12 items-center px-6 text-base text-[#222]">
+                {gamjaBatch ? `${gamjaBatch}기` : "감자 기수가 설정되지 않았습니다."}
               </div>
             )}
           </div>
         </div>
         <DialogFooter>
-          <div className="flex justify-between w-full">
+          <div className="flex w-full justify-between">
             {/* 회원탈퇴 AlertDialog */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -338,14 +361,12 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                   <AlertDialogTitle>정말로 회원탈퇴를 하시겠습니까?</AlertDialogTitle>
                   <AlertDialogDescription className="space-y-2">
                     <p>회원탈퇴를 진행하면 다음과 같은 데이터가 영구적으로 삭제됩니다:</p>
-                    <ul className="list-disc list-inside text-sm space-y-1">
+                    <ul className="list-inside list-disc space-y-1 text-sm">
                       <li>프로필 정보 및 개인정보</li>
                       <li>작성한 모든 게시글과 댓글</li>
                       <li>좋아요 및 활동 기록</li>
                     </ul>
-                    <p className="font-semibold text-red-600">
-                      이 작업은 되돌릴 수 없습니다.
-                    </p>
+                    <p className="font-semibold text-red-600">이 작업은 되돌릴 수 없습니다.</p>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -355,7 +376,7 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                     disabled={isWithdrawing}
                     className={cn(
                       "bg-red-600 hover:bg-red-700 focus:ring-red-600",
-                      isWithdrawing && "opacity-50 cursor-not-allowed"
+                      isWithdrawing && "cursor-not-allowed opacity-50"
                     )}
                   >
                     {isWithdrawing ? "처리 중..." : "회원탈퇴"}
@@ -379,14 +400,15 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                   <Button
                     type="button"
                     onClick={handleSaveChanges}
-                    disabled={updateProfileImageMutation.isPending || updateProfileMutation.isPending}
+                    disabled={
+                      updateProfileImageMutation.isPending || updateProfileMutation.isPending
+                    }
                   >
                     {updateProfileImageMutation.isPending
-                      ? '이미지 업로드 중...'
+                      ? "이미지 업로드 중..."
                       : updateProfileMutation.isPending
-                        ? '프로필 업데이트 중...'
-                        : '완료'
-                    }
+                        ? "프로필 업데이트 중..."
+                        : "완료"}
                   </Button>
                 </>
               ) : (
@@ -400,7 +422,7 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
       </DialogContent>
     </Dialog>
   );
-};
+}
 
 // 임시 UserIcon (실제 아이콘 라이브러리 사용 권장, 또는 공유 유틸리티로 분리)
 // function UserIcon(props: React.SVGProps<SVGSVGElement>) { ... }

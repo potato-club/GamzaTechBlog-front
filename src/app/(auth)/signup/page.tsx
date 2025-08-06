@@ -2,7 +2,7 @@
 
 /**
  * 회원가입 페이지
- * 
+ *
  * TanStack Query의 useUpdateProfileInSignup 뮤테이션을 사용하여
  * 회원가입 프로필 업데이트를 효율적으로 처리합니다.
  */
@@ -10,10 +10,7 @@
 import SignupForm from "@/components/features/auth/SignupForm";
 import { Position } from "@/enums/position";
 import { useAuth, useUpdateProfileInSignup } from "@/hooks/queries/useUserQueries";
-import {
-  SignupFormValues,
-  signupSchema,
-} from "@/lib/schemas/signupSchema";
+import { SignupFormValues, signupSchema } from "@/lib/schemas/signupSchema";
 import type { UserProfileRequest } from "@/generated/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -27,7 +24,7 @@ export default function SignupPage() {
 
   /**
    * TanStack Query 뮤테이션을 사용한 회원가입 프로필 업데이트
-   * 
+   *
    * 이 훅의 장점:
    * - 자동 캐시 관리: 사용자 프로필 캐시 자동 업데이트
    * - 로딩 상태: isPending을 통한 폼 비활성화
@@ -52,15 +49,15 @@ export default function SignupPage() {
   const { isValid } = form.formState;
 
   const onSubmit = async (data: SignupFormValues) => {
-    const positionKey = (
-      Object.keys(Position) as Array<keyof typeof Position>
-    ).find((key) => Position[key] === data.position);
+    const positionKey = (Object.keys(Position) as Array<keyof typeof Position>).find(
+      (key) => Position[key] === data.position
+    );
 
     const payload: UserProfileRequest = {
       email: data.email,
       studentNumber: data.studentNumber,
       gamjaBatch: data.gamjaBatch,
-      position: positionKey as UserProfileRequest['position'],
+      position: positionKey as UserProfileRequest["position"],
     };
 
     // TanStack Query 뮤테이션 실행
@@ -72,7 +69,6 @@ export default function SignupPage() {
 
       // 성공 시 메인 페이지로 이동
       router.push("/");
-
     } catch (error) {
       // 에러는 TanStack Query의 onError에서 이미 처리됨
       // 추가 사용자 피드백이 필요하면 여기에 추가
@@ -82,16 +78,10 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center bg-white min-h-screen">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-white">
       <header className="mb-8">
         <Link href="/" aria-label="메인페이지로 이동">
-          <Image
-            src="/logo2.svg"
-            alt="Gamza Tech Blog 로고"
-            width={220}
-            height={180}
-            priority
-          />
+          <Image src="/logo2.svg" alt="Gamza Tech Blog 로고" width={220} height={180} priority />
         </Link>
       </header>
 

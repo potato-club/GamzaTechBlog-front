@@ -3,29 +3,31 @@ import { API_PATHS } from "@/constants/apiPaths";
 import { fetchWithAuth } from "@/lib/api";
 import { ResponseDto, PagedResponse, Pageable, CommentResponse } from "@/generated/api";
 
-
 // --- 커스텀 에러 클래스 ---
 export class CommentServiceError extends Error {
-  constructor(public status: number, message: string, public endpoint?: string) {
+  constructor(
+    public status: number,
+    message: string,
+    public endpoint?: string
+  ) {
     super(message);
-    this.name = 'CommentServiceError';
+    this.name = "CommentServiceError";
   }
 }
 
 export const commentService = {
-
   async registerComment(postId: number, content: object): Promise<CommentResponse> {
     const endpoint = API_PATHS.comments.byPostId(postId);
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'POST',
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(content),
-    }) as Response;
+    })) as Response;
 
     if (!response.ok) {
-      throw new Error('Failed to register comment');
+      throw new Error("Failed to register comment");
     }
 
     const apiResponse: ResponseDto = await response.json();
@@ -59,13 +61,19 @@ export const commentService = {
 
   async deleteComment(commentId: number): Promise<void> {
     const endpoint = API_PATHS.comments.byId(commentId);
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'DELETE',
-    }) as Response;
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "DELETE",
+    })) as Response;
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: `Failed to delete comment ${commentId}` }));
-      throw new CommentServiceError(response.status, errorData.message || `Failed to delete comment ${commentId}`, endpoint);
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: `Failed to delete comment ${commentId}` }));
+      throw new CommentServiceError(
+        response.status,
+        errorData.message || `Failed to delete comment ${commentId}`,
+        endpoint
+      );
     }
   },
 
@@ -73,21 +81,27 @@ export const commentService = {
     const endpoint = API_PATHS.comments.me;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
-    if (params?.page !== undefined) url.searchParams.append('page', String(params.page));
-    if (params?.size !== undefined) url.searchParams.append('size', String(params.size));
-    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append('sort', sort));
+    if (params?.page !== undefined) url.searchParams.append("page", String(params.page));
+    if (params?.size !== undefined) url.searchParams.append("size", String(params.size));
+    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append("sort", sort));
 
     try {
-      const response = await fetchWithAuth(url.toString(), {
-        method: 'GET',
+      const response = (await fetchWithAuth(url.toString(), {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-      }) as Response;
+      })) as Response;
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch user comments' }));
-        throw new CommentServiceError(response.status, errorData.message || 'Failed to fetch user comments', endpoint);
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: "Failed to fetch user comments" }));
+        throw new CommentServiceError(
+          response.status,
+          errorData.message || "Failed to fetch user comments",
+          endpoint
+        );
       }
 
       const apiResponse: ResponseDto = await response.json();
@@ -96,9 +110,11 @@ export const commentService = {
       if (error instanceof CommentServiceError) {
         throw error;
       }
-      throw new CommentServiceError(500, (error as Error).message || 'An unexpected error occurred while fetching user comments', endpoint);
+      throw new CommentServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred while fetching user comments",
+        endpoint
+      );
     }
   },
-
-
 };

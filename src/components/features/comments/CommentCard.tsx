@@ -33,16 +33,16 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
   const deleteCommentMutation = useDeleteComment(postId);
 
   const handleCommentEdit = () => {
-    if (deleteCommentMutation.isPending || typeof comment.commentId !== 'number') return;
+    if (deleteCommentMutation.isPending || typeof comment.commentId !== "number") return;
     // TODO: Implement edit functionality
     alert(`댓글 수정 기능 (ID: ${comment.commentId})`);
   };
 
   const handleCommentDelete = async () => {
-    if (deleteCommentMutation.isPending || typeof comment.commentId !== 'number') return;
+    if (deleteCommentMutation.isPending || typeof comment.commentId !== "number") return;
 
     const confirmDelete = window.confirm(
-      `'${(comment.content ?? '').substring(0, 30).trim()}${(comment.content ?? '').length > 30 ? "..." : ""}' 댓글을 정말 삭제하시겠습니까?`
+      `'${(comment.content ?? "").substring(0, 30).trim()}${(comment.content ?? "").length > 30 ? "..." : ""}' 댓글을 정말 삭제하시겠습니까?`
     );
     if (!confirmDelete) {
       return;
@@ -97,7 +97,7 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
   }
 
   return (
-    <div className="bg-[#FAFBFF] w-full rounded-xl px-6 py-5">
+    <div className="w-full rounded-xl bg-[#FAFBFF] px-6 py-5">
       <div className="relative">
         {isCurrentUserCommentOwner && commentDropdownItems.length > 0 && (
           <div className="absolute top-0 right-0">
@@ -112,36 +112,32 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
 
       {/* 사용자 프로필 정보 표시 */}
       {comment.writer && (
-        <div className="flex items-center gap-2 mt-1">
-          <div className="w-9 h-9 rounded-full overflow-hidden mr-2">
+        <div className="mt-1 flex items-center gap-2">
+          <div className="mr-2 h-9 w-9 overflow-hidden rounded-full">
             <Image
               src={comment.writerProfileImageUrl || "/profileSVG.svg"}
               alt={`${comment.writer}의 프로필 이미지`}
               width={36}
               height={36}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
             />
           </div>
-          <span className="text-[14px] font-medium text-[#1C222E]">
-            {comment.writer}
-          </span>
+          <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer}</span>
         </div>
       )}
 
-      <div className="mt-2 text-[14px] text-[#464C58]">
-        {comment.content}
-      </div>
+      <div className="mt-2 text-[14px] text-[#464C58]">{comment.content}</div>
 
       {comment.createdAt && (
         <div className="mt-2 text-[12px] text-[#B5BBC7]">
           <time dateTime={new Date(comment.createdAt).toISOString()}>
-            {new Date(comment.createdAt).toLocaleDateString('ko-KR', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
+            {new Date(comment.createdAt).toLocaleDateString("ko-KR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
             })}
           </time>
         </div>

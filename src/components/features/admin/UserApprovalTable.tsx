@@ -10,10 +10,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useApproveUser } from "@/hooks/queries/useAdminQueries";
-import { PendingUser } from "@/types/user";
+import { UserProfileResponse } from "@/generated/api";
 
 interface UserApprovalTableProps {
-  users: PendingUser[];
+  users: UserProfileResponse[];
 }
 
 export default function UserApprovalTable({ users }: UserApprovalTableProps) {
@@ -41,16 +41,16 @@ export default function UserApprovalTable({ users }: UserApprovalTableProps) {
       </TableHeader>
       <TableBody>
         {users.map((user) => (
-          <TableRow key={user.userId}>
-            <TableCell className="font-medium">{user.userId}</TableCell>
+          <TableRow key={user.githubId || user.email}>
+            <TableCell className="font-medium">{user.githubId || user.email}</TableCell>
             <TableCell>{user.gamjaBatch}</TableCell>
             <TableCell>{user.name}</TableCell>
             <TableCell>{user.position}</TableCell>
-            <TableCell className="text-right space-x-2">
+            <TableCell className="space-x-2 text-right">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleApprove(user.userId)}
+                onClick={() => handleApprove(user.githubId || user.email || "")}
                 disabled={approveUserMutation.isPending}
               >
                 {approveUserMutation.isPending ? "승인 중..." : "승인"}

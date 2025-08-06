@@ -1,19 +1,25 @@
 import { API_CONFIG } from "../config/api";
 import { API_PATHS } from "../constants/apiPaths";
 import {
+  Pageable,
+  PagedResponse,
   PostDetailResponse,
   PostPopularResponse,
   PostRequest,
   PostResponse,
+  ResponseDto,
 } from "@/generated/api";
 import { fetchWithAuth } from "../lib/api";
-import { ApiResponse, PageableContent, PaginationParams } from "../types/api";
 
 // --- 커스텀 에러 클래스 ---
 export class PostServiceError extends Error {
-  constructor(public status: number, message: string, public endpoint?: string) {
+  constructor(
+    public status: number,
+    message: string,
+    public endpoint?: string
+  ) {
     super(message);
-    this.name = 'PostServiceError';
+    this.name = "PostServiceError";
   }
 }
 
@@ -24,31 +30,39 @@ export const postService = {
   /**
    * 최신순 게시물 목록을 조회합니다.
    */
-  async getPosts(params?: PaginationParams): Promise<PageableContent<PostResponse>> {
+  async getPosts(params?: Pageable): Promise<PagedResponse> {
     const endpoint = API_PATHS.posts.base;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
-    if (params?.page !== undefined) url.searchParams.append('page', String(params.page));
-    if (params?.size !== undefined) url.searchParams.append('size', String(params.size));
-    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append('sort', sort));
+    if (params?.page !== undefined) url.searchParams.append("page", String(params.page));
+    if (params?.size !== undefined) url.searchParams.append("size", String(params.size));
+    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append("sort", sort));
 
     try {
       const response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        cache: 'no-cache',
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-cache",
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch posts', endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || "Failed to fetch posts",
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<PageableContent<PostResponse>> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PagedResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
@@ -61,52 +75,68 @@ export const postService = {
 
     try {
       const response = await fetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        cache: 'no-cache',
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-cache",
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch popular posts', endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || "Failed to fetch popular posts",
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<PostPopularResponse[]> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PostPopularResponse[];
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
   /**
    * 태그별 게시물 목록을 조회합니다.
    */
-  async getPostsByTag(tagName: string, params?: PaginationParams): Promise<PageableContent<PostResponse>> {
+  async getPostsByTag(tagName: string, params?: Pageable): Promise<PagedResponse> {
     const endpoint = API_PATHS.posts.byTag(tagName);
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
-    if (params?.page !== undefined) url.searchParams.append('page', String(params.page));
-    if (params?.size !== undefined) url.searchParams.append('size', String(params.size));
-    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append('sort', sort));
+    if (params?.page !== undefined) url.searchParams.append("page", String(params.page));
+    if (params?.size !== undefined) url.searchParams.append("size", String(params.size));
+    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append("sort", sort));
 
     try {
       const response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        cache: 'no-cache',
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-cache",
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch posts by tag', endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || "Failed to fetch posts by tag",
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<PageableContent<PostResponse>> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PagedResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
@@ -118,21 +148,29 @@ export const postService = {
     const url = API_CONFIG.BASE_URL + endpoint;
     try {
       const response = await fetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        cache: 'no-cache',
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-cache",
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch tags', endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || "Failed to fetch tags",
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<string[]> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as string[];
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
@@ -145,21 +183,29 @@ export const postService = {
 
     try {
       const response = await fetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        cache: 'no-cache',
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-cache",
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || `Failed to fetch post with id ${postId}`, endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || `Failed to fetch post with id ${postId}`,
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<PostDetailResponse> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PostDetailResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
@@ -171,51 +217,67 @@ export const postService = {
     const url = API_CONFIG.BASE_URL + endpoint;
 
     try {
-      const response = await fetchWithAuth(url, {
-        method: 'POST',
+      const response = (await fetchWithAuth(url, {
+        method: "POST",
         body: JSON.stringify(post),
-      }) as Response;
+      })) as Response;
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to create post', endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || "Failed to create post",
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<PostResponse> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PostResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
   /**
    * 사용자가 작성한 게시글 목록을 조회합니다.
    */
-  async getUserPosts(params?: PaginationParams): Promise<PageableContent<PostResponse>> {
+  async getUserPosts(params?: Pageable): Promise<PagedResponse> {
     const endpoint = API_PATHS.posts.me;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
-    if (params?.page !== undefined) url.searchParams.append('page', String(params.page));
-    if (params?.size !== undefined) url.searchParams.append('size', String(params.size));
-    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append('sort', sort));
+    if (params?.page !== undefined) url.searchParams.append("page", String(params.page));
+    if (params?.size !== undefined) url.searchParams.append("size", String(params.size));
+    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append("sort", sort));
 
     try {
-      const response = await fetchWithAuth(url.toString(), {
-        method: 'GET',
-        cache: 'no-cache',
-      }) as Response;
+      const response = (await fetchWithAuth(url.toString(), {
+        method: "GET",
+        cache: "no-cache",
+      })) as Response;
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch user posts', endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || "Failed to fetch user posts",
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<PageableContent<PostResponse>> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PagedResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
@@ -227,47 +289,63 @@ export const postService = {
     const url = API_CONFIG.BASE_URL + endpoint;
 
     try {
-      const response = await fetchWithAuth(url, {
-        method: 'DELETE',
-      }) as Response;
+      const response = (await fetchWithAuth(url, {
+        method: "DELETE",
+      })) as Response;
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || `Failed to delete post with id ${postId}`, endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || `Failed to delete post with id ${postId}`,
+          endpoint
+        );
       }
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
   /**
    * 사용자가 좋아요한 게시글 목록을 조회합니다.
    */
-  async getUserLikes(params?: PaginationParams): Promise<PageableContent<LikedPostResponse>> {
+  async getUserLikes(params?: Pageable): Promise<PagedResponse> {
     const endpoint = API_PATHS.likes.me;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
-    if (params?.page !== undefined) url.searchParams.append('page', String(params.page));
-    if (params?.size !== undefined) url.searchParams.append('size', String(params.size));
-    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append('sort', sort));
+    if (params?.page !== undefined) url.searchParams.append("page", String(params.page));
+    if (params?.size !== undefined) url.searchParams.append("size", String(params.size));
+    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append("sort", sort));
 
     try {
-      const response = await fetchWithAuth(url.toString(), {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }) as Response;
+      const response = (await fetchWithAuth(url.toString(), {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      })) as Response;
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to fetch user likes', endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || "Failed to fetch user likes",
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<PageableContent<LikedPostResponse>> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PagedResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
@@ -278,56 +356,71 @@ export const postService = {
     const endpoint = API_PATHS.posts.byId(postId);
 
     try {
-      const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(postData),
-        cache: 'no-store',
-      }) as Response;
+        cache: "no-store",
+      })) as Response;
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to update post', endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || "Failed to update post",
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<PostResponse> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PostResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
 
   /**
    * 게시글을 검색합니다.
    */
-  async searchPosts(keyword: string, params?: PaginationParams): Promise<PageableContent<PostResponse>> {
+  async searchPosts(keyword: string, params?: Pageable): Promise<PagedResponse> {
     const endpoint = API_PATHS.posts.search;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
-    url.searchParams.append('keyword', keyword);
+    url.searchParams.append("keyword", keyword);
 
-    if (params?.page !== undefined) url.searchParams.append('page', String(params.page));
-    if (params?.size !== undefined) url.searchParams.append('size', String(params.size));
-    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append('sort', sort));
+    if (params?.page !== undefined) url.searchParams.append("page", String(params.page));
+    if (params?.size !== undefined) url.searchParams.append("size", String(params.size));
+    if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append("sort", sort));
 
     try {
       const response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        cache: 'no-store',
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new PostServiceError(response.status, errorData.message || 'Failed to search posts', endpoint);
+        throw new PostServiceError(
+          response.status,
+          errorData.message || "Failed to search posts",
+          endpoint
+        );
       }
 
-      const apiResponse: ApiResponse<PageableContent<PostResponse>> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as PagedResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
-      throw new PostServiceError(500, (error as Error).message || 'An unexpected error occurred', endpoint);
+      throw new PostServiceError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
   },
-
 } as const;

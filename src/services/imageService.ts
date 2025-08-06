@@ -4,9 +4,13 @@ import { fetchWithAuth } from "@/lib/api";
 import { ResponseDto } from "@/generated/api";
 
 export class ImageServiceError extends Error {
-  constructor(public status: number, message: string, public endpoint?: string) {
+  constructor(
+    public status: number,
+    message: string,
+    public endpoint?: string
+  ) {
     super(message);
-    this.name = 'ImageServiceError';
+    this.name = "ImageServiceError";
   }
 }
 
@@ -21,21 +25,21 @@ export const imageService = {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
-      const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-        method: 'POST',
+      const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+        method: "POST",
         body: formData,
         // Content-Type은 FormData 사용 시 자동으로 설정되므로 설정하지 않음
-      }) as Response;
+      })) as Response;
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({
-          message: 'Failed to upload image'
+          message: "Failed to upload image",
         }));
         throw new ImageServiceError(
           response.status,
-          errorData.message || 'Failed to upload image',
+          errorData.message || "Failed to upload image",
           endpoint
         );
       }
@@ -48,9 +52,9 @@ export const imageService = {
       }
       throw new ImageServiceError(
         500,
-        (error as Error).message || 'An unexpected error occurred while uploading image',
+        (error as Error).message || "An unexpected error occurred while uploading image",
         endpoint
       );
     }
-  }
+  },
 } as const;

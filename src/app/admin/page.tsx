@@ -10,7 +10,11 @@ export default function AdminPage() {
   const { userProfile, isLoading: isAuthLoading } = useAuth();
 
   if (isAuthLoading) {
-    return <div className="container mx-auto py-10"><p>권한 확인 중...</p></div>;
+    return (
+      <div className="container mx-auto py-10">
+        <p>권한 확인 중...</p>
+      </div>
+    );
   }
 
   if (!userProfile || userProfile.role !== "ADMIN") {
@@ -36,19 +40,17 @@ export default function AdminPage() {
         <CardContent>
           {isLoading && <p>로딩 중...</p>}
           {isError && <p>에러: {error.message}</p>}
-          {users && (
-            users.data && users.data.length > 0 ? (
-              <UserApprovalTable users={users.data} />
+          {users &&
+            (users.length > 0 ? (
+              <UserApprovalTable users={users} />
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p className="text-lg mb-2">승인 대기중인 사용자가 없습니다.</p>
+              <div className="py-8 text-center text-gray-500">
+                <p className="mb-2 text-lg">승인 대기중인 사용자가 없습니다.</p>
                 <p className="text-sm">모든 사용자가 승인되었습니다.</p>
               </div>
-            )
-          )}
+            ))}
         </CardContent>
       </Card>
     </div>
   );
 }
-

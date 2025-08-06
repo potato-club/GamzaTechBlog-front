@@ -3,13 +3,14 @@
  */
 
 import {
+  Pageable,
+  PagedResponse,
   PostDetailResponse,
   PostPopularResponse,
   PostRequest,
   PostResponse,
-} from '@/generated/api';
-import { postService } from '@/services/postService';
-import { PageableContent, PaginationParams } from '@/types/api';
+} from "@/generated/api";
+import { postService } from "@/services/postService";
 import {
   keepPreviousData,
   useInfiniteQuery,
@@ -18,27 +19,27 @@ import {
   useQuery,
   useQueryClient,
   UseQueryOptions,
-} from '@tanstack/react-query';
+} from "@tanstack/react-query";
 
 // 게시글 관련 Query Key 팩토리
 export const POST_QUERY_KEYS = {
-  all: ['posts'] as const,
-  lists: () => [...POST_QUERY_KEYS.all, 'list'] as const,
-  list: (params?: PaginationParams) => [...POST_QUERY_KEYS.lists(), params] as const,
-  popular: () => [...POST_QUERY_KEYS.all, 'popular'] as const,
-  details: () => [...POST_QUERY_KEYS.all, 'detail'] as const,
+  all: ["posts"] as const,
+  lists: () => [...POST_QUERY_KEYS.all, "list"] as const,
+  list: (params?: Pageable) => [...POST_QUERY_KEYS.lists(), params] as const,
+  popular: () => [...POST_QUERY_KEYS.all, "popular"] as const,
+  details: () => [...POST_QUERY_KEYS.all, "detail"] as const,
   detail: (id: number) => [...POST_QUERY_KEYS.details(), id] as const,
-  tags: () => [...POST_QUERY_KEYS.all, 'tags'] as const,
-  postsByTag: (tagName: string, params?: PaginationParams) =>
-    [...POST_QUERY_KEYS.all, 'byTag', tagName, params] as const,
+  tags: () => [...POST_QUERY_KEYS.all, "tags"] as const,
+  postsByTag: (tagName: string, params?: Pageable) =>
+    [...POST_QUERY_KEYS.all, "byTag", tagName, params] as const,
 } as const;
 
 /**
  * 게시글 목록을 조회하는 훅 (페이지네이션)
  */
 export function usePosts(
-  params?: PaginationParams,
-  options?: Omit<UseQueryOptions<PageableContent<PostResponse>, Error>, 'queryKey' | 'queryFn'>
+  params?: Pageable,
+  options?: Omit<UseQueryOptions<PagedResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.list(params),
@@ -56,9 +57,11 @@ export function usePosts(
 export function useInfinitePosts(params?: { size?: number; sort?: string[] }) {
   return useInfiniteQuery({
     queryKey: [...POST_QUERY_KEYS.lists(), { ...params, infinite: true }],
-    queryFn: ({ pageParam = 0 }) =>
-      postService.getPosts({ ...params, page: pageParam }),
+    queryFn: ({ pageParam = 0 }) => postService.getPosts({ ...params, page: pageParam }),
     getNextPageParam: (lastPage) => {
+      if (lastPage.page === undefined || lastPage.totalPages === undefined) {
+        return undefined;
+      }
       return lastPage.page < lastPage.totalPages - 1 ? lastPage.page + 1 : undefined;
     },
     initialPageParam: 0,
@@ -71,7 +74,7 @@ export function useInfinitePosts(params?: { size?: number; sort?: string[] }) {
  */
 export function usePost(
   postId: number,
-  options?: Omit<UseQueryOptions<PostDetailResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<PostDetailResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.detail(postId),
@@ -85,7 +88,7 @@ export function usePost(
 /**
  * 사용 가능한 태그 목록을 조회하는 훅
  */
-export function useTags(options?: Omit<UseQueryOptions<string[], Error>, 'queryKey' | 'queryFn'>) {
+export function useTags(options?: Omit<UseQueryOptions<string[], Error>, "queryKey" | "queryFn">) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.tags(),
     queryFn: () => postService.getTags(),
@@ -104,16 +107,17 @@ export function useCreatePost(options?: UseMutationOptions<PostResponse, Error, 
     mutationFn: (postData: PostRequest) => postService.createPost(postData),
     onSuccess: (newPost, variables, context) => {
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
 
-      if (newPost.postId) {
-        const detailData: PostDetailResponse = {
-          ...newPost,
-          writer: newPost.authorGithubId,
-          comments: [],
-        };
-        queryClient.setQueryData(POST_QUERY_KEYS.detail(newPost.postId), detailData);
-      }
+      // TODO: PostDetailResponse 타입 구조가 PostResponse와 다를 수 있으므로 확인 필요
+      // if (newPost.postId) {
+      //   const detailData: PostDetailResponse = {
+      //     ...newPost,
+      //     writer: newPost.authorGithubId, // 이 부분 확인 필요
+      //     comments: [],
+      //   };
+      //   queryClient.setQueryData(POST_QUERY_KEYS.detail(newPost.postId), detailData);
+      // }
       options?.onSuccess?.(newPost, variables, context);
     },
     ...options,
@@ -134,7 +138,9 @@ export function useLikePost(postId: number) {
     },
     onMutate: async (isLiked: boolean) => {
       await queryClient.cancelQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      const previousPost = queryClient.getQueryData<PostDetailResponse>(POST_QUERY_KEYS.detail(postId));
+      const previousPost = queryClient.getQueryData<PostDetailResponse>(
+        POST_QUERY_KEYS.detail(postId)
+      );
 
       queryClient.setQueryData<PostDetailResponse | undefined>(
         POST_QUERY_KEYS.detail(postId),
@@ -156,7 +162,7 @@ export function useLikePost(postId: number) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      queryClient.invalidateQueries({ queryKey: ['my-likes'] });
+      queryClient.invalidateQueries({ queryKey: ["my-likes"] });
     },
   });
 }
@@ -172,7 +178,7 @@ export function useDeletePost(options?: UseMutationOptions<void, Error, number>)
     onSuccess: (data, postId, context) => {
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
       options?.onSuccess?.(data, postId, context);
     },
     ...options,
@@ -195,7 +201,7 @@ export function useUpdatePost(
         (old) => (old ? { ...old, ...updatedPost } : undefined)
       );
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
       options?.onSuccess?.(updatedPost, variables, context);
     },
     ...options,
@@ -206,7 +212,7 @@ export function useUpdatePost(
  * 인기 게시글 목록을 가져오는 훅
  */
 export function usePopularPosts(
-  options?: Omit<UseQueryOptions<PostPopularResponse[], Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<PostPopularResponse[], Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.popular(),
@@ -221,8 +227,8 @@ export function usePopularPosts(
  */
 export function usePostsByTag(
   tagName: string,
-  params?: PaginationParams,
-  options?: Omit<UseQueryOptions<PageableContent<PostResponse>, Error>, 'queryKey' | 'queryFn'>
+  params?: Pageable,
+  options?: Omit<UseQueryOptions<PagedResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.postsByTag(tagName, params),
@@ -239,11 +245,11 @@ export function usePostsByTag(
  */
 export function useSearchPosts(
   keyword: string,
-  params?: PaginationParams,
-  options?: Omit<UseQueryOptions<PageableContent<PostResponse>, Error>, 'queryKey' | 'queryFn'>
+  params?: Pageable,
+  options?: Omit<UseQueryOptions<PagedResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
-    queryKey: ['posts', 'search', keyword, params],
+    queryKey: ["posts", "search", keyword, params],
     queryFn: () => postService.searchPosts(keyword, params),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,

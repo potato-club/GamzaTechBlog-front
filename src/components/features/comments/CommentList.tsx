@@ -10,7 +10,7 @@ type MyComment = CommentResponse & {
 interface CommentListProps {
   comments: (CommentResponse | MyComment)[];
   postId?: number;
-  variant?: 'post' | 'my';
+  variant?: "post" | "my";
   className?: string;
 }
 
@@ -20,16 +20,16 @@ export default function CommentList({
   variant,
   className = "",
 }: CommentListProps) {
-  const resolvedVariant = variant || (postId !== undefined ? 'post' : 'my');
+  const resolvedVariant = variant || (postId !== undefined ? "post" : "my");
   const reversedComments = [...comments].reverse();
 
   if (!comments || comments.length === 0) {
     return (
       <div className="mt-8 text-center text-gray-500">
         <p>
-          {resolvedVariant === 'my'
-            ? '아직 작성한 댓글이 없어요. 다른 게시글에 댓글을 남겨보세요!'
-            : '아직 작성된 댓글이 없어요. 첫 댓글을 남겨주세요!'}
+          {resolvedVariant === "my"
+            ? "아직 작성한 댓글이 없어요. 다른 게시글에 댓글을 남겨보세요!"
+            : "아직 작성된 댓글이 없어요. 첫 댓글을 남겨주세요!"}
         </p>
       </div>
     );
@@ -42,7 +42,7 @@ export default function CommentList({
           key={comment.commentId}
           comment={comment}
           // 'post' variant일 경우 부모로부터 받은 postId를, 'my' variant일 경우 comment에 포함된 postId를 사용
-          postId={resolvedVariant === 'post' ? postId! : (comment as MyComment).postId!}
+          postId={resolvedVariant === "post" ? postId! : (comment as MyComment).postId!}
         />
       ))}
     </div>

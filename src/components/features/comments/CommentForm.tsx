@@ -2,9 +2,9 @@
 
 /**
  * 댓글 작성 폼 컴포넌트
- * 
+ *
  * TanStack Query의 useMutation을 사용하여 댓글 등록을 처리합니다.
- * Optimistic Update를 통해 서버 응답 전에 UI를 먼저 업데이트하여 
+ * Optimistic Update를 통해 서버 응답 전에 UI를 먼저 업데이트하여
  * 더 빠른 사용자 경험을 제공합니다.
  */
 
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useCreateComment } from "@/hooks/queries/useCommentQueries";
 import { useAuth } from "@/hooks/queries/useUserQueries";
 import { CommentResponse } from "@/generated/api";
-import Image from 'next/image';
+import Image from "next/image";
 import { FormEvent, useState } from "react";
 
 interface CommentFormProps {
@@ -26,7 +26,7 @@ export default function CommentForm({ postId, onCommentSubmitted }: CommentFormP
 
   /**
    * TanStack Query 뮤테이션을 사용한 댓글 등록
-   * 
+   *
    * 이 훅은 다음 기능들을 자동으로 제공합니다:
    * - Optimistic Update: 서버 응답 전에 UI 즉시 업데이트
    * - 에러 처리: 실패 시 이전 상태로 자동 롤백
@@ -57,11 +57,10 @@ export default function CommentForm({ postId, onCommentSubmitted }: CommentFormP
       if (onCommentSubmitted) {
         onCommentSubmitted(result);
       }
-
     } catch (error) {
       // 에러는 TanStack Query의 onError에서 이미 처리됨
       // 추가 사용자 피드백이 필요하면 여기에 추가
-      console.error('댓글 등록 중 오류:', error);
+      console.error("댓글 등록 중 오류:", error);
       alert("댓글 작성에 실패했습니다. 다시 시도해주세요.");
     }
   };
@@ -69,19 +68,19 @@ export default function CommentForm({ postId, onCommentSubmitted }: CommentFormP
   return (
     <form className="mt-4 flex flex-col gap-3" onSubmit={handleSubmit} aria-label="댓글 작성">
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-full overflow-hidden shrink-0">
+        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
           <Image
             src={userProfile?.profileImageUrl || "/profileSVG.svg"}
             alt="현재 사용자의 프로필 이미지"
             width={36}
             height={36}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
         </div>
         <textarea
           id="comment-input"
           placeholder="댓글을 남겨주세요."
-          className="border border-[#E7EEFE] rounded-xl w-full px-5 py-3.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#FAA631]/50 transition resize-none min-h-[80px]"
+          className="min-h-[80px] w-full resize-none rounded-xl border border-[#E7EEFE] px-5 py-3.5 text-sm text-gray-800 transition focus:ring-2 focus:ring-[#FAA631]/50 focus:outline-none"
           aria-required="true"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
@@ -91,7 +90,7 @@ export default function CommentForm({ postId, onCommentSubmitted }: CommentFormP
       <div className="flex justify-end">
         <Button
           type="submit"
-          className="rounded-[63px] bg-[#20242B] px-3 py-1.5 text-white hover:bg-[#1C222E] text-[12px]"
+          className="rounded-[63px] bg-[#20242B] px-3 py-1.5 text-[12px] text-white hover:bg-[#1C222E]"
           disabled={createCommentMutation.isPending} // TanStack Query 로딩 상태 사용
         >
           {createCommentMutation.isPending ? "등록 중..." : "등록"}

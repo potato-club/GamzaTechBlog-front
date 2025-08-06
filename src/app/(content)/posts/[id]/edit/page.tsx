@@ -2,7 +2,7 @@
 
 /**
  * 게시글 수정 페이지
- * 
+ *
  * 공통 PostForm 컴포넌트를 사용하여 게시글 수정 기능을 구현합니다.
  */
 
@@ -41,7 +41,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
         content: data.content,
         tags: data.tags,
         commitMessage: data.commitMessage,
-      }
+      },
     });
 
     // 성공 시 게시글 상세 페이지로 이동
@@ -51,7 +51,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   // 로딩 중 UI (인증 정보 또는 게시글 로딩 중)
   if (isLoadingAuth || isLoadingPost) {
     return (
-      <div className="mt-32 flex justify-center items-center min-h-[400px]">
+      <div className="mt-32 flex min-h-[400px] items-center justify-center">
         <div className="text-lg text-gray-600">
           {isLoadingAuth ? "사용자 정보를 확인하는 중..." : "게시글을 불러오는 중..."}
         </div>
@@ -62,11 +62,11 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   // 로그인하지 않은 경우
   if (!isLoggedIn || !userProfile) {
     return (
-      <div className="mt-32 flex flex-col justify-center items-center min-h-[400px] gap-4">
+      <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
         <div className="text-lg text-red-600">로그인이 필요합니다.</div>
         <button
-          onClick={() => router.push('/login')}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={() => router.push("/login")}
+          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
         >
           로그인하기
         </button>
@@ -77,11 +77,11 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   // 게시글 로딩 에러 또는 존재하지 않는 경우
   if (error || !post) {
     return (
-      <div className="mt-32 flex flex-col justify-center items-center min-h-[400px] gap-4">
+      <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
         <div className="text-lg text-red-600">게시글을 불러올 수 없습니다.</div>
         <button
           onClick={() => router.back()}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
         >
           뒤로 가기
         </button>
@@ -90,25 +90,26 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   }
 
   // 작성자 권한 확인 (GitHub ID 또는 닉네임으로 비교)
-  const isAuthor = userProfile.githubId === post.writer ||
+  const isAuthor =
+    userProfile.githubId === post.writer ||
     userProfile.nickname === post.writer ||
     userProfile.name === post.writer;
 
   if (!isAuthor) {
     return (
-      <div className="mt-32 flex flex-col justify-center items-center min-h-[400px] gap-4">
+      <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
         <div className="text-lg text-red-600">이 게시글을 수정할 권한이 없습니다.</div>
         <div className="text-sm text-gray-600">본인이 작성한 게시글만 수정할 수 있습니다.</div>
         <div className="flex gap-2">
           <button
             onClick={() => router.push(`/posts/${postId}`)}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
           >
             게시글 보기
           </button>
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
           >
             뒤로 가기
           </button>
@@ -121,9 +122,9 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     <PostForm
       mode="edit"
       initialData={{
-        title: post.title || '',
-        content: post.content || '',
-        tags: post.tags || []
+        title: post.title || "",
+        content: post.content || "",
+        tags: post.tags || [],
       }}
       onSubmitAction={handleSubmit}
       isLoading={updatePostMutation.isPending}

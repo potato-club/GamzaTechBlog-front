@@ -1,53 +1,72 @@
-import { fetchWithAuth } from '@/lib/api';
-import { API_CONFIG } from '../config/api';
-import { API_PATHS } from '../constants/apiPaths';
-import { ApiResponse } from '../types/api';
-import { ApproveUserResponse, PendingUser, PendingUsersResponse } from '../types/user';
+import { fetchWithAuth } from "@/lib/api";
+import { API_CONFIG } from "@/config/api";
+import { API_PATHS } from "@/constants/apiPaths";
+import { ResponseDto, UserProfileResponse } from "@/generated/api";
 
 export class AdminApiError extends Error {
-  constructor(public status: number, message: string, public endpoint?: string) {
+  constructor(
+    public status: number,
+    message: string,
+    public endpoint?: string
+  ) {
     super(message);
-    this.name = 'AdminApiError';
+    this.name = "AdminApiError";
   }
 }
 
 export const adminService = {
-  async getPendingUsers(): Promise<PendingUsersResponse> {
+  async getPendingUsers(): Promise<UserProfileResponse[]> {
     const endpoint = API_PATHS.admin.pendingUsers;
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      cache: 'no-cache',
-    }) as Response;
 
-    if (!response.ok) {
-      throw new AdminApiError(response.status, 'Failed to get pending users', endpoint);
+    try {
+      const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+        cache: "no-cache",
+      })) as Response;
+
+      if (!response.ok) {
+        throw new AdminApiError(response.status, "Failed to get pending users", endpoint);
+      }
+
+      const apiResponse: ResponseDto = await response.json();
+      return (apiResponse.data as UserProfileResponse[]) || [];
+    } catch (error) {
+      if (error instanceof AdminApiError) throw error;
+      throw new AdminApiError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
-
-    const apiResponse: ApiResponse<PendingUser[]> = await response.json();
-    return {
-      status: apiResponse.status || 200,
-      message: apiResponse.message || 'Pending users retrieved successfully',
-      data: apiResponse.data,
-      timestamp: Date.now()
-    };
   },
 
-  async approveUser(userId: string): Promise<ApproveUserResponse> {
+  async approveUser(userId: string): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.admin.approveUser(userId);
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'PUT',
-    }) as Response;
 
-    if (!response.ok) {
-      throw new AdminApiError(response.status, 'Failed to approve user', endpoint);
+    try {
+      const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+        method: "PUT",
+      })) as Response;
+
+      if (!response.ok) {
+        throw new AdminApiError(response.status, "Failed to approve user", endpoint);
+      }
+
+      const apiResponse: ResponseDto = await response.json();
+      if (!apiResponse.data) {
+        throw new AdminApiError(
+          response.status,
+          "Approve user response did not contain user data",
+          endpoint
+        );
+      }
+      return apiResponse.data as UserProfileResponse;
+    } catch (error) {
+      if (error instanceof AdminApiError) throw error;
+      throw new AdminApiError(
+        500,
+        (error as Error).message || "An unexpected error occurred",
+        endpoint
+      );
     }
-
-    const apiResponse: ApiResponse<object> = await response.json();
-    return {
-      status: apiResponse.status || 200,
-      message: apiResponse.message || 'User approved successfully',
-      data: apiResponse.data,
-      timestamp: Date.now()
-    };
   },
 };
-

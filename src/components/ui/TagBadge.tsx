@@ -25,7 +25,7 @@ export default function TagBadge({ tag, variant = "filled", onClick, className }
         onClick={handleClick}
         className={cn(
           customClasses,
-          "bg-[#F2F4F6] border-none text-[#848484] inline-flex items-center justify-center",
+          "inline-flex items-center justify-center border-none bg-[#F2F4F6] text-[#848484]",
           onClick && "cursor-pointer",
           className
         )}
@@ -40,8 +40,8 @@ export default function TagBadge({ tag, variant = "filled", onClick, className }
         onClick={handleClick}
         className={cn(
           customClasses,
-          "bg-[#FAA631] border border-[#FAA631] inline-flex items-center justify-center",
-          "hover:bg-[#FAA631]/90 transition-colors",
+          "inline-flex items-center justify-center border border-[#FAA631] bg-[#FAA631]",
+          "transition-colors hover:bg-[#FAA631]/90",
           onClick && "cursor-pointer",
           className
         )}
@@ -49,10 +49,10 @@ export default function TagBadge({ tag, variant = "filled", onClick, className }
         <span
           className="font-bold text-transparent"
           style={{
-            background: 'white',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
+            background: "white",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
           }}
         >
           # {tag}
@@ -65,8 +65,8 @@ export default function TagBadge({ tag, variant = "filled", onClick, className }
       onClick={handleClick}
       className={cn(
         customClasses,
-        "bg-transparent border border-[#FAA631] text-[#FAA631] inline-flex items-center justify-center",
-        "hover:bg-[#FAA631]/5 hover:text-[#FAA631] transition-colors",
+        "inline-flex items-center justify-center border border-[#FAA631] bg-transparent text-[#FAA631]",
+        "transition-colors hover:bg-[#FAA631]/5 hover:text-[#FAA631]",
         onClick && "cursor-pointer",
         className
       )}

@@ -1,14 +1,23 @@
-import { fetchWithAuth } from '@/lib/api';
-import type { UpdateProfileRequest, UserActivityResponse, UserProfileRequest, UserProfileResponse } from '@/generated/api';
+import { fetchWithAuth } from "@/lib/api";
+import type {
+  UpdateProfileRequest,
+  UserActivityResponse,
+  UserProfileRequest,
+  UserProfileResponse,
+  ResponseDto,
+} from "@/generated/api";
 import { API_CONFIG } from "../config/api";
 import { API_PATHS } from "../constants/apiPaths";
-import { ApiResponse } from "../types/api";
 
 // --- 커스텀 에러 클래스 (기존과 동일) ---
 export class AuthError extends Error {
-  constructor(public status: number, message: string, public endpoint?: string) {
+  constructor(
+    public status: number,
+    message: string,
+    public endpoint?: string
+  ) {
     super(message);
-    this.name = 'AuthError';
+    this.name = "AuthError";
   }
 }
 
@@ -20,14 +29,15 @@ export const userService = {
   async getProfile(): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.profile;
 
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
-    }) as Response; if (!response.ok) {
-      throw new AuthError(response.status, 'Failed to get user profile', endpoint);
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      cache: "no-cache", // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
+    })) as Response;
+    if (!response.ok) {
+      throw new AuthError(response.status, "Failed to get user profile", endpoint);
     }
 
-    const apiResponse: ApiResponse<UserProfileResponse> = await response.json();
-    return apiResponse.data;
+    const apiResponse: ResponseDto = await response.json();
+    return apiResponse.data as UserProfileResponse;
   },
 
   /**
@@ -36,12 +46,12 @@ export const userService = {
    */
   async logout(): Promise<void> {
     const endpoint = API_PATHS.users.logout;
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'POST'
-    }) as Response;
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "POST",
+    })) as Response;
 
     if (!response.ok) {
-      throw new AuthError(response.status, 'Failed to logout', endpoint);
+      throw new AuthError(response.status, "Failed to logout", endpoint);
     }
   },
 
@@ -51,17 +61,17 @@ export const userService = {
    */
   async updateProfileInSignup(profileData: UserProfileRequest): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.completeSignup;
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'POST',
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "POST",
       body: JSON.stringify(profileData),
-    }) as Response;
+    })) as Response;
 
     if (!response.ok) {
-      throw new AuthError(response.status, 'Failed to update profile in signup', endpoint);
+      throw new AuthError(response.status, "Failed to update profile in signup", endpoint);
     }
 
-    const apiResponse: ApiResponse<UserProfileResponse> = await response.json();
-    return apiResponse.data;
+    const apiResponse: ResponseDto = await response.json();
+    return apiResponse.data as UserProfileResponse;
   },
 
   /**
@@ -70,14 +80,15 @@ export const userService = {
    */
   async completeProfile(profileData: UserProfileRequest): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.completeProfile;
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'POST',
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "POST",
       body: JSON.stringify(profileData),
-    }) as Response; if (!response.ok) {
-      throw new AuthError(response.status, 'Failed to complete profile', endpoint);
+    })) as Response;
+    if (!response.ok) {
+      throw new AuthError(response.status, "Failed to complete profile", endpoint);
     }
-    const apiResponse: ApiResponse<UserProfileResponse> = await response.json();
-    return apiResponse.data;
+    const apiResponse: ResponseDto = await response.json();
+    return apiResponse.data as UserProfileResponse;
   },
 
   /**
@@ -86,12 +97,12 @@ export const userService = {
    */
   async withdrawAccount(): Promise<void> {
     const endpoint = API_PATHS.users.withdraw;
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'DELETE'
-    }) as Response;
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "DELETE",
+    })) as Response;
 
     if (!response.ok) {
-      throw new AuthError(response.status, 'Failed to withdraw account', endpoint);
+      throw new AuthError(response.status, "Failed to withdraw account", endpoint);
     }
   },
 
@@ -101,15 +112,16 @@ export const userService = {
    */
   async getActivityCounts(): Promise<UserActivityResponse> {
     const endpoint = API_PATHS.users.activity;
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'GET',
-      cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
-    }) as Response; if (!response.ok) {
-      throw new AuthError(response.status, 'Failed to get user activity stats', endpoint);
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "GET",
+      cache: "no-cache", // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
+    })) as Response;
+    if (!response.ok) {
+      throw new AuthError(response.status, "Failed to get user activity stats", endpoint);
     }
 
-    const apiResponse: ApiResponse<UserActivityResponse> = await response.json();
-    return apiResponse.data;
+    const apiResponse: ResponseDto = await response.json();
+    return apiResponse.data as UserActivityResponse;
   },
 
   /**
@@ -120,24 +132,24 @@ export const userService = {
   async getUserRole(): Promise<string | null> {
     const endpoint = API_PATHS.users.role;
     try {
-      const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-        method: 'GET',
-        cache: 'no-cache', // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
-      }) as Response;
+      const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+        method: "GET",
+        cache: "no-cache", // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
+      })) as Response;
 
       if (response.status === 401) {
         // 인증되지 않은 상태
         return null;
-      }      // 200 OK 외의 다른 에러 상태 코드 처리
+      } // 200 OK 외의 다른 에러 상태 코드 처리
       if (!response.ok) {
-        throw new AuthError(response.status, 'Failed to get user role', endpoint);
+        throw new AuthError(response.status, "Failed to get user role", endpoint);
       }
 
-      const apiResponse: ApiResponse<string> = await response.json();
-      return apiResponse.data;
+      const apiResponse: ResponseDto = await response.json();
+      return apiResponse.data as string;
     } catch (error) {
       // fetchWithAuth 자체에서 발생한 에러 (네트워크 등)
-      console.error('Error fetching user role:', error);
+      console.error("Error fetching user role:", error);
       throw error; // 에러를 다시 던져서 useQuery가 처리하도록 함
     }
   },
@@ -151,42 +163,40 @@ export const userService = {
     const endpoint = API_PATHS.users.profileImage;
 
     const formData = new FormData();
-    formData.append('file', imageFile);
+    formData.append("file", imageFile);
 
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'PUT',
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "PUT",
       body: formData,
       // Content-Type을 설정하지 않음 - 브라우저가 자동으로 multipart/form-data로 설정
-    }) as Response;
+    })) as Response;
 
     if (!response.ok) {
-      throw new AuthError(response.status, 'Failed to upload profile image', endpoint);
+      throw new AuthError(response.status, "Failed to upload profile image", endpoint);
     }
 
-    const apiResponse: ApiResponse<string> = await response.json();
-    return apiResponse.data;
-  },  /**
+    const apiResponse: ResponseDto = await response.json();
+    return apiResponse.data as string;
+  } /**
    * 사용자 프로필을 업데이트합니다.
    * @param profileData - 업데이트할 프로필 데이터
    * @returns 업데이트된 사용자 프로필 데이터
-   */
+   */,
   async updateProfile(profileData: UpdateProfileRequest): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.updateProfile;
-    const response = await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: 'PUT',
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "PUT",
       body: JSON.stringify(profileData),
-    }) as Response;
+    })) as Response;
 
     if (!response.ok) {
-      throw new AuthError(response.status, 'Failed to update profile', endpoint);
+      throw new AuthError(response.status, "Failed to update profile", endpoint);
     }
 
-    const apiResponse: ApiResponse<UserProfileResponse> = await response.json();
-    return apiResponse.data;
+    const apiResponse: ResponseDto = await response.json();
+    return apiResponse.data as UserProfileResponse;
   },
-
 } as const;
-
 
 /**
  * [추천] 서버 컴포넌트/액션 등에서 사용할 현재 사용자 정보 조회 함수입니다.
@@ -202,7 +212,7 @@ export async function getCurrentUser(): Promise<UserProfileResponse | null> {
     if (error instanceof AuthError && error.status === 401) {
       return null;
     }
-    console.error('Failed to get current user:', error);
+    console.error("Failed to get current user:", error);
     return null;
   }
 }
