@@ -17,10 +17,7 @@ import "katex/dist/katex.min.css";
 export default function MarkdownViewer({ content }: { content: string }) {
   // highlight.js 언어 등록 (필요시)
   useEffect(() => {
-    import("highlight.js/lib/common").then((hljs) => {
-      // 추가 언어가 필요한 경우 여기서 등록
-      // hljs.default.registerLanguage('특정언어', require('highlight.js/lib/languages/특정언어'));
-    });
+    import("highlight.js/lib/common");
   }, []);
 
   return (

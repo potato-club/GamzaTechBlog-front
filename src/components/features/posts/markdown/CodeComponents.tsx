@@ -1,6 +1,8 @@
+import type { ComponentProps } from "react";
+
 // 코드 관련 컴포넌트들
 
-export const MarkdownPre = ({ node, children, ...props }: any) => (
+export const MarkdownPre = ({ children, ...props }: ComponentProps<"pre">) => (
   <div className="relative my-4">
     <pre
       className="hljs overflow-x-auto rounded-md border border-[#d0d7de] bg-[#f6f8fa] p-4 text-sm leading-[1.45]" // hljs 클래스 추가로 highlight.js 스타일 적용
@@ -11,7 +13,7 @@ export const MarkdownPre = ({ node, children, ...props }: any) => (
   </div>
 );
 
-export const MarkdownCode = ({ node, className, children, ...props }: any) => {
+export const MarkdownCode = ({ className, children, ...props }: ComponentProps<"code">) => {
   const isInlineCode = !className?.includes("language-");
 
   if (isInlineCode) {

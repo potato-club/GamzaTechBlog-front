@@ -37,7 +37,6 @@ import { Position } from "@/enums/position";
 import type { UpdateProfileRequest, UserProfileResponse } from "@/generated/api";
 import { Camera, UserIcon } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   useUpdateProfile,
@@ -54,13 +53,10 @@ interface ProfileEditDialogProps {
 export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProps) {
   console.log("ProfileEditDialog userProfile", userProfile);
 
-  const router = useRouter();
-
   const [email, setEmail] = useState(userProfile.email || "");
   const [studentNumber, setStudentNumber] = useState(userProfile.studentNumber || "");
   const [gamjaBatch, setGamjaBatch] = useState(userProfile.gamjaBatch?.toString() || "");
   const [position, setPosition] = useState(userProfile.position || "");
-  const [isWithdrawing, setIsWithdrawing] = useState(false); // 회원탈퇴 로딩 상태
   const [isEditMode, setIsEditMode] = useState(false); // 수정 모드 상태
   // TODO: 이미지 파일 상태 및 미리보기 URL 상태 추가
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -351,9 +347,9 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                 <Button
                   variant="ghost"
                   className={cn("text-[#B5BBC7] underline")}
-                  disabled={isWithdrawing}
+                  disabled={withdrawAccountMutation.isPending}
                 >
-                  {isWithdrawing ? "처리 중..." : "회원탈퇴"}
+                  {withdrawAccountMutation.isPending ? "처리 중..." : "회원탈퇴"}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -373,13 +369,13 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
                   <AlertDialogCancel>취소</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleWithdrawAccount}
-                    disabled={isWithdrawing}
+                    disabled={withdrawAccountMutation.isPending}
                     className={cn(
                       "bg-red-600 hover:bg-red-700 focus:ring-red-600",
-                      isWithdrawing && "cursor-not-allowed opacity-50"
+                      withdrawAccountMutation.isPending && "cursor-not-allowed opacity-50"
                     )}
                   >
-                    {isWithdrawing ? "처리 중..." : "회원탈퇴"}
+                    {withdrawAccountMutation.isPending ? "처리 중..." : "회원탈퇴"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

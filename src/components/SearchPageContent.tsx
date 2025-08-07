@@ -7,7 +7,7 @@
  * 검색 기능을 추가합니다.
  */
 
-import { PostResponse } from "@/generated/api";
+import { PostListResponse } from "@/generated/api/models";
 import { useSearchPosts } from "@/hooks/queries/usePostQueries";
 import { usePagination } from "@/hooks/usePagination";
 import { useSearchParams } from "next/navigation";
@@ -35,9 +35,8 @@ export default function SearchPageContent() {
     sort: ["createdAt,desc"],
   });
 
-  const posts = (postResponse?.content as PostResponse[]) || [];
+  const posts: PostListResponse[] = postResponse?.content || [];
   const totalPages = postResponse?.totalPages || 0;
-  const totalElements = postResponse?.totalElements || 0;
 
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
@@ -55,7 +54,9 @@ export default function SearchPageContent() {
         <div className="flex pb-10">
           <main className="flex-3">
             <h2 className="text-2xl font-semibold">검색 결과</h2>
-            {keyword && <p className="mt-2 mb-6 text-gray-600">\"{keyword}\"에 대한 검색 결과</p>}
+            {keyword && (
+              <p className="mt-2 mb-6 text-gray-600">&quot;{keyword}&quot;에 대한 검색 결과</p>
+            )}
             {/* 게시글 로딩 스켈레톤 */}
             <div className="mt-8 flex flex-col gap-8">
               {[...Array(3)].map((_, index) => (
@@ -131,7 +132,7 @@ export default function SearchPageContent() {
               ))
             ) : keyword ? (
               <div className="py-16 text-center text-gray-500">
-                <p className="mb-2 text-lg">\"{keyword}\"에 대한 검색 결과가 없습니다</p>
+                <p className="mb-2 text-lg">&quot;{keyword}&quot;에 대한 검색 결과가 없습니다</p>
                 <p className="text-sm">다른 키워드로 검색해보세요.</p>
               </div>
             ) : (

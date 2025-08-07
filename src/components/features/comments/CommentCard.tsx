@@ -13,8 +13,14 @@ import { useAuth } from "@/hooks/queries/useUserQueries";
 import { DropdownMenuList } from "@/components/common/DropdownMenuList";
 import Link from "next/link";
 
+// MyComment 타입 정의 (CommentList와 동일)
+type MyComment = CommentResponse & {
+  postTitle?: string;
+  postId?: number;
+};
+
 interface CommentCardProps {
-  comment: CommentResponse;
+  comment: CommentResponse | MyComment;
   postId: number; // TanStack Query 뮤테이션에 필요
 }
 
@@ -144,11 +150,14 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
         </div>
       )}
 
-      <div className="mt-2 text-[12px] text-[#B5BBC7]">
-          <Link href={`/posts/${comment.postId}`} className="underline">
-            {comment.postTitle}
+      {/* 포스트 제목이 있는 경우에만 포스트 링크 표시 (마이페이지 댓글 목록에서 사용) */}
+      {(comment as MyComment).postTitle && (comment as MyComment).postId && (
+        <div className="mt-2 text-[12px] text-[#B5BBC7]">
+          <Link href={`/posts/${(comment as MyComment).postId}`} className="underline">
+            {(comment as MyComment).postTitle}
           </Link>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

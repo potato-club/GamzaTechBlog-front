@@ -1,7 +1,7 @@
-import { fetchWithAuth } from "@/lib/api";
 import { API_CONFIG } from "@/config/api";
 import { API_PATHS } from "@/constants/apiPaths";
-import { ResponseDto, UserProfileResponse } from "@/generated/api";
+import { PendingUserResponse, ResponseDtoListPendingUserResponse } from "@/generated/api/models";
+import { fetchWithAuth } from "@/lib/api";
 
 export class AdminApiError extends Error {
   constructor(
@@ -15,7 +15,7 @@ export class AdminApiError extends Error {
 }
 
 export const adminService = {
-  async getPendingUsers(): Promise<UserProfileResponse[]> {
+  async getPendingUsers(): Promise<PendingUserResponse[]> {
     const endpoint = API_PATHS.admin.pendingUsers;
 
     try {
@@ -27,8 +27,8 @@ export const adminService = {
         throw new AdminApiError(response.status, "Failed to get pending users", endpoint);
       }
 
-      const apiResponse: ResponseDto = await response.json();
-      return (apiResponse.data as UserProfileResponse[]) || [];
+      const apiResponse: ResponseDtoListPendingUserResponse = await response.json();
+      return (apiResponse.data as PendingUserResponse[]) || [];
     } catch (error) {
       if (error instanceof AdminApiError) throw error;
       throw new AdminApiError(
@@ -39,7 +39,7 @@ export const adminService = {
     }
   },
 
-  async approveUser(userId: string): Promise<UserProfileResponse> {
+  async approveUser(userId: number): Promise<void> {
     const endpoint = API_PATHS.admin.approveUser(userId);
 
     try {
@@ -50,16 +50,6 @@ export const adminService = {
       if (!response.ok) {
         throw new AdminApiError(response.status, "Failed to approve user", endpoint);
       }
-
-      const apiResponse: ResponseDto = await response.json();
-      if (!apiResponse.data) {
-        throw new AdminApiError(
-          response.status,
-          "Approve user response did not contain user data",
-          endpoint
-        );
-      }
-      return apiResponse.data as UserProfileResponse;
     } catch (error) {
       if (error instanceof AdminApiError) throw error;
       throw new AdminApiError(

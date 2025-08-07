@@ -1,14 +1,20 @@
-import { API_CONFIG } from "../config/api";
-import { API_PATHS } from "../constants/apiPaths";
 import {
   Pageable,
-  PagedResponse,
+  PagedResponseLikeResponse,
+  PagedResponsePostListResponse,
   PostDetailResponse,
   PostPopularResponse,
   PostRequest,
   PostResponse,
-  ResponseDto,
+  ResponseDtoListPostPopularResponse,
+  ResponseDtoListString,
+  ResponseDtoPagedResponseLikeResponse,
+  ResponseDtoPagedResponsePostListResponse,
+  ResponseDtoPostDetailResponse,
+  ResponseDtoPostResponse,
 } from "@/generated/api";
+import { API_CONFIG } from "../config/api";
+import { API_PATHS } from "../constants/apiPaths";
 import { fetchWithAuth } from "../lib/api";
 
 // --- 커스텀 에러 클래스 ---
@@ -30,7 +36,7 @@ export const postService = {
   /**
    * 최신순 게시물 목록을 조회합니다.
    */
-  async getPosts(params?: Pageable): Promise<PagedResponse> {
+  async getPosts(params?: Pageable): Promise<PagedResponsePostListResponse> {
     const endpoint = API_PATHS.posts.base;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
@@ -54,8 +60,8 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
-      return apiResponse.data as PagedResponse;
+      const apiResponse: ResponseDtoPagedResponsePostListResponse = await response.json();
+      return apiResponse.data as PagedResponsePostListResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
       throw new PostServiceError(
@@ -89,7 +95,7 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
+      const apiResponse: ResponseDtoListPostPopularResponse = await response.json();
       return apiResponse.data as PostPopularResponse[];
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
@@ -104,7 +110,7 @@ export const postService = {
   /**
    * 태그별 게시물 목록을 조회합니다.
    */
-  async getPostsByTag(tagName: string, params?: Pageable): Promise<PagedResponse> {
+  async getPostsByTag(tagName: string, params?: Pageable): Promise<PagedResponsePostListResponse> {
     const endpoint = API_PATHS.posts.byTag(tagName);
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
@@ -128,8 +134,8 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
-      return apiResponse.data as PagedResponse;
+      const apiResponse: ResponseDtoPagedResponsePostListResponse = await response.json();
+      return apiResponse.data as PagedResponsePostListResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
       throw new PostServiceError(
@@ -162,7 +168,7 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
+      const apiResponse: ResponseDtoListString = await response.json();
       return apiResponse.data as string[];
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
@@ -197,7 +203,7 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
+      const apiResponse: ResponseDtoPostDetailResponse = await response.json();
       return apiResponse.data as PostDetailResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
@@ -231,7 +237,7 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
+      const apiResponse: ResponseDtoPostResponse = await response.json();
       return apiResponse.data as PostResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
@@ -246,7 +252,7 @@ export const postService = {
   /**
    * 사용자가 작성한 게시글 목록을 조회합니다.
    */
-  async getUserPosts(params?: Pageable): Promise<PagedResponse> {
+  async getUserPosts(params?: Pageable): Promise<PagedResponsePostListResponse> {
     const endpoint = API_PATHS.posts.me;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
@@ -269,8 +275,8 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
-      return apiResponse.data as PagedResponse;
+      const apiResponse: ResponseDtoPagedResponsePostListResponse = await response.json();
+      return apiResponse.data as PagedResponsePostListResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
       throw new PostServiceError(
@@ -314,7 +320,7 @@ export const postService = {
   /**
    * 사용자가 좋아요한 게시글 목록을 조회합니다.
    */
-  async getUserLikes(params?: Pageable): Promise<PagedResponse> {
+  async getUserLikes(params?: Pageable): Promise<PagedResponseLikeResponse> {
     const endpoint = API_PATHS.likes.me;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
@@ -337,8 +343,8 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
-      return apiResponse.data as PagedResponse;
+      const apiResponse: ResponseDtoPagedResponseLikeResponse = await response.json();
+      return apiResponse.data as PagedResponseLikeResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
       throw new PostServiceError(
@@ -372,7 +378,7 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
+      const apiResponse: ResponseDtoPostResponse = await response.json();
       return apiResponse.data as PostResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
@@ -387,7 +393,7 @@ export const postService = {
   /**
    * 게시글을 검색합니다.
    */
-  async searchPosts(keyword: string, params?: Pageable): Promise<PagedResponse> {
+  async searchPosts(keyword: string, params?: Pageable): Promise<PagedResponsePostListResponse> {
     const endpoint = API_PATHS.posts.search;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
     url.searchParams.append("keyword", keyword);
@@ -412,8 +418,8 @@ export const postService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
-      return apiResponse.data as PagedResponse;
+      const apiResponse: ResponseDtoPagedResponsePostListResponse = await response.json();
+      return apiResponse.data as PagedResponsePostListResponse;
     } catch (error) {
       if (error instanceof PostServiceError) throw error;
       throw new PostServiceError(

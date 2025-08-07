@@ -1,11 +1,15 @@
-import { fetchWithAuth } from "@/lib/api";
 import type {
+  ProfileImageResponse,
+  ResponseDtoProfileImageResponse,
+  ResponseDtoString,
+  ResponseDtoUserActivityResponse,
+  ResponseDtoUserProfileResponse,
   UpdateProfileRequest,
   UserActivityResponse,
   UserProfileRequest,
   UserProfileResponse,
-  ResponseDto,
 } from "@/generated/api";
+import { fetchWithAuth } from "@/lib/api";
 import { API_CONFIG } from "../config/api";
 import { API_PATHS } from "../constants/apiPaths";
 
@@ -36,7 +40,7 @@ export const userService = {
       throw new AuthError(response.status, "Failed to get user profile", endpoint);
     }
 
-    const apiResponse: ResponseDto = await response.json();
+    const apiResponse: ResponseDtoUserProfileResponse = await response.json();
     return apiResponse.data as UserProfileResponse;
   },
 
@@ -70,24 +74,7 @@ export const userService = {
       throw new AuthError(response.status, "Failed to update profile in signup", endpoint);
     }
 
-    const apiResponse: ResponseDto = await response.json();
-    return apiResponse.data as UserProfileResponse;
-  },
-
-  /**
-   * 프로필 완성을 수행합니다.
-   * POST 뮤테이션 작업이므로 캐싱하지 않습니다.
-   */
-  async completeProfile(profileData: UserProfileRequest): Promise<UserProfileResponse> {
-    const endpoint = API_PATHS.users.completeProfile;
-    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: "POST",
-      body: JSON.stringify(profileData),
-    })) as Response;
-    if (!response.ok) {
-      throw new AuthError(response.status, "Failed to complete profile", endpoint);
-    }
-    const apiResponse: ResponseDto = await response.json();
+    const apiResponse: ResponseDtoUserProfileResponse = await response.json();
     return apiResponse.data as UserProfileResponse;
   },
 
@@ -120,7 +107,7 @@ export const userService = {
       throw new AuthError(response.status, "Failed to get user activity stats", endpoint);
     }
 
-    const apiResponse: ResponseDto = await response.json();
+    const apiResponse: ResponseDtoUserActivityResponse = await response.json();
     return apiResponse.data as UserActivityResponse;
   },
 
@@ -145,7 +132,7 @@ export const userService = {
         throw new AuthError(response.status, "Failed to get user role", endpoint);
       }
 
-      const apiResponse: ResponseDto = await response.json();
+      const apiResponse: ResponseDtoString = await response.json();
       return apiResponse.data as string;
     } catch (error) {
       // fetchWithAuth 자체에서 발생한 에러 (네트워크 등)
@@ -159,7 +146,7 @@ export const userService = {
    * @param imageFile - 업로드할 이미지 파일
    * @returns 업로드된 이미지의 URL
    */
-  async updateProfileImage(imageFile: File): Promise<string> {
+  async updateProfileImage(imageFile: File): Promise<ProfileImageResponse> {
     const endpoint = API_PATHS.users.profileImage;
 
     const formData = new FormData();
@@ -175,8 +162,8 @@ export const userService = {
       throw new AuthError(response.status, "Failed to upload profile image", endpoint);
     }
 
-    const apiResponse: ResponseDto = await response.json();
-    return apiResponse.data as string;
+    const apiResponse: ResponseDtoProfileImageResponse = await response.json();
+    return apiResponse.data as ProfileImageResponse;
   } /**
    * 사용자 프로필을 업데이트합니다.
    * @param profileData - 업데이트할 프로필 데이터
@@ -193,7 +180,7 @@ export const userService = {
       throw new AuthError(response.status, "Failed to update profile", endpoint);
     }
 
-    const apiResponse: ResponseDto = await response.json();
+    const apiResponse: ResponseDtoUserProfileResponse = await response.json();
     return apiResponse.data as UserProfileResponse;
   },
 } as const;

@@ -26,8 +26,6 @@ interface CustomPaginationProps {
   maxVisiblePages?: number;
   /** 추가 CSS 클래스 */
   className?: string;
-  /** 페이지네이션을 표시할지 여부 (totalPages가 1보다 클 때만 표시) */
-  showWhenSinglePage?: boolean;
 }
 
 export default function CustomPagination({
@@ -36,12 +34,11 @@ export default function CustomPagination({
   onPageChange,
   maxVisiblePages = 5,
   className = "",
-  showWhenSinglePage = false,
 }: CustomPaginationProps) {
-  // 1페이지만 있을 때 숨김 (옵션에 따라)
-  // if (!showWhenSinglePage && totalPages <= 1) {
-  //   return null;
-  // }
+  // 1페이지만 있을 때는 숨김
+  if (totalPages <= 1) {
+    return null;
+  }
 
   // 표시할 페이지 번호 배열 생성
   const getVisiblePages = (): number[] => {

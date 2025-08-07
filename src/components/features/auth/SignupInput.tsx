@@ -1,9 +1,11 @@
+import { UseFormRegister, FieldValues } from "react-hook-form";
+
 type SignupInputProps = {
   label: string;
   id: string;
   type?: string;
   placeholder: string;
-  register: any;
+  register: UseFormRegister<FieldValues>;
   error?: string;
 };
 

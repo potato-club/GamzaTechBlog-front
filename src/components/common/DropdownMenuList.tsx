@@ -24,7 +24,8 @@ export const DropdownMenuList: React.FC<DropdownMenuListProps> = ({
         {triggerElement}
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        align="end"
+        align={align}
+        sideOffset={sideOffset}
         className={cn(
           "w-36", // 특정 너비 유지
           "shadow-lg", // 기본 shadow-md보다 강한 그림자를 원하면 유지

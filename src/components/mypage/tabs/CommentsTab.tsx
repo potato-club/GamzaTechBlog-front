@@ -8,6 +8,7 @@
 import CommentList from "@/components/features/comments/CommentList";
 import ErrorDisplay from "@/components/mypage/shared/ErrorDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CommentResponse } from "@/generated/api";
 import { useMyComments } from "@/hooks/queries/useMyPageQueries";
 import { usePagination } from "@/hooks/usePagination";
 import CustomPagination from "../../common/CustomPagination";
@@ -80,7 +81,7 @@ export default function CommentsTab() {
   return (
     <>
       <CommentList
-        comments={commentsData.content as any[]} // PagedResponse의 content는 object[]이므로 타입 단언 사용
+        comments={commentsData.content as CommentResponse[]}
         variant="my"
         className="mt-6"
       />

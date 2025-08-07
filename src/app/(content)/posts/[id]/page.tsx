@@ -4,10 +4,10 @@ import MarkdownViewer from "@/components/features/posts/MarkdownViewer";
 import PostCommentsSection from "@/components/features/posts/PostCommentsSection";
 import PostHeader from "@/components/features/posts/PostHeader";
 import PostStats from "@/components/features/posts/PostStats";
+import { CommentResponse } from "@/generated/api/models";
 import { usePost } from "@/hooks/queries/usePostQueries";
 import { notFound, useParams } from "next/navigation";
 import { useMemo } from "react";
-import { CommentResponse } from "@/generated/api";
 
 export default function PostPage() {
   const params = useParams();
@@ -29,6 +29,7 @@ export default function PostPage() {
     if (!post?.comments || !Array.isArray(post.comments)) return [];
 
     return post.comments.map((comment) => ({
+      ...comment,
       commentId: comment.commentId ?? 0,
       writer: comment.writer ?? "",
       writerProfileImageUrl: comment.writerProfileImageUrl ?? "",

@@ -4,16 +4,15 @@
 
 import {
   Pageable,
-  PagedResponse,
+  PagedResponsePostListResponse,
   PostDetailResponse,
   PostPopularResponse,
   PostRequest,
   PostResponse,
-} from "@/generated/api";
+} from "@/generated/api/models";
 import { postService } from "@/services/postService";
 import {
   keepPreviousData,
-  useInfiniteQuery,
   useMutation,
   UseMutationOptions,
   useQuery,
@@ -39,7 +38,7 @@ export const POST_QUERY_KEYS = {
  */
 export function usePosts(
   params?: Pageable,
-  options?: Omit<UseQueryOptions<PagedResponse, Error>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<PagedResponsePostListResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.list(params),
@@ -48,24 +47,6 @@ export function usePosts(
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
     ...options,
-  });
-}
-
-/**
- * 무한 스크롤을 위한 게시글 목록 조회 훅
- */
-export function useInfinitePosts(params?: { size?: number; sort?: string[] }) {
-  return useInfiniteQuery({
-    queryKey: [...POST_QUERY_KEYS.lists(), { ...params, infinite: true }],
-    queryFn: ({ pageParam = 0 }) => postService.getPosts({ ...params, page: pageParam }),
-    getNextPageParam: (lastPage) => {
-      if (lastPage.page === undefined || lastPage.totalPages === undefined) {
-        return undefined;
-      }
-      return lastPage.page < lastPage.totalPages - 1 ? lastPage.page + 1 : undefined;
-    },
-    initialPageParam: 0,
-    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -109,61 +90,9 @@ export function useCreatePost(options?: UseMutationOptions<PostResponse, Error, 
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: ["my-posts"] });
 
-      // TODO: PostDetailResponse 타입 구조가 PostResponse와 다를 수 있으므로 확인 필요
-      // if (newPost.postId) {
-      //   const detailData: PostDetailResponse = {
-      //     ...newPost,
-      //     writer: newPost.authorGithubId, // 이 부분 확인 필요
-      //     comments: [],
-      //   };
-      //   queryClient.setQueryData(POST_QUERY_KEYS.detail(newPost.postId), detailData);
-      // }
       options?.onSuccess?.(newPost, variables, context);
     },
     ...options,
-  });
-}
-
-/**
- * 게시글 좋아요 토글 뮤테이션 (Optimistic Update)
- */
-export function useLikePost(postId: number) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (isLiked: boolean) => {
-      // TODO: 실제 좋아요 API 연동 필요
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return { success: true, liked: !isLiked };
-    },
-    onMutate: async (isLiked: boolean) => {
-      await queryClient.cancelQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      const previousPost = queryClient.getQueryData<PostDetailResponse>(
-        POST_QUERY_KEYS.detail(postId)
-      );
-
-      queryClient.setQueryData<PostDetailResponse | undefined>(
-        POST_QUERY_KEYS.detail(postId),
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            isLiked: !isLiked,
-            likesCount: isLiked ? (old.likesCount ?? 1) - 1 : (old.likesCount ?? 0) + 1,
-          };
-        }
-      );
-      return { previousPost };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousPost) {
-        queryClient.setQueryData(POST_QUERY_KEYS.detail(postId), context.previousPost);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      queryClient.invalidateQueries({ queryKey: ["my-likes"] });
-    },
   });
 }
 
@@ -228,7 +157,7 @@ export function usePopularPosts(
 export function usePostsByTag(
   tagName: string,
   params?: Pageable,
-  options?: Omit<UseQueryOptions<PagedResponse, Error>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<PagedResponsePostListResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.postsByTag(tagName, params),
@@ -246,7 +175,7 @@ export function usePostsByTag(
 export function useSearchPosts(
   keyword: string,
   params?: Pageable,
-  options?: Omit<UseQueryOptions<PagedResponse, Error>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<PagedResponsePostListResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: ["posts", "search", keyword, params],

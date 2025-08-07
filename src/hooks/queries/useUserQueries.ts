@@ -4,11 +4,12 @@
 
 import { userService } from "@/services/userService";
 import type {
+  ProfileImageResponse,
   UpdateProfileRequest,
   UserActivityResponse,
   UserProfileRequest,
   UserProfileResponse,
-} from "@/generated/api";
+} from "@/generated/api/models";
 import {
   useMutation,
   UseMutationOptions,
@@ -125,7 +126,9 @@ export function useWithdrawAccount(options?: UseMutationOptions<void, Error, voi
 /**
  * 프로필 이미지를 업로드하는 뮤테이션 훅
  */
-export function useUpdateProfileImage(options?: UseMutationOptions<string, Error, File>) {
+export function useUpdateProfileImage(
+  options?: UseMutationOptions<ProfileImageResponse, Error, File>
+) {
   return useMutation({
     mutationFn: (imageFile: File) => userService.updateProfileImage(imageFile),
     onSuccess: (imageUrl, variables, context) => {

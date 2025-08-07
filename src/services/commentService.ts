@@ -1,7 +1,14 @@
 import { API_CONFIG } from "@/config/api";
 import { API_PATHS } from "@/constants/apiPaths";
+import {
+  CommentRequest,
+  CommentResponse,
+  Pageable,
+  PagedResponseCommentListResponse,
+  ResponseDtoCommentResponse,
+  ResponseDtoPagedResponseCommentListResponse,
+} from "@/generated/api/models";
 import { fetchWithAuth } from "@/lib/api";
-import { ResponseDto, PagedResponse, Pageable, CommentResponse } from "@/generated/api";
 
 // --- 커스텀 에러 클래스 ---
 export class CommentServiceError extends Error {
@@ -16,7 +23,7 @@ export class CommentServiceError extends Error {
 }
 
 export const commentService = {
-  async registerComment(postId: number, content: object): Promise<CommentResponse> {
+  async registerComment(postId: number, content: CommentRequest): Promise<CommentResponse> {
     const endpoint = API_PATHS.comments.byPostId(postId);
     const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: "POST",
@@ -30,7 +37,7 @@ export const commentService = {
       throw new Error("Failed to register comment");
     }
 
-    const apiResponse: ResponseDto = await response.json();
+    const apiResponse: ResponseDtoCommentResponse = await response.json();
 
     console.log("apiResponse.data", apiResponse.data);
 
@@ -77,7 +84,7 @@ export const commentService = {
     }
   },
 
-  async getUserComments(params?: Pageable): Promise<PagedResponse> {
+  async getUserComments(params?: Pageable): Promise<PagedResponseCommentListResponse> {
     const endpoint = API_PATHS.comments.me;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
@@ -104,8 +111,8 @@ export const commentService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
-      return apiResponse.data as PagedResponse;
+      const apiResponse: ResponseDtoPagedResponseCommentListResponse = await response.json();
+      return apiResponse.data as PagedResponseCommentListResponse;
     } catch (error) {
       if (error instanceof CommentServiceError) {
         throw error;

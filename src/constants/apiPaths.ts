@@ -18,7 +18,7 @@ export const API_PATHS = {
   },
   admin: {
     pendingUsers: "/api/admin/users/pending",
-    approveUser: (userId: string) => `/api/admin/users/${userId}/approve`,
+    approveUser: (userId: number) => `/api/admin/users/${userId}/approve`,
   },
   comments: {
     byPostId: (postId: number) => `/api/v1/comment/${postId}/comments`,

@@ -9,7 +9,7 @@ import CustomPagination from "@/components/common/CustomPagination";
 import PostCard from "@/components/features/posts/PostCard";
 import ErrorDisplay from "@/components/mypage/shared/ErrorDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PostResponse } from "@/generated/api";
+import { PostDetailResponse } from "@/generated/api";
 import { useMyPosts } from "@/hooks/queries/useMyPageQueries";
 import { usePagination } from "@/hooks/usePagination";
 
@@ -27,7 +27,7 @@ export default function PostsTab() {
     sort: ["createdAt,desc"], // 최신순 정렬
   });
 
-  const posts = (postsData?.content as PostResponse[]) || [];
+  const posts = (postsData?.content as PostDetailResponse[]) || [];
   const totalPages = postsData?.totalPages || 0;
 
   const handlePageChange = (page: number) => {

@@ -10,8 +10,8 @@ import { deleteCookie, getCookie, setCookie } from "cookies-next";
 let isRefreshingToken = false;
 // 재발급 중 실패한 요청들을 저장할 큐
 let failedRequestsQueue: Array<{
-  resolve: (value?: any) => void;
-  reject: (reason?: any) => void;
+  resolve: (value: Response | PromiseLike<Response>) => void;
+  reject: (reason?: Error) => void;
   url: string;
   options: RequestInit;
 }> = [];
@@ -161,7 +161,7 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}, isRe
               // 현재 요청은 이미 실패한 상태이므로, 추가 처리 없이 반환 (또는 에러 throw)
               // 여기서 로그아웃 처리가 refreshAccessToken 내부에서 이미 유도되었을 수 있음
             }
-          } catch (refreshError: any) {
+          } catch (refreshError: unknown) {
             // refreshAccessToken에서 발생한 에러 처리
             processFailedRequestsQueue(refreshError as Error, null);
             if (refreshError instanceof RefreshTokenInvalidError) {

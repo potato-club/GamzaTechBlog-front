@@ -5,10 +5,16 @@
  * 효율적인 상태 관리와 UI 업데이트를 제공합니다.
  */
 
+import {
+  CommentRequest,
+  CommentResponse,
+  PostDetailResponse,
+  UserProfileResponse,
+} from "@/generated/api";
 import { commentService } from "@/services/commentService";
-import type { CommentRequest, CommentResponse, PostDetailResponse } from "@/generated/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { POST_QUERY_KEYS } from "./usePostQueries";
+import { USER_QUERY_KEYS } from "./useUserQueries";
 
 /**
  * 댓글을 등록하는 뮤테이션 훅
@@ -18,7 +24,12 @@ import { POST_QUERY_KEYS } from "./usePostQueries";
 export function useCreateComment(postId: number) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<
+    CommentResponse,
+    Error,
+    CommentRequest,
+    { previousPost: PostDetailResponse | undefined }
+  >({
     mutationFn: (commentRequest: CommentRequest) =>
       commentService.registerComment(postId, commentRequest),
 
@@ -29,6 +40,8 @@ export function useCreateComment(postId: number) {
         POST_QUERY_KEYS.detail(postId)
       );
 
+      const userProfile = queryClient.getQueryData<UserProfileResponse>(USER_QUERY_KEYS.profile());
+
       queryClient.setQueryData<PostDetailResponse | undefined>(
         POST_QUERY_KEYS.detail(postId),
         (old) => {
@@ -37,15 +50,18 @@ export function useCreateComment(postId: number) {
           // Optimistic Update를 위한 임시 댓글 객체 생성
           const optimisticComment: CommentResponse = {
             commentId: Date.now(), // 임시 ID
-            writer: "Me", // 실제로는 로그인 유저 정보로 대체 필요
-            writerProfileImageUrl: "", // 실제로는 로그인 유저 정보로 대체 필요
+            writer: userProfile?.nickname ?? "Me",
+            writerProfileImageUrl: userProfile?.profileImageUrl ?? "",
             content: newComment.content,
             createdAt: new Date(), // 현재 시간으로 설정
+            // replies: [],
           };
 
           return {
             ...old,
-            comments: [...(old.comments || []), optimisticComment],
+            comments: Array.isArray(old.comments)
+              ? [...old.comments, optimisticComment]
+              : [optimisticComment],
           };
         }
       );
@@ -59,7 +75,7 @@ export function useCreateComment(postId: number) {
       console.log("댓글 등록 성공:", newComment);
     },
 
-    onError: (error, newComment, context) => {
+    onError: (error, variables, context) => {
       if (context?.previousPost) {
         queryClient.setQueryData(POST_QUERY_KEYS.detail(postId), context.previousPost);
       }
@@ -81,7 +97,7 @@ export function useCreateComment(postId: number) {
 export function useDeleteComment(postId: number) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, number, { previousPost: PostDetailResponse | undefined }>({
     mutationFn: (commentId: number) => commentService.deleteComment(commentId),
 
     onMutate: async (commentId) => {

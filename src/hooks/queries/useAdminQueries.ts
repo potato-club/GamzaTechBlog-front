@@ -1,5 +1,5 @@
+import { PendingUserResponse } from "@/generated/api/models";
 import { adminService } from "@/services/adminService";
-import { ResponseDto, UserProfileResponse } from "@/generated/api";
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 
 export const ADMIN_QUERY_KEYS = {
@@ -8,7 +8,7 @@ export const ADMIN_QUERY_KEYS = {
 };
 
 export function usePendingUsers(
-  options?: Omit<UseQueryOptions<UserProfileResponse[], Error>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<PendingUserResponse[], Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: ADMIN_QUERY_KEYS.pendingUsers(),
@@ -20,8 +20,8 @@ export function usePendingUsers(
 export function useApproveUser() {
   const queryClient = useQueryClient();
 
-  return useMutation<UserProfileResponse, Error, string>({
-    mutationFn: (userId: string) => adminService.approveUser(userId),
+  return useMutation<void, Error, number>({
+    mutationFn: (userId: number) => adminService.approveUser(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ADMIN_QUERY_KEYS.pendingUsers() });
     },

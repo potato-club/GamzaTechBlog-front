@@ -1,7 +1,7 @@
 import { API_CONFIG } from "@/config/api";
 import { API_PATHS } from "@/constants/apiPaths";
 import { fetchWithAuth } from "@/lib/api";
-import { ResponseDto } from "@/generated/api";
+import { ResponseDtoString } from "../generated/api";
 
 export class ImageServiceError extends Error {
   constructor(
@@ -44,7 +44,7 @@ export const imageService = {
         );
       }
 
-      const apiResponse: ResponseDto = await response.json();
+      const apiResponse: ResponseDtoString = await response.json();
       return apiResponse.data as string; // 타입 단언을 사용하여 string으로 캐스팅
     } catch (error) {
       if (error instanceof ImageServiceError) {

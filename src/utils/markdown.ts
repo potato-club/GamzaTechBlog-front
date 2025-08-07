@@ -12,7 +12,7 @@ export function markdownToText(markdown: string, maxLength: number = 150): strin
 
   try {
     // 먼저 마크다운 이미지 문법 제거
-    let cleanedMarkdown = markdown
+    const cleanedMarkdown = markdown
       .replace(/!\[.*?\]\(.*?\)/g, "") // 이미지 문법 ![alt](url) 제거
       .replace(/!\[.*?\]\[.*?\]/g, "") // 참조 스타일 이미지 ![alt][ref] 제거
       .replace(/!\[.*?\]:/g, "") // 이미지 참조 정의 ![ref]: 제거
@@ -49,7 +49,7 @@ export function markdownToText(markdown: string, maxLength: number = 150): strin
     return (
       markdown
         .replace(/!\[.*?\]\(.*?\)/g, "") // 이미지 문법 제거
-        .replace(/[#*`~_\[\]()]/g, "") // 기본 마크다운 문법 제거
+        .replace(/[#*`~_()[\]]/g, "") // 기본 마크다운 문법 제거 (이스케이프 수정)
         .replace(/\s+/g, " ")
         .trim()
         .substring(0, maxLength) + (markdown.length > maxLength ? "..." : "")

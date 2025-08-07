@@ -1,6 +1,7 @@
 import { API_CONFIG } from "@/config/api";
 import { API_PATHS } from "@/constants/apiPaths";
 import { fetchWithAuth } from "@/lib/api";
+import { ResponseDtoBoolean } from "../generated/api";
 
 export class LikeError extends Error {
   constructor(
@@ -59,7 +60,7 @@ export const likeService = {
       throw new LikeError(response.status, "Failed to check like status", endpoint);
     }
 
-    const result = await response.json();
-    return result.data; // API 응답의 data 필드에서 true/false 값 반환
+    const result: ResponseDtoBoolean = await response.json();
+    return result.data as boolean; // API 응답의 data 필드에서 true/false 값 반환
   },
 } as const;

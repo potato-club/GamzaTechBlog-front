@@ -9,6 +9,7 @@ import CustomPagination from "@/components/common/CustomPagination";
 import PostCard from "@/components/features/posts/PostCard";
 import ErrorDisplay from "@/components/mypage/shared/ErrorDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PostDetailResponse } from "@/generated/api";
 import { useMyLikes } from "@/hooks/queries/useMyPageQueries";
 import { usePagination } from "@/hooks/usePagination";
 
@@ -26,9 +27,8 @@ export default function LikesTab() {
     sort: ["createdAt,desc"], // 최신순 정렬
   });
 
-  const likedPosts = likes?.content || [];
+  const likedPosts = (likes?.content as PostDetailResponse[]) || [];
   const totalPages = likes?.totalPages || 0;
-  const totalElements = likes?.totalElements || 0;
 
   const handlePageChange = (page: number) => {
     setPage(page); // usePagination 훅의 setPage 사용
@@ -77,14 +77,8 @@ export default function LikesTab() {
   // 좋아요 목록 표시
   return (
     <div className="mt-8 flex flex-col gap-8">
-      {likedPosts.map((like: any) => (
-        <PostCard
-          key={like.id}
-          post={{
-            ...like,
-            postId: like.postId, // id를 postId로 매핑
-          }}
-        />
+      {likedPosts.map((post: PostDetailResponse) => (
+        <PostCard key={post.postId} post={post} />
       ))}
       <CustomPagination
         currentPage={currentPage}

@@ -7,10 +7,15 @@
  * TanStack Query를 통해 효율적으로 관리합니다.
  */
 
-import { postService } from "@/services/postService";
-import { PagedResponse, Pageable, PostResponse } from "@/generated/api";
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import {
+  Pageable,
+  PagedResponseCommentListResponse,
+  PagedResponseLikeResponse,
+  PagedResponsePostListResponse,
+} from "@/generated/api";
 import { commentService } from "@/services/commentService";
+import { postService } from "@/services/postService";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 /**
  * 사용자가 작성한 게시글 목록을 조회하는 훅
@@ -21,7 +26,7 @@ import { commentService } from "@/services/commentService";
  */
 export function useMyPosts(
   params?: Pageable,
-  options?: Omit<UseQueryOptions<PagedResponse, Error>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<PagedResponsePostListResponse, Error>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     queryKey: ["my-posts", params], // 캐시 키: 사용자의 게시글 목록
@@ -46,13 +51,17 @@ export function useMyPosts(
  *
  * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
  */
-export function useMyComments(params?: Pageable) {
+export function useMyComments(
+  params?: Pageable,
+  options?: Omit<UseQueryOptions<PagedResponseCommentListResponse, Error>, "queryKey" | "queryFn">
+) {
   return useQuery({
     queryKey: ["my-comments", params], // 캐시 키에 params 포함하여 페이지 변경 감지
     queryFn: () => commentService.getUserComments(params),
 
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
+    ...options,
   });
 }
 
@@ -67,13 +76,17 @@ export function useMyComments(params?: Pageable) {
  *
  * @returns {object} 쿼리 결과 객체 (data, isLoading, error 등)
  */
-export function useMyLikes(params?: Pageable) {
+export function useMyLikes(
+  params?: Pageable,
+  options?: Omit<UseQueryOptions<PagedResponseLikeResponse, Error>, "queryKey" | "queryFn">
+) {
   return useQuery({
     queryKey: ["my-likes", params], // 캐시 키: 사용자의 좋아요 목록
     queryFn: () => postService.getUserLikes(params),
 
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
+    ...options,
   });
 }
 

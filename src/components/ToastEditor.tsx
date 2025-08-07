@@ -15,7 +15,7 @@ interface ToastEditorProps {
   initialValue?: string;
 }
 
-const ToastEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialValue }, ref) => {
+const TuiEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialValue }, ref) => {
   const editorRef = useRef<Editor>(null);
   const [isPreviewVisible, setIsPreviewVisible] = useState(true);
 
@@ -77,4 +77,6 @@ const ToastEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialVa
   );
 });
 
-export default ToastEditor;
+TuiEditor.displayName = "TuiEditor";
+
+export default TuiEditor;

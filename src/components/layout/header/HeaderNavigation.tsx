@@ -55,7 +55,7 @@ export const HeaderNavigation = () => {
       // // 로그아웃 로직 실행
       // logout();
     }
-  }, [isLoading, needsProfileCompletion, pathname]);
+  }, [isLoading, needsProfileCompletion, pathname, router]);
 
   // // 로딩 중일 때 스켈레톤 UI 또는 간단한 로딩 메시지 표시 (선택 사항)
   // if (isLoading) {
