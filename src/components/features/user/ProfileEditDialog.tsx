@@ -39,10 +39,8 @@ import { Camera, UserIcon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
-  useUpdateProfile,
-  useUpdateProfileImage,
-  useWithdrawAccount,
-} from "../../../hooks/queries/useUserQueries";
+  import { useUpdateProfileImage } from "@/hooks/queries/useImageQueries";
+import { useUpdateProfile } from "@/hooks/queries/useUserQueries";
 import { cn } from "../../../lib/utils";
 
 interface ProfileEditDialogProps {

@@ -1,6 +1,4 @@
 import type {
-  ProfileImageResponse,
-  ResponseDtoProfileImageResponse,
   ResponseDtoString,
   ResponseDtoUserActivityResponse,
   ResponseDtoUserProfileResponse,
@@ -142,33 +140,10 @@ export const userService = {
   },
 
   /**
-   * 프로필 이미지를 업로드합니다.
-   * @param imageFile - 업로드할 이미지 파일
-   * @returns 업로드된 이미지의 URL
-   */
-  async updateProfileImage(imageFile: File): Promise<ProfileImageResponse> {
-    const endpoint = API_PATHS.users.profileImage;
-
-    const formData = new FormData();
-    formData.append("file", imageFile);
-
-    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: "PUT",
-      body: formData,
-      // Content-Type을 설정하지 않음 - 브라우저가 자동으로 multipart/form-data로 설정
-    })) as Response;
-
-    if (!response.ok) {
-      throw new AuthError(response.status, "Failed to upload profile image", endpoint);
-    }
-
-    const apiResponse: ResponseDtoProfileImageResponse = await response.json();
-    return apiResponse.data as ProfileImageResponse;
-  } /**
    * 사용자 프로필을 업데이트합니다.
    * @param profileData - 업데이트할 프로필 데이터
    * @returns 업데이트된 사용자 프로필 데이터
-   */,
+   */
   async updateProfile(profileData: UpdateProfileRequest): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.updateProfile;
     const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {

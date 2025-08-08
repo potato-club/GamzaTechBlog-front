@@ -1,13 +1,17 @@
 import { API_CONFIG } from "@/config/api";
 import { API_PATHS } from "@/constants/apiPaths";
 import { fetchWithAuth } from "@/lib/api";
-import { ResponseDtoString } from "../generated/api";
+import {
+  type ProfileImageResponse,
+  type ResponseDtoProfileImageResponse,
+  type ResponseDtoString,
+} from "../generated/api";
 
 export class ImageServiceError extends Error {
   constructor(
     public status: number,
     message: string,
-    public endpoint?: string
+    public endpoint?: string,
   ) {
     super(message);
     this.name = "ImageServiceError";
@@ -40,7 +44,7 @@ export const imageService = {
         throw new ImageServiceError(
           response.status,
           errorData.message || "Failed to upload image",
-          endpoint
+          endpoint,
         );
       }
 
@@ -52,9 +56,39 @@ export const imageService = {
       }
       throw new ImageServiceError(
         500,
-        (error as Error).message || "An unexpected error occurred while uploading image",
-        endpoint
+        (error as Error).message ||
+          "An unexpected error occurred while uploading image",
+        endpoint,
       );
     }
+  },
+
+  /**
+   * 프로필 이미지를 업로드합니다.
+   * @param imageFile - 업로드할 이미지 파일
+   * @returns 업로드된 이미지의 URL
+   */
+  async updateProfileImage(imageFile: File): Promise<ProfileImageResponse> {
+    const endpoint = API_PATHS.users.profileImage;
+
+    const formData = new FormData();
+    formData.append("file", imageFile);
+
+    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+      method: "PUT",
+      body: formData,
+      // Content-Type을 설정하지 않음 - 브라우저가 자동으로 multipart/form-data로 설정
+    })) as Response;
+
+    if (!response.ok) {
+      throw new ImageServiceError(
+        response.status,
+        "Failed to upload profile image",
+        endpoint,
+      );
+    }
+
+    const apiResponse: ResponseDtoProfileImageResponse = await response.json();
+    return apiResponse.data as ProfileImageResponse;
   },
 } as const;
