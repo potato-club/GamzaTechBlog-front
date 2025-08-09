@@ -1,6 +1,6 @@
 import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
-import * as prettier from "eslint-config-prettier";
+import prettierConfig from "eslint-config-prettier";
 import importPlugin from "eslint-plugin-import";
 import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 import prettierPlugin from "eslint-plugin-prettier";
@@ -22,6 +22,7 @@ const eslintConfig = [
 
   {
     files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
+    ignores: ["src/generated/api/**"], // Ignore auto-generated API client
     plugins: {
       react: reactPlugin,
       import: importPlugin,
@@ -32,23 +33,17 @@ const eslintConfig = [
       "prettier/prettier": [
         "error",
         {
-          semi: true,
-          singleQuote: false,
-          printWidth: 100,
-          trailingComma: "es5",
-          tabWidth: 2,
+          endOfLine: "auto",
         },
       ],
+
       "react/react-in-jsx-scope": "off",
-      "react/jsx-filename-extension": [
-        1,
-        { extensions: [".js", ".jsx", ".ts", ".tsx"] },
-      ],
+      "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".ts", ".tsx"] }],
       "import/prefer-default-export": "off",
     },
   },
 
-  ...prettier,
+  prettierConfig,
 ];
 
 export default eslintConfig;

@@ -2,7 +2,7 @@
 
 /**
  * 게시글 작성 페이지
- * 
+ *
  * 공통 PostForm 컴포넌트를 사용하여 게시글 작성 기능을 구현합니다.
  */
 
@@ -29,7 +29,7 @@ export default function CreatePostPage() {
   return (
     <PostForm
       mode="create"
-      onSubmit={handleSubmit}
+      onSubmitAction={handleSubmit}
       isLoading={createPostMutation.isPending}
     />
   );
