@@ -35,12 +35,11 @@ import {
 
 import { Position } from "@/enums/position";
 import type { UpdateProfileRequest, UserProfileResponse } from "@/generated/api";
+import { useUpdateProfileImage } from "@/hooks/queries/useImageQueries";
+import { useUpdateProfile, useWithdrawAccount } from "@/hooks/queries/useUserQueries";
 import { Camera, UserIcon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import {
-  import { useUpdateProfileImage } from "@/hooks/queries/useImageQueries";
-import { useUpdateProfile } from "@/hooks/queries/useUserQueries";
 import { cn } from "../../../lib/utils";
 
 interface ProfileEditDialogProps {

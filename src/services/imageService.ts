@@ -11,7 +11,7 @@ export class ImageServiceError extends Error {
   constructor(
     public status: number,
     message: string,
-    public endpoint?: string,
+    public endpoint?: string
   ) {
     super(message);
     this.name = "ImageServiceError";
@@ -44,7 +44,7 @@ export const imageService = {
         throw new ImageServiceError(
           response.status,
           errorData.message || "Failed to upload image",
-          endpoint,
+          endpoint
         );
       }
 
@@ -56,9 +56,8 @@ export const imageService = {
       }
       throw new ImageServiceError(
         500,
-        (error as Error).message ||
-          "An unexpected error occurred while uploading image",
-        endpoint,
+        (error as Error).message || "An unexpected error occurred while uploading image",
+        endpoint
       );
     }
   },
@@ -81,11 +80,7 @@ export const imageService = {
     })) as Response;
 
     if (!response.ok) {
-      throw new ImageServiceError(
-        response.status,
-        "Failed to upload profile image",
-        endpoint,
-      );
+      throw new ImageServiceError(response.status, "Failed to upload profile image", endpoint);
     }
 
     const apiResponse: ResponseDtoProfileImageResponse = await response.json();

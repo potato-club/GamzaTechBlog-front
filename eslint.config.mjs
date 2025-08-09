@@ -30,7 +30,13 @@ const eslintConfig = [
       prettier: prettierPlugin,
     },
     rules: {
-      "prettier/prettier": "error",
+      "prettier/prettier": [
+        "error",
+        {
+          endOfLine: "auto",
+        },
+      ],
+
       "react/react-in-jsx-scope": "off",
       "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".ts", ".tsx"] }],
       "import/prefer-default-export": "off",
