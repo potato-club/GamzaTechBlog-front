@@ -1,6 +1,6 @@
 /**
  * 재사용 가능한 커스텀 페이지네이션 컴포넌트
- * 
+ *
  * shadcn/ui Pagination을 기반으로 한 고도화된 페이지네이션 컴포넌트입니다.
  * 다양한 페이지 수와 현재 페이지에 따라 스마트하게 페이지 번호를 표시합니다.
  */
@@ -26,8 +26,6 @@ interface CustomPaginationProps {
   maxVisiblePages?: number;
   /** 추가 CSS 클래스 */
   className?: string;
-  /** 페이지네이션을 표시할지 여부 (totalPages가 1보다 클 때만 표시) */
-  showWhenSinglePage?: boolean;
 }
 
 export default function CustomPagination({
@@ -36,12 +34,11 @@ export default function CustomPagination({
   onPageChange,
   maxVisiblePages = 5,
   className = "",
-  showWhenSinglePage = false,
 }: CustomPaginationProps) {
-  // 1페이지만 있을 때 숨김 (옵션에 따라)
-  // if (!showWhenSinglePage && totalPages <= 1) {
-  //   return null;
-  // }
+  // 1페이지만 있을 때는 숨김
+  if (totalPages <= 1) {
+    return null;
+  }
 
   // 표시할 페이지 번호 배열 생성
   const getVisiblePages = (): number[] => {
@@ -70,7 +67,7 @@ export default function CustomPagination({
               onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
               className={
                 currentPage === 1
-                  ? "opacity-50 cursor-not-allowed"
+                  ? "cursor-not-allowed opacity-50"
                   : "cursor-pointer hover:bg-gray-100"
               }
             />
@@ -135,7 +132,7 @@ export default function CustomPagination({
               onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
               className={
                 currentPage >= totalPages
-                  ? "opacity-50 cursor-not-allowed"
+                  ? "cursor-not-allowed opacity-50"
                   : "cursor-pointer hover:bg-gray-100"
               }
             />

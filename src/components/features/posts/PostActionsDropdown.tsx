@@ -48,7 +48,7 @@ export function PostActionsDropdown({ postId, triggerElement }: PostActionsDropd
     }
 
     // 작성자가 맞으면 편집 페이지로 이동
-    console.log('Edit post:', postId);
+    console.log("Edit post:", postId);
     router.push(`/posts/${postId}/edit`);
   };
 
@@ -63,10 +63,5 @@ export function PostActionsDropdown({ postId, triggerElement }: PostActionsDropd
     },
   ];
 
-  return (
-    <DropdownMenuList
-      triggerElement={triggerElement}
-      items={headerDropdownItems}
-    />
-  );
+  return <DropdownMenuList triggerElement={triggerElement} items={headerDropdownItems} />;
 }

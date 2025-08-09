@@ -1,6 +1,6 @@
 /**
  * 마이페이지 공통 에러 표시 컴포넌트
- * 
+ *
  * 탭별로 중복되던 에러 UI를 통합하여 관리합니다.
  * 일관된 에러 처리와 사용자 경험을 제공합니다.
  */
@@ -34,11 +34,11 @@ export default function ErrorDisplay({ title, error, onRetry }: ErrorDisplayProp
 
   return (
     <div className="mt-8 text-center">
-      <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
+      <div className="mx-auto max-w-md rounded-lg border border-red-200 bg-red-50 p-8">
         {/* 에러 아이콘 */}
-        <div className="text-red-500 mb-4">
+        <div className="mb-4 text-red-500">
           <svg
-            className="w-12 h-12 mx-auto"
+            className="mx-auto h-12 w-12"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -54,19 +54,15 @@ export default function ErrorDisplay({ title, error, onRetry }: ErrorDisplayProp
         </div>
 
         {/* 에러 제목 */}
-        <p className="text-red-700 font-medium mb-2">
-          {title}
-        </p>
+        <p className="mb-2 font-medium text-red-700">{title}</p>
 
         {/* 에러 메시지 */}
-        <p className="text-red-600 text-sm mb-4">
-          {error.message}
-        </p>
+        <p className="mb-4 text-sm text-red-600">{error.message}</p>
 
         {/* 재시도 버튼 */}
         <button
           onClick={handleRetry}
-          className="bg-red-600 text-white px-4 py-2 rounded-md text-sm hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          className="rounded-md bg-red-600 px-4 py-2 text-sm text-white transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
           aria-label="페이지 새로고침"
         >
           새로고침

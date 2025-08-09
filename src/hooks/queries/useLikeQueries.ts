@@ -1,11 +1,11 @@
-import { likeService } from '@/services/likeService';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { POST_QUERY_KEYS } from './usePostQueries';
+import { likeService } from "@/services/likeService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { POST_QUERY_KEYS } from "./usePostQueries";
 
 // 좋아요 관련 Query Key
 export const LIKE_QUERY_KEYS = {
-  all: ['likes'] as const,
-  status: (postId: number) => [...LIKE_QUERY_KEYS.all, 'status', postId] as const,
+  all: ["likes"] as const,
+  status: (postId: number) => [...LIKE_QUERY_KEYS.all, "status", postId] as const,
 } as const;
 
 /**
@@ -33,16 +33,16 @@ export function useAddLike(postId: number) {
     onSuccess: () => {
       // 게시글 데이터 무효화하여 최신 좋아요 수 반영
       queryClient.invalidateQueries({
-        queryKey: POST_QUERY_KEYS.detail(postId)
+        queryKey: POST_QUERY_KEYS.detail(postId),
       });
       // 좋아요 상태 쿼리도 무효화
       queryClient.invalidateQueries({
-        queryKey: LIKE_QUERY_KEYS.status(postId)
+        queryKey: LIKE_QUERY_KEYS.status(postId),
       });
     },
     onError: (error) => {
-      console.error('좋아요 추가 실패:', error);
-    }
+      console.error("좋아요 추가 실패:", error);
+    },
   });
 }
 
@@ -57,15 +57,15 @@ export function useRemoveLike(postId: number) {
     onSuccess: () => {
       // 게시글 데이터 무효화하여 최신 좋아요 수 반영
       queryClient.invalidateQueries({
-        queryKey: POST_QUERY_KEYS.detail(postId)
+        queryKey: POST_QUERY_KEYS.detail(postId),
       });
       // 좋아요 상태 쿼리도 무효화
       queryClient.invalidateQueries({
-        queryKey: LIKE_QUERY_KEYS.status(postId)
+        queryKey: LIKE_QUERY_KEYS.status(postId),
       });
     },
     onError: (error) => {
-      console.error('좋아요 취소 실패:', error);
-    }
+      console.error("좋아요 취소 실패:", error);
+    },
   });
 }

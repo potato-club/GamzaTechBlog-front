@@ -2,7 +2,7 @@
  * 텍스트에서 키워드를 하이라이트하는 유틸리티 함수
  */
 
-import React from 'react';
+import React from "react";
 
 /**
  * 텍스트에서 키워드와 일치하는 부분을 하이라이트 처리
@@ -14,14 +14,14 @@ import React from 'react';
 export function highlightText(
   text: string,
   keyword: string,
-  highlightColor: string = '#FAA631'
+  highlightColor: string = "#FAA631"
 ): React.ReactNode[] {
   if (!keyword || !text) {
     return [text];
   }
 
   // 대소문자 구분 없이 검색
-  const regex = new RegExp(`(${keyword})`, 'gi');
+  const regex = new RegExp(`(${keyword})`, "gi");
   const parts = text.split(regex);
 
   return parts.map((part, index) => {
@@ -30,10 +30,7 @@ export function highlightText(
 
     if (isMatch) {
       return (
-        <span
-          key={index}
-          style={{ color: highlightColor, fontWeight: 'bold' }}
-        >
+        <span key={index} style={{ color: highlightColor, fontWeight: "bold" }}>
           {part}
         </span>
       );
@@ -50,5 +47,5 @@ export function highlightText(
  * @returns JSX 요소 배열
  */
 export function highlightSearchKeyword(text: string, keyword: string): React.ReactNode[] {
-  return highlightText(text, keyword, '#FAA631');
+  return highlightText(text, keyword, "#FAA631");
 }

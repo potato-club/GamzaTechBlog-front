@@ -1,9 +1,10 @@
-import { Components } from 'react-markdown';
-import { MarkdownCode, MarkdownPre } from './CodeComponents';
-import { MarkdownInput, MarkdownLi, MarkdownOl, MarkdownUl } from './ListComponents';
-import { MarkdownMath } from './MathComponents';
-import { MarkdownImage, MarkdownLink } from './MediaComponents';
-import { MarkdownTable, MarkdownTd, MarkdownTh, MarkdownThead } from './TableComponents';
+import type { ComponentProps } from "react";
+import { Components } from "react-markdown";
+import { MarkdownCode, MarkdownPre } from "./CodeComponents";
+import { MarkdownInput, MarkdownLi, MarkdownOl, MarkdownUl } from "./ListComponents";
+import { MarkdownMath } from "./MathComponents";
+import { MarkdownImage, MarkdownLink } from "./MediaComponents";
+import { MarkdownTable, MarkdownTd, MarkdownTh, MarkdownThead } from "./TableComponents";
 import {
   MarkdownBlockquote,
   MarkdownDel,
@@ -17,7 +18,7 @@ import {
   MarkdownHr,
   MarkdownP,
   MarkdownStrong,
-} from './TextComponents';
+} from "./TextComponents";
 
 // 모든 마크다운 컴포넌트를 하나의 객체로 내보내기
 export const markdownComponents: Components = {
@@ -56,10 +57,14 @@ export const markdownComponents: Components = {
   td: MarkdownTd,
 
   // 수학 공식 지원을 위한 div 래퍼
-  div: ({ node, className, children, ...props }: any) => {
-    if (className?.includes('math')) {
-      return <MarkdownMath node={node} {...props}>{children}</MarkdownMath>;
+  div: ({ className, children, ...props }: ComponentProps<"div">) => {
+    if (className?.includes("math")) {
+      return <MarkdownMath {...props}>{children}</MarkdownMath>;
     }
-    return <div className={className} {...props}>{children}</div>;
+    return (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    );
   },
 };
