@@ -12,10 +12,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function WelcomeModal() {
   const [open, setOpen] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const shouldShowModal = !localStorage.getItem("hideWelcomeModal");
@@ -34,7 +36,7 @@ export default function WelcomeModal() {
   };
 
   const handleLearnMore = () => {
-    // 자세히 보기 기능 (추후 구현)
+    router.push("/posts/45");
   };
 
   if (!open) {
