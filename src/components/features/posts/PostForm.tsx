@@ -2,13 +2,7 @@
 
 import type { ToastEditorHandle } from "@/components/ToastEditor";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
@@ -24,7 +18,10 @@ const ToastEditor = dynamic(() => import("@/components/ToastEditor"), {
 
 // Zod 스키마 정의
 const formSchema = z.object({
-  title: z.string().min(1, { message: "제목은 필수입니다." }).max(100, { message: "제목은 100자 이내로 입력해주세요." }),
+  title: z
+    .string()
+    .min(1, { message: "제목은 필수입니다." })
+    .max(100, { message: "제목은 100자 이내로 입력해주세요." }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -37,22 +34,17 @@ export interface PostFormData {
 }
 
 interface PostFormProps {
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
   initialData?: {
     title: string;
     content: string;
     tags: string[];
   };
-  onSubmit: (data: PostFormData) => Promise<void>;
+  onSubmitAction: (data: PostFormData) => Promise<void>;
   isLoading: boolean;
 }
 
-export default function PostForm({
-  mode,
-  initialData,
-  onSubmit,
-  isLoading
-}: PostFormProps) {
+export default function PostForm({ mode, initialData, onSubmitAction, isLoading }: PostFormProps) {
   const editorRef = useRef<ToastEditorHandle>(null);
 
   const form = useForm<FormValues>({
@@ -69,7 +61,7 @@ export default function PostForm({
 
   // 수정 모드일 때 초기 데이터 설정
   useEffect(() => {
-    if (mode === 'edit' && initialData) {
+    if (mode === "edit" && initialData) {
       form.reset({
         title: initialData.title,
       });
@@ -86,17 +78,16 @@ export default function PostForm({
     }
 
     try {
-      await onSubmit({
+      await onSubmitAction({
         title: data.title,
         content: markdown,
         tags: tags,
-        commitMessage: mode === 'create'
-          ? `새 게시글: ${data.title}`
-          : `게시글 수정: ${data.title}`,
+        commitMessage:
+          mode === "create" ? `새 게시글: ${data.title}` : `게시글 수정: ${data.title}`,
       });
     } catch (error) {
-      console.error(`게시글 ${mode === 'create' ? '작성' : '수정'} 중 오류:`, error);
-      alert(`게시글 ${mode === 'create' ? '작성' : '수정'}에 실패했습니다. 다시 시도해주세요.`);
+      console.error(`게시글 ${mode === "create" ? "작성" : "수정"} 중 오류:`, error);
+      alert(`게시글 ${mode === "create" ? "작성" : "수정"}에 실패했습니다. 다시 시도해주세요.`);
     }
   };
 
@@ -105,8 +96,7 @@ export default function PostForm({
     const trimmedTag = tagWithoutHash.trim();
 
     if (trimmedTag !== "" && tags.length < 2) {
-      const capitalizedTag =
-        trimmedTag.charAt(0).toUpperCase() + trimmedTag.slice(1).toLowerCase();
+      const capitalizedTag = trimmedTag.charAt(0).toUpperCase() + trimmedTag.slice(1).toLowerCase();
       const newTag = `${capitalizedTag}`;
 
       if (!tags.includes(newTag)) {
@@ -154,8 +144,10 @@ export default function PostForm({
   }, [isLoading]);
 
   const buttonText = isLoading
-    ? `게시글 ${mode === 'create' ? '업로드' : '수정'} 중${uploadingDots}`
-    : mode === 'create' ? "완료" : "수정 완료";
+    ? `게시글 ${mode === "create" ? "업로드" : "수정"} 중${uploadingDots}`
+    : mode === "create"
+      ? "완료"
+      : "수정 완료";
 
   return (
     <Form {...form}>
@@ -169,7 +161,7 @@ export default function PostForm({
                 <Input
                   {...field}
                   placeholder="제목을 입력해주세요."
-                  className="w-full h-11 focus:outline-none text-3xl border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-4 shadow-none"
+                  className="h-11 w-full border-0 px-4 text-3xl shadow-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </FormControl>
               <FormMessage />
@@ -178,7 +170,7 @@ export default function PostForm({
         />
 
         {/* 미리보기 토글 버튼 */}
-        <div className="flex justify-end items-center">
+        <div className="flex items-center justify-end">
           <Button
             type="button"
             variant="outline"
@@ -202,14 +194,14 @@ export default function PostForm({
 
         <ToastEditor
           ref={editorRef}
-          initialValue={mode === 'edit' ? initialData?.content : undefined}
+          initialValue={mode === "edit" ? initialData?.content : undefined}
         />
 
         <div className="flex flex-wrap gap-2 text-[14px]">
           {tags.map((tag, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-1 w-fit rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]"
+              className="flex w-fit items-center gap-1 rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]"
             >
               <span># {tag}</span>
               <Image
@@ -229,14 +221,17 @@ export default function PostForm({
             onChange={handleTagInputChange}
             onKeyDown={handleTagInputKeyDown}
             disabled={tags.length >= 2}
-            className="h-auto p-1.5 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none bg-transparent w-auto flex-grow"
+            className="h-auto w-auto flex-grow border-0 bg-transparent p-1.5 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
           />
         </div>
 
         <Button
           type="submit"
-          className={`self-end px-6 py-2 bg-[#20242B] text-white rounded-4xl transition-colors duration-150 ${isLoading ? "cursor-not-allowed opacity-70" : "hover:bg-[#33373E]/90 hover:cursor-pointer"
-            }`}
+          className={`self-end rounded-4xl bg-[#20242B] px-6 py-2 text-white transition-colors duration-150 ${
+            isLoading
+              ? "cursor-not-allowed opacity-70"
+              : "hover:cursor-pointer hover:bg-[#33373E]/90"
+          }`}
           disabled={isLoading}
         >
           {buttonText}

@@ -11,8 +11,7 @@
   font-weight: 45 920;
   font-style: normal;
   font-display: swap;
-  src: url("../../public/fonts/PretendardVariable.woff2")
-    format("woff2-variations");
+  src: url("../../public/fonts/PretendardVariable.woff2") format("woff2-variations");
 }
 
 @theme inline {

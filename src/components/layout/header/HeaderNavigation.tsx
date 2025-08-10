@@ -9,12 +9,17 @@ import { usePathname, useRouter } from "next/navigation"; // usePathname import
 import { useEffect, useState } from "react";
 import { DropdownMenuList } from "../../common/DropdownMenuList";
 
-
 export const HeaderNavigation = () => {
   const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github"; // 환경 변수 또는 기본값  // useAuth 훅 호출. React Query가 데이터 관리
-  const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion, refetchAuthStatus } = useAuth(); // refetchAuthStatus 추가
+  const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion, refetchAuthStatus } =
+    useAuth(); // refetchAuthStatus 추가
 
-  console.log("HeaderNavigation state:", { isLoggedIn, userProfile, isLoading, needsProfileCompletion });
+  console.log("HeaderNavigation state:", {
+    isLoggedIn,
+    userProfile,
+    isLoading,
+    needsProfileCompletion,
+  });
 
   const router = useRouter();
   const pathname = usePathname(); // 현재 경로 가져오기
@@ -34,7 +39,7 @@ export const HeaderNavigation = () => {
 
   // Enter 키 처리
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch(e);
     }
   };
@@ -42,16 +47,15 @@ export const HeaderNavigation = () => {
   // PRE_REGISTER 역할인 경우 /signup 페이지로 리디렉션
   useEffect(() => {
     // 로딩이 완료되고, 프로필 완성이 필요하며, 현재 페이지가 /signup이 아닌 경우
-    if (!isLoading && needsProfileCompletion && pathname !== '/signup') {
-      console.log('User needs profile completion, redirecting to /signup');
-      router.push('/signup');
+    if (!isLoading && needsProfileCompletion && pathname !== "/signup") {
+      console.log("User needs profile completion, redirecting to /signup");
+      router.push("/signup");
       // 지금은 로그인이 불가합니다. alert 추가
       // alert("지금은 로그인이 불가합니다. 나중에 다시 시도해주세요.");
       // // 로그아웃 로직 실행
       // logout();
     }
-  }, [isLoading, needsProfileCompletion, pathname]);
-
+  }, [isLoading, needsProfileCompletion, pathname, router]);
 
   // // 로딩 중일 때 스켈레톤 UI 또는 간단한 로딩 메시지 표시 (선택 사항)
   // if (isLoading) {
@@ -96,14 +100,14 @@ export const HeaderNavigation = () => {
       await refetchAuthStatus();
 
       // 강제 리렌더링 트리거
-      setForceUpdateKey(prev => prev + 1);
+      setForceUpdateKey((prev) => prev + 1);
 
       // 현재 페이지가 메인 페이지가 아닌 경우에만 라우터 이동
-      if (pathname !== '/') {
+      if (pathname !== "/") {
         router.push("/");
       }
     } catch (error) {
-      console.error('로그아웃 중 오류 발생:', error);
+      console.error("로그아웃 중 오류 발생:", error);
       // 오류가 발생해도 메인 페이지로 이동
       router.push("/");
     }
@@ -116,11 +120,15 @@ export const HeaderNavigation = () => {
       isLink: true,
     },
     // ADMIN 역할일 때만 관리자 페이지 표시
-    ...(userProfile?.role === "ADMIN" ? [{
-      label: "관리자 페이지",
-      href: "/admin",
-      isLink: true,
-    }] : []),
+    ...(userProfile?.role === "ADMIN"
+      ? [
+          {
+            label: "관리자 페이지",
+            href: "/admin",
+            isLink: true,
+          },
+        ]
+      : []),
     {
       label: "로그아웃",
       onClick: handleLogout,
@@ -130,7 +138,7 @@ export const HeaderNavigation = () => {
   const headerTriggerElement = (
     <Button
       variant="ghost"
-      className="relative h-8 w-8 rounded-full p-0 focus-visible:ring-0 focus-visible:ring-offset-0 hover:cursor-pointer"
+      className="relative h-8 w-8 rounded-full p-0 hover:cursor-pointer focus-visible:ring-0 focus-visible:ring-offset-0"
     >
       {userProfile?.profileImageUrl ? (
         <Image
@@ -138,7 +146,7 @@ export const HeaderNavigation = () => {
           alt={`${userProfile.nickname || "사용자"} 프로필`}
           width={32}
           height={32}
-          className="w-8 h-8 rounded-full"
+          className="h-8 w-8 rounded-full"
         />
       ) : (
         <Image
@@ -146,7 +154,7 @@ export const HeaderNavigation = () => {
           alt={`${userProfile?.nickname || "사용자"} 프로필`}
           width={32}
           height={32}
-          className="w-8 h-8 rounded-full"
+          className="h-8 w-8 rounded-full"
         />
       )}
     </Button>
@@ -160,12 +168,24 @@ export const HeaderNavigation = () => {
   // console.log("HeaderNavigation state:", { isLoggedIn, userProfile, isLoading, needsProfileCompletion });
 
   return (
-    <nav className="flex items-center gap-4 h-8" key={forceUpdateKey}>
+    <nav className="flex h-8 items-center gap-4" key={forceUpdateKey}>
       {/* 검색창 */}
       <form onSubmit={handleSearch} className="relative">
-        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <svg className="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <svg
+            className="h-4 w-4 text-gray-400"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+            />
           </svg>
         </div>
         <input
@@ -174,7 +194,7 @@ export const HeaderNavigation = () => {
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="w-48 pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full bg-gray-50 focus:ring-2 focus:ring-[#FAA631] focus:border-transparent outline-none"
+          className="w-48 rounded-full border border-gray-300 bg-gray-50 py-2 pr-4 pl-10 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-[#FAA631]"
         />
       </form>
 
@@ -185,26 +205,33 @@ export const HeaderNavigation = () => {
             <Link href="/posts/new">
               <Button
                 variant="default" // 기본 variant 사용 또는 커스텀 스타일 유지
-                className={`rounded-full bg-[#20242B] px-4 py-2 text-white text-xs sm:text-sm flex items-center gap-2 transition-colors duration-150`}>
+                className={`flex items-center gap-2 rounded-full bg-[#20242B] px-4 py-2 text-xs text-white transition-colors duration-150 sm:text-sm`}
+              >
                 글쓰기
               </Button>
             </Link>
-            <DropdownMenuList
-              triggerElement={headerTriggerElement}
-              items={headerDropdownItems}
-            />
+            <DropdownMenuList triggerElement={headerTriggerElement} items={headerDropdownItems} />
           </>
         ) : (
           // 로그인되지 않은 상태: 로그인 버튼 표시
-          <Link href={githubLoginUrl} target="_self" onClick={isAttemptingLogin ? (e) => e.preventDefault() : handleLoginClick} passHref>
+          <Link
+            href={githubLoginUrl}
+            target="_self"
+            onClick={isAttemptingLogin ? (e) => e.preventDefault() : handleLoginClick}
+            passHref
+          >
             <Button
               variant="default" // 기본 variant 사용 또는 커스텀 스타일 유지
-              className={`rounded-full bg-[#20242B] px-4 py-2 text-white text-xs sm:text-sm flex items-center gap-2 transition-colors duration-150 ${isAttemptingLogin
-                ? "cursor-not-allowed opacity-70"
-                : "hover:bg-[#33373E] hover:cursor-pointer"
-                }`}
-              disabled={isAttemptingLogin}>
-              {isAttemptingLogin ? `Logging in${loginDots}` : (
+              className={`flex items-center gap-2 rounded-full bg-[#20242B] px-4 py-2 text-xs text-white transition-colors duration-150 sm:text-sm ${
+                isAttemptingLogin
+                  ? "cursor-not-allowed opacity-70"
+                  : "hover:cursor-pointer hover:bg-[#33373E]"
+              }`}
+              disabled={isAttemptingLogin}
+            >
+              {isAttemptingLogin ? (
+                `Logging in${loginDots}`
+              ) : (
                 <>
                   Login with <Image src="/githubIcon.svg" alt="GitHub" width={22} height={22} />
                 </>

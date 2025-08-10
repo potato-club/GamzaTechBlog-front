@@ -7,17 +7,28 @@ export function useMyPageTab() {
   const searchParams = useSearchParams();
 
   const currentTab = useMemo(() => {
-    const tab = searchParams.get('tab');
-    return tab && VALID_TABS.includes(tab as TabType)
-      ? (tab as TabType)
-      : 'posts';
+    try {
+      const tab = searchParams?.get("tab");
+      return tab && VALID_TABS.includes(tab as TabType) ? (tab as TabType) : "posts";
+    } catch {
+      // 서버 사이드에서 searchParams에 접근할 수 없는 경우 기본값 반환
+      return "posts";
+    }
   }, [searchParams]);
 
-  const handleTabChange = useCallback((newTab: TabType) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('tab', newTab);
-    router.push(`/mypage?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
+  const handleTabChange = useCallback(
+    (newTab: TabType) => {
+      try {
+        const params = new URLSearchParams(searchParams || undefined);
+        params.set("tab", newTab);
+        router.push(`/mypage?${params.toString()}`, { scroll: false });
+      } catch {
+        // 에러 발생 시 기본 경로로 이동
+        router.push(`/mypage?tab=${newTab}`, { scroll: false });
+      }
+    },
+    [router, searchParams]
+  );
 
   return {
     currentTab,
