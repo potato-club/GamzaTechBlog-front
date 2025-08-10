@@ -19,13 +19,7 @@ import CustomPagination from "./common/CustomPagination";
 import PostCard from "./features/posts/PostCard";
 import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
-// 랜덤 문장 배열
-const blogDescriptions = [
-  "감자에서 시작되는 진짜 개발 이야기",
-  "뿌리부터 단단한 기술, 감자밭에서 캔 인사이트",
-  "우리 코드는 감자처럼 생겼지만... 돌아갑니다.",
-  "우리 얼굴은 감자처럼 생겼지만... 돌아갑니다.",
-];
+import { BLOG_DESCRIPTIONS as blogDescriptions } from "@/constants/textConstants";
 
 export default function MainPageContent() {
   // 랜덤 문장 상태
