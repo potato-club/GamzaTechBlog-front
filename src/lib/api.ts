@@ -118,8 +118,6 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}, isRe
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
-  // FormData인 경우 Content-Type을 설정하지 않음 (브라우저가 자동으로 multipart/form-data 설정)
-  // 그 외의 경우에만 application/json 설정
   if (options.body && !headers.has("Content-Type") && !(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
