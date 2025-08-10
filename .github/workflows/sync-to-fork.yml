@@ -8,16 +8,15 @@ on:
 
 jobs:
   sync:
-    name: Sync develop to forked repo
+    name: Sync to forked repo
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout develop
+      - name: Checkout branch
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
           fetch-depth: 0
-          ref: develop
 
       - name: Add remote-url
         run: |
@@ -25,9 +24,9 @@ jobs:
           git config user.name tnemnorivnelee
           git config user.email tnemnorivnelee@gmail.com
 
-      - name: Push develop to forked repo
+      - name: Push to forked repo
         run: |
-          git push -f forked-repo develop
+          git push -f forked-repo ${{ github.ref_name }}
 
       - name: Clean up
         run: |
