@@ -51,11 +51,11 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
 
   const deleteCommentMutation = useDeleteComment(postId);
 
-  const handleCommentEdit = () => {
-    if (deleteCommentMutation.isPending || typeof comment.commentId !== "number") return;
-    // TODO: Implement edit functionality
-    alert(`댓글 수정 기능 (ID: ${comment.commentId})`);
-  };
+  // const handleCommentEdit = () => {
+  //   if (deleteCommentMutation.isPending || typeof comment.commentId !== "number") return;
+  //   // TODO: Implement edit functionality
+  //   alert(`댓글 수정 기능 (ID: ${comment.commentId})`);
+  // };
 
   const openDeleteDialog = () => {
     if (deleteCommentMutation.isPending || typeof comment.commentId !== "number") return;
@@ -84,11 +84,11 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
   })();
 
   const commentDropdownItems: DropdownActionItem[] = [
-    {
-      label: "수정하기",
-      onClick: handleCommentEdit,
-      className: deleteCommentMutation.isPending ? "text-gray-400 cursor-not-allowed" : "",
-    },
+    // {
+    //   label: "수정하기",
+    //   onClick: handleCommentEdit,
+    //   className: deleteCommentMutation.isPending ? "text-gray-400 cursor-not-allowed" : "",
+    // },
     {
       label: deleteCommentMutation.isPending ? "삭제 중..." : "삭제하기",
       onClick: openDeleteDialog,

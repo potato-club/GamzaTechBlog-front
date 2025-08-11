@@ -9,8 +9,8 @@
  */
 
 import CommentList from "@/components/features/comments/CommentList";
-import { usePost } from "@/hooks/queries/usePostQueries";
 import { CommentResponse } from "@/generated/api";
+import { usePost } from "@/hooks/queries/usePostQueries";
 import CommentForm from "../comments/CommentForm";
 
 interface PostCommentsSectionProps {
