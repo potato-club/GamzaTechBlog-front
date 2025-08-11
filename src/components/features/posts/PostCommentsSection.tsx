@@ -35,7 +35,6 @@ export default function PostCommentsSection({
 
   // TanStack Query에서 가져온 데이터 우선 사용, 없으면 fallback 데이터 사용
   const comments = post?.comments || initialComments;
-  const reversedComments = [...comments].reverse();
 
   // 로딩 중일 때 스켈레톤 UI 표시
   if (isLoading) {
@@ -78,7 +77,7 @@ export default function PostCommentsSection({
       <CommentForm postId={postId} />
 
       {/* TanStack Query가 댓글 삭제를 자동으로 처리하므로 onCommentDeleted는 선택사항 */}
-      <CommentList comments={reversedComments} variant="post" postId={postId} />
+      <CommentList comments={comments} variant="post" postId={postId} />
     </section>
   );
 }
