@@ -14,6 +14,7 @@ export const MarkdownImage = ({ ...props }: ComponentProps<"img">) => (
       onError={(e) => {
         e.currentTarget.style.display = "none";
       }}
+      unoptimized
     />
   </span>
 );
