@@ -1,7 +1,11 @@
-import { postService } from "@/services/postService";
-import { Metadata } from "next";
-import MainPageContent from "../components/MainPageContent";
 import { DynamicWelcomeModal } from "@/components/dynamic/DynamicComponents";
+import LogoSection from "@/components/server/LogoSection";
+import PostListSection from "@/components/server/PostListSection";
+import SidebarSection from "@/components/server/SidebarSection";
+import PostListSkeleton from "@/components/skeletons/PostListSkeleton";
+import SidebarSkeleton from "@/components/skeletons/SidebarSkeleton";
+import { Metadata } from "next";
+import { Suspense } from "react";
 
 /**
  * 메인 페이지 동적 메타데이터 생성
@@ -46,70 +50,32 @@ export async function generateMetadata({
   };
 }
 
-export default async function Home({
+export default function Home({
   searchParams,
 }: {
   searchParams: Promise<{ tag?: string; page?: string }>;
 }) {
-  // 서버에서 초기 데이터 페칭 (SEO 및 초기 로딩 최적화)
-  const { tag, page: pageParam } = await searchParams;
-  const page = Number(pageParam) || 1;
-
-  let initialPosts = null;
-  let initialPopularPosts = null;
-  let initialTags = null;
-
-  try {
-    // 병렬로 초기 데이터 페칭
-    const [postsResult, popularResult, tagsResult] = await Promise.allSettled([
-      // 메인 게시글 목록
-      tag
-        ? postService.getPostsByTag(
-            tag,
-            { page: page - 1, size: 10, sort: ["createdAt,desc"] },
-            {
-              revalidate: 300, // 5분 캐싱
-              tags: [`posts-tag-${tag}`],
-            }
-          )
-        : postService.getPosts(
-            { page: page - 1, size: 10, sort: ["createdAt,desc"] },
-            {
-              revalidate: 300, // 5분 캐싱
-              tags: ["posts-list"],
-            }
-          ),
-
-      // 인기 게시글
-      postService.getPopularPosts({
-        revalidate: 86400, // 24시간 캐싱
-        tags: ["popular-posts"],
-      }),
-
-      // 태그 목록
-      postService.getTags({
-        revalidate: 86400, // 24시간 캐싱
-        tags: ["tags"],
-      }),
-    ]);
-
-    if (postsResult.status === "fulfilled") initialPosts = postsResult.value;
-    if (popularResult.status === "fulfilled") initialPopularPosts = popularResult.value;
-    if (tagsResult.status === "fulfilled") initialTags = tagsResult.value;
-  } catch (error) {
-    console.error("서버에서 초기 데이터 페칭 실패:", error);
-    // 에러가 발생해도 클라이언트에서 로딩하도록 fallback
-  }
-
   return (
     <>
       <DynamicWelcomeModal />
-      <MainPageContent
-        initialPosts={initialPosts}
-        initialPopularPosts={initialPopularPosts}
-        initialTags={initialTags}
-        searchParams={{ tag, page: pageParam }}
-      />
+
+      <div className="mx-auto flex flex-col gap-12">
+        {/* 로고 섹션 - 즉시 렌더링 */}
+        <LogoSection />
+
+        {/* 메인 콘텐츠 - 스트리밍 */}
+        <div className="flex pb-10">
+          {/* 게시글 목록 섹션 - 독립적 스트리밍 */}
+          <Suspense fallback={<PostListSkeleton count={3} />}>
+            <PostListSection searchParams={searchParams} />
+          </Suspense>
+
+          {/* 사이드바 섹션 - 독립적 스트리밍 */}
+          <Suspense fallback={<SidebarSkeleton />}>
+            <SidebarSection />
+          </Suspense>
+        </div>
+      </div>
     </>
   );
 }
