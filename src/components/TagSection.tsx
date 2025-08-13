@@ -9,6 +9,7 @@
 
 import { useTags } from "@/hooks/queries/usePostQueries";
 import { useTagStore } from "@/store/tagStore";
+import TagSectionSkeleton from "./skeletons/TagSectionSkeleton";
 import TagBadge from "./ui/TagBadge";
 
 interface TagSectionProps {
