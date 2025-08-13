@@ -35,8 +35,14 @@ export type LikedPostResponse = PostResponse & { likeId: number };
 export const postService = {
   /**
    * 최신순 게시물 목록을 조회합니다.
+   *
+   * @param params 페이지네이션 파라미터
+   * @param options 캐싱 옵션 (서버 컴포넌트에서 사용시 캐싱 적용 가능)
    */
-  async getPosts(params?: Pageable): Promise<PagedResponsePostListResponse> {
+  async getPosts(
+    params?: Pageable,
+    options?: { revalidate?: number; tags?: string[] }
+  ): Promise<PagedResponsePostListResponse> {
     const endpoint = API_PATHS.posts.base;
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
@@ -45,11 +51,22 @@ export const postService = {
     if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append("sort", sort));
 
     try {
-      const response = await fetch(url.toString(), {
+      const fetchOptions: RequestInit = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        cache: "no-cache",
-      });
+      };
+
+      // 서버 컴포넌트에서 호출시 Next.js 캐싱 적용
+      if (options?.revalidate || options?.tags) {
+        fetchOptions.next = {
+          revalidate: options.revalidate || 300, // 기본 5분
+          tags: options.tags || ["posts-list"],
+        };
+      } else {
+        fetchOptions.cache = "no-cache";
+      }
+
+      const response = await fetch(url.toString(), fetchOptions);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -74,17 +91,33 @@ export const postService = {
 
   /**
    * 주간 인기 게시물 목록을 조회합니다.
+   *
+   * @param options 캐싱 옵션 (서버 컴포넌트에서 사용시 캐싱 적용 가능)
    */
-  async getPopularPosts(): Promise<PostPopularResponse[]> {
+  async getPopularPosts(options?: {
+    revalidate?: number;
+    tags?: string[];
+  }): Promise<PostPopularResponse[]> {
     const endpoint = API_PATHS.posts.popular;
     const url = API_CONFIG.BASE_URL + endpoint;
 
     try {
-      const response = await fetch(url, {
+      const fetchOptions: RequestInit = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        cache: "no-cache",
-      });
+      };
+
+      // 서버 컴포넌트에서 호출시 Next.js 캐싱 적용
+      if (options?.revalidate || options?.tags) {
+        fetchOptions.next = {
+          revalidate: options.revalidate || 86400, // 기본 24시간
+          tags: options.tags || ["popular-posts"],
+        };
+      } else {
+        fetchOptions.cache = "no-cache";
+      }
+
+      const response = await fetch(url, fetchOptions);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -109,8 +142,16 @@ export const postService = {
 
   /**
    * 태그별 게시물 목록을 조회합니다.
+   *
+   * @param tagName 태그명
+   * @param params 페이지네이션 파라미터
+   * @param options 캐싱 옵션 (서버 컴포넌트에서 사용시 캐싱 적용 가능)
    */
-  async getPostsByTag(tagName: string, params?: Pageable): Promise<PagedResponsePostListResponse> {
+  async getPostsByTag(
+    tagName: string,
+    params?: Pageable,
+    options?: { revalidate?: number; tags?: string[] }
+  ): Promise<PagedResponsePostListResponse> {
     const endpoint = API_PATHS.posts.byTag(tagName);
     const url = new URL(API_CONFIG.BASE_URL + endpoint);
 
@@ -119,11 +160,22 @@ export const postService = {
     if (params?.sort) params.sort.forEach((sort: string) => url.searchParams.append("sort", sort));
 
     try {
-      const response = await fetch(url.toString(), {
+      const fetchOptions: RequestInit = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        cache: "no-cache",
-      });
+      };
+
+      // 서버 컴포넌트에서 호출시 Next.js 캐싱 적용
+      if (options?.revalidate || options?.tags) {
+        fetchOptions.next = {
+          revalidate: options.revalidate || 300, // 기본 5분
+          tags: options.tags || [`posts-tag-${tagName}`],
+        };
+      } else {
+        fetchOptions.cache = "no-cache";
+      }
+
+      const response = await fetch(url.toString(), fetchOptions);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -148,16 +200,30 @@ export const postService = {
 
   /**
    * 태그 목록을 조회합니다.
+   *
+   * @param options 캐싱 옵션 (서버 컴포넌트에서 사용시 캐싱 적용 가능)
    */
-  async getTags(): Promise<string[]> {
+  async getTags(options?: { revalidate?: number; tags?: string[] }): Promise<string[]> {
     const endpoint = API_PATHS.tags.base;
     const url = API_CONFIG.BASE_URL + endpoint;
+
     try {
-      const response = await fetch(url, {
+      const fetchOptions: RequestInit = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        cache: "no-cache",
-      });
+      };
+
+      // 서버 컴포넌트에서 호출시 Next.js 캐싱 적용
+      if (options?.revalidate || options?.tags) {
+        fetchOptions.next = {
+          revalidate: options.revalidate || 86400, // 기본 24시간
+          tags: options.tags || ["tags"],
+        };
+      } else {
+        fetchOptions.cache = "no-cache";
+      }
+
+      const response = await fetch(url, fetchOptions);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -182,17 +248,35 @@ export const postService = {
 
   /**
    * 특정 게시글의 상세 정보를 조회합니다.
+   *
+   * @param postId 게시글 ID
+   * @param options 캐싱 옵션 (서버 컴포넌트에서 사용시 캐싱 적용 가능)
    */
-  async getPostById(postId: number): Promise<PostDetailResponse> {
+  async getPostById(
+    postId: number,
+    options?: { revalidate?: number; tags?: string[] }
+  ): Promise<PostDetailResponse> {
     const endpoint = API_PATHS.posts.byId(postId);
     const url = API_CONFIG.BASE_URL + endpoint;
 
     try {
-      const response = await fetch(url, {
+      const fetchOptions: RequestInit = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        cache: "no-cache",
-      });
+      };
+
+      // 서버 컴포넌트에서 호출시 Next.js 캐싱 적용
+      if (options?.revalidate || options?.tags) {
+        fetchOptions.next = {
+          revalidate: options.revalidate || 300,
+          tags: options.tags || [`post-${postId}`],
+        };
+      } else {
+        // 클라이언트에서 호출시 캐싱 안함 (TanStack Query가 담당)
+        fetchOptions.cache = "no-cache";
+      }
+
+      const response = await fetch(url, fetchOptions);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));

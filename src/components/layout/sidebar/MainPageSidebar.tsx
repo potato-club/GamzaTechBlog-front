@@ -7,10 +7,19 @@
  * 자동으로 관리하는 컴포넌트들을 포함합니다.
  */
 
+import { PostPopularResponse } from "@/generated/api/models";
 import PopularPostList from "../../features/posts/PopularPostList";
 import TagSection from "../../TagSection";
 
-export default function MainPageSidebar() {
+interface MainPageSidebarProps {
+  initialPopularPosts?: PostPopularResponse[] | null;
+  initialTags?: string[] | null;
+}
+
+export default function MainPageSidebar({
+  initialPopularPosts = null,
+  initialTags = null,
+}: MainPageSidebarProps) {
   return (
     <aside className="ml-10 flex-1 border-l border-[#F2F4F6] pl-10">
       {/* 
@@ -21,8 +30,8 @@ export default function MainPageSidebar() {
         각 컴포넌트는 독립적으로 데이터를 관리하며 
         로딩/에러 상태를 개별적으로 처리합니다.
       */}
-      <PopularPostList />
-      <TagSection />
+      <PopularPostList initialData={initialPopularPosts} />
+      <TagSection initialData={initialTags} />
     </aside>
   );
 }

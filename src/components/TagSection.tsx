@@ -7,11 +7,15 @@
  * 자동으로 관리하고 로딩/에러 상태를 처리합니다.
  */
 
-import { useTagStore } from "@/store/tagStore";
 import { useTags } from "@/hooks/queries/usePostQueries";
+import { useTagStore } from "@/store/tagStore";
 import TagBadge from "./ui/TagBadge";
 
-export default function TagSection() {
+interface TagSectionProps {
+  initialData?: string[] | null;
+}
+
+export default function TagSection({ initialData = null }: TagSectionProps) {
   const { selectedTag, setSelectedTag } = useTagStore();
 
   /**
@@ -23,7 +27,13 @@ export default function TagSection() {
    * - 로딩/에러 상태: 별도 state 관리 없이 자동 제공
    * - 재시도 로직: 네트워크 오류 시 자동 재시도
    */
-  const { data: tags, isLoading, error } = useTags();
+  const {
+    data: tags,
+    isLoading,
+    error,
+  } = useTags({
+    initialData: initialData || undefined,
+  });
 
   const handleTagClick = (tag: string) => {
     console.log(`태그 "${tag}" 클릭됨`);
@@ -43,15 +53,7 @@ export default function TagSection() {
       <h3 className="text-[18px] text-[#838C9D]">태그</h3>
 
       {/* 로딩 상태 처리 */}
-      {isLoading && (
-        <nav className="mt-7 flex flex-wrap gap-2">
-          {[...Array(6)].map((_, index) => (
-            <div key={index} className="animate-pulse">
-              <div className="h-7 w-20 rounded-full bg-gray-200"></div>
-            </div>
-          ))}
-        </nav>
-      )}
+      {isLoading && <TagSectionSkeleton count={6} />}
 
       {/* 에러 상태 처리 */}
       {error && (

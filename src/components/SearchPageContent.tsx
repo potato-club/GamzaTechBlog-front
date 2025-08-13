@@ -12,7 +12,7 @@ import { useSearchPosts } from "@/hooks/queries/usePostQueries";
 import { usePagination } from "@/hooks/usePagination";
 import { useSearchParams } from "next/navigation";
 import CustomPagination from "./common/CustomPagination";
-import PostCard from "./features/posts/PostCard";
+import PostList from "./features/posts/PostList";
 import SearchPageSidebar from "./layout/sidebar/SearchPageSidebar";
 
 export default function SearchPageContent() {
@@ -125,23 +125,17 @@ export default function SearchPageContent() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-8">
-            {posts.length > 0 ? (
-              posts.map((post) => (
-                <PostCard key={post.postId} post={post} searchKeyword={keyword} />
-              ))
-            ) : keyword ? (
-              <div className="py-16 text-center text-gray-500">
-                <p className="mb-2 text-lg">&quot;{keyword}&quot;에 대한 검색 결과가 없습니다</p>
-                <p className="text-sm">다른 키워드로 검색해보세요.</p>
-              </div>
-            ) : (
-              <div className="py-16 text-center text-gray-500">
-                <p className="mb-2 text-lg">검색어를 입력해주세요</p>
-                <p className="text-sm">원하는 게시글을 찾아보세요!</p>
-              </div>
-            )}
-          </div>
+          <PostList
+            posts={posts}
+            isLoading={isLoadingPosts}
+            searchKeyword={keyword}
+            emptyMessage={
+              keyword ? `"${keyword}"에 대한 검색 결과가 없습니다` : "검색어를 입력해주세요"
+            }
+            emptyDescription={
+              keyword ? "다른 키워드로 검색해보세요." : "원하는 게시글을 찾아보세요!"
+            }
+          />
 
           {totalPages > 1 && (
             <CustomPagination

@@ -8,7 +8,11 @@
  * 실시간 데이터 업데이트와 캐싱의 이점을 활용합니다.
  */
 
-import { PagedResponsePostListResponse, PostListResponse } from "@/generated/api/models";
+import {
+  PagedResponsePostListResponse,
+  PostListResponse,
+  PostPopularResponse,
+} from "@/generated/api/models";
 import { usePosts, usePostsByTag } from "@/hooks/queries/usePostQueries";
 import { usePagination } from "@/hooks/usePagination";
 import { useTagStore } from "@/store/tagStore";
@@ -16,12 +20,27 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CustomPagination from "./common/CustomPagination";
-import PostCard from "./features/posts/PostCard";
 import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
 
 import { BLOG_DESCRIPTIONS as blogDescriptions } from "@/constants/textConstants";
+import PostList from "./features/posts/PostList";
+import LogoSkeleton from "./skeletons/LogoSkeleton";
+import PostListSkeleton from "./skeletons/PostListSkeleton";
+import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 
-export default function MainPageContent() {
+interface MainPageContentProps {
+  initialPosts?: PagedResponsePostListResponse | null;
+  initialPopularPosts?: PostPopularResponse[] | null;
+  initialTags?: string[] | null;
+  searchParams?: { tag?: string; page?: string };
+}
+
+export default function MainPageContent({
+  initialPosts = null,
+  initialPopularPosts = null,
+  initialTags = null,
+  searchParams,
+}: MainPageContentProps) {
   // 랜덤 문장 상태
   const [currentDescription, setCurrentDescription] = useState("");
   const pathname = usePathname();
@@ -51,7 +70,7 @@ export default function MainPageContent() {
 
   /**
    * TanStack Query로 게시글 목록을 가져옵니다.
-   * 훅은 항상 최상위에서 호출하고, enabled 옵션으로 조건부 실행을 제어합니다.
+   * 서버에서 제공된 초기 데이터를 활용하여 빠른 초기 로딩을 제공합니다.
    */
   const {
     data: postsData,
@@ -65,6 +84,7 @@ export default function MainPageContent() {
     },
     {
       enabled: !selectedTag, // 태그가 없을 때만 실행
+      initialData: !selectedTag && currentPage === 1 && initialPosts ? initialPosts : undefined, // 첫 페이지는 서버 데이터 사용
     }
   );
 
@@ -81,6 +101,10 @@ export default function MainPageContent() {
     },
     {
       enabled: !!selectedTag, // 태그가 있을 때만 실행
+      initialData:
+        selectedTag && currentPage === 1 && searchParams?.tag === selectedTag && initialPosts
+          ? initialPosts
+          : undefined,
     }
   );
 
@@ -99,48 +123,19 @@ export default function MainPageContent() {
     setPage(page); // usePagination 훅의 setPage 사용
   };
 
-  // 로딩 중일 때 스켈레톤 UI 표시
-  if (isLoading) {
-    return (
-      <div className="mx-auto flex flex-col gap-30">
-        <section className="text-center">
-          <div onClick={handleLogoClick} className="inline-block cursor-pointer">
-            <Image
-              src="/logo2.svg"
-              alt="메인페이지 로고"
-              width={255}
-              height={230}
-              className="mx-auto"
-            />
-          </div>
-        </section>
+  // 초기 로딩 중일 때만 전체 스켈레톤 표시 (initialData가 없고 첫 로딩인 경우)
+  const showFullPageLoading = isLoading && !initialPosts && !initialPopularPosts && !initialTags;
 
+  if (showFullPageLoading) {
+    return (
+      <div className="mx-auto flex flex-col gap-12">
+        <LogoSkeleton />
         <div className="flex pb-10">
           <main className="flex-3">
-            <h2 className="text-2xl font-semibold">Posts</h2>
-            {/* 게시글 로딩 스켈레톤 */}
-            <div className="mt-8 flex flex-col gap-8">
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="mb-2 h-6 w-3/4 rounded bg-gray-200"></div>
-                  <div className="mb-2 h-4 w-1/2 rounded bg-gray-200"></div>
-                  <div className="h-4 w-full rounded bg-gray-200"></div>
-                </div>
-              ))}
-            </div>
+            <div className="mb-6 h-8 w-32 rounded bg-gray-200"></div>
+            <PostListSkeleton count={3} />
           </main>
-
-          {/* 사이드바 로딩 스켈레톤 */}
-          <aside className="ml-8 flex-1">
-            <div className="animate-pulse">
-              <div className="mb-4 h-6 w-1/2 rounded bg-gray-200"></div>
-              <div className="space-y-2">
-                {[...Array(5)].map((_, index) => (
-                  <div key={index} className="h-4 rounded bg-gray-200"></div>
-                ))}
-              </div>
-            </div>
-          </aside>
+          <SidebarSkeleton />
         </div>
       </div>
     );
@@ -158,6 +153,7 @@ export default function MainPageContent() {
               width={255}
               height={230}
               className="mx-auto"
+              priority // 메인 로고는 우선 로딩
             />
           </div>
         </section>
@@ -182,6 +178,7 @@ export default function MainPageContent() {
             width={255}
             height={230}
             className="mx-auto"
+            priority // 메인 로고는 우선 로딩 (LCP 개선)
           />
           <p className="mt-2 text-2xl font-light">{currentDescription}</p>
         </div>
@@ -194,20 +191,17 @@ export default function MainPageContent() {
             <h2 className="text-2xl font-semibold">
               {selectedTag ? `#${selectedTag} 태그 게시글` : "Posts"}
             </h2>
-            {/* <p className="text-sm text-gray-500">
-              총 {totalElements}개의 게시글 (페이지 {currentPage} / {totalPages})
-            </p> */}
           </div>
-          <div className="mt-8 flex flex-col gap-8">
-            {posts.length > 0 ? (
-              posts.map((post) => <PostCard key={post.postId} post={post} />)
-            ) : (
-              <div className="py-16 text-center text-gray-500">
-                <p className="mb-2 text-lg">게시글이 없습니다</p>
-                <p className="text-sm">첫 번째 게시글을 작성해보세요!</p>
-              </div>
-            )}
-          </div>
+          <PostList
+            posts={posts}
+            isLoading={isLoading}
+            emptyMessage={
+              selectedTag ? `#${selectedTag} 태그의 게시글이 없습니다` : "게시글이 없습니다"
+            }
+            emptyDescription={
+              selectedTag ? "다른 태그를 선택해보세요!" : "첫 번째 게시글을 작성해보세요!"
+            }
+          />
           <CustomPagination
             currentPage={currentPage} // 이미 1부터 시작하는 값
             totalPages={totalPages}
@@ -215,7 +209,7 @@ export default function MainPageContent() {
             className="mt-12"
           />
         </main>
-        <MainPageSidebar />
+        <MainPageSidebar initialPopularPosts={initialPopularPosts} initialTags={initialTags} />
       </div>
     </div>
   );

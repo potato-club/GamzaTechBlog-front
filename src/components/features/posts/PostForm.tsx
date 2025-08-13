@@ -6,15 +6,11 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
-
-const ToastEditor = dynamic(() => import("@/components/ToastEditor"), {
-  ssr: false,
-});
+import { DynamicToastEditor } from "../../dynamic/DynamicComponents";
 
 // Zod 스키마 정의
 const formSchema = z.object({
@@ -192,7 +188,7 @@ export default function PostForm({ mode, initialData, onSubmitAction, isLoading 
           </Button>
         </div>
 
-        <ToastEditor
+        <DynamicToastEditor
           ref={editorRef}
           initialValue={mode === "edit" ? initialData?.content : undefined}
         />

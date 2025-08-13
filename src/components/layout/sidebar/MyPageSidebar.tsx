@@ -1,11 +1,12 @@
 "use client";
 
 // TanStack Query 훅을 사용하여 사용자 활동 통계를 효율적으로 관리합니다
-import { useUserActivityStats } from "@/hooks/queries/useUserQueries";
 import type { UserProfileResponse } from "@/generated/api";
+import { useUserActivityStats } from "@/hooks/queries/useUserQueries";
 import Image from "next/image";
-import ProfileEditDialog from "../../features/user/ProfileEditDialog";
+import { DynamicProfileEditDialog } from "../../dynamic/DynamicComponents";
 import UserActivityStatItem from "../../features/user/UserActivityStatItem";
+import UserActivityStatsSkeleton from "../../skeletons/UserActivityStatsSkeleton";
 import UserIcon from "../../ui/UserIcon";
 
 // Sidebar 컴포넌트 props 정의
@@ -106,7 +107,7 @@ export default function MyPageSidebar({ userProfile }: SidebarProps) {
         </div>
 
         {/* 프로필 수정 Dialog 호출 */}
-        <ProfileEditDialog userProfile={userProfile} />
+        <DynamicProfileEditDialog userProfile={userProfile} />
       </section>
 
       {/* 작성 글, 작성 댓글, 좋아요 수 표시 */}
@@ -117,11 +118,7 @@ export default function MyPageSidebar({ userProfile }: SidebarProps) {
         <ul className="flex justify-around text-center text-sm">
           {isLoadingStats ? (
             /* TanStack Query 로딩 상태: 스켈레톤 UI 표시 */
-            <>
-              <div className="h-12 w-16 animate-pulse rounded-md bg-gray-200" />
-              <div className="h-12 w-16 animate-pulse rounded-md bg-gray-200" />
-              <div className="h-12 w-16 animate-pulse rounded-md bg-gray-200" />
-            </>
+            <UserActivityStatsSkeleton />
           ) : statsError ? (
             /* TanStack Query 에러 상태: 간단한 에러 메시지 표시 */
             <div className="text-sm text-red-500">통계를 불러올 수 없습니다</div>
