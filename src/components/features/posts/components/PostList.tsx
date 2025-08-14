@@ -11,7 +11,7 @@
  */
 
 import { PostListResponse } from "@/generated/api/models";
-import PostListSkeleton from "../../skeletons/PostListSkeleton";
+import PostListSkeleton from "../skeletons/PostListSkeleton";
 import PostCard from "./PostCard";
 
 interface PostListProps {

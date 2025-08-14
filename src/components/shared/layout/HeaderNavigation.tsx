@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation"; // usePathname import
 import { useEffect, useState } from "react";
-import { DropdownMenuList } from "../../common/DropdownMenuList";
+import { DropdownMenuList } from "../navigation/DropdownMenuList";
 
 export const HeaderNavigation = () => {
   const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github"; // 환경 변수 또는 기본값  // useAuth 훅 호출. React Query가 데이터 관리

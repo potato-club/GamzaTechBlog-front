@@ -11,9 +11,9 @@ import { PostListResponse } from "@/generated/api/models";
 import { useSearchPosts } from "@/hooks/queries/usePostQueries";
 import { usePagination } from "@/hooks/usePagination";
 import { useSearchParams } from "next/navigation";
-import CustomPagination from "./common/CustomPagination";
-import PostList from "./features/posts/PostList";
-import SearchPageSidebar from "./layout/sidebar/SearchPageSidebar";
+import PostList from "../../features/posts/components/PostList";
+import CustomPagination from "../../shared/navigation/CustomPagination";
+import SearchPageSidebar from "./SearchPageSidebar";
 
 export default function SearchPageContent() {
   const searchParams = useSearchParams();

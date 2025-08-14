@@ -1,4 +1,4 @@
-import BlogHeader from "@/components/layout/header/BlogHeader";
+import BlogHeader from "@/components/shared/layout/BlogHeader";
 import type { Metadata } from "next";
 import Link from "next/link";
 import QueryProvider from "../providers/QueryProvider";

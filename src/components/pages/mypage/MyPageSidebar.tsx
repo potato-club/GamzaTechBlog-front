@@ -6,7 +6,7 @@ import { useUserActivityStats } from "@/hooks/queries/useUserQueries";
 import Image from "next/image";
 import { DynamicProfileEditDialog } from "../../dynamic/DynamicComponents";
 import UserActivityStatItem from "../../features/user/UserActivityStatItem";
-import UserActivityStatsSkeleton from "../../skeletons/UserActivityStatsSkeleton";
+import UserActivityStatsSkeleton from "../../features/user/skeletons/UserActivityStatsSkeleton";
 import UserIcon from "../../ui/UserIcon";
 
 // Sidebar 컴포넌트 props 정의

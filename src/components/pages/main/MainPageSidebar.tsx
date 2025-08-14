@@ -9,7 +9,7 @@
 
 import { PostPopularResponse } from "@/generated/api/models";
 import PopularPostList from "../../features/posts/PopularPostList";
-import TagSection from "../../TagSection";
+import TagSection from "./TagSection";
 
 interface MainPageSidebarProps {
   initialPopularPosts?: PostPopularResponse[] | null;

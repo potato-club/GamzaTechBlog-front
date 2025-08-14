@@ -6,12 +6,12 @@
  */
 
 import CommentList from "@/components/features/comments/CommentList";
-import ErrorDisplay from "@/components/mypage/shared/ErrorDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommentResponse } from "@/generated/api";
 import { useMyComments } from "@/hooks/queries/useMyPageQueries";
 import { usePagination } from "@/hooks/usePagination";
-import CustomPagination from "../../common/CustomPagination";
+import CustomPagination from "../../../shared/navigation/CustomPagination";
+import ErrorDisplay from "../shared/ErrorDisplay";
 
 export default function CommentsTab() {
   const { currentPage, currentPageForAPI, setPage } = usePagination();

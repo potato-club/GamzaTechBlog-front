@@ -8,10 +8,10 @@
  */
 
 import dynamic from "next/dynamic";
-import MarkdownViewerSkeleton from "../skeletons/MarkdownViewerSkeleton";
+import CommentsSkeleton from "../features/comments/skeletons/CommentsSkeleton";
+import MarkdownViewerSkeleton from "../features/posts/skeletons/MarkdownViewerSkeleton";
+import ProfileEditDialogSkeleton from "../features/user/skeletons/ProfileEditDialogSkeleton";
 import ToastEditorSkeleton from "../skeletons/ToastEditorSkeleton";
-import CommentsSkeleton from "../skeletons/CommentsSkeleton";
-import ProfileEditDialogSkeleton from "../skeletons/ProfileEditDialogSkeleton";
 
 /**
  * MarkdownViewer 동적 로딩
@@ -19,18 +19,24 @@ import ProfileEditDialogSkeleton from "../skeletons/ProfileEditDialogSkeleton";
  * react-markdown, rehype-highlight 등 무거운 라이브러리들을 포함하므로
  * 필요할 때만 로딩합니다.
  */
-export const DynamicMarkdownViewer = dynamic(() => import("../features/posts/MarkdownViewer"), {
-  loading: () => <MarkdownViewerSkeleton />,
-  ssr: true, // 마크다운은 SEO를 위해 서버에서도 렌더링
-});
+export const DynamicMarkdownViewer = dynamic(
+  () => import("../features/posts/components/MarkdownViewer"),
+  {
+    loading: () => <MarkdownViewerSkeleton />,
+    ssr: true, // 마크다운은 SEO를 위해 서버에서도 렌더링
+  }
+);
 
 /**
  * ToastEditor 동적 로딩 (이미 PostForm에서 사용 중이지만 재사용을 위해 정의)
  */
-export const DynamicToastEditor = dynamic(() => import("../ToastEditor"), {
-  loading: () => <ToastEditorSkeleton />,
-  ssr: false, // 에디터는 클라이언트에서만 동작
-});
+export const DynamicToastEditor = dynamic(
+  () => import("../features/posts/components/ToastEditor"),
+  {
+    loading: () => <ToastEditorSkeleton />,
+    ssr: false, // 에디터는 클라이언트에서만 동작
+  }
+);
 
 /**
  * 프로필 편집 다이얼로그 동적 로딩
@@ -65,7 +71,7 @@ export const DynamicPostCommentsSection = dynamic(
  * 메인 페이지에서만 사용되고 localStorage 체크 후 조건부로 표시되므로
  * 동적 로딩으로 초기 번들 크기를 줄입니다.
  */
-export const DynamicWelcomeModal = dynamic(() => import("../features/main/WelcomeModal"), {
+export const DynamicWelcomeModal = dynamic(() => import("../pages/main/WelcomeModal"), {
   loading: () => null, // 모달은 로딩 상태를 보여주지 않음
   ssr: false, // localStorage를 사용하므로 클라이언트에서만
 });

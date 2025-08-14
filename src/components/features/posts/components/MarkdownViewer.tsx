@@ -8,7 +8,7 @@ import remarkBreaks from "remark-breaks";
 import remarkEmoji from "remark-emoji";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { markdownComponents } from "./markdown/MarkdownComponents";
+import { markdownComponents } from "../markdown/MarkdownComponents";
 
 // CSS imports for styling
 import "highlight.js/styles/github.css";

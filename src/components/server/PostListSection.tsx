@@ -1,6 +1,6 @@
 import { postService } from "@/services/postService";
 import InteractivePagination from "../client/InteractivePagination";
-import PostCard from "../features/posts/PostCard";
+import PostCard from "../features/posts/components/PostCard";
 
 /**
  * 게시글 목록 섹션 서버 컴포넌트

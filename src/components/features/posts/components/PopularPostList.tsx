@@ -9,8 +9,8 @@
 
 import { PostPopularResponse } from "@/generated/api/models";
 import { usePopularPosts } from "@/hooks/queries/usePostQueries";
+import PopularPostListSkeleton from "../skeletons/PopularPostListSkeleton";
 import PopularPost from "./PopularPost";
-import PopularPostListSkeleton from "./skeletons/PopularPostListSkeleton";
 
 interface PopularPostListProps {
   initialData?: PostPopularResponse[] | null;

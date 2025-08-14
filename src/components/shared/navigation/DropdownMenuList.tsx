@@ -6,9 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { DropdownMenuListProps } from "@/types/dropdown";
 import Link from "next/link";
-import { cn } from "../../lib/utils";
-import { DropdownMenuListProps } from "../../types/dropdown";
 
 export const DropdownMenuList: React.FC<DropdownMenuListProps> = ({
   triggerElement,

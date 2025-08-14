@@ -19,14 +19,14 @@ import { useTagStore } from "@/store/tagStore";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import CustomPagination from "./common/CustomPagination";
-import MainPageSidebar from "./layout/sidebar/MainPageSidebar";
+import CustomPagination from "../../shared/navigation/CustomPagination";
+import MainPageSidebar from "./MainPageSidebar";
 
 import { BLOG_DESCRIPTIONS as blogDescriptions } from "@/constants/textConstants";
-import PostList from "./features/posts/PostList";
-import LogoSkeleton from "./skeletons/LogoSkeleton";
-import PostListSkeleton from "./skeletons/PostListSkeleton";
-import SidebarSkeleton from "./skeletons/SidebarSkeleton";
+import PostList from "../../features/posts/components/PostList";
+import PostListSkeleton from "../../features/posts/skeletons/PostListSkeleton";
+import LogoSkeleton from "../../skeletons/LogoSkeleton";
+import SidebarSkeleton from "../../skeletons/SidebarSkeleton";
 
 interface MainPageContentProps {
   initialPosts?: PagedResponsePostListResponse | null;

@@ -5,7 +5,7 @@
  * 댓글 삭제 시 Optimistic Update와 자동 캐시 관리를 제공합니다.
  */
 
-import { DropdownMenuList } from "@/components/common/DropdownMenuList";
+import { DropdownMenuList } from "@/components/shared/navigation/DropdownMenuList";
 import {
   AlertDialog,
   AlertDialogAction,

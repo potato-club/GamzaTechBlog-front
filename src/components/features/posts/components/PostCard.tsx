@@ -9,7 +9,7 @@ import { PostListResponse } from "@/generated/api";
 import { markdownToText } from "@/utils/markdown";
 import { highlightSearchKeyword } from "@/utils/textHighlight";
 import Image from "next/image";
-import { PostLink } from "../../common/OptimizedLink";
+import { PostLink } from "../../../shared/navigation/OptimizedLink";
 import PostMeta from "./PostMeta";
 
 export default function PostCard({

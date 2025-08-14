@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import PopularPostsSkeleton from "../skeletons/PopularPostsSkeleton";
+import PopularPostsSkeleton from "../features/posts/skeletons/PopularPostsSkeleton";
 import TagsSkeleton from "../skeletons/TagsSkeleton";
 import PopularPostsSection from "./PopularPostsSection";
 import TagsSection from "./TagsSection";
