@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import CustomPagination from "../shared/navigation/CustomPagination";
+import CustomPagination from "../navigation/CustomPagination";
 
 /**
  * 인터랙티브 페이지네이션 클라이언트 컴포넌트

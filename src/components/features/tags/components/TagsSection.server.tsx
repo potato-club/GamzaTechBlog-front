@@ -1,5 +1,5 @@
 import { postService } from "@/services/postService";
-import InteractiveTagSection from "../client/InteractiveTagSection";
+import InteractiveTagSection from "../../../shared/interactive/InteractiveTagSection";
 
 /**
  * 태그 섹션 서버 컴포넌트

@@ -1,5 +1,5 @@
 import { postService } from "@/services/postService";
-import PopularPost from "../features/posts/PopularPost";
+import PopularPost from "../PopularPost";
 
 /**
  * 인기 게시글 섹션 서버 컴포넌트

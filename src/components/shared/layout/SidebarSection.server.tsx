@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import PopularPostsSkeleton from "../features/posts/skeletons/PopularPostsSkeleton";
-import TagsSkeleton from "../skeletons/TagsSkeleton";
-import PopularPostsSection from "./PopularPostsSection";
-import TagsSection from "./TagsSection";
+import PopularPostsSection from "../../features/posts/components/PopularPostsSection.server";
+import PopularPostsSkeleton from "../../features/posts/skeletons/PopularPostsSkeleton";
+import TagsSection from "../../features/tags/components/TagsSection.server";
+import TagsSkeleton from "../../features/tags/skeletons/TagsSkeleton";
 
 /**
  * 사이드바 섹션 서버 컴포넌트

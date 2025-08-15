@@ -10,8 +10,8 @@
 import dynamic from "next/dynamic";
 import CommentsSkeleton from "../features/comments/skeletons/CommentsSkeleton";
 import MarkdownViewerSkeleton from "../features/posts/skeletons/MarkdownViewerSkeleton";
+import ToastEditorSkeleton from "../features/posts/skeletons/ToastEditorSkeleton";
 import ProfileEditDialogSkeleton from "../features/user/skeletons/ProfileEditDialogSkeleton";
-import ToastEditorSkeleton from "../skeletons/ToastEditorSkeleton";
 
 /**
  * MarkdownViewer 동적 로딩

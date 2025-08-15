@@ -25,8 +25,8 @@ import MainPageSidebar from "./MainPageSidebar";
 import { BLOG_DESCRIPTIONS as blogDescriptions } from "@/constants/textConstants";
 import PostList from "../../features/posts/components/PostList";
 import PostListSkeleton from "../../features/posts/skeletons/PostListSkeleton";
-import LogoSkeleton from "../../skeletons/LogoSkeleton";
-import SidebarSkeleton from "../../skeletons/SidebarSkeleton";
+import LogoSkeleton from "../../shared/layout/skeletons/LogoSkeleton";
+import SidebarSkeleton from "../../shared/layout/skeletons/SidebarSkeleton";
 
 interface MainPageContentProps {
   initialPosts?: PagedResponsePostListResponse | null;
