@@ -20,10 +20,11 @@ const nextConfig: NextConfig = {
     ],
     // 최신 이미지 포맷 지원 (WebP, AVIF)
     formats: ["image/webp", "image/avif"],
-    // 다양한 디바이스 크기 지원
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // Next.js 15에서는 quality를 여기서 설정하지 않고 개별 Image 컴포넌트에서 설정
+    // 다양한 디바이스 크기 지원 (Vercel 변환 최소화를 위해 축소)
+    deviceSizes: [640, 828, 1200, 1920],
+    imageSizes: [24, 48, 96, 176, 256],
+    // 캐시 최적화
+    minimumCacheTTL: 31536000, // 1년
   },
 
   /* 실험적 기능들 */

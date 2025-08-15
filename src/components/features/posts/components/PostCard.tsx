@@ -51,10 +51,10 @@ export default function PostCard({
             alt={`${post.title} 썸네일`}
             fill
             className="rounded-2xl object-cover"
-            sizes="(max-width: 768px) 100vw, 176px"
-            placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-            loading="lazy" // 명시적 lazy loading
+            sizes="176px"
+            quality={75}
+            loading="lazy"
+            unoptimized={post.thumbnailImageUrl.includes(".svg")}
           />
         ) : (
           <div className="absolute bottom-0 left-0 h-28 w-full shrink-0 rounded-2xl bg-white" />

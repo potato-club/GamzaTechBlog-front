@@ -1,7 +1,6 @@
 "use client";
 
 import { BLOG_DESCRIPTIONS } from "@/constants/textConstants";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -40,13 +39,13 @@ export default function LogoSection() {
         }
       }}
     >
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src="/logo2.svg"
         alt="메인페이지 로고 (클릭하면 새로고침)"
         width={255}
         height={230}
         className="mx-auto"
-        priority // 메인 로고는 우선 로딩 (LCP 개선)
       />
       <p className="mt-2 text-2xl font-light">{description}</p>
     </section>
