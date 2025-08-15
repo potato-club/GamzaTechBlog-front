@@ -1,6 +1,7 @@
 import BlogHeader from "@/components/shared/layout/BlogHeader";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Footer from "../components/shared/layout/Footer";
 import QueryProvider from "../providers/QueryProvider";
 import "./globals.css";
 
@@ -52,9 +53,7 @@ export default async function RootLayout({
               </div>
             </QueryProvider>
 
-            <footer className="border-t border-[#F2F4F6] py-8 text-center text-sm text-gray-500">
-              <p>&copy; Gamza Tech Blog. All rights reserved.</p>
-            </footer>
+            <Footer />
           </div>
         </div>
       </body>
