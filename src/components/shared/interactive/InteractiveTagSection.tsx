@@ -37,10 +37,6 @@ export default function InteractiveTagSection({ tags }: InteractiveTagSectionPro
     router.push(url);
   };
 
-  const handleAllPostsClick = () => {
-    router.push("/");
-  };
-
   if (!tags || tags.length === 0) {
     return (
       <section className="mt-10">
@@ -57,13 +53,6 @@ export default function InteractiveTagSection({ tags }: InteractiveTagSectionPro
       <h3 className="mb-7 text-[18px] text-[#838C9D]">태그</h3>
 
       <nav className="flex flex-wrap gap-2">
-        {/* 전체 게시글 버튼 */}
-        <TagBadge
-          tag="전체"
-          variant={!selectedTag ? "outline" : "filled"}
-          onClick={handleAllPostsClick}
-        />
-
         {/* 태그 목록 */}
         {tags.map((tag) => (
           <TagBadge

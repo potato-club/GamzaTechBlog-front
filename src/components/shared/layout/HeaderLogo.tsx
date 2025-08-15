@@ -13,12 +13,12 @@ export const HeaderLogo: React.FC<HeaderLogoProps> = ({ className = "" }) => {
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
+
+    // 항상 완전한 루트 경로로 이동 (쿼리 파라미터 제거)
+    router.push("/");
     if (pathname === "/") {
-      // 메인 페이지에서 클릭 시 새로고침
-      window.location.reload();
-    } else {
-      // 다른 페이지에서 클릭 시 메인 페이지로 이동
-      router.push("/");
+      // 메인 페이지에서 클릭 시 새로고침하여 상태 초기화
+      setTimeout(() => window.location.reload(), 100);
     }
   };
 

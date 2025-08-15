@@ -2,6 +2,8 @@
 
 import { BLOG_DESCRIPTIONS } from "@/constants/textConstants";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import router from "next/router";
 import { useEffect, useState } from "react";
 
 /**
@@ -13,16 +15,18 @@ import { useEffect, useState } from "react";
  */
 export default function LogoSection() {
   const [description, setDescription] = useState("");
+  const router = useRouter();
 
-  // 클라이언트에서 랜덤 문장 선택
+  // 클라이언트에서 랜덤 문장 선택 및 마운트 상태 설정
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * BLOG_DESCRIPTIONS.length);
     setDescription(BLOG_DESCRIPTIONS[randomIndex]);
   }, []);
 
   const handleClick = () => {
-    // 강제 새로고침
-    window.location.reload();
+    // 완전한 루트 경로로 이동 후 새로고침
+    router.push("/");
+    setTimeout(() => window.location.reload(), 100);
   };
 
   return (
