@@ -6,7 +6,7 @@ import CustomPagination from "../navigation/CustomPagination";
 /**
  * 인터랙티브 페이지네이션 클라이언트 컴포넌트
  *
- * 단일 책임: 페이지네이션 상태 관리 및 URL 업데이트
+ * 단일 책임: 페이지네이션 상태 관리 및 URL 업데이트 (TanStack Query 연동)
  */
 
 interface InteractivePaginationProps {
@@ -41,7 +41,8 @@ export default function InteractivePagination({
     const queryString = params.toString();
     const url = queryString ? `/?${queryString}` : "/";
 
-    router.push(url);
+    // URL 업데이트 (TanStack Query가 자동으로 새 데이터 페칭)
+    router.push(url, { scroll: false }); // 스크롤 위치 유지
   };
 
   return (
