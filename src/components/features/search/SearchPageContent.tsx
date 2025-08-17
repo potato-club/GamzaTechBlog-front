@@ -11,8 +11,8 @@ import { PostListResponse } from "@/generated/api/models";
 import { useSearchPosts } from "@/hooks/queries/usePostQueries";
 import { usePagination } from "@/hooks/usePagination";
 import { useSearchParams } from "next/navigation";
-import PostList from "../../features/posts/components/PostList";
 import CustomPagination from "../../shared/navigation/CustomPagination";
+import PostList from "../posts/components/PostList";
 import SearchPageSidebar from "./SearchPageSidebar";
 
 export default function SearchPageContent() {

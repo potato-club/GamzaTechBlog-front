@@ -1,5 +1,5 @@
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TabType } from "@/types/mypage";
+import { Tabs, TabsList, TabsTrigger } from "../../../../ui/tabs";
 
 interface TabMenuProps {
   tab: TabType;

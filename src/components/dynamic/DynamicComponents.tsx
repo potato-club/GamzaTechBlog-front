@@ -71,7 +71,7 @@ export const DynamicPostCommentsSection = dynamic(
  * 메인 페이지에서만 사용되고 localStorage 체크 후 조건부로 표시되므로
  * 동적 로딩으로 초기 번들 크기를 줄입니다.
  */
-export const DynamicWelcomeModal = dynamic(() => import("../pages/main/WelcomeModal"), {
+export const DynamicWelcomeModal = dynamic(() => import("../shared/interactive/WelcomeModal"), {
   loading: () => null, // 모달은 로딩 상태를 보여주지 않음
   ssr: false, // localStorage를 사용하므로 클라이언트에서만
 });

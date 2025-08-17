@@ -7,7 +7,7 @@
  * TagContext가 필요하지 않는 검색 페이지에서 사용
  */
 
-import PopularPostList from "../../features/posts/PopularPostList";
+import PopularPostList from "../posts/components/PopularPostList";
 
 export default function SearchPageSidebar() {
   return (

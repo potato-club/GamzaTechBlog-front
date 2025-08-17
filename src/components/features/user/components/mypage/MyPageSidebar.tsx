@@ -4,10 +4,10 @@
 import type { UserProfileResponse } from "@/generated/api";
 import { useUserActivityStats } from "@/hooks/queries/useUserQueries";
 import Image from "next/image";
-import { DynamicProfileEditDialog } from "../../dynamic/DynamicComponents";
-import UserActivityStatItem from "../../features/user/UserActivityStatItem";
-import UserActivityStatsSkeleton from "../../features/user/skeletons/UserActivityStatsSkeleton";
-import UserIcon from "../../ui/UserIcon";
+import { DynamicProfileEditDialog } from "../../../../dynamic/DynamicComponents";
+import UserIcon from "../../../../ui/UserIcon";
+import UserActivityStatItem from "../../UserActivityStatItem";
+import UserActivityStatsSkeleton from "../../skeletons/UserActivityStatsSkeleton";
 
 // Sidebar 컴포넌트 props 정의
 interface SidebarProps {

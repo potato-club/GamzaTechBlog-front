@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,10 +11,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+} from "../../ui/alert-dialog";
+import { Checkbox } from "../../ui/checkbox";
 
 export default function WelcomeModal() {
   const [open, setOpen] = useState(false);
