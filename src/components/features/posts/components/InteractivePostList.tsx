@@ -59,7 +59,6 @@ export default function InteractivePostList({
   const error = activeQuery.error;
 
   const posts = data?.content || [];
-  const totalPages = data?.totalPages || 0;
 
   if (error) {
     return (

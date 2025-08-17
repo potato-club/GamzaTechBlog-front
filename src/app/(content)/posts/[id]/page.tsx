@@ -1,9 +1,23 @@
-import { API_CONFIG } from "@/config/api";
-import { API_PATHS } from "@/constants/apiPaths";
-import { PostDetailResponse } from "@/generated/api/models";
+import {
+  DynamicMarkdownViewer,
+  DynamicPostCommentsSection,
+} from "@/components/dynamic/DynamicComponents";
+import PostHeader from "@/components/features/posts/PostHeader";
+import PostStats from "@/components/features/posts/PostStats";
+import { postService } from "@/services/postService";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PostPageClient from "../../../../components/features/posts/PostPageClient";
+import { cache } from "react";
+
+/**
+ * 게시글 데이터 캐싱 함수
+ *
+ * React의 cache 함수를 사용하여 동일한 postId에 대한 중복 요청을 방지합니다.
+ * generateMetadata와 PostPage 컴포넌트에서 동일한 데이터를 사용할 때 최적화됩니다.
+ */
+const getCachedPost = cache(async (postId: number) => {
+  return await postService.getPostById(postId);
+});
 
 /**
  * 동적 메타데이터 생성 함수
@@ -21,27 +35,8 @@ export async function generateMetadata({
   const { id: postId } = await params;
 
   try {
-    // 메타데이터 생성을 위한 서버 캐싱 적용
-    const endpoint = API_PATHS.posts.byId(Number(postId));
-    const response = await fetch(API_CONFIG.BASE_URL + endpoint, {
-      next: {
-        revalidate: 3600, // 1시간 캐싱 (게시글은 자주 안바뀜)
-        tags: [`post-${postId}`, "posts"],
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return {
-          title: "게시글을 찾을 수 없습니다 | 감자 기술 블로그",
-          description: "요청하신 게시글이 존재하지 않습니다.",
-        };
-      }
-      throw new Error(`Failed to fetch post: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const post = data.data as PostDetailResponse;
+    // 캐싱된 함수를 사용하여 중복 요청 방지
+    const post = await getCachedPost(Number(postId));
 
     if (!post) {
       return {
@@ -104,10 +99,11 @@ export async function generateMetadata({
 /**
  * 게시글 상세 페이지 (서버 컴포넌트)
  *
- * 서버 컴포넌트로 변경한 이유:
- * 1. 메타데이터 생성을 위해 필요
- * 2. 초기 로딩 성능 개선
- * 3. SEO 최적화
+ * 서버 컴포넌트로 구현한 이유:
+ * 1. SEO 최적화 - 게시글 내용이 서버에서 렌더링
+ * 2. 초기 로딩 성능 개선 - 클라이언트 API 호출 없음
+ * 3. 메타데이터와 데이터 소스 일관성
+ * 4. 캐싱 최적화 - Next.js 서버 캐싱 활용
  */
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -118,6 +114,35 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     notFound();
   }
 
-  // 서버 컴포넌트에서는 클라이언트 컴포넌트로 로직을 위임
-  return <PostPageClient postId={postId} />;
+  try {
+    // 캐싱된 함수를 사용하여 중복 요청 방지
+    const post = await getCachedPost(postId);
+
+    console.log("post", post);
+
+    // 게시글이 없는 경우
+    if (!post) {
+      notFound();
+    }
+
+    return (
+      <main className="mx-16 my-16 max-w-full overflow-hidden">
+        <article className="max-w-full border-b border-[#D5D9E3] py-8">
+          <PostHeader post={post} postId={postId} />
+          <DynamicMarkdownViewer content={post.content || ""} />
+          {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
+          <PostStats
+            postId={postId}
+            initialLikesCount={post.likesCount || 0}
+            commentsCount={post.comments?.length || 0}
+          />
+        </article>
+
+        <DynamicPostCommentsSection postId={postId} />
+      </main>
+    );
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    notFound();
+  }
 }

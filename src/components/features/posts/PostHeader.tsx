@@ -1,11 +1,7 @@
-"use client";
-
 import { PostActionsDropdown } from "@/components/features/posts/PostActionsDropdown";
-import { Button } from "@/components/ui/button";
 import TagBadge from "@/components/ui/TagBadge";
-import { useAuth } from "@/hooks/queries/useUserQueries";
-import { cn } from "@/lib/utils";
 import { PostDetailResponse } from "@/generated/api";
+import { isPostAuthor } from "@/lib/auth";
 import Image from "next/image";
 
 interface PostHeaderProps {
@@ -13,22 +9,9 @@ interface PostHeaderProps {
   postId: number;
 }
 
-export default function PostHeader({ post, postId }: PostHeaderProps) {
-  const { userProfile, isLoggedIn } = useAuth();
-
+export default async function PostHeader({ post, postId }: PostHeaderProps) {
   // 현재 로그인한 사용자가 게시글 작성자인지 확인
-  const isCurrentUserAuthor = isLoggedIn && userProfile && userProfile.nickname === post.writer;
-
-  const headerTriggerElement = (
-    <Button
-      variant="ghost"
-      className={cn(
-        "relative ml-auto h-8 w-8 rounded-full p-0 hover:cursor-pointer focus-visible:ring-0 focus-visible:ring-offset-0"
-      )}
-    >
-      <Image src="/dot3.svg" alt="더보기" width={18} height={4} />
-    </Button>
-  );
+  const isCurrentUserAuthor = post.githubId ? await isPostAuthor(post.githubId) : false;
 
   return (
     <header>
@@ -65,9 +48,7 @@ export default function PostHeader({ post, postId }: PostHeaderProps) {
         </time>
 
         {/* 게시글 작성자인 경우에만 액션 드롭다운 표시 */}
-        {isCurrentUserAuthor && (
-          <PostActionsDropdown postId={postId} triggerElement={headerTriggerElement} />
-        )}
+        {isCurrentUserAuthor && <PostActionsDropdown postId={postId} />}
       </div>
 
       <ul className="flex gap-2 text-[14px]" role="list">

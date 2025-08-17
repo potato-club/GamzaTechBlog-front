@@ -176,13 +176,20 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}, isRe
 async function checkTokenExpiration(response: Response): Promise<boolean> {
   if (response.status !== 403) return false;
 
+  // 토큰이 없으면 토큰 만료가 아님 (로그인하지 않은 상태)
+  const accessToken = getCookie("authorization");
+  if (!accessToken) return false;
+
   try {
     const clonedResponse = response.clone();
     const errorData: ApiErrorResponse = await clonedResponse.json();
 
+    // 토큰이 있는 상태에서 토큰 관련 에러인 경우에만 토큰 만료로 판단
     return (
-      errorData.data === TOKEN_ERROR_CODES.ACCESS_TOKEN_EXPIRED ||
-      errorData.data === TOKEN_ERROR_CODES.REFRESH_TOKEN_EXPIRED
+      errorData.code === TOKEN_ERROR_CODES.ACCESS_TOKEN_EXPIRED ||
+      errorData.message?.includes("JWT 토큰을 찾을 수 없습니다") ||
+      errorData.message?.includes("토큰이 만료되었습니다") ||
+      errorData.message?.includes("액세스 토큰이 만료되었습니다")
     );
   } catch (e) {
     console.error("토큰 만료 확인 중 에러:", e);

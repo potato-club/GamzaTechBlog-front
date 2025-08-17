@@ -22,7 +22,6 @@ export default function TagBadge({ tag, variant = "filled", onClick, className }
     // PostMeta에서 사용하는 회색 스타일
     return (
       <div
-        onClick={handleClick}
         className={cn(
           customClasses,
           "inline-flex items-center justify-center border-none bg-[#F2F4F6] text-[#848484]",

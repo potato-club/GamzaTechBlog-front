@@ -9,19 +9,14 @@
  */
 
 import CommentList from "@/components/features/comments/CommentList";
-import { CommentResponse } from "@/generated/api";
 import { usePost } from "@/hooks/queries/usePostQueries";
 import CommentForm from "../comments/CommentForm";
 
 interface PostCommentsSectionProps {
   postId: number;
-  initialComments?: CommentResponse[]; // 이제 선택사항 (TanStack Query가 관리)
 }
 
-export default function PostCommentsSection({
-  postId,
-  initialComments = [],
-}: PostCommentsSectionProps) {
+export default function PostCommentsSection({ postId }: PostCommentsSectionProps) {
   /**
    * TanStack Query를 사용하여 게시글 상세 정보를 가져옵니다.
    *
@@ -33,8 +28,8 @@ export default function PostCommentsSection({
    */
   const { data: post, isLoading, error } = usePost(postId);
 
-  // TanStack Query에서 가져온 데이터 우선 사용, 없으면 fallback 데이터 사용
-  const comments = post?.comments || initialComments;
+  // TanStack Query에서 가져온 댓글 데이터 사용
+  const comments = post?.comments || [];
 
   // 로딩 중일 때 스켈레톤 UI 표시
   if (isLoading) {

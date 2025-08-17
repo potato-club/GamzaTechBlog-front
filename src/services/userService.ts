@@ -31,15 +31,31 @@ export const userService = {
   async getProfile(): Promise<UserProfileResponse> {
     const endpoint = API_PATHS.users.profile;
 
-    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      cache: "no-cache", // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
-    })) as Response;
-    if (!response.ok) {
-      throw new AuthError(response.status, "Failed to get user profile", endpoint);
-    }
+    try {
+      const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
+        cache: "no-cache", // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
+      })) as Response;
 
-    const apiResponse: ResponseDtoUserProfileResponse = await response.json();
-    return apiResponse.data as UserProfileResponse;
+      if (!response.ok) {
+        throw new AuthError(response.status, "Failed to get user profile", endpoint);
+      }
+
+      const apiResponse: ResponseDtoUserProfileResponse = await response.json();
+      return apiResponse.data as UserProfileResponse;
+    } catch (error) {
+      // RefreshTokenInvalidError는 다시 던져서 상위에서 처리하도록 함
+      if (
+        error &&
+        typeof error === "object" &&
+        "name" in error &&
+        error.name === "RefreshTokenInvalidError"
+      ) {
+        throw error;
+      }
+
+      // 기타 에러도 다시 던짐
+      throw error;
+    }
   },
 
   /**
@@ -122,10 +138,11 @@ export const userService = {
         cache: "no-cache", // TanStack Query가 캐싱을 담당하므로 fetch 캐싱 비활성화
       })) as Response;
 
-      if (response.status === 401) {
-        // 인증되지 않은 상태
+      if (response.status === 401 || response.status === 403) {
+        // 인증되지 않은 상태 또는 토큰 만료
         return null;
-      } // 200 OK 외의 다른 에러 상태 코드 처리
+      }
+
       if (!response.ok) {
         throw new AuthError(response.status, "Failed to get user role", endpoint);
       }
@@ -133,9 +150,20 @@ export const userService = {
       const apiResponse: ResponseDtoString = await response.json();
       return apiResponse.data as string;
     } catch (error) {
-      // fetchWithAuth 자체에서 발생한 에러 (네트워크 등)
+      // RefreshTokenInvalidError는 로그아웃이 필요한 상태이므로 null 반환
+      if (
+        error &&
+        typeof error === "object" &&
+        "name" in error &&
+        error.name === "RefreshTokenInvalidError"
+      ) {
+        console.warn("Refresh token invalid, user needs to login again");
+        return null;
+      }
+
+      // 기타 네트워크 에러 등
       console.error("Error fetching user role:", error);
-      throw error; // 에러를 다시 던져서 useQuery가 처리하도록 함
+      return null; // 에러 발생 시 null 반환하여 로그아웃 상태로 처리
     }
   },
 

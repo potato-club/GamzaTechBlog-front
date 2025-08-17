@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  /* React Strict Mode 비활성화 (개발 환경에서 중복 실행 방지) */
+  reactStrictMode: false,
+
   /* 이미지 최적화 설정 */
   images: {
     unoptimized: true, // Disable global image optimization

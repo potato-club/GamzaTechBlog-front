@@ -2,13 +2,13 @@
  * TanStack Query를 사용한 사용자 관련 API 훅들
  */
 
-import { userService } from "@/services/userService";
 import type {
   UpdateProfileRequest,
   UserActivityResponse,
   UserProfileRequest,
   UserProfileResponse,
 } from "@/generated/api/models";
+import { userService } from "@/services/userService";
 import {
   useMutation,
   UseMutationOptions,
@@ -32,12 +32,29 @@ export const USER_QUERY_KEYS = {
 export function useUserProfile(
   options?: Omit<UseQueryOptions<UserProfileResponse, Error>, "queryKey" | "queryFn">
 ) {
+  const queryClient = useQueryClient();
+
   return useQuery({
     queryKey: USER_QUERY_KEYS.profile(),
     queryFn: () => userService.getProfile(),
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
-    retry: 2,
+    retry: (failureCount, error) => {
+      // RefreshTokenInvalidError는 재시도하지 않음
+      if (
+        error &&
+        typeof error === "object" &&
+        "name" in error &&
+        error.name === "RefreshTokenInvalidError"
+      ) {
+        // 토큰이 만료된 경우 로그아웃 처리
+        queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.profile() });
+        queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.role() });
+        deleteCookie("authorization", { path: "/" });
+        return false;
+      }
+      return failureCount < 2;
+    },
     refetchOnWindowFocus: false,
     ...options,
   });
@@ -66,12 +83,29 @@ export function useUserActivityStats(
 export function useUserRole(
   options?: Omit<UseQueryOptions<string | null, Error>, "queryKey" | "queryFn">
 ) {
+  const queryClient = useQueryClient();
+
   return useQuery({
     queryKey: USER_QUERY_KEYS.role(),
     queryFn: () => userService.getUserRole(),
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
-    retry: 2,
+    retry: (failureCount, error) => {
+      // RefreshTokenInvalidError는 재시도하지 않음
+      if (
+        error &&
+        typeof error === "object" &&
+        "name" in error &&
+        error.name === "RefreshTokenInvalidError"
+      ) {
+        // 토큰이 만료된 경우 로그아웃 처리
+        queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.profile() });
+        queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.role() });
+        deleteCookie("authorization", { path: "/" });
+        return false;
+      }
+      return failureCount < 2;
+    },
     refetchOnWindowFocus: false,
     ...options,
   });
