@@ -1,3 +1,4 @@
+import InteractivePagination from "@/components/shared/interactive/InteractivePagination";
 import { postService } from "@/services/postService";
 import InteractivePostList from "./InteractivePostList";
 
@@ -37,6 +38,17 @@ export default async function PostListSection({ searchParams }: PostListSectionP
 
       {/* 인터랙티브 게시글 목록 */}
       <InteractivePostList initialData={initialData} initialTag={tag} initialPage={currentPage} />
+
+      {/* 페이지네이션 */}
+      {initialData.totalPages && initialData.totalPages > 1 && (
+        <div className="mt-12 flex justify-center">
+          <InteractivePagination
+            currentPage={currentPage}
+            totalPages={initialData.totalPages}
+            tag={tag}
+          />
+        </div>
+      )}
     </main>
   );
 }

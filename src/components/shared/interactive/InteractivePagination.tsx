@@ -41,8 +41,7 @@ export default function InteractivePagination({
     const queryString = params.toString();
     const url = queryString ? `/?${queryString}` : "/";
 
-    // URL 업데이트 (TanStack Query가 자동으로 새 데이터 페칭)
-    router.push(url, { scroll: false }); // 스크롤 위치 유지
+    router.push(url);
   };
 
   return (
