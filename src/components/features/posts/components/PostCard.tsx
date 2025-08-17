@@ -1,15 +1,13 @@
-"use client";
-
 /**
  *
  * 게시글 카드 컴포넌트
  */
 
+import { PostLink } from "@/components/shared/navigation/OptimizedLink";
 import { PostListResponse } from "@/generated/api";
 import { markdownToText } from "@/utils/markdown";
 import { highlightSearchKeyword } from "@/utils/textHighlight";
 import Image from "next/image";
-import { PostLink } from "../../../shared/navigation/OptimizedLink";
 import PostMeta from "./PostMeta";
 
 export default function PostCard({

@@ -58,7 +58,7 @@ export const DynamicProfileEditDialog = dynamic(
  * 사용자가 스크롤했을 때 로딩할 수 있습니다.
  */
 export const DynamicPostCommentsSection = dynamic(
-  () => import("../features/posts/PostCommentsSection"),
+  () => import("../features/posts/components/PostCommentsSection"),
   {
     loading: () => <CommentsSkeleton count={2} />,
     ssr: false, // 댓글은 인터랙티브하므로 클라이언트에서만

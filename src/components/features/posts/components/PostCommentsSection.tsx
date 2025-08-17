@@ -10,7 +10,7 @@
 
 import CommentList from "@/components/features/comments/CommentList";
 import { usePost } from "@/hooks/queries/usePostQueries";
-import CommentForm from "../comments/CommentForm";
+import CommentForm from "../../comments/CommentForm";
 
 interface PostCommentsSectionProps {
   postId: number;

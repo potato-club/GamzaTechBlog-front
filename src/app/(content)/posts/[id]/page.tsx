@@ -2,8 +2,8 @@ import {
   DynamicMarkdownViewer,
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
-import PostHeader from "@/components/features/posts/PostHeader";
-import PostStats from "@/components/features/posts/PostStats";
+import PostHeader from "@/components/features/posts/components/PostHeader";
+import PostStats from "@/components/features/posts/components/PostStats";
 import { postService } from "@/services/postService";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";

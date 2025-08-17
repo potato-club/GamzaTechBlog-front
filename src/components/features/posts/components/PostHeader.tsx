@@ -1,8 +1,8 @@
-import { PostActionsDropdown } from "@/components/features/posts/PostActionsDropdown";
 import TagBadge from "@/components/ui/TagBadge";
 import { PostDetailResponse } from "@/generated/api";
 import { isPostAuthor } from "@/lib/auth";
 import Image from "next/image";
+import { PostActionsDropdown } from "./PostActionsDropdown";
 
 interface PostHeaderProps {
   post: PostDetailResponse;

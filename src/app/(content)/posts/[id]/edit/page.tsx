@@ -6,7 +6,7 @@
  * 공통 PostForm 컴포넌트를 사용하여 게시글 수정 기능을 구현합니다.
  */
 
-import PostForm, { type PostFormData } from "@/components/features/posts/PostForm";
+import PostForm, { type PostFormData } from "@/components/features/posts/components/PostForm";
 import { usePost, useUpdatePost } from "@/hooks/queries/usePostQueries";
 import { useAuth } from "@/hooks/queries/useUserQueries";
 import { useRouter } from "next/navigation";
@@ -100,20 +100,12 @@ export default function EditPostPage({ params }: EditPostPageProps) {
       <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
         <div className="text-lg text-red-600">이 게시글을 수정할 권한이 없습니다.</div>
         <div className="text-sm text-gray-600">본인이 작성한 게시글만 수정할 수 있습니다.</div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => router.push(`/posts/${postId}`)}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            게시글 보기
-          </button>
-          <button
-            onClick={() => router.back()}
-            className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-          >
-            뒤로 가기
-          </button>
-        </div>
+        <button
+          onClick={() => router.back()}
+          className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+        >
+          뒤로 가기
+        </button>
       </div>
     );
   }

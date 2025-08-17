@@ -9,8 +9,8 @@ import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
-import { DynamicToastEditor } from "../../dynamic/DynamicComponents";
-import type { ToastEditorHandle } from "./components/ToastEditor";
+import { DynamicToastEditor } from "../../../dynamic/DynamicComponents";
+import type { ToastEditorHandle } from "./ToastEditor";
 
 // Zod 스키마 정의
 const formSchema = z.object({

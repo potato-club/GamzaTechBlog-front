@@ -1,17 +1,18 @@
 "use client";
 
 import { DropdownMenuList } from "@/components/shared/navigation/DropdownMenuList";
+import { Button } from "@/components/ui/button";
 import { useDeletePost, usePost } from "@/hooks/queries/usePostQueries";
 import { useAuth } from "@/hooks/queries/useUserQueries";
+import { cn } from "@/lib/utils";
 import { DropdownActionItem } from "@/types/dropdown";
 import { useRouter } from "next/navigation";
 
 interface PostActionsDropdownProps {
   postId: number;
-  triggerElement: React.ReactNode;
 }
 
-export function PostActionsDropdown({ postId, triggerElement }: PostActionsDropdownProps) {
+export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   const router = useRouter();
   const deletePostMutation = useDeletePost();
 
@@ -62,6 +63,18 @@ export function PostActionsDropdown({ postId, triggerElement }: PostActionsDropd
       onClick: handleDeletePost,
     },
   ];
+
+  const triggerElement = (
+    <Button
+      variant="ghost"
+      className={cn(
+        "relative ml-auto h-8 w-8 rounded-full p-0 hover:cursor-pointer focus-visible:ring-0 focus-visible:ring-offset-0"
+      )}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/dot3.svg" alt="더보기" width={18} height={4} />
+    </Button>
+  );
 
   return <DropdownMenuList triggerElement={triggerElement} items={headerDropdownItems} />;
 }

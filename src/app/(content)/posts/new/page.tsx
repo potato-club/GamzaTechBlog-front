@@ -6,12 +6,12 @@
  * 공통 PostForm 컴포넌트를 사용하여 게시글 작성 기능을 구현합니다.
  */
 
-import PostForm, { type PostFormData } from "@/components/features/posts/PostForm";
+import PostForm, { type PostFormData } from "@/components/features/posts/components/PostForm";
 import { useCreatePost } from "@/hooks/queries/usePostQueries";
 import { useRouter } from "next/navigation";
 
 export default function CreatePostPage() {
-  const router = useRouter();
+  const router = ;
   const createPostMutation = useCreatePost();
 
   const handleSubmit = async (data: PostFormData) => {
