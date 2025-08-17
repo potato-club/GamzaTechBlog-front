@@ -1,7 +1,6 @@
 "use client";
 
 import { BLOG_DESCRIPTIONS } from "@/constants/textConstants";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 /**
@@ -13,7 +12,6 @@ import { useEffect, useState } from "react";
  */
 export default function LogoSection() {
   const [description, setDescription] = useState("");
-  const router = useRouter();
 
   // 클라이언트에서 랜덤 문장 선택 및 마운트 상태 설정
   useEffect(() => {
@@ -21,33 +19,21 @@ export default function LogoSection() {
     setDescription(BLOG_DESCRIPTIONS[randomIndex]);
   }, []);
 
-  const handleClick = () => {
-    // 완전한 루트 경로로 이동 후 새로고침
-    router.push("/");
-    setTimeout(() => window.location.reload(), 100);
-  };
-
   return (
-    <section
-      className="mt-5 cursor-pointer text-center transition-opacity hover:opacity-80"
-      onClick={handleClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          handleClick();
-        }
-      }}
+    // eslint-disable-next-line @next/next/no-html-link-for-pages
+    <a
+      href="/"
+      className="mt-5 block cursor-pointer text-center transition-opacity hover:opacity-80"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/logo2.svg"
-        alt="메인페이지 로고 (클릭하면 새로고침)"
+        alt="메인페이지 로고 (클릭하면 홈으로 이동)"
         width={255}
         height={230}
         className="mx-auto"
       />
       <p className="mt-2 text-2xl font-light">{description}</p>
-    </section>
+    </a>
   );
 }
