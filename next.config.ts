@@ -1,10 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* React Strict Mode 비활성화 (개발 환경에서 중복 실행 방지) */
-  reactStrictMode: false,
-
-  /* 이미지 최적화 설정 */
+  /* config options here */
+  compiler: {
+    // 프로덕션 빌드 시 특정 console 로그만 제거
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? {
+            exclude: ["error", "warn"], // error와 warn은 남기고 나머지(log, info, debug 등) 제거
+          }
+        : false,
+  },
   images: {
     unoptimized: true, // Disable global image optimization
     remotePatterns: [
