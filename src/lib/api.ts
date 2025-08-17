@@ -187,9 +187,9 @@ async function checkTokenExpiration(response: Response): Promise<boolean> {
     // 토큰이 있는 상태에서 토큰 관련 에러인 경우에만 토큰 만료로 판단
     return (
       errorData.code === TOKEN_ERROR_CODES.ACCESS_TOKEN_EXPIRED ||
-      errorData.message?.includes("JWT 토큰을 찾을 수 없습니다") ||
-      errorData.message?.includes("토큰이 만료되었습니다") ||
-      errorData.message?.includes("액세스 토큰이 만료되었습니다")
+      (errorData.message?.includes("JWT 토큰을 찾을 수 없습니다") ?? false) ||
+      (errorData.message?.includes("토큰이 만료되었습니다") ?? false) ||
+      (errorData.message?.includes("액세스 토큰이 만료되었습니다") ?? false)
     );
   } catch (e) {
     console.error("토큰 만료 확인 중 에러:", e);
