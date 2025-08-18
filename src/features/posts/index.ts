@@ -17,7 +17,6 @@ export {
   useSearchPosts,
   useTags,
   useUpdatePost,
-  useUpdateProfileImage,
 } from "./hooks";
 
 // Components

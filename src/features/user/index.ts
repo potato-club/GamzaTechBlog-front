@@ -10,6 +10,7 @@ export {
   useMyPageTab,
   USER_QUERY_KEYS,
   useUpdateProfile,
+  useUpdateProfileImage,
   useUpdateProfileInSignup,
   useUserActivityStats,
   useUserProfile,

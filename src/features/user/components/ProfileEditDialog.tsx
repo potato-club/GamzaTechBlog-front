@@ -34,8 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Position } from "@/enums/position";
-import { useUpdateProfileImage } from "@/features/posts";
-import { useUpdateProfile, useWithdrawAccount } from "@/features/user";
+import { useUpdateProfile, useUpdateProfileImage, useWithdrawAccount } from "@/features/user";
 import type { UpdateProfileRequest, UserProfileResponse } from "@/generated/api";
 import { cn } from "@/lib/utils";
 import { Camera, UserIcon } from "lucide-react";

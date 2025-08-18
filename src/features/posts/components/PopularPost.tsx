@@ -20,7 +20,7 @@ export default function PopularPost({ postId, title, author, profileImage }: Pop
               alt={author}
               width={24}
               height={24}
-              className="mr-1 rounded-full"
+              className="mr-1 h-6 w-6 rounded-full object-cover"
             />
           ) : (
             <span className="inline-block h-6 w-6 rounded-full bg-gray-200" />

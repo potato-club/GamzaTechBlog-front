@@ -1,4 +1,5 @@
 import {
+  ProfileImageResponse,
   UpdateProfileRequest,
   UserActivityResponse,
   UserProfileRequest,
@@ -71,6 +72,16 @@ export const userService = {
       updateProfileRequest: profileData,
     });
     return response.data as UserProfileResponse;
+  },
+
+  /**
+   * 사용자 프로필 이미지를 업데이트합니다.
+   */
+  async updateProfileImage(imageFile: File): Promise<ProfileImageResponse> {
+    const response = await apiClient.updateProfileImage({
+      imageFile: imageFile,
+    });
+    return response.data as ProfileImageResponse;
   },
 } as const;
 

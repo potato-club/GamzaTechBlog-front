@@ -1,6 +1,6 @@
 export {
-  USER_QUERY_KEYS,
   useAuth,
+  USER_QUERY_KEYS,
   useUpdateProfile,
   useUpdateProfileInSignup,
   useUserActivityStats,
@@ -12,3 +12,5 @@ export {
 export { useMyComments, useMyLikes, useMyPosts } from "./useMyPageQueries";
 
 export { useMyPageTab } from "./useMyPageTab";
+
+export { useUpdateProfileImage } from "./useUserMutations";
