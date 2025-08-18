@@ -208,7 +208,7 @@ export interface UpdateProfileOperationRequest {
 }
 
 export interface UpdateProfileImageRequest {
-    file: Blob;
+    imageFile: Blob;
 }
 
 export interface UpdateProjectRequest {
@@ -1742,10 +1742,10 @@ export class DefaultApi extends runtime.BaseAPI {
      * 프로필 사진 업로드/수정
      */
     async updateProfileImageRaw(requestParameters: UpdateProfileImageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoProfileImageResponse>> {
-        if (requestParameters['file'] == null) {
+        if (requestParameters['imageFile'] == null) {
             throw new runtime.RequiredError(
-                'file',
-                'Required parameter "file" was null or undefined when calling updateProfileImage().'
+                'imageFile',
+                'Required parameter "imageFile" was null or undefined when calling updateProfileImage().'
             );
         }
 
@@ -1777,8 +1777,8 @@ export class DefaultApi extends runtime.BaseAPI {
             formParams = new URLSearchParams();
         }
 
-        if (requestParameters['file'] != null) {
-            formParams.append('file', requestParameters['file'] as any);
+        if (requestParameters['imageFile'] != null) {
+            formParams.append('imageFile', requestParameters['imageFile'] as any);
         }
 
 
