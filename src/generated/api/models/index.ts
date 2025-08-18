@@ -1,5 +1,4 @@
 /* tslint:disable */
-
 export * from "./AccessTokenResponse";
 export * from "./CommentListResponse";
 export * from "./CommentRequest";

@@ -20,11 +20,11 @@ import { mapValues } from '../runtime';
  */
 export interface CommentRequest {
     /**
-     * 
+     * 댓글 내용
      * @type {string}
      * @memberof CommentRequest
      */
-    content?: string;
+    content: string;
     /**
      * 
      * @type {number}
@@ -37,6 +37,7 @@ export interface CommentRequest {
  * Check if a given object implements the CommentRequest interface.
  */
 export function instanceOfCommentRequest(value: object): value is CommentRequest {
+    if (!('content' in value) || value['content'] === undefined) return false;
     return true;
 }
 
@@ -50,7 +51,7 @@ export function CommentRequestFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-        'content': json['content'] == null ? undefined : json['content'],
+        'content': json['content'],
         'parentCommentId': json['parentCommentId'] == null ? undefined : json['parentCommentId'],
     };
 }

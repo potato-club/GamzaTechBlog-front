@@ -1,9 +1,8 @@
 "use client";
 
-import UserApprovalTable from "@/components/features/admin/UserApprovalTable";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { usePendingUsers } from "@/hooks/queries/useAdminQueries";
-import { useAuth } from "@/hooks/queries/useUserQueries";
+import { usePendingUsers, UserApprovalTable } from "@/features/admin";
+import { useAuth } from "@/features/user";
 
 export default function AdminPage() {
   const { data: users, isLoading, isError, error } = usePendingUsers();

@@ -65,6 +65,12 @@ export interface PostDetailResponse {
     likesCount?: number;
     /**
      * 
+     * @type {string}
+     * @memberof PostDetailResponse
+     */
+    githubId?: string;
+    /**
+     * 
      * @type {Date}
      * @memberof PostDetailResponse
      */
@@ -112,6 +118,7 @@ export function PostDetailResponseFromJSONTyped(json: any, ignoreDiscriminator: 
         'writer': json['writer'] == null ? undefined : json['writer'],
         'writerProfileImageUrl': json['writerProfileImageUrl'] == null ? undefined : json['writerProfileImageUrl'],
         'likesCount': json['likesCount'] == null ? undefined : json['likesCount'],
+        'githubId': json['githubId'] == null ? undefined : json['githubId'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
         'tags': json['tags'] == null ? undefined : json['tags'],
@@ -136,6 +143,7 @@ export function PostDetailResponseToJSONTyped(value?: PostDetailResponse | null,
         'writer': value['writer'],
         'writerProfileImageUrl': value['writerProfileImageUrl'],
         'likesCount': value['likesCount'],
+        'githubId': value['githubId'],
         'createdAt': value['createdAt'] == null ? undefined : ((value['createdAt']).toISOString()),
         'updatedAt': value['updatedAt'] == null ? undefined : ((value['updatedAt']).toISOString()),
         'tags': value['tags'],

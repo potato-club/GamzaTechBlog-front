@@ -16,7 +16,7 @@ export function usePagination(defaultPage = 1) {
 
   // URL에서 현재 페이지 읽기 (1부터 시작)
   // URL의 page 파라미터가 유효하지 않은 경우 defaultPage를 사용합니다.
-  const pageFromUrl = searchParams.get("page");
+  const pageFromUrl = searchParams?.get("page");
   const parsedPage = parseInt(pageFromUrl || "", 10);
   const currentPage = !isNaN(parsedPage) && parsedPage > 0 ? parsedPage : defaultPage;
 
@@ -26,7 +26,7 @@ export function usePagination(defaultPage = 1) {
   // 페이지 변경 함수
   const setPage = useCallback(
     (page: number) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() || "");
 
       if (page <= 1) {
         // 1페이지거나 그보다 작으면 page 파라미터 제거 (깔끔한 URL)
@@ -38,7 +38,7 @@ export function usePagination(defaultPage = 1) {
       // pathname과 쿼리 파라미터를 조합한 완전한 URL 생성
       const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
 
-      router.push(newUrl, { scroll: false }); // 스크롤 위치 유지
+      router.push(newUrl || "/", { scroll: false }); // 스크롤 위치 유지
     },
     [router, pathname, searchParams]
   );

@@ -41,3 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
+
+# kiro
+.kiro
+
+# markdown
+*.md
