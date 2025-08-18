@@ -7,7 +7,7 @@
  * - 성능 모니터링
  */
 
-import { usePrefetchPosts } from "@/hooks/queries/usePostQueries";
+import { usePrefetchPosts } from "@/features/posts";
 import Link, { LinkProps } from "next/link";
 import { ReactNode, useCallback } from "react";
 

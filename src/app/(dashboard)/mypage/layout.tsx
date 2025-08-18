@@ -1,8 +1,7 @@
 "use client";
 
-import MyPageSidebar from "@/components/features/user/components/mypage/MyPageSidebar";
 import MyPageSkeleton from "@/components/shared/skeletons/MyPageSkeleton";
-import { useAuth } from "@/hooks/queries/useUserQueries";
+import { MyPageSidebar, useAuth } from "@/features/user";
 import { useRouter } from "next/navigation";
 import React, { Suspense, useEffect } from "react";
 

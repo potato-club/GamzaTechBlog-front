@@ -1,7 +1,7 @@
 "use client";
 
+import TagBadge from "@/components/ui/TagBadge";
 import { useRouter, useSearchParams } from "next/navigation";
-import TagBadge from "../../ui/TagBadge";
 
 /**
  * 인터랙티브 태그 섹션 클라이언트 컴포넌트

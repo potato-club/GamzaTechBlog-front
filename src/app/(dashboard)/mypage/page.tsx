@@ -7,10 +7,7 @@
  * 유지보수성과 테스트 용이성을 향상시켰습니다.
  */
 
-import TabMenu from "@/components/features/user/components/mypage/TabMenu";
-import CommentsTab from "@/components/features/user/components/mypage/tabs/CommentsTab";
-import LikesTab from "@/components/features/user/components/mypage/tabs/LikesTab";
-import PostsTab from "@/components/features/user/components/mypage/tabs/PostsTab";
+import { CommentsTab, LikesTab, PostsTab, TabMenu } from "@/features/user";
 import { useMyPageTab } from "@/hooks/useMyPageTab";
 
 export default function MyPage() {

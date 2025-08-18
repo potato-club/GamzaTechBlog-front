@@ -6,9 +6,8 @@
  * 공통 PostForm 컴포넌트를 사용하여 게시글 수정 기능을 구현합니다.
  */
 
-import PostForm, { type PostFormData } from "@/components/features/posts/components/PostForm";
-import { usePost, useUpdatePost } from "@/hooks/queries/usePostQueries";
-import { useAuth } from "@/hooks/queries/useUserQueries";
+import { PostForm, usePost, useUpdatePost, type PostFormData } from "@/features/posts";
+import { useAuth } from "@/features/user";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 

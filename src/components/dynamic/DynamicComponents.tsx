@@ -8,10 +8,10 @@
  */
 
 import dynamic from "next/dynamic";
-import CommentsSkeleton from "../features/comments/skeletons/CommentsSkeleton";
-import MarkdownViewerSkeleton from "../features/posts/skeletons/MarkdownViewerSkeleton";
-import ToastEditorSkeleton from "../features/posts/skeletons/ToastEditorSkeleton";
-import ProfileEditDialogSkeleton from "../features/user/skeletons/ProfileEditDialogSkeleton";
+import CommentsSkeleton from "../../features/comments/components/skeletons/CommentsSkeleton";
+import MarkdownViewerSkeleton from "../../features/posts/components/skeletons/MarkdownViewerSkeleton";
+import ToastEditorSkeleton from "../../features/posts/components/skeletons/ToastEditorSkeleton";
+import ProfileEditDialogSkeleton from "../../features/user/components/skeletons/ProfileEditDialogSkeleton";
 
 /**
  * MarkdownViewer 동적 로딩
@@ -20,7 +20,7 @@ import ProfileEditDialogSkeleton from "../features/user/skeletons/ProfileEditDia
  * 필요할 때만 로딩합니다.
  */
 export const DynamicMarkdownViewer = dynamic(
-  () => import("../features/posts/components/MarkdownViewer"),
+  () => import("../../features/posts/components/MarkdownViewer"),
   {
     loading: () => <MarkdownViewerSkeleton />,
     ssr: true, // 마크다운은 SEO를 위해 서버에서도 렌더링
@@ -31,7 +31,7 @@ export const DynamicMarkdownViewer = dynamic(
  * ToastEditor 동적 로딩 (이미 PostForm에서 사용 중이지만 재사용을 위해 정의)
  */
 export const DynamicToastEditor = dynamic(
-  () => import("../features/posts/components/ToastEditor"),
+  () => import("../../features/posts/components/ToastEditor"),
   {
     loading: () => <ToastEditorSkeleton />,
     ssr: false, // 에디터는 클라이언트에서만 동작
@@ -44,7 +44,7 @@ export const DynamicToastEditor = dynamic(
  * 사용자가 프로필 편집 버튼을 클릭했을 때만 로딩합니다.
  */
 export const DynamicProfileEditDialog = dynamic(
-  () => import("../features/user/ProfileEditDialog"),
+  () => import("../../features/user/components/ProfileEditDialog"),
   {
     loading: () => <ProfileEditDialogSkeleton />,
     ssr: false,
@@ -58,7 +58,7 @@ export const DynamicProfileEditDialog = dynamic(
  * 사용자가 스크롤했을 때 로딩할 수 있습니다.
  */
 export const DynamicPostCommentsSection = dynamic(
-  () => import("../features/posts/components/PostCommentsSection"),
+  () => import("../../features/posts/components/PostCommentsSection"),
   {
     loading: () => <CommentsSkeleton count={2} />,
     ssr: false, // 댓글은 인터랙티브하므로 클라이언트에서만
