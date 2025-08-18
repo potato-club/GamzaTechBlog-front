@@ -2,9 +2,8 @@ import {
   DynamicMarkdownViewer,
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
-import PostHeader from "@/components/features/posts/PostHeader";
-import PostStats from "@/components/features/posts/PostStats";
-import { postService } from "@/services/postService";
+import { PostHeader, PostStats, postService } from "@/features/posts";
+import { isPostAuthor } from "@/lib/auth";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -125,10 +124,13 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
       notFound();
     }
 
+    // 현재 로그인한 사용자가 게시글 작성자인지 확인
+    const isCurrentUserAuthor = post.githubId ? await isPostAuthor(post.githubId) : false;
+
     return (
       <main className="mx-16 my-16 max-w-full overflow-hidden">
         <article className="max-w-full border-b border-[#D5D9E3] py-8">
-          <PostHeader post={post} postId={postId} />
+          <PostHeader post={post} postId={postId} isCurrentUserAuthor={isCurrentUserAuthor} />
           <DynamicMarkdownViewer content={post.content || ""} />
           {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
           <PostStats

@@ -26,7 +26,7 @@ export default function InteractivePagination({
   const searchParams = useSearchParams();
 
   const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() || "");
 
     if (page === 1) {
       params.delete("page");

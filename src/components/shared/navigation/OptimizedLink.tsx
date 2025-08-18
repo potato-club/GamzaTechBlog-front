@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * 최적화된 Link 컴포넌트
  *
@@ -9,7 +7,7 @@
  * - 성능 모니터링
  */
 
-import { usePrefetchPosts } from "@/hooks/queries/usePostQueries";
+import { usePrefetchPosts } from "@/features/posts";
 import Link, { LinkProps } from "next/link";
 import { ReactNode, useCallback } from "react";
 

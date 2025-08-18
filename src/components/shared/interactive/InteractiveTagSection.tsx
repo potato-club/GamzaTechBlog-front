@@ -1,7 +1,7 @@
 "use client";
 
+import TagBadge from "@/components/ui/TagBadge";
 import { useRouter, useSearchParams } from "next/navigation";
-import TagBadge from "../../ui/TagBadge";
 
 /**
  * 인터랙티브 태그 섹션 클라이언트 컴포넌트
@@ -16,10 +16,10 @@ interface InteractiveTagSectionProps {
 export default function InteractiveTagSection({ tags }: InteractiveTagSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedTag = searchParams.get("tag");
+  const selectedTag = searchParams?.get("tag");
 
   const handleTagClick = (tag: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() || "");
 
     if (selectedTag === tag) {
       // 같은 태그 클릭시 필터 해제

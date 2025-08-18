@@ -1,9 +1,8 @@
 import { DynamicWelcomeModal } from "@/components/dynamic/DynamicComponents";
-import PostListSection from "@/components/features/posts/components/PostListSection.server";
-import PostListSkeleton from "@/components/features/posts/skeletons/PostListSkeleton";
 import LogoSection from "@/components/shared/layout/LogoSection";
 import SidebarSection from "@/components/shared/layout/SidebarSection.server";
 import SidebarSkeleton from "@/components/shared/layout/skeletons/SidebarSkeleton";
+import { PostListSection, PostListSkeleton } from "@/features/posts";
 import { Metadata } from "next";
 import { Suspense } from "react";
 

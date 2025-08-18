@@ -7,11 +7,11 @@
  * 회원가입 프로필 업데이트를 효율적으로 처리합니다.
  */
 
-import SignupForm from "@/components/features/auth/SignupForm";
 import { Position } from "@/enums/position";
-import { useAuth, useUpdateProfileInSignup } from "@/hooks/queries/useUserQueries";
-import { SignupFormValues, signupSchema } from "@/lib/schemas/signupSchema";
+import { SignupForm } from "@/features/auth";
+import { useAuth, useUpdateProfileInSignup } from "@/features/user";
 import type { UserProfileRequest } from "@/generated/api";
+import { SignupFormValues, signupSchema } from "@/lib/schemas/signupSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
