@@ -1,18 +1,4 @@
-import { API_CONFIG } from "@/config/api";
-import { API_PATHS } from "@/constants/apiPaths";
-import { ResponseDtoBoolean } from "@/generated/api";
-import { fetchWithAuth } from "@/lib/api";
-
-export class LikeError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-    public endpoint?: string
-  ) {
-    super(message);
-    this.name = "LikeError";
-  }
-}
+import { apiClient } from "@/lib/apiClient";
 
 export const likeService = {
   /**
@@ -20,14 +6,7 @@ export const likeService = {
    * @param postId - 게시글 ID
    */
   async addLike(postId: number): Promise<void> {
-    const endpoint = API_PATHS.likes.like(postId);
-    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: "POST",
-    })) as Response;
-
-    if (!response.ok) {
-      throw new LikeError(response.status, "Failed to add like", endpoint);
-    }
+    await apiClient.likePost({ postId });
   },
 
   /**
@@ -35,14 +14,7 @@ export const likeService = {
    * @param postId - 게시글 ID
    */
   async removeLike(postId: number): Promise<void> {
-    const endpoint = API_PATHS.likes.like(postId);
-    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: "DELETE",
-    })) as Response;
-
-    if (!response.ok) {
-      throw new LikeError(response.status, "Failed to remove like", endpoint);
-    }
+    await apiClient.unlikePost({ postId });
   },
 
   /**
@@ -51,16 +23,7 @@ export const likeService = {
    * @returns 좋아요 상태 (true: 좋아요 누름, false: 좋아요 안누름)
    */
   async checkLikeStatus(postId: number): Promise<boolean> {
-    const endpoint = API_PATHS.likes.status(postId);
-    const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
-      method: "GET",
-    })) as Response;
-
-    if (!response.ok) {
-      throw new LikeError(response.status, "Failed to check like status", endpoint);
-    }
-
-    const result: ResponseDtoBoolean = await response.json();
-    return result.data as boolean; // API 응답의 data 필드에서 true/false 값 반환
+    const response = await apiClient.isPostLiked({ postId });
+    return response.data as boolean;
   },
 } as const;

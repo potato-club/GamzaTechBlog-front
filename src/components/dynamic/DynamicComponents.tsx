@@ -11,7 +11,7 @@ import dynamic from "next/dynamic";
 import CommentsSkeleton from "../../features/comments/components/skeletons/CommentsSkeleton";
 import MarkdownViewerSkeleton from "../../features/posts/components/skeletons/MarkdownViewerSkeleton";
 import ToastEditorSkeleton from "../../features/posts/components/skeletons/ToastEditorSkeleton";
-import ProfileEditDialogSkeleton from "../../features/user/components/skeletons/ProfileEditDialogSkeleton";
+import { ProfileEditDialogSkeleton } from "../../features/user";
 
 /**
  * MarkdownViewer 동적 로딩

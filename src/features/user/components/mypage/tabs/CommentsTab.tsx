@@ -6,7 +6,7 @@
  */
 
 import CustomPagination from "@/components/shared/navigation/CustomPagination";
-import { Skeleton } from "@/components/ui/skeleton";
+import TabContentSkeleton from "@/components/shared/skeletons/TabContentSkeleton";
 import { CommentList } from "@/features/comments";
 import { useMyComments } from "@/features/user";
 import { CommentResponse } from "@/generated/api";
@@ -41,17 +41,7 @@ export default function CommentsTab() {
 
   // 로딩 상태
   if (isLoading) {
-    return (
-      <div className="mt-8 flex flex-col gap-4">
-        {/* 댓글 로딩 스켈레톤 */}
-        {[...Array(3)].map((_, index) => (
-          <div key={index} className="space-y-2 rounded-xl bg-gray-100 px-6 py-5">
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-4 w-full" />
-          </div>
-        ))}
-      </div>
-    );
+    return <TabContentSkeleton count={3} variant="comment" />;
   }
   // 에러 상태
   if (error) {

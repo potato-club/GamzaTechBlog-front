@@ -1,6 +1,5 @@
-import { API_CONFIG } from "@/config/api";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
-import { ResponseDtoAccessTokenResponse } from "../generated/api";
+import { Configuration, DefaultApi, ResponseDtoAccessTokenResponse } from "../generated/api";
 
 // --- 타입 정의 ---
 interface ApiErrorResponse {
@@ -22,7 +21,6 @@ const QUERY_KEYS = {
 
 // --- 토큰 재발급 중 상태 관리 ---
 let isRefreshingToken = false;
-// 재발급 중 실패한 요청들을 저장할 큐
 let failedRequestsQueue: Array<{
   resolve: (value: Response | PromiseLike<Response>) => void;
   reject: (reason?: Error) => void;
@@ -38,7 +36,6 @@ export class RefreshTokenInvalidError extends Error {
   }
 }
 
-// 큐에 쌓인 요청들을 처리하는 함수
 const processFailedRequestsQueue = (error: Error | null, newAccessToken: string | null = null) => {
   failedRequestsQueue.forEach((prom) => {
     if (error) {
@@ -51,7 +48,6 @@ const processFailedRequestsQueue = (error: Error | null, newAccessToken: string 
 
       fetch(prom.url, newOptions)
         .then((response) => {
-          // 재시도 성공 후 관련 쿼리 무효화
           invalidateRelatedQueries(prom.url);
           prom.resolve(response);
         })
@@ -61,13 +57,9 @@ const processFailedRequestsQueue = (error: Error | null, newAccessToken: string 
   failedRequestsQueue = [];
 };
 
-// 쿼리 무효화 로직 분리
 const invalidateRelatedQueries = (url: string) => {
-  // 클라이언트 환경에서만 실행
   if (typeof window === "undefined") return;
-
   try {
-    // 동적 import로 queryClient 가져오기 (클라이언트에서만)
     import("@/providers/QueryProvider").then(({ queryClient }) => {
       if (url.includes("/users/me") || url.includes("/profile")) {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER_PROFILE });
@@ -81,11 +73,10 @@ const invalidateRelatedQueries = (url: string) => {
   }
 };
 
-// --- 새 액세스 토큰을 발급받는 함수 ---
 async function refreshAccessToken(): Promise<string | null> {
   try {
     const endpoint = "/api/auth/reissue";
-    const refreshUrl = `${API_CONFIG.BASE_URL}${endpoint}`;
+    const refreshUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${endpoint}`;
 
     const response = await fetch(refreshUrl, {
       method: "POST",
@@ -109,7 +100,6 @@ async function refreshAccessToken(): Promise<string | null> {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
-
       console.log("새 액세스 토큰 발급 및 저장 성공.");
       return newAccessToken;
     }
@@ -123,7 +113,6 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
-// 리프레시 토큰 에러 처리 분리
 async function handleRefreshTokenError(response: Response): Promise<void> {
   const errorData: ApiErrorResponse = await response
     .json()
@@ -131,7 +120,6 @@ async function handleRefreshTokenError(response: Response): Promise<void> {
 
   console.error("토큰 재발급 API 실패:", response.status, errorData);
 
-  // 리프레시 토큰 만료 상태 코드들
   const REFRESH_FAILED_STATUSES = [400, 401, 403];
 
   if (REFRESH_FAILED_STATUSES.includes(response.status)) {
@@ -141,7 +129,11 @@ async function handleRefreshTokenError(response: Response): Promise<void> {
   }
 }
 
-export async function fetchWithAuth(url: string, options: RequestInit = {}, isRetry = false) {
+async function fetchWithAuth(
+  url: string,
+  options: RequestInit = {},
+  isRetry = false
+): Promise<Response> {
   const accessToken = getCookie("authorization");
   const headers = new Headers(options.headers);
 
@@ -161,22 +153,19 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}, isRe
 
   const response = await fetch(url, newOptions);
 
-  // 토큰 만료 처리 (재시도가 아닌 경우에만)
   if (!isRetry) {
     const tokenExpired = await checkTokenExpiration(response);
     if (tokenExpired) {
-      return await handleTokenRefresh(url, newOptions);
+      return handleTokenRefresh(url, newOptions);
     }
   }
 
   return response;
 }
 
-// --- 토큰 만료 확인 함수 ---
 async function checkTokenExpiration(response: Response): Promise<boolean> {
   if (response.status !== 403) return false;
 
-  // 토큰이 없으면 토큰 만료가 아님 (로그인하지 않은 상태)
   const accessToken = getCookie("authorization");
   if (!accessToken) return false;
 
@@ -184,7 +173,6 @@ async function checkTokenExpiration(response: Response): Promise<boolean> {
     const clonedResponse = response.clone();
     const errorData: ApiErrorResponse = await clonedResponse.json();
 
-    // 토큰이 있는 상태에서 토큰 관련 에러인 경우에만 토큰 만료로 판단
     return (
       errorData.code === TOKEN_ERROR_CODES.ACCESS_TOKEN_EXPIRED ||
       (errorData.message?.includes("JWT 토큰을 찾을 수 없습니다") ?? false) ||
@@ -197,7 +185,6 @@ async function checkTokenExpiration(response: Response): Promise<boolean> {
   }
 }
 
-// --- 토큰 재발급 및 재시도 처리 함수 ---
 async function handleTokenRefresh(url: string, options: RequestInit): Promise<Response> {
   console.warn("액세스 토큰 만료 감지. 재발급 시도...");
 
@@ -226,10 +213,9 @@ async function handleTokenRefresh(url: string, options: RequestInit): Promise<Re
       isRefreshingToken = false;
     }
   } else {
-    // 이미 재발급 중: 현재 요청을 큐에 추가
     console.log(
       "이미 토큰 재발급 중. 현재 요청을 큐에 추가:",
-      url.replace(API_CONFIG.BASE_URL, "")
+      url.replace(process.env.NEXT_PUBLIC_API_BASE_URL || "", "")
     );
     return new Promise((resolve, reject) => {
       failedRequestsQueue.push({ resolve, reject, url, options });
@@ -237,7 +223,6 @@ async function handleTokenRefresh(url: string, options: RequestInit): Promise<Re
   }
 }
 
-// --- 새 토큰으로 요청 재시도 함수 ---
 async function retryRequestWithNewToken(
   url: string,
   options: RequestInit,
@@ -248,5 +233,14 @@ async function retryRequestWithNewToken(
   const retryOptions = { ...options, headers: retryHeaders };
 
   console.log("원래 요청 재시도:", url);
-  return await fetch(url, retryOptions);
+  return fetch(url, retryOptions);
 }
+
+// --- API 클라이언트 설정 ---
+const apiConfig = new Configuration({
+  basePath: process.env.NEXT_PUBLIC_API_BASE_URL || "",
+  fetchApi: fetchWithAuth as typeof fetch,
+  credentials: "include",
+});
+
+export const apiClient = new DefaultApi(apiConfig);

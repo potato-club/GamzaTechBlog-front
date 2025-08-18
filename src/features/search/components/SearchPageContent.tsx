@@ -16,7 +16,7 @@ import SearchPageSidebar from "./SearchPageSidebar";
 
 export default function SearchPageContent() {
   const searchParams = useSearchParams();
-  const keyword = searchParams.get("q") || "";
+  const keyword = searchParams?.get("q") || "";
 
   const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 10;

@@ -6,8 +6,9 @@ export * from "./types";
 
 // Hooks
 export {
-  USER_QUERY_KEYS,
   useAuth,
+  useMyPageTab,
+  USER_QUERY_KEYS,
   useUpdateProfile,
   useUpdateProfileInSignup,
   useUserActivityStats,
@@ -31,7 +32,7 @@ export {
 } from "./components";
 
 // Services
-export { AuthError, getCurrentUser, userService } from "./services";
+export { getCurrentUser, userService } from "./services";
 
 // Types
 export type {

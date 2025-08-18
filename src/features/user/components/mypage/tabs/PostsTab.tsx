@@ -6,7 +6,7 @@
  */
 
 import CustomPagination from "@/components/shared/navigation/CustomPagination";
-import { Skeleton } from "@/components/ui/skeleton";
+import TabContentSkeleton from "@/components/shared/skeletons/TabContentSkeleton";
 import { PostCard } from "@/features/posts";
 import { useMyPosts } from "@/features/user";
 import { PostDetailResponse } from "@/generated/api";
@@ -36,18 +36,7 @@ export default function PostsTab() {
 
   // 로딩 상태
   if (isLoading) {
-    return (
-      <div className="mt-8 flex flex-col gap-8">
-        {/* 게시글 로딩 스켈레톤 */}
-        {[...Array(3)].map((_, index) => (
-          <div key={index} className="space-y-3">
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-full" />
-          </div>
-        ))}
-      </div>
-    );
+    return <TabContentSkeleton count={3} variant="post" />;
   }
   // 에러 상태
   if (error) {

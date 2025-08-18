@@ -48,7 +48,7 @@ export function usePosts(
 ) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.list(params),
-    queryFn: () => postService.getPosts(params),
+    queryFn: () => postService.getPosts(params || { page: 0, size: 10 }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5, // 5분간 fresh
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
@@ -177,7 +177,7 @@ export function usePostsByTag(
 ) {
   return useQuery({
     queryKey: POST_QUERY_KEYS.postsByTag(tagName, params),
-    queryFn: () => postService.getPostsByTag(tagName, params),
+    queryFn: () => postService.getPostsByTag(tagName, params || { page: 0, size: 10 }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5, // 5분간 fresh
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
@@ -198,7 +198,7 @@ export function useSearchPosts(
 ) {
   return useQuery({
     queryKey: ["posts", "search", keyword, params],
-    queryFn: () => postService.searchPosts(keyword, params),
+    queryFn: () => postService.searchPosts(keyword, params || { page: 0, size: 10 }),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
@@ -220,7 +220,7 @@ export function usePrefetchPosts() {
     (params?: Pageable) => {
       queryClient.prefetchQuery({
         queryKey: POST_QUERY_KEYS.list(params),
-        queryFn: () => postService.getPosts(params),
+        queryFn: () => postService.getPosts(params || { page: 0, size: 10 }),
         staleTime: 1000 * 60 * 5,
       });
     },
@@ -231,7 +231,7 @@ export function usePrefetchPosts() {
     (tagName: string, params?: Pageable) => {
       queryClient.prefetchQuery({
         queryKey: POST_QUERY_KEYS.postsByTag(tagName, params),
-        queryFn: () => postService.getPostsByTag(tagName, params),
+        queryFn: () => postService.getPostsByTag(tagName, params || { page: 0, size: 10 }),
         staleTime: 1000 * 60 * 5,
       });
     },

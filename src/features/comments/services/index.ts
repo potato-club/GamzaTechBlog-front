@@ -1,1 +1,1 @@
-export { CommentServiceError, commentService } from "./commentService";
+export { commentService } from "./commentService";

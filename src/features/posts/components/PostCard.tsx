@@ -5,8 +5,8 @@
 
 import { PostLink } from "@/components/shared/navigation/OptimizedLink";
 import { PostListResponse } from "@/generated/api";
-import { markdownToText } from "@/utils/markdown";
-import { highlightSearchKeyword } from "@/utils/textHighlight";
+import { markdownToText } from "@/lib/markdown";
+import { highlightSearchKeyword } from "@/lib/textHighlight";
 import Image from "next/image";
 import PostMeta from "./PostMeta";
 

@@ -45,7 +45,7 @@ export {
 } from "./components";
 
 // Services
-export { postService, PostServiceError } from "./services";
+export { postService } from "./services";
 export type { LikedPostResponse } from "./services";
 
 // Types

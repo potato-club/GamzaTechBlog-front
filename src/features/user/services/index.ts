@@ -1,1 +1,1 @@
-export { AuthError, getCurrentUser, userService } from "./userService";
+export { getCurrentUser, userService } from "./userService";

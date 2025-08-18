@@ -10,3 +10,5 @@ export {
 } from "./useUserQueries";
 
 export { useMyComments, useMyLikes, useMyPosts } from "./useMyPageQueries";
+
+export { useMyPageTab } from "./useMyPageTab";

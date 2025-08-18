@@ -7,8 +7,7 @@
  * 유지보수성과 테스트 용이성을 향상시켰습니다.
  */
 
-import { CommentsTab, LikesTab, PostsTab, TabMenu } from "@/features/user";
-import { useMyPageTab } from "@/hooks/useMyPageTab";
+import { CommentsTab, LikesTab, PostsTab, TabMenu, useMyPageTab } from "@/features/user";
 
 export default function MyPage() {
   const { currentTab, handleTabChange } = useMyPageTab();
