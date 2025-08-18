@@ -71,7 +71,7 @@ export const imageService = {
     const endpoint = API_PATHS.users.profileImage;
 
     const formData = new FormData();
-    formData.append("file", imageFile);
+    formData.append("imageFile", imageFile);
 
     const response = (await fetchWithAuth(API_CONFIG.BASE_URL + endpoint, {
       method: "PUT",
