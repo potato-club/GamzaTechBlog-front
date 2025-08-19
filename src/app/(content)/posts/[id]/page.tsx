@@ -1,9 +1,9 @@
+import { auth } from "@/auth";
 import {
   DynamicMarkdownViewer,
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
 import { PostHeader, PostStats, postService } from "@/features/posts";
-import { isPostAuthor } from "@/lib/auth";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -125,7 +125,8 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     }
 
     // 현재 로그인한 사용자가 게시글 작성자인지 확인
-    const isCurrentUserAuthor = post.githubId ? await isPostAuthor(post.githubId) : false;
+    const session = await auth();
+    const isCurrentUserAuthor = session?.user?.id === post.githubId;
 
     return (
       <main className="mx-16 my-16 max-w-full overflow-hidden">
