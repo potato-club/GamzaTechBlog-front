@@ -2,8 +2,10 @@ import BlogHeader from "@/components/shared/layout/BlogHeader";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Footer from "../components/shared/layout/Footer";
+import AuthProvider from "../providers/AuthProvider";
 import QueryProvider from "../providers/QueryProvider";
 import "./globals.css";
+import SessionSynchronizer from "../components/shared/interactive/SessionSynchronizer";
 
 export const metadata: Metadata = {
   title: "감자 기술 블로그",
@@ -43,16 +45,18 @@ export default async function RootLayout({
         {/* 콘텐츠를 중앙 정렬하고 최대 너비를 제한하는 wrapper div 추가 */}
         <div className="mx-auto w-full max-w-[1100px]">
           <div className="flex min-h-screen flex-col">
-            <QueryProvider>
-              <BlogHeader />
-              <div
-                id="main-content"
-                className="flex-grow" // flex-grow 추가하여 푸터가 항상 하단에 위치하도록 도움
-              >
-                {children}
-              </div>
-            </QueryProvider>
-
+            <AuthProvider>
+              <QueryProvider>
+                <SessionSynchronizer />
+                <BlogHeader />
+                <div
+                  id="main-content"
+                  className="flex-grow" // flex-grow 추가하여 푸터가 항상 하단에 위치하도록 도움
+                >
+                  {children}
+                </div>
+              </QueryProvider>
+            </AuthProvider>
             <Footer />
           </div>
         </div>
