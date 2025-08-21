@@ -12,7 +12,13 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   let session;
   if (typeof window === "undefined") {
     // Server-side
-    session = await auth();
+    try {
+      session = await auth();
+    } catch {
+      // 빌드 시점에는 세션이 없을 수 있으므로 오류를 무시하고 진행합니다.
+      console.warn("Auth.js failed during build, continuing without session.");
+      session = null;
+    }
   } else {
     // Client-side
     session = await getSession();
@@ -46,7 +52,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
 // --- API 클라이언트 설정 ---
 // 생성된 API 클라이언트가 우리가 만든 fetchWithAuth 함수를 사용하도록 설정합니다.
 const apiConfig = new Configuration({
-  basePath: process.env.NEXT_PUBLIC_API_BASE_URL || "",
+  basePath: process.env.NEXT_PUBLIC_API_BASE_URL,
   fetchApi: fetchWithAuth as typeof fetch,
   credentials: "include",
 });
