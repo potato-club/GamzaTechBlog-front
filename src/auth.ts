@@ -1,4 +1,5 @@
 import { ResponseDtoUserProfileResponse } from "@/generated/api";
+import * as jose from "jose";
 import type { NextAuthConfig, User } from "next-auth";
 import NextAuth from "next-auth";
 import type { JWT } from "next-auth/jwt";
@@ -89,14 +90,18 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       throw new Error("New access token not found");
     }
 
-    // 새 토큰의 만료 시간을 현재 시간으로부터 1시간으로 설정합니다.
-    const now = new Date();
-    const newExpiry = now.setHours(now.getHours() + 1);
+    if (!process.env.JWT_SECRET_KEY) {
+      throw new Error("JWT_SECRET_KEY is not defined in environment variables.");
+    }
+    // 새 액세스 토큰을 디코딩하여 실제 만료 시간을 추출합니다.
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
+    const { payload } = await jose.jwtVerify(newAccessToken, secret);
+    const newExpiry = (payload.exp as number) * 1000; // `exp`는 초 단위이므로 밀리초로 변환
 
     return {
       ...token,
-      accessToken: newAccessToken,
-      accessTokenExpires: newExpiry,
+      authorization: newAccessToken, // 새 액세스 토큰으로 교체
+      accessTokenExpires: newExpiry, // 실제 만료 시간으로 업데이트
       error: undefined, // 에러 상태 초기화
     };
   } catch (error) {
@@ -218,17 +223,21 @@ export const config: NextAuthConfig = {
      * 반환된 값은 암호화되어 쿠키에 저장됩니다.
      */
     async jwt({ token, user }) {
-      console.log("JWT Callback Token:", token); // Added for debugging
-      console.log("JWT Callback User:", user); // Added for debugging
-
       // 최초 로그인 시 (user 객체가 존재할 때)
       if (user) {
-        const now = new Date();
+        if (!process.env.JWT_SECRET_KEY) {
+          throw new Error("JWT_SECRET_KEY is not defined in environment variables.");
+        }
+        // 액세스 토큰을 디코딩하여 실제 만료 시간을 추출합니다.
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
+        const { payload } = await jose.jwtVerify(user.authorization, secret);
+        const accessTokenExpires = (payload.exp as number) * 1000; // `exp`는 초 단위이므로 밀리초로 변환
+
         // 토큰에 필요한 정보들을 담습니다.
         return {
           ...token,
           ...user,
-          accessTokenExpires: now.setHours(now.getHours() + 1),
+          accessTokenExpires,
         } as JWT;
       }
 
@@ -250,12 +259,13 @@ export const config: NextAuthConfig = {
 
       console.log("Session Callback Token:", token); // Added for debugging
       console.log("Session Callback Session:", session); // Added for debugging
+
       if (token) {
         const user = session.user as User; // session.user를 User 타입으로 캐스팅
         user.id = token.id;
-        session.user.name = token.name ?? "";
-        session.user.nickname = token.nickname ?? "";
-        session.user.email = token.email ?? "";
+        user.name = token.name ?? "";
+        user.nickname = token.nickname ?? "";
+        user.email = token.email ?? "";
         session.user.image = token.profileImageUrl;
         session.user.role = token.role ?? "";
         session.authorization = token.authorization ?? ""; // 클라이언트에서 API 요청 시 사용할 수 있도록 accessToken을 전달합니다.
