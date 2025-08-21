@@ -1,2 +1,3 @@
 /* tslint:disable */
-export * from "./DefaultApi";
+/* eslint-disable */
+export * from './DefaultApi';
