@@ -6,7 +6,10 @@ models/CommentListResponse.ts
 models/CommentRequest.ts
 models/CommentResponse.ts
 models/CommitHistoryResponse.ts
+models/CreateAdmissionResultRequest.ts
 models/LikeResponse.ts
+models/LookupRequest.ts
+models/LookupResponse.ts
 models/Pageable.ts
 models/PagedResponseCommentListResponse.ts
 models/PagedResponseLikeResponse.ts
@@ -29,6 +32,8 @@ models/ResponseDtoListPendingUserResponse.ts
 models/ResponseDtoListPostPopularResponse.ts
 models/ResponseDtoListProjectListResponse.ts
 models/ResponseDtoListString.ts
+models/ResponseDtoLong.ts
+models/ResponseDtoLookupResponse.ts
 models/ResponseDtoPagedResponseCommentListResponse.ts
 models/ResponseDtoPagedResponseLikeResponse.ts
 models/ResponseDtoPagedResponsePostListResponse.ts

@@ -17,7 +17,7 @@ export const postService = {
    * 최신순 게시물 목록을 조회합니다.
    */
   async getPosts(params: Pageable, options?: RequestInit): Promise<PagedResponsePostListResponse> {
-    const response = await apiClient.getPosts({ pageable: params }, options);
+    const response = await apiClient.getPosts({ ...params }, options);
     return response.data as PagedResponsePostListResponse;
   },
 

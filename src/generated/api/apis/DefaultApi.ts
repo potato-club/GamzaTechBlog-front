@@ -16,6 +16,8 @@
 import * as runtime from '../runtime';
 import type {
   CommentRequest,
+  CreateAdmissionResultRequest,
+  LookupRequest,
   Pageable,
   PostRequest,
   ProjectRequest,
@@ -28,6 +30,8 @@ import type {
   ResponseDtoListPostPopularResponse,
   ResponseDtoListProjectListResponse,
   ResponseDtoListString,
+  ResponseDtoLong,
+  ResponseDtoLookupResponse,
   ResponseDtoPagedResponseCommentListResponse,
   ResponseDtoPagedResponseLikeResponse,
   ResponseDtoPagedResponsePostListResponse,
@@ -45,6 +49,10 @@ import type {
 import {
     CommentRequestFromJSON,
     CommentRequestToJSON,
+    CreateAdmissionResultRequestFromJSON,
+    CreateAdmissionResultRequestToJSON,
+    LookupRequestFromJSON,
+    LookupRequestToJSON,
     PageableFromJSON,
     PageableToJSON,
     PostRequestFromJSON,
@@ -69,6 +77,10 @@ import {
     ResponseDtoListProjectListResponseToJSON,
     ResponseDtoListStringFromJSON,
     ResponseDtoListStringToJSON,
+    ResponseDtoLongFromJSON,
+    ResponseDtoLongToJSON,
+    ResponseDtoLookupResponseFromJSON,
+    ResponseDtoLookupResponseToJSON,
     ResponseDtoPagedResponseCommentListResponseFromJSON,
     ResponseDtoPagedResponseCommentListResponseToJSON,
     ResponseDtoPagedResponseLikeResponseFromJSON,
@@ -97,6 +109,10 @@ import {
     UserProfileRequestToJSON,
 } from '../models/index';
 
+export interface DeleteRequest {
+    admissionId: number;
+}
+
 export interface AddCommentRequest {
     postId: number;
     commentRequest: CommentRequest;
@@ -108,6 +124,10 @@ export interface ApproveUserProfileRequest {
 
 export interface CompleteProfileRequest {
     userProfileRequest: UserProfileRequest;
+}
+
+export interface CreateRequest {
+    createAdmissionResultRequest: CreateAdmissionResultRequest;
 }
 
 export interface CreateProjectRequest {
@@ -158,7 +178,9 @@ export interface GetPostDetailRequest {
 }
 
 export interface GetPostsRequest {
-    pageable: Pageable;
+    page?: number;
+    size?: number;
+    sort?: Array<string>;
     tags?: Array<string>;
 }
 
@@ -175,6 +197,10 @@ export interface IsPostLikedRequest {
 
 export interface LikePostRequest {
     postId: number;
+}
+
+export interface LookupOperationRequest {
+    request: LookupRequest;
 }
 
 export interface PublishPostRequest {
@@ -225,6 +251,51 @@ export interface UploadImageRequest {
  * 
  */
 export class DefaultApi extends runtime.BaseAPI {
+
+    /**
+     * 합격/불합격 결과 삭제 (ADMIN)
+     */
+    async _deleteRaw(requestParameters: DeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoVoid>> {
+        if (requestParameters['admissionId'] == null) {
+            throw new runtime.RequiredError(
+                'admissionId',
+                'Required parameter "admissionId" was null or undefined when calling _delete().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/admissions/admin/{admissionId}`;
+        urlPath = urlPath.replace(`{${"admissionId"}}`, encodeURIComponent(String(requestParameters['admissionId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoVoidFromJSON(jsonValue));
+    }
+
+    /**
+     * 합격/불합격 결과 삭제 (ADMIN)
+     */
+    async _delete(requestParameters: DeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoVoid> {
+        const response = await this._deleteRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * 게시물에 댓글 등록
@@ -370,6 +441,53 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async completeProfile(requestParameters: CompleteProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoUserProfileResponse> {
         const response = await this.completeProfileRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 합격/불합격 결과 생성 (ADMIN)
+     */
+    async createRaw(requestParameters: CreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoLong>> {
+        if (requestParameters['createAdmissionResultRequest'] == null) {
+            throw new runtime.RequiredError(
+                'createAdmissionResultRequest',
+                'Required parameter "createAdmissionResultRequest" was null or undefined when calling create().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/admissions/admin`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateAdmissionResultRequestToJSON(requestParameters['createAdmissionResultRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoLongFromJSON(jsonValue));
+    }
+
+    /**
+     * 합격/불합격 결과 생성 (ADMIN)
+     */
+    async create(requestParameters: CreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoLong> {
+        const response = await this.createRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1097,17 +1215,18 @@ export class DefaultApi extends runtime.BaseAPI {
      * 최신순 게시물 목록 조회
      */
     async getPostsRaw(requestParameters: GetPostsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoPagedResponsePostListResponse>> {
-        if (requestParameters['pageable'] == null) {
-            throw new runtime.RequiredError(
-                'pageable',
-                'Required parameter "pageable" was null or undefined when calling getPosts().'
-            );
-        }
-
         const queryParameters: any = {};
 
-        if (requestParameters['pageable'] != null) {
-            queryParameters['pageable'] = requestParameters['pageable'];
+        if (requestParameters['page'] != null) {
+            queryParameters['page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
+
+        if (requestParameters['sort'] != null) {
+            queryParameters['sort'] = requestParameters['sort'];
         }
 
         if (requestParameters['tags'] != null) {
@@ -1140,7 +1259,7 @@ export class DefaultApi extends runtime.BaseAPI {
     /**
      * 최신순 게시물 목록 조회
      */
-    async getPosts(requestParameters: GetPostsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoPagedResponsePostListResponse> {
+    async getPosts(requestParameters: GetPostsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoPagedResponsePostListResponse> {
         const response = await this.getPostsRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -1400,6 +1519,54 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async logout(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoString> {
         const response = await this.logoutRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 합격/불합격 조회 (공개 GET)
+     */
+    async lookupRaw(requestParameters: LookupOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoLookupResponse>> {
+        if (requestParameters['request'] == null) {
+            throw new runtime.RequiredError(
+                'request',
+                'Required parameter "request" was null or undefined when calling lookup().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['request'] != null) {
+            queryParameters['request'] = requestParameters['request'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/admissions/lookup`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoLookupResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 합격/불합격 조회 (공개 GET)
+     */
+    async lookup(requestParameters: LookupOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoLookupResponse> {
+        const response = await this.lookupRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
