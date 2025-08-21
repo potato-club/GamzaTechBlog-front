@@ -67,6 +67,26 @@ declare module "next-auth/jwt" {
 }
 
 /**
+ * JWT 비밀 키를 환경 변수에서 가져와 올바른 형식(Uint8Array)으로 변환합니다.
+ * 키가 Base64로 인코딩된 경우 디코딩하여 사용합니다.
+ */
+function getJwtSecretKey(): Uint8Array {
+  const secret = process.env.JWT_SECRET_KEY;
+  if (!secret) {
+    throw new Error("JWT_SECRET_KEY is not defined in environment variables.");
+  }
+
+  // Secret key가 base64로 인코딩되어 있는지 확인하고 처리
+  if (secret.endsWith("=") || /^[A-Za-z0-9+/]*={0,2}$/.test(secret)) {
+    // Base64로 디코딩
+    return Buffer.from(secret, "base64");
+  } else {
+    // 일반 문자열로 처리
+    return new TextEncoder().encode(secret);
+  }
+}
+
+/**
  * 만료된 액세스 토큰을 재발급하는 함수입니다.
  * @param token - 기존 JWT 객체
  * @returns 재발급된 토큰 정보를 포함한 새로운 JWT 객체
@@ -90,12 +110,8 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       throw new Error("New access token not found");
     }
 
-    if (!process.env.JWT_SECRET_KEY) {
-      throw new Error("JWT_SECRET_KEY is not defined in environment variables.");
-    }
-    // 새 액세스 토큰을 디코딩하여 실제 만료 시간을 추출합니다.
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
-    const { payload } = await jose.jwtVerify(newAccessToken, secret);
+    const secretKey = getJwtSecretKey();
+    const { payload } = await jose.jwtVerify(newAccessToken, secretKey);
     const newExpiry = (payload.exp as number) * 1000; // `exp`는 초 단위이므로 밀리초로 변환
 
     return {
@@ -225,12 +241,8 @@ export const config: NextAuthConfig = {
     async jwt({ token, user }) {
       // 최초 로그인 시 (user 객체가 존재할 때)
       if (user) {
-        if (!process.env.JWT_SECRET_KEY) {
-          throw new Error("JWT_SECRET_KEY is not defined in environment variables.");
-        }
-        // 액세스 토큰을 디코딩하여 실제 만료 시간을 추출합니다.
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
-        const { payload } = await jose.jwtVerify(user.authorization, secret);
+        const secretKey = getJwtSecretKey();
+        const { payload } = await jose.jwtVerify(user.authorization, secretKey);
         const accessTokenExpires = (payload.exp as number) * 1000; // `exp`는 초 단위이므로 밀리초로 변환
 
         // 토큰에 필요한 정보들을 담습니다.
@@ -259,7 +271,6 @@ export const config: NextAuthConfig = {
 
       console.log("Session Callback Token:", token); // Added for debugging
       console.log("Session Callback Session:", session); // Added for debugging
-
       if (token) {
         const user = session.user as User; // session.user를 User 타입으로 캐스팅
         user.id = token.id;
