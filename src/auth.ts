@@ -1,4 +1,5 @@
 import { ResponseDtoUserProfileResponse } from "@/generated/api";
+import { getCookie } from "cookies-next";
 import * as jose from "jose";
 import type { NextAuthConfig, User } from "next-auth";
 import NextAuth from "next-auth";
@@ -92,16 +93,32 @@ function getJwtSecretKey(): Uint8Array {
  * @returns 재발급된 토큰 정보를 포함한 새로운 JWT 객체
  */
 async function refreshAccessToken(token: JWT): Promise<JWT> {
+  console.log("refreshAccessToken called with token:", token);
   try {
+    // Get the latest refreshToken from the cookie
+    const latestRefreshTokenFromCookie = getCookie("refreshToken"); // Assuming "refreshToken" is the cookie name
+
+    if (!latestRefreshTokenFromCookie) {
+      console.error("Latest refresh token not found in cookies during refresh attempt.");
+      return {
+        ...token,
+        error: "RefreshAccessTokenError", // Indicate failure
+      };
+    }
+
+    const requestBody = JSON.stringify({ refreshToken: latestRefreshTokenFromCookie }); // Use the latest from cookie
+    console.log("Reissue API request body:", requestBody);
     const response = await fetch(`${BASE_URL}/api/auth/reissue`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshToken: token.refreshToken }),
+      body: requestBody,
     });
 
     const refreshedTokens = await response.json();
+    console.log("Reissue API response:", refreshedTokens);
 
     if (!response.ok) {
+      console.error("Reissue API returned an error:", refreshedTokens);
       throw refreshedTokens;
     }
 
@@ -117,11 +134,12 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     return {
       ...token,
       authorization: newAccessToken, // 새 액세스 토큰으로 교체
+      // No need to update refreshToken here, as backend doesn't return new one
       accessTokenExpires: newExpiry, // 실제 만료 시간으로 업데이트
       error: undefined, // 에러 상태 초기화
     };
   } catch (error) {
-    console.error("Error refreshing access token:", error);
+    console.error("Error refreshing access token in catch block:", error);
     return {
       ...token,
       error: "RefreshAccessTokenError", // 에러 발생 시 토큰에 에러 상태를 기록합니다.
@@ -260,7 +278,10 @@ export const config: NextAuthConfig = {
       }
 
       // 액세스 토큰이 만료되었다면, 재발급을 시도합니다.
-      return refreshAccessToken(token as JWT);
+      console.log("Access token expired. Attempting to refresh...");
+      const refreshedToken = await refreshAccessToken(token as JWT);
+      console.log("Refreshed token result:", refreshedToken);
+      return refreshedToken;
     },
     /**
      * 세션이 확인될 때마다 호출됩니다. (예: `useSession`, `getSession`)
