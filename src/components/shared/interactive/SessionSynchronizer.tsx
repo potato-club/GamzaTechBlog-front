@@ -136,7 +136,7 @@ export default function SessionSynchronizer() {
                   maxAge = exp - now > 0 ? exp - now : 3600;
                   console.log("SessionSynchronizer: Parsed JWT maxAge:", maxAge);
                 }
-              } catch (error) {
+              } catch {
                 console.warn("SessionSynchronizer: Failed to parse JWT, using default maxAge");
               }
 
@@ -163,7 +163,7 @@ export default function SessionSynchronizer() {
                 maxAge = exp - now > 0 ? exp - now : 3600;
                 console.log("SessionSynchronizer: Parsed JWT maxAge:", maxAge);
               }
-            } catch (error) {
+            } catch {
               console.warn("SessionSynchronizer: Failed to parse JWT, using default maxAge");
             }
 
@@ -213,7 +213,7 @@ export default function SessionSynchronizer() {
         redirect: true,
       });
     }
-  }, [session?.error, status]);
+  }, [session, session?.error, status]);
 
   return null;
 }

@@ -29,7 +29,7 @@ const errorMessages = {
 export default function AuthErrorPage() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error") as keyof typeof errorMessages;
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  // const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const errorInfo = errorMessages[error] || errorMessages.default;
 

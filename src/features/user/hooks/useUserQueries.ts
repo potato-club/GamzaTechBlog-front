@@ -197,19 +197,11 @@ export function useAuth() {
   // Session의 사용자 정보를 UserProfileResponse 형태로 변환
   const userProfile =
     isLoggedIn && !needsProfileCompletion && session?.user
-      ? ({
-          githubId: session.user.githubId,
-          nickname: session.user.nickname,
-          name: session.user.name,
-          email: session.user.email,
-          profileImageUrl: session.user.profileImageUrl,
-          role: session.user.role,
-          position: session.user.position,
-          studentNumber: session.user.studentNumber,
-          gamjaBatch: session.user.gamjaBatch,
-          createdAt: session.user.createdAt,
-          updatedAt: session.user.updatedAt,
-        } as UserProfileResponse)
+      ? (({ id, image, ...rest }) => ({
+          ...rest,
+          githubId: id,
+          profileImageUrl: image,
+        }))(session.user)
       : undefined;
 
   const isLoading = status === "loading";

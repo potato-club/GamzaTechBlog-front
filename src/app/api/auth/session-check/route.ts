@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
@@ -13,7 +13,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
  *
  * 사용처: SessionSynchronizer (자동 로그인 시도)
  */
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     console.log("Token refresh API called");
 

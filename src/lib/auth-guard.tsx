@@ -35,7 +35,7 @@ export async function AuthGuard({ children, requiredRole, fallbackUrl = "/" }: A
 /**
  * 클라이언트 컴포넌트에서 사용하는 인증 가드 훅
  */
-export function useAuthGuard(requiredRole?: string) {
-  // 이 부분은 클라이언트 컴포넌트에서 사용
-  // useSession과 useRouter를 활용한 클라이언트 사이드 가드
-}
+// export function useAuthGuard(requiredRole?: string) {
+//   // 이 부분은 클라이언트 컴포넌트에서 사용
+//   // useSession과 useRouter를 활용한 클라이언트 사이드 가드
+// }
