@@ -182,29 +182,34 @@ export function useUpdateProfile(
 /**
  * 인증 상태를 종합적으로 관리하는 컴포지션 훅
  *
- * ✨ 최적화 포인트:
- * - NextAuth session에서 직접 사용자 정보를 가져와 불필요한 API 호출 제거
- * - 기본 프로필 정보는 session에서, 활동 통계는 별도 API로 분리
- * - 토큰 갱신 시 session이 자동으로 업데이트되므로 실시간 동기화
+ * ✨ React Query 중심 아키텍처:
+ * - NextAuth는 토큰 관리만 담당
+ * - 사용자 정보는 React Query로 관리하여 자동 캐시 무효화 및 업데이트
+ * - 프로필 수정 후 간단한 invalidateQueries로 UI 자동 업데이트
  */
 export function useAuth() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
+  const queryClient = useQueryClient();
 
-  // Session에서 직접 사용자 정보 가져오기 (API 호출 없음)
+  // NextAuth는 토큰 상태만 확인
   const isLoggedIn = status === "authenticated";
-  const needsProfileCompletion = isLoggedIn && session?.user?.role === "PRE_REGISTER";
+  const isAuthLoading = status === "loading";
 
-  // Session의 사용자 정보를 UserProfileResponse 형태로 변환
-  const userProfile =
-    isLoggedIn && !needsProfileCompletion && session?.user
-      ? (({ id, image, ...rest }) => ({
-          ...rest,
-          githubId: id,
-          profileImageUrl: image,
-        }))(session.user)
-      : undefined;
+  // 사용자 정보는 React Query로 조회
+  const {
+    data: userProfile,
+    isLoading: isProfileLoading,
+    error: profileError,
+    refetch: refetchProfile,
+  } = useUserProfile({
+    enabled: isLoggedIn, // 로그인된 경우에만 프로필 조회
+  });
 
-  const isLoading = status === "loading";
+  // 프로필 완성 여부 확인
+  const needsProfileCompletion = isLoggedIn && userProfile?.role === "PRE_REGISTER";
+
+  // 전체 로딩 상태
+  const isLoading = isAuthLoading || (isLoggedIn && isProfileLoading);
 
   const logout = async () => {
     try {
@@ -212,16 +217,18 @@ export function useAuth() {
     } catch (logoutError) {
       console.error("백엔드 로그아웃 API 호출 실패(무시 가능):", logoutError);
     } finally {
-      // Auth.js의 signOut 함수를 호출하여 세션을 종료합니다.
+      // React Query 캐시 정리
+      queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.all });
+      // NextAuth 세션 종료
       await signOut({ callbackUrl: "/" });
     }
   };
 
-  // Session 기반이므로 refetch는 session을 업데이트하는 방식으로 변경
+  // React Query 기반 상태 갱신
   const refetchAuthStatus = async () => {
-    // 필요시 session을 강제로 업데이트
-    // 또는 프로필 변경 후 NextAuth 세션을 업데이트하는 로직 추가
-    console.log("Session-based auth doesn't need manual refetch");
+    if (isLoggedIn) {
+      await refetchProfile();
+    }
   };
 
   return {
@@ -229,8 +236,8 @@ export function useAuth() {
     userProfile,
     needsProfileCompletion,
     isLoading,
-    error: session?.error ? new Error(session.error) : null,
-    isError: !!session?.error,
+    error: profileError,
+    isError: !!profileError,
     logout,
     refetchAuthStatus,
   };
