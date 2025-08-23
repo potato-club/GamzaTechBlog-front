@@ -24,7 +24,7 @@ export default function PostHeader({ post, postId, isCurrentUserAuthor = false }
               alt={`${post.writer}의 프로필 이미지`}
               width={24}
               height={24}
-              className="rounded-full"
+              className="h-6 w-6 rounded-full object-cover"
               priority={true}
               unoptimized={post.writerProfileImageUrl.includes("amazonaws.com")}
             />
