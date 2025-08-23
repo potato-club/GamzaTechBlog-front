@@ -1,11 +1,11 @@
 import BlogHeader from "@/components/shared/layout/BlogHeader";
 import type { Metadata } from "next";
 import Link from "next/link";
+import SessionSynchronizer from "../components/shared/interactive/SessionSynchronizer";
 import Footer from "../components/shared/layout/Footer";
 import AuthProvider from "../providers/AuthProvider";
 import QueryProvider from "../providers/QueryProvider";
 import "./globals.css";
-import SessionSynchronizer from "../components/shared/interactive/SessionSynchronizer";
 
 export const metadata: Metadata = {
   title: "감자 기술 블로그",
