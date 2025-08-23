@@ -46,7 +46,17 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   };
 
   // 수정된 옵션으로 API 요청을 보냅니다.
-  return fetch(url, newOptions);
+  const response = await fetch(url, newOptions);
+
+  // 401 Unauthorized 응답 시 클라이언트 사이드에서 메인 페이지로 리다이렉트
+  if (response.status === 401 && typeof window !== "undefined") {
+    console.warn("API request returned 401, redirecting to home...");
+    const currentPath = window.location.pathname;
+    window.location.href = `/?error=session_expired&redirect=${encodeURIComponent(currentPath)}`;
+    return response;
+  }
+
+  return response;
 }
 
 // --- API 클라이언트 설정 ---

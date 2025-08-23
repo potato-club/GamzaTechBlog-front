@@ -181,20 +181,38 @@ export function useUpdateProfile(
 
 /**
  * 인증 상태를 종합적으로 관리하는 컴포지션 훅
+ *
+ * ✨ 최적화 포인트:
+ * - NextAuth session에서 직접 사용자 정보를 가져와 불필요한 API 호출 제거
+ * - 기본 프로필 정보는 session에서, 활동 통계는 별도 API로 분리
+ * - 토큰 갱신 시 session이 자동으로 업데이트되므로 실시간 동기화
  */
 export function useAuth() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
 
-  const profileQuery = useUserProfile();
-  const roleQuery = useUserRole();
-
+  // Session에서 직접 사용자 정보 가져오기 (API 호출 없음)
   const isLoggedIn = status === "authenticated";
-  const needsProfileCompletion = isLoggedIn && roleQuery.data === "PRE_REGISTER";
-  const userProfile = isLoggedIn && !needsProfileCompletion ? profileQuery.data : undefined;
+  const needsProfileCompletion = isLoggedIn && session?.user?.role === "PRE_REGISTER";
 
-  const isLoading =
-    status === "loading" ||
-    (isLoggedIn && (roleQuery.isLoading || (!needsProfileCompletion && profileQuery.isLoading)));
+  // Session의 사용자 정보를 UserProfileResponse 형태로 변환
+  const userProfile =
+    isLoggedIn && !needsProfileCompletion && session?.user
+      ? ({
+          githubId: session.user.githubId,
+          nickname: session.user.nickname,
+          name: session.user.name,
+          email: session.user.email,
+          profileImageUrl: session.user.profileImageUrl,
+          role: session.user.role,
+          position: session.user.position,
+          studentNumber: session.user.studentNumber,
+          gamjaBatch: session.user.gamjaBatch,
+          createdAt: session.user.createdAt,
+          updatedAt: session.user.updatedAt,
+        } as UserProfileResponse)
+      : undefined;
+
+  const isLoading = status === "loading";
 
   const logout = async () => {
     try {
@@ -207,9 +225,11 @@ export function useAuth() {
     }
   };
 
+  // Session 기반이므로 refetch는 session을 업데이트하는 방식으로 변경
   const refetchAuthStatus = async () => {
-    const results = await Promise.allSettled([roleQuery.refetch(), profileQuery.refetch()]);
-    return results;
+    // 필요시 session을 강제로 업데이트
+    // 또는 프로필 변경 후 NextAuth 세션을 업데이트하는 로직 추가
+    console.log("Session-based auth doesn't need manual refetch");
   };
 
   return {
@@ -217,11 +237,9 @@ export function useAuth() {
     userProfile,
     needsProfileCompletion,
     isLoading,
-    error: roleQuery.error || profileQuery.error,
-    isError: roleQuery.isError || profileQuery.isError,
+    error: session?.error ? new Error(session.error) : null,
+    isError: !!session?.error,
     logout,
     refetchAuthStatus,
-    profileQuery,
-    roleQuery,
   };
 }

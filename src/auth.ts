@@ -1,5 +1,4 @@
 import { ResponseDtoUserProfileResponse } from "@/generated/api";
-import { getCookie } from "cookies-next";
 import * as jose from "jose";
 import type { NextAuthConfig, User } from "next-auth";
 import NextAuth from "next-auth";
@@ -25,11 +24,6 @@ type BackendUserProfile = {
 
 // next-auth의 기본 타입을 확장하여 우리 서비스에 맞게 커스텀합니다.
 declare module "next-auth" {
-  /**
-   * `authorize` 콜백에서 반환해야 하는 User 객체 타입입니다.
-   * next-auth의 기본 User의 id가 string이므로, 우리 서비스의 id 타입(number)과 충돌을 피하기 위해
-   * 필요한 모든 속성을 명시적으로 재정의합니다.
-   */
   interface User {
     id: number;
     name?: string;
@@ -39,37 +33,36 @@ declare module "next-auth" {
     nickname: string;
     profileImageUrl?: string;
     role: string;
+    position?: string;
+    studentNumber?: string;
+    gamjaBatch?: number;
     createdAt?: string;
     updatedAt?: string;
     authorization: string;
     refreshToken: string;
   }
 
-  /**
-   * `useSession` 등으로 반환되는 Session 객체 타입입니다.
-   */
   interface Session {
-    user: User; // 위에서 재정의한 User 타입을 사용합니다.
+    user: User;
     authorization?: string;
     error?: "RefreshAccessTokenError";
   }
 }
 
 declare module "next-auth/jwt" {
-  /**
-   * JWT 콜백의 `token` 파라미터 타입입니다.
-   */
   interface JWT extends BackendUserProfile {
     authorization: string;
     refreshToken: string;
     accessTokenExpires: number;
     error?: "RefreshAccessTokenError";
+    position?: string;
+    studentNumber?: string;
+    gamjaBatch?: number;
   }
 }
 
 /**
  * JWT 비밀 키를 환경 변수에서 가져와 올바른 형식(Uint8Array)으로 변환합니다.
- * 키가 Base64로 인코딩된 경우 디코딩하여 사용합니다.
  */
 function getJwtSecretKey(): Uint8Array {
   const secret = process.env.JWT_SECRET_KEY;
@@ -77,72 +70,80 @@ function getJwtSecretKey(): Uint8Array {
     throw new Error("JWT_SECRET_KEY is not defined in environment variables.");
   }
 
-  // Secret key가 base64로 인코딩되어 있는지 확인하고 처리
   if (secret.endsWith("=") || /^[A-Za-z0-9+/]*={0,2}$/.test(secret)) {
-    // Base64로 디코딩
     return Buffer.from(secret, "base64");
   } else {
-    // 일반 문자열로 처리
     return new TextEncoder().encode(secret);
   }
 }
 
 /**
  * 만료된 액세스 토큰을 재발급하는 함수입니다.
- * @param token - 기존 JWT 객체
- * @returns 재발급된 토큰 정보를 포함한 새로운 JWT 객체
  */
 async function refreshAccessToken(token: JWT): Promise<JWT> {
-  console.log("refreshAccessToken called with token:", token);
+  console.log("refreshAccessToken called - using internal session-check API");
   try {
-    // Get the latest refreshToken from the cookie
-    const latestRefreshTokenFromCookie = getCookie("refreshToken"); // Assuming "refreshToken" is the cookie name
+    // 내부 session-check API를 사용하여 토큰 갱신
+    // 이 API는 이미 쿠키 파싱과 프로필 조회를 처리함
+    const response = await fetch(
+      `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/auth/session-check`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // refreshToken 쿠키를 전달
+          Cookie: `refreshToken=${token.refreshToken}`,
+        },
+        credentials: "include",
+      }
+    );
 
-    if (!latestRefreshTokenFromCookie) {
-      console.error("Latest refresh token not found in cookies during refresh attempt.");
-      return {
-        ...token,
-        error: "RefreshAccessTokenError", // Indicate failure
-      };
+    const result = await response.json();
+
+    // session-check API가 실패한 경우 처리
+    if (!response.ok || !result.success) {
+      // refreshToken 만료는 정상적인 상황 (로그아웃 상태)
+      if (result.code === "REFRESH_TOKEN_EXPIRED") {
+        console.log("RefreshToken expired in session-check, marking for logout");
+        const errorToken = {
+          ...token,
+          error: "RefreshAccessTokenError" as const,
+        };
+        console.log("Returning error token:", errorToken);
+        return errorToken;
+      }
+
+      // 다른 에러들
+      throw new Error(`Session check failed: ${result.message || "Unknown error"}`);
     }
 
-    const requestBody = JSON.stringify({ refreshToken: latestRefreshTokenFromCookie }); // Use the latest from cookie
-    console.log("Reissue API request body:", requestBody);
-    const response = await fetch(`${BASE_URL}/api/auth/reissue`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: requestBody,
-    });
-
-    const refreshedTokens = await response.json();
-    console.log("Reissue API response:", refreshedTokens);
-
-    if (!response.ok) {
-      console.error("Reissue API returned an error:", refreshedTokens);
-      throw refreshedTokens;
+    if (!result.authorization) {
+      throw new Error("New access token not found in session check response");
     }
 
-    const newAccessToken = refreshedTokens.data?.authorization;
-    if (!newAccessToken) {
-      throw new Error("New access token not found");
-    }
-
+    const newAccessToken = result.authorization;
     const secretKey = getJwtSecretKey();
     const { payload } = await jose.jwtVerify(newAccessToken, secretKey);
-    const newExpiry = (payload.exp as number) * 1000; // `exp`는 초 단위이므로 밀리초로 변환
+    const newExpiry = (payload.exp as number) * 1000;
+
+    console.log("Token refresh successful via session-check API");
+
+    // refreshToken은 session-check API에서 쿠키로 자동 업데이트되므로
+    // JWT에서는 기존 값을 유지 (실제 값은 쿠키에서 관리됨)
 
     return {
       ...token,
-      authorization: newAccessToken, // 새 액세스 토큰으로 교체
-      // No need to update refreshToken here, as backend doesn't return new one
-      accessTokenExpires: newExpiry, // 실제 만료 시간으로 업데이트
-      error: undefined, // 에러 상태 초기화
+      authorization: newAccessToken,
+      // refreshToken은 쿠키에서 관리되므로 기존 값 유지
+      refreshToken: token.refreshToken,
+      accessTokenExpires: newExpiry,
+      error: undefined,
     };
   } catch (error) {
-    console.error("Error refreshing access token in catch block:", error);
+    console.error("Error refreshing access token:", error);
     return {
       ...token,
-      error: "RefreshAccessTokenError", // 에러 발생 시 토큰에 에러 상태를 기록합니다.
+      error: "RefreshAccessTokenError",
     };
   }
 }
@@ -150,24 +151,22 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 export const config: NextAuthConfig = {
   providers: [
     Credentials({
-      // `credentials` 옵션은 로그인 폼 자동 생성에 사용되지만,
-      // 우리는 커스텀 로그인 페이지를 사용하므로 `authorize` 로직에 집중합니다.
       credentials: {
         authorization: { label: "Authorization Token", type: "text" },
-        // refreshToken: { label: "Refresh Token", type: "text" }, // refreshToken은 HttpOnly 쿠키에서 직접 읽을 것이므로 제거
+        userProfile: { label: "User Profile", type: "text" }, // 선택적 프로필 정보
       },
       async authorize(credentials, req): Promise<User | null> {
-        // req 매개변수 추가
-        // credentials 객체의 유효성을 검사합니다.
-        if (typeof credentials.authorization !== "string") {
-          // refreshToken 검사 제거
-          console.error("Invalid authorization credential provided to authorize function.");
+        console.log("NextAuth authorize function called");
+
+        // 라우트 핸들러에서 이미 유효한 토큰을 받았다고 가정
+        if (typeof credentials.authorization !== "string" || !credentials.authorization) {
+          console.error("Invalid or missing authorization credential");
           return null;
         }
 
         const { authorization } = credentials;
 
-        // HttpOnly refreshToken 쿠키에서 직접 읽기
+        // refreshToken은 HttpOnly 쿠키에서 읽어옵니다
         const cookieHeader = req.headers.get("cookie");
         let refreshToken: string | undefined;
 
@@ -182,68 +181,65 @@ export const config: NextAuthConfig = {
         }
 
         if (!refreshToken) {
-          console.error("Refresh token not found in cookies.");
+          console.error("Refresh token not found in cookies");
           return null;
         }
 
         try {
-          // 액세스 토큰을 이용해 백엔드에서 사용자 프로필 정보를 가져옵니다.
-          const profileResponse = await fetch(`${BASE_URL}/api/v1/users/me/get/profile`, {
-            headers: {
-              Authorization: `Bearer ${authorization}`,
-            },
-          });
+          let profile: any;
 
-          // --- 여기에 추가 ---
-          console.log("Profile API Response:", profileResponse);
-          // --- 여기까지 추가 ---
+          // 이미 조회된 프로필 정보가 있는지 확인 (라우트 핸들러에서 전달된 경우)
+          if (credentials.userProfile) {
+            console.log("Using pre-fetched user profile from route handler");
+            profile = JSON.parse(credentials.userProfile as string);
+          } else {
+            // 프로필 정보가 없으면 직접 조회 (일반 로그인의 경우)
+            console.log("Fetching user profile with provided token");
+            const profileResponse = await fetch(`${BASE_URL}/api/v1/users/me/get/profile`, {
+              headers: {
+                Authorization: `Bearer ${authorization}`,
+              },
+            });
 
-          if (!profileResponse.ok) {
-            console.error(
-              `Failed to fetch user profile. Status: ${profileResponse.status}`,
-              await profileResponse.text()
-            );
-            return null;
-          }
-
-          const userProfile: ResponseDtoUserProfileResponse = await profileResponse.json();
-
-          // --- 여기에 추가 ---
-          console.log("Parsed User Profile:", userProfile);
-          // --- 여기까지 추가 ---
-
-          // 프로필 정보가 유효하면 User 객체를 구성하여 반환합니다.
-          if (userProfile && userProfile.data) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const profile = userProfile.data as any;
-
-            // 필수 필드(id 포함)들이 존재하는지 확인합니다.
-            if (!profile.githubId || !profile.nickname || !profile.email || !profile.role) {
-              console.error(
-                "Required user profile fields (githubId, nickname, email, role) are missing.",
-                profile
-              );
+            if (!profileResponse.ok) {
+              console.error(`Failed to fetch user profile. Status: ${profileResponse.status}`);
               return null;
             }
 
-            return {
-              id: profile.githubId,
-              name: profile.name,
-              email: profile.email,
-              image: profile.profileImageUrl,
-              githubId: profile.githubId,
-              nickname: profile.nickname,
-              profileImageUrl: profile.profileImageUrl,
-              role: profile.role,
-              createdAt: profile.createdAt,
-              updatedAt: profile.updatedAt,
-              authorization,
-              refreshToken,
-            };
+            const userProfile: ResponseDtoUserProfileResponse = await profileResponse.json();
+
+            if (!userProfile?.data) {
+              console.error("User profile data is missing in the API response");
+              return null;
+            }
+
+            profile = userProfile.data;
           }
 
-          console.error("User profile data is missing in the API response.");
-          return null;
+          // 필수 필드 검증
+          if (!profile.githubId || !profile.nickname || !profile.email || !profile.role) {
+            console.error("Required user profile fields are missing");
+            return null;
+          }
+
+          console.log("User profile processed successfully");
+          return {
+            id: profile.githubId,
+            name: profile.name,
+            email: profile.email,
+            image: profile.profileImageUrl,
+            githubId: profile.githubId,
+            nickname: profile.nickname,
+            profileImageUrl: profile.profileImageUrl,
+            role: profile.role,
+            position: profile.position,
+            studentNumber: profile.studentNumber,
+            gamjaBatch: profile.gamjaBatch,
+            createdAt: profile.createdAt,
+            updatedAt: profile.updatedAt,
+            authorization,
+            refreshToken,
+          };
         } catch (error) {
           console.error("An error occurred during the authorize process:", error);
           return null;
@@ -252,18 +248,12 @@ export const config: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    /**
-     * JWT가 생성되거나 업데이트될 때마다 호출됩니다.
-     * 반환된 값은 암호화되어 쿠키에 저장됩니다.
-     */
     async jwt({ token, user }) {
-      // 최초 로그인 시 (user 객체가 존재할 때)
       if (user) {
         const secretKey = getJwtSecretKey();
         const { payload } = await jose.jwtVerify(user.authorization, secretKey);
-        const accessTokenExpires = (payload.exp as number) * 1000; // `exp`는 초 단위이므로 밀리초로 변환
+        const accessTokenExpires = (payload.exp as number) * 1000;
 
-        // 토큰에 필요한 정보들을 담습니다.
         return {
           ...token,
           ...user,
@@ -271,50 +261,49 @@ export const config: NextAuthConfig = {
         } as JWT;
       }
 
-      // 페이지 이동 등 다음 요청에서는 user 객체가 없습니다.
-      // 액세스 토큰이 만료되지 않았다면, 기존 토큰을 그대로 반환합니다.
-      if (Date.now() < token.accessTokenExpires) {
+      // 토큰 만료 체크 (5분 버퍼)
+      const REFRESH_BUFFER = 5 * 60 * 1000;
+      if (Date.now() < token.accessTokenExpires - REFRESH_BUFFER) {
         return token;
       }
 
-      // 액세스 토큰이 만료되었다면, 재발급을 시도합니다.
-      console.log("Access token expired. Attempting to refresh...");
-      const refreshedToken = await refreshAccessToken(token as JWT);
-      console.log("Refreshed token result:", refreshedToken);
-      return refreshedToken;
+      // 토큰 재발급
+      return await refreshAccessToken(token as JWT);
     },
-    /**
-     * 세션이 확인될 때마다 호출됩니다. (예: `useSession`, `getSession`)
-     * 여기서 반환하는 값이 클라이언트에서 확인할 수 있는 세션 정보가 됩니다.
-     */
     async session({ session, token }) {
-      // token 객체에서 필요한 정보를 session.user에 담습니다.
-
-      console.log("Session Callback Token:", token); // Added for debugging
-      console.log("Session Callback Session:", session); // Added for debugging
       if (token) {
-        const user = session.user as User; // session.user를 User 타입으로 캐스팅
+        const user = session.user as User;
         user.id = token.id;
         user.name = token.name ?? "";
         user.nickname = token.nickname ?? "";
         user.email = token.email ?? "";
+        user.githubId = token.githubId;
+        user.profileImageUrl = token.profileImageUrl;
+        user.position = token.position;
+        user.studentNumber = token.studentNumber;
+        user.gamjaBatch = token.gamjaBatch;
+        user.createdAt = token.createdAt;
+        user.updatedAt = token.updatedAt;
         session.user.image = token.profileImageUrl;
         session.user.role = token.role ?? "";
-        session.authorization = token.authorization ?? ""; // 클라이언트에서 API 요청 시 사용할 수 있도록 accessToken을 전달합니다.
+        session.authorization = token.authorization ?? "";
         session.error = token.error;
+
+        if (token.error) {
+          console.log("Session callback: Error detected in token:", token.error);
+        }
       }
       return session;
     },
   },
   secret: process.env.AUTH_SECRET,
   session: {
-    strategy: "jwt", // 세션 관리 전략으로 JWT를 사용합니다.
+    strategy: "jwt",
   },
   pages: {
-    // 커스텀 로그인 페이지 경로를 설정할 수 있습니다.
-    // signIn: '/login',
+    signIn: "/",
+    error: "/auth/error",
   },
 };
 
-// NextAuth 설정 객체를 기반으로 핸들러와 유틸 함수들을 export합니다.
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
