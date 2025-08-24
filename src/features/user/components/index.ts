@@ -4,7 +4,7 @@ export { default as UserActivityStatItem } from "./UserActivityStatItem";
 
 // MyPage Components
 export { default as MyPageSidebar } from "./mypage/MyPageSidebar";
-export { default as TabMenu } from "./mypage/TabMenu";
+export { default as MyPageTabMenu } from "./mypage/MyPageTabMenu";
 
 // MyPage Tabs
 export { default as CommentsTab } from "./mypage/tabs/CommentsTab";

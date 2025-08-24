@@ -11,6 +11,4 @@ export {
 
 export { useMyComments, useMyLikes, useMyPosts } from "./useMyPageQueries";
 
-export { useMyPageTab } from "./useMyPageTab";
-
 export { useUpdateProfileImage } from "./useUserMutations";

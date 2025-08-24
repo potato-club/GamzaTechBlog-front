@@ -7,10 +7,16 @@
  * 유지보수성과 테스트 용이성을 향상시켰습니다.
  */
 
-import { CommentsTab, LikesTab, PostsTab, TabMenu, useMyPageTab } from "@/features/user";
+import { CommentsTab, LikesTab, MyPageTabMenu, PostsTab } from "@/features/user";
+import { useTab } from "@/hooks/useTab"; // Import the generic useTab hook
+import { TabType, VALID_TABS } from "@/types/mypage"; // Import VALID_TABS and TabType
 
 export default function MyPage() {
-  const { currentTab, handleTabChange } = useMyPageTab();
+  const { currentTab, handleTabChange } = useTab<TabType>({
+    defaultTab: "posts",
+    validTabs: VALID_TABS,
+    basePath: "/mypage",
+  });
 
   /**
    * 현재 활성 탭에 따라 해당 탭 컴포넌트를 렌더링합니다.
@@ -34,7 +40,11 @@ export default function MyPage() {
       <section className="flex-1" aria-label="마이페이지 콘텐츠">
         {" "}
         {/* flex-1 추가하여 남은 공간 채우도록 */}
-        <TabMenu tab={currentTab} onTabChange={handleTabChange} aria-label="마이페이지 탭 메뉴" />
+        <MyPageTabMenu
+          tab={currentTab}
+          onTabChange={handleTabChange}
+          aria-label="마이페이지 탭 메뉴"
+        />
         <div
           role="tabpanel"
           aria-labelledby={`${currentTab}-tab`}

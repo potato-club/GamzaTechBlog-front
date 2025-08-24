@@ -2,16 +2,10 @@ import { DynamicWelcomeModal } from "@/components/dynamic/DynamicComponents";
 import LogoSection from "@/components/shared/layout/LogoSection";
 import SidebarSection from "@/components/shared/layout/SidebarSection.server";
 import SidebarSkeleton from "@/components/shared/layout/skeletons/SidebarSkeleton";
-import { PostListSection, PostListSkeleton } from "@/features/posts";
+import { MainContent, PostListSection, PostListSkeleton } from "@/features/posts";
 import { Metadata } from "next";
 import { Suspense } from "react";
 
-/**
- * 메인 페이지 동적 메타데이터 생성
- *
- * 태그가 선택된 경우 해당 태그에 맞는 메타데이터를 생성합니다.
- * 예: #react 태그 선택시 "React 태그 게시글 | 감자 기술 블로그"
- */
 export async function generateMetadata({
   searchParams,
 }: {
@@ -64,10 +58,13 @@ export default function Home({
 
         {/* 메인 콘텐츠 - 스트리밍 */}
         <div className="flex pb-10">
-          {/* 게시글 목록 섹션 - 독립적 스트리밍 */}
-          <Suspense fallback={<PostListSkeleton count={3} />}>
-            <PostListSection searchParams={searchParams} />
-          </Suspense>
+          <MainContent
+            postsTabContent={
+              <Suspense fallback={<PostListSkeleton count={3} />}>
+                <PostListSection searchParams={searchParams} />
+              </Suspense>
+            }
+          />
 
           {/* 사이드바 섹션 - 독립적 스트리밍 */}
           <Suspense fallback={<SidebarSkeleton />}>
