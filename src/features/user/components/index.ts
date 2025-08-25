@@ -3,7 +3,8 @@ export { default as ProfileEditDialog } from "./ProfileEditDialog";
 export { default as UserActivityStatItem } from "./UserActivityStatItem";
 
 // MyPage Components
-export { default as MyPageSidebar } from "./mypage/MyPageSidebar";
+export { default as MyPageSidebarServer } from "./mypage/MyPageSidebar.server";
+export { default as MyPageTabContent } from "./mypage/MyPageTabContent";
 export { default as TabMenu } from "./mypage/TabMenu";
 
 // MyPage Tabs
