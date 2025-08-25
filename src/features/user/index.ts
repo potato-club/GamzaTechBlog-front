@@ -7,7 +7,6 @@ export * from "./types";
 // Hooks
 export {
   useAuth,
-  useMyPageTab,
   USER_QUERY_KEYS,
   useUpdateProfile,
   useUpdateProfileImage,
@@ -28,7 +27,6 @@ export {
   PostsTab,
   ProfileEditDialog,
   ProfileEditDialogSkeleton,
-  TabMenu,
   UserActivityStatItem,
   UserActivityStatsSkeleton,
 } from "./components";

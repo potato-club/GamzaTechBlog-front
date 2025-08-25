@@ -10,19 +10,18 @@
 
 import { Button } from "@/components/ui/button";
 import { useCreateComment } from "@/features/comments";
-import { useAuth } from "@/features/user";
-import { CommentResponse } from "@/generated/api";
+import { CommentResponse, UserProfileResponse } from "@/generated/api";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 
 interface CommentFormProps {
   postId: number;
   onCommentSubmitted?: (newComment: CommentResponse) => void; // 이제 선택사항 (TanStack Query가 자동 처리)
+  userProfile: UserProfileResponse | null | undefined;
 }
 
-export default function CommentForm({ postId, onCommentSubmitted }: CommentFormProps) {
+export default function CommentForm({ postId, onCommentSubmitted, userProfile }: CommentFormProps) {
   const [newComment, setNewComment] = useState("");
-  const { userProfile } = useAuth();
 
   /**
    * TanStack Query 뮤테이션을 사용한 댓글 등록

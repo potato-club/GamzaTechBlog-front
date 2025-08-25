@@ -1,4 +1,4 @@
-import InteractivePagination from "@/components/shared/interactive/InteractivePagination";
+import InteractivePagination from "@/components/shared/interactive/InteractivePagination"; // Re-import pagination
 import { postService } from "@/features/posts";
 import InteractivePostList from "./InteractivePostList";
 
@@ -32,9 +32,11 @@ export default async function PostListSection({ searchParams }: PostListSectionP
 
   return (
     <main className="flex-3">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">{tag ? `#${tag} 태그 게시글` : "Posts"}</h2>
-      </div>
+      {tag && ( // Conditionally render the h2 tag
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-semibold">#{tag} 태그 게시글</h2>
+        </div>
+      )}
 
       {/* 인터랙티브 게시글 목록 */}
       <InteractivePostList initialData={initialData} initialTag={tag} initialPage={currentPage} />

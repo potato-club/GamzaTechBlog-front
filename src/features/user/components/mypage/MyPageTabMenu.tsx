@@ -12,7 +12,7 @@ const TAB_LABELS = {
   comments: "작성 댓글",
 } as const;
 
-export default function TabMenu({ tab, onTabChange }: TabMenuProps) {
+export default function MyPageTabMenu({ tab, onTabChange }: TabMenuProps) {
   const handleValueChange = (value: string) => {
     onTabChange(value as TabType);
   };
