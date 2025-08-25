@@ -1,3 +1,5 @@
+"use client";
+
 import { TabType, VALID_TABS } from "@/types/mypage";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
