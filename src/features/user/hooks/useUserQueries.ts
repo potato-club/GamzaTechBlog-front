@@ -187,7 +187,7 @@ export function useUpdateProfile(
  * - 사용자 정보는 React Query로 관리하여 자동 캐시 무효화 및 업데이트
  * - 프로필 수정 후 간단한 invalidateQueries로 UI 자동 업데이트
  */
-export function useAuth() {
+export function useAuth(options?: { initialData?: UserProfileResponse }) {
   const { status } = useSession();
   const queryClient = useQueryClient();
 
@@ -203,6 +203,7 @@ export function useAuth() {
     refetch: refetchProfile,
   } = useUserProfile({
     enabled: isLoggedIn, // 로그인된 경우에만 프로필 조회
+    ...(options?.initialData && { initialData: options.initialData }),
   });
 
   // 프로필 완성 여부 확인

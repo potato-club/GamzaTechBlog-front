@@ -5,6 +5,7 @@
  * 로딩, 에러, 빈 상태를 독립적으로 관리합니다.
  */
 
+import EmptyState from "@/components/shared/EmptyState";
 import CustomPagination from "@/components/shared/navigation/CustomPagination";
 import TabContentSkeleton from "@/components/shared/skeletons/TabContentSkeleton";
 import { CommentList } from "@/features/comments";
@@ -17,8 +18,6 @@ export default function CommentsTab() {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 5;
 
-  console.log("CommentsTab render - currentPage:", currentPage, "API page:", currentPageForAPI);
-
   const {
     data: commentsData,
     isLoading,
@@ -29,14 +28,10 @@ export default function CommentsTab() {
     sort: ["createdAt,desc"], // 최신순 정렬
   });
 
-  console.log("CommentsTab - commentsData:", commentsData);
-
   const totalPages = commentsData?.totalPages || 0;
 
   const handlePageChange = (page: number) => {
-    console.log("Page change requested:", page, "Current page:", currentPage);
     setPage(page); // usePagination 훅의 setPage 사용 (1부터 시작하는 페이지)
-    console.log("New currentPage will be:", page);
   };
 
   // 로딩 상태
@@ -50,8 +45,8 @@ export default function CommentsTab() {
   // 데이터 표시
   if (!commentsData || !commentsData.content || commentsData.content.length === 0) {
     return (
-      <div className="mt-12 text-center">
-        <div className="mb-4 text-gray-400">
+      <EmptyState
+        icon={
           <svg className="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
@@ -60,10 +55,10 @@ export default function CommentsTab() {
               d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
             />
           </svg>
-        </div>
-        <p className="mb-2 text-lg text-gray-500">작성한 댓글이 없습니다</p>
-        <p className="text-sm text-gray-400">다른 사용자의 게시글에 댓글을 달아보세요!</p>
-      </div>
+        }
+        title="작성한 댓글이 없습니다"
+        description="다른 사용자의 게시글에 댓글을 달아보세요!"
+      />
     );
   }
 
