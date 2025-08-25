@@ -1,20 +1,8 @@
-"use client";
-
-// TanStack Query 훅을 사용하여 사용자 활동 통계를 효율적으로 관리합니다
-import { DynamicProfileEditDialog } from "@/components/dynamic/DynamicComponents";
 import UserIcon from "@/components/ui/UserIcon";
-import {
-  UserActivityStatItem,
-  UserActivityStatsSkeleton,
-  useUserActivityStats,
-} from "@/features/user";
-import type { UserProfileResponse } from "@/generated/api";
+import { UserActivityStatItem, userService } from "@/features/user";
+import ProfileEditDialog from "@/features/user/components/ProfileEditDialog";
 import Image from "next/image";
-
-// Sidebar 컴포넌트 props 정의
-interface SidebarProps {
-  userProfile: UserProfileResponse; // 실제 사용자 프로필 데이터
-}
+import { redirect } from "next/navigation";
 
 interface StatItem {
   icon: string;
@@ -23,21 +11,27 @@ interface StatItem {
   count: number;
 }
 
-export default function MyPageSidebar({ userProfile }: SidebarProps) {
-  /**
-   * TanStack Query를 사용하여 사용자 활동 통계를 가져옵니다.
-   *
-   * 기존의 useEffect + useState 패턴 대신 useUserActivityStats 훅을 사용하여:
-   * - 자동 캐싱: 동일한 데이터를 여러 컴포넌트에서 공유
-   * - 백그라운드 재검증: 데이터가 오래되면 자동으로 업데이트
-   * - 로딩/에러 상태 관리: 별도 state 없이 자동 제공
-   * - 재시도 로직: 네트워크 오류 시 자동 재시도
-   */
-  const {
-    data: activityStats,
-    isLoading: isLoadingStats,
-    error: statsError,
-  } = useUserActivityStats();
+/**
+ * MyPageSidebar 서버 컴포넌트
+ *
+ * 사용자 프로필과 활동 통계를 서버에서 직접 fetch하여
+ * 빠른 초기 렌더링을 제공합니다.
+ */
+export default async function MyPageSidebarServer() {
+  // 사용자 프로필과 활동 통계를 병렬로 가져옵니다
+  const [userProfileResult, activityStatsResult] = await Promise.allSettled([
+    userService.getProfile(),
+    userService.getActivityCounts(),
+  ]);
+
+  const userProfile = userProfileResult.status === "fulfilled" ? userProfileResult.value : null;
+  const activityStats =
+    activityStatsResult.status === "fulfilled" ? activityStatsResult.value : null;
+
+  if (!userProfile) {
+    // 프로필을 가져올 수 없는 경우 (인증 실패 등) 홈으로 리디렉션
+    redirect("/");
+  }
 
   const stats: StatItem[] = [
     {
@@ -60,19 +54,13 @@ export default function MyPageSidebar({ userProfile }: SidebarProps) {
     },
   ];
 
-  console.log("mypage activityStats", stats);
-
-  // Sidebar 자체에서 관리할 상태가 있다면 여기에 둡니다.
-  // 예: const [isSomethingOpen, setIsSomethingOpen] = useState(false);
-
-  console.log("mypage userProfile", userProfile);
-
   return (
     <aside className="flex w-64 flex-col items-center py-10 pr-8">
       <section aria-labelledby="user-profile-heading" className="flex flex-col items-center">
         <h2 id="user-profile-heading" className="sr-only">
           {userProfile.nickname}님의 프로필 정보
         </h2>
+
         {/* 프로필 이미지 */}
         <figure className="relative mb-4 h-28 w-28 overflow-hidden rounded-full bg-gray-200">
           {userProfile.profileImageUrl ? (
@@ -87,10 +75,11 @@ export default function MyPageSidebar({ userProfile }: SidebarProps) {
               className="flex h-full w-full items-center justify-center rounded-full bg-gray-300 text-gray-500"
               aria-label="기본 프로필 이미지"
             >
-              <UserIcon className="h-16 w-16" /> {/* 예시 아이콘 */}
+              <UserIcon className="h-16 w-16" />
             </div>
           )}
         </figure>
+
         {/* 사용자 정보 */}
         <div className="mb-2 text-center">
           <p className="text-2xl font-bold" aria-label="닉네임">
@@ -108,24 +97,19 @@ export default function MyPageSidebar({ userProfile }: SidebarProps) {
           )}
         </div>
 
-        {/* 프로필 수정 Dialog 호출 */}
-        <DynamicProfileEditDialog userProfile={userProfile} />
+        {/* 프로필 수정 Dialog - 클라이언트 컴포넌트 */}
+        <ProfileEditDialog userProfile={userProfile} />
       </section>
 
       {/* 작성 글, 작성 댓글, 좋아요 수 표시 */}
       <section aria-labelledby="user-activity-stats-heading" className="mt-10 w-full">
         <h2 id="user-activity-stats-heading" className="sr-only">
           사용자 활동 통계
-        </h2>{" "}
+        </h2>
         <ul className="flex justify-around text-center text-sm">
-          {isLoadingStats ? (
-            /* TanStack Query 로딩 상태: 스켈레톤 UI 표시 */
-            <UserActivityStatsSkeleton />
-          ) : statsError ? (
-            /* TanStack Query 에러 상태: 간단한 에러 메시지 표시 */
+          {activityStatsResult.status === "rejected" ? (
             <div className="text-sm text-red-500">통계를 불러올 수 없습니다</div>
           ) : (
-            /* TanStack Query 성공 상태: 실제 데이터 표시 */
             stats.map((stat) => (
               <UserActivityStatItem
                 key={stat.label}

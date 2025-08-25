@@ -42,6 +42,8 @@ export const DynamicToastEditor = dynamic(
  * 프로필 편집 다이얼로그 동적 로딩
  *
  * 사용자가 프로필 편집 버튼을 클릭했을 때만 로딩합니다.
+ * 주의: 마이페이지에서는 자주 사용되므로 일반 import 권장
+ * 다른 페이지에서 간헐적으로 사용할 때 이 동적 버전 사용
  */
 export const DynamicProfileEditDialog = dynamic(
   () => import("../../features/user/components/ProfileEditDialog"),
