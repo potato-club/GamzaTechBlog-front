@@ -10,6 +10,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useCreateComment } from "@/features/comments";
+import { useAuth } from "@/features/user";
 import { CommentResponse, UserProfileResponse } from "@/generated/api";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
@@ -17,11 +18,15 @@ import { FormEvent, useState } from "react";
 interface CommentFormProps {
   postId: number;
   onCommentSubmitted?: (newComment: CommentResponse) => void; // 이제 선택사항 (TanStack Query가 자동 처리)
-  userProfile: UserProfileResponse | null | undefined;
+  userProfile?: UserProfileResponse | null | undefined; // 선택적 prop으로 변경 (하위 호환성)
 }
 
 export default function CommentForm({ postId, onCommentSubmitted, userProfile }: CommentFormProps) {
   const [newComment, setNewComment] = useState("");
+  const { userProfile: authUserProfile, isLoggedIn } = useAuth();
+
+  // userProfile prop이 제공되지 않으면 Auth.js session에서 가져옴
+  const currentUserProfile = userProfile ?? authUserProfile;
 
   /**
    * TanStack Query 뮤테이션을 사용한 댓글 등록
@@ -36,6 +41,12 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // 인증되지 않은 사용자 체크
+    if (!isLoggedIn) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
 
     if (!newComment.trim()) {
       alert("댓글 내용을 입력해주세요.");
@@ -64,12 +75,21 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
     }
   };
 
+  // 로그인하지 않은 사용자를 위한 UI
+  if (!isLoggedIn) {
+    return (
+      <div className="mt-4 rounded-xl border border-[#E7EEFE] px-6 py-8 text-center">
+        <p className="text-sm text-gray-600">댓글을 작성하려면 로그인이 필요합니다.</p>
+      </div>
+    );
+  }
+
   return (
     <form className="mt-4 flex flex-col gap-3" onSubmit={handleSubmit} aria-label="댓글 작성">
       <div className="flex items-start gap-3">
         <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
           <Image
-            src={userProfile?.profileImageUrl || "/profileSVG.svg"}
+            src={currentUserProfile?.profileImageUrl || "/profileSVG.svg"}
             alt="현재 사용자의 프로필 이미지"
             width={36}
             height={36}
