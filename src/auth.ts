@@ -87,25 +87,28 @@ function getJwtSecretKey(): Uint8Array {
  * 만료된 액세스 토큰을 재발급하는 함수입니다.
  */
 async function refreshAccessToken(token: JWT): Promise<JWT> {
-  console.log("refreshAccessToken called - using internal session-check API");
+  console.warn("refreshAccessToken called - using internal session-check API");
+
+  // NEXTAUTH_URL 환경변수를 사용하거나 로컬 개발 환경에서는 localhost 사용
+  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+
+  console.warn("Using base URL for session check:", baseUrl);
+
   try {
-    const response = await fetch(
-      `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/auth/session-check`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `refreshToken=${token.refreshToken}`,
-        },
-        credentials: "include",
-      }
-    );
+    const response = await fetch(`${baseUrl}/api/auth/session-check`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `refreshToken=${token.refreshToken}`,
+      },
+      credentials: "include",
+    });
 
     const result = await response.json();
 
     if (!response.ok || !result.success) {
       if (result.code === "REFRESH_TOKEN_EXPIRED") {
-        console.log("RefreshToken expired in session-check, marking for logout");
+        console.warn("RefreshToken expired in session-check, marking for logout");
         return {
           ...token,
           error: "RefreshAccessTokenError" as const,
@@ -123,7 +126,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     const { payload } = await jose.jwtVerify(newAccessToken, secretKey);
     const newExpiry = (payload.exp as number) * 1000;
 
-    console.log("Token refresh successful via session-check API");
+    console.warn("Token refresh successful via session-check API");
 
     return {
       ...token,
@@ -149,7 +152,7 @@ export const config: NextAuthConfig = {
         userProfile: { label: "User Profile", type: "text" },
       },
       async authorize(credentials, req): Promise<User | null> {
-        console.log("NextAuth authorize function called");
+        console.warn("NextAuth authorize function called");
 
         if (typeof credentials.authorization !== "string" || !credentials.authorization) {
           console.error("Invalid or missing authorization credential");
@@ -180,10 +183,10 @@ export const config: NextAuthConfig = {
           let profile: UserProfileResponse;
 
           if (credentials.userProfile) {
-            console.log("Using pre-fetched user profile from route handler");
+            console.warn("Using pre-fetched user profile from route handler");
             profile = JSON.parse(credentials.userProfile as string);
           } else {
-            console.log("Fetching user profile with provided token");
+            console.warn("Fetching user profile with provided token");
             const profileResponse = await fetch(`${BASE_URL}/api/v1/users/me/get/profile`, {
               headers: {
                 Authorization: `Bearer ${authorization}`,
@@ -209,7 +212,7 @@ export const config: NextAuthConfig = {
             return null;
           }
 
-          console.log("User profile processed successfully");
+          console.warn("User profile processed successfully");
 
           // API 응답을 next-auth의 User 모델에 맞게 매핑합니다.
           return {

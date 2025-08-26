@@ -37,10 +37,17 @@ export function useUserProfile(
 
   return useQuery({
     queryKey: USER_QUERY_KEYS.profile(),
-    queryFn: () => userService.getProfile(),
+    queryFn: async () => {
+      console.warn("useUserProfile queryFn called");
+      console.warn("Current session status:", status);
+      const result = await userService.getProfile();
+      console.warn("Profile query result:", result);
+      return result;
+    },
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
     retry: (failureCount, error) => {
+      console.warn("Profile query retry:", { failureCount, error });
       // RefreshTokenInvalidError는 재시도하지 않음
       if (
         error &&

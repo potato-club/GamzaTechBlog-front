@@ -26,11 +26,20 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
 
   const headers = new Headers(options.headers);
 
-  console.log("Session in fetchWithAuth:", session); // Added for debugging
+  // 디버깅을 위한 로그 (프로덕션에서도 확인 가능)
+  console.warn("fetchWithAuth - URL:", url);
+  console.warn("fetchWithAuth - Session exists:", !!session);
+  console.warn("fetchWithAuth - Authorization exists:", !!session?.authorization);
 
   // 세션에 액세스 토큰이 있으면 Authorization 헤더에 추가합니다.
   if (session?.authorization) {
     headers.set("Authorization", `Bearer ${session.authorization}`);
+    console.warn(
+      "fetchWithAuth - Authorization header set with token:",
+      session.authorization.substring(0, 20) + "..."
+    );
+  } else {
+    console.warn("fetchWithAuth - No authorization token found in session");
   }
 
   // FormData가 아닌 요청 본문이 있을 경우, Content-Type을 설정합니다.
@@ -45,8 +54,19 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
     credentials: "include",
   };
 
+  // 디버깅: 실제 요청 정보 로깅
+  console.warn("fetchWithAuth - Final request details:", {
+    url,
+    method: newOptions.method || "GET",
+    headers: Object.fromEntries(headers.entries()),
+    credentials: newOptions.credentials,
+  });
+
   // 수정된 옵션으로 API 요청을 보냅니다.
   const response = await fetch(url, newOptions);
+
+  // 응답 상태 로깅
+  console.warn(`fetchWithAuth - Response status: ${response.status} for ${url}`);
 
   // 401 Unauthorized 응답 시 클라이언트 사이드에서 메인 페이지로 리다이렉트
   if (response.status === 401 && typeof window !== "undefined") {
@@ -54,6 +74,16 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
     const currentPath = window.location.pathname;
     window.location.href = `/?error=session_expired&redirect=${encodeURIComponent(currentPath)}`;
     return response;
+  }
+
+  // 403 Forbidden 응답 시 추가 로깅
+  if (response.status === 403) {
+    console.error("API request returned 403 Forbidden:", {
+      url,
+      hasSession: !!session,
+      hasAuthorization: !!session?.authorization,
+      headers: Object.fromEntries(headers.entries()),
+    });
   }
 
   return response;
@@ -65,6 +95,7 @@ const apiConfig = new Configuration({
   basePath: process.env.NEXT_PUBLIC_API_BASE_URL,
   fetchApi: fetchWithAuth as typeof fetch,
   credentials: "include",
+  // fetchWithAuth에서 토큰 처리를 담당하므로 여기서는 accessToken 설정을 제거합니다.
 });
 
 /**

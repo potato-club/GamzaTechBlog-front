@@ -15,13 +15,13 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
  */
 export async function POST() {
   try {
-    console.log("Token refresh API called");
+    console.warn("Token refresh API called");
 
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get("refreshToken")?.value;
 
-    console.log("RefreshToken found:", !!refreshToken);
-    console.log("RefreshToken value:", refreshToken);
+    console.warn("RefreshToken found:", !!refreshToken);
+    console.warn("RefreshToken value:", refreshToken);
 
     if (!refreshToken) {
       return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST() {
     }
 
     // 백엔드에 토큰 재발급 요청 (서버-투-서버 통신)
-    console.log("Requesting token reissue from backend...");
+    console.warn("Requesting token reissue from backend...");
 
     const reissueResponse = await fetch(`${BASE_URL}/api/auth/reissue`, {
       method: "POST",
@@ -46,8 +46,8 @@ export async function POST() {
       // credentials 옵션은 서버 환경에서 효과가 없으므로 제거합니다.
     });
 
-    console.log("Backend reissue response status:", reissueResponse.status);
-    console.log(
+    console.warn("Backend reissue response status:", reissueResponse.status);
+    console.warn(
       "Backend reissue response headers:",
       Object.fromEntries(reissueResponse.headers.entries())
     );
@@ -65,7 +65,7 @@ export async function POST() {
 
       // 403은 refreshToken이 만료되었음을 의미 (정상적인 상황)
       if (reissueResponse.status === 403) {
-        console.log("Refresh token expired, this is normal for logged-out users");
+        console.warn("Refresh token expired, this is normal for logged-out users");
 
         // 만료된 쿠키들을 정리하기 위한 응답 헤더 설정
         const response = NextResponse.json({
@@ -99,27 +99,27 @@ export async function POST() {
 
     // 백엔드 응답 파싱
     const reissueData = await reissueResponse.json();
-    console.log("Backend reissue response data:", reissueData);
+    console.warn("Backend reissue response data:", reissueData);
 
     // response body에서 authorization 토큰 추출
     const newAuthorization = reissueData.data?.authorization;
 
     // Set-Cookie 헤더도 확인 (새로운 쿠키들이 설정됨)
     const setCookieHeaders = reissueResponse.headers.get("set-cookie");
-    console.log("Set-Cookie headers from backend:", setCookieHeaders);
+    console.warn("Set-Cookie headers from backend:", setCookieHeaders);
 
     // 모든 set-cookie 헤더 확인 (여러 개일 수 있음)
     const allSetCookieHeaders = reissueResponse.headers.getSetCookie?.() || [];
-    console.log("All Set-Cookie headers:", allSetCookieHeaders);
+    console.warn("All Set-Cookie headers:", allSetCookieHeaders);
 
     // 각 쿠키 헤더의 상세 정보 로그
     allSetCookieHeaders.forEach((header, index) => {
-      console.log(`Set-Cookie ${index + 1}:`, header);
+      console.warn(`Set-Cookie ${index + 1}:`, header);
       if (header.includes("authorization=")) {
-        console.log(`  -> Authorization cookie detected`);
+        console.warn(`  -> Authorization cookie detected`);
       }
       if (header.includes("refreshToken=")) {
-        console.log(`  -> RefreshToken cookie detected`);
+        console.warn(`  -> RefreshToken cookie detected`);
       }
     });
 
@@ -136,12 +136,12 @@ export async function POST() {
       );
     }
 
-    console.log("New authorization token found in response body");
+    console.warn("New authorization token found in response body");
 
-    console.log("Token reissue successful");
+    console.warn("Token reissue successful");
 
     // 새 토큰으로 사용자 프로필도 미리 조회해서 authorize 함수의 부담을 줄임
-    console.log("Fetching user profile with new token...");
+    console.warn("Fetching user profile with new token...");
     const profileResponse = await fetch(`${BASE_URL}/api/v1/users/me/get/profile`, {
       headers: {
         Authorization: `Bearer ${newAuthorization}`,
@@ -172,7 +172,7 @@ export async function POST() {
       );
     }
 
-    console.log("User profile fetched successfully");
+    console.warn("User profile fetched successfully");
 
     // 응답 생성
     const response = NextResponse.json({
@@ -184,16 +184,16 @@ export async function POST() {
 
     // 백엔드에서 받은 Set-Cookie 헤더를 그대로 클라이언트에 전달
     if (allSetCookieHeaders.length > 0) {
-      console.log("Forwarding Set-Cookie headers from backend to client");
+      console.warn("Forwarding Set-Cookie headers from backend to client");
 
       // 모든 Set-Cookie 헤더를 응답에 추가
       allSetCookieHeaders.forEach((cookieHeader, index) => {
-        console.log(`Forwarding Set-Cookie ${index + 1}:`, cookieHeader);
+        console.warn(`Forwarding Set-Cookie ${index + 1}:`, cookieHeader);
         response.headers.append("Set-Cookie", cookieHeader);
       });
     } else {
       // Set-Cookie 헤더가 없는 경우에만 응답 본문의 authorization으로 쿠키 설정
-      console.log("No Set-Cookie headers, setting authorization from response body");
+      console.warn("No Set-Cookie headers, setting authorization from response body");
       response.cookies.set("authorization", newAuthorization, {
         path: "/",
         domain: process.env.NODE_ENV === "production" ? ".gamzatech.site" : undefined,

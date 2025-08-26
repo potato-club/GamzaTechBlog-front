@@ -12,8 +12,20 @@ export const userService = {
    * 사용자 프로필 정보를 가져옵니다.
    */
   async getProfile(): Promise<UserProfileResponse> {
-    const response = await apiClient.getCurrentUserProfile();
-    return response.data as UserProfileResponse;
+    try {
+      console.warn("userService.getProfile called");
+      const response = await apiClient.getCurrentUserProfile();
+      console.warn("userService.getProfile response:", response);
+      return response.data as UserProfileResponse;
+    } catch (error) {
+      console.error("userService.getProfile error:", {
+        error,
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      // 에러를 다시 던져서 React Query가 처리할 수 있도록 합니다.
+      throw error;
+    }
   },
 
   /**
