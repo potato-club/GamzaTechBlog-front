@@ -1,4 +1,5 @@
 import BlogHeader from "@/components/shared/layout/BlogHeader";
+import { Toaster } from "@/components/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import SessionSynchronizer from "../components/shared/interactive/SessionSynchronizer";
@@ -55,6 +56,7 @@ export default async function RootLayout({
                 >
                   {children}
                 </div>
+                <Toaster />
               </QueryProvider>
             </AuthProvider>
             <Footer />
