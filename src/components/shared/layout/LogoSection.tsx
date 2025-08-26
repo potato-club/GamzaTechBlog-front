@@ -1,6 +1,7 @@
 "use client";
 
 import { BLOG_DESCRIPTIONS } from "@/constants/textConstants";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 /**
@@ -20,9 +21,8 @@ export default function LogoSection() {
   }, []);
 
   return (
-    // eslint-disable-next-line @next/next/no-html-link-for-pages
-    <a
-      href="/"
+    <Link
+      href={{ pathname: "/" }}
       className="mt-5 block cursor-pointer text-center transition-opacity hover:opacity-80"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -34,6 +34,6 @@ export default function LogoSection() {
         className="mx-auto"
       />
       <p className="mt-2 text-2xl font-light">{description}</p>
-    </a>
+    </Link>
   );
 }
