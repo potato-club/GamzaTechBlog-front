@@ -1,7 +1,7 @@
 "use client";
 
 import { DynamicToastEditor } from "@/components/dynamic/DynamicComponents";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import type { ToastEditorHandle } from "./ToastEditor";
 
@@ -221,17 +222,33 @@ export default function PostForm({ mode, initialData, onSubmitAction, isLoading 
           />
         </div>
 
-        <Button
-          type="submit"
-          className={`self-end rounded-4xl bg-[#20242B] px-6 py-2 text-white transition-colors duration-150 ${
-            isLoading
-              ? "cursor-not-allowed opacity-70"
-              : "hover:cursor-pointer hover:bg-[#33373E]/90"
-          }`}
-          disabled={isLoading}
-        >
-          {buttonText}
-        </Button>
+        <div className="flex items-center justify-end gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-4xl border-[#20242B] bg-white px-6 py-2 text-[#20242B] transition-colors duration-150 hover:bg-[#F8F9FA]"
+            disabled={isLoading}
+            onClick={() => {
+              // TODO: 임시 저장 API 연동 예정
+              toast.success("임시 저장 완료!", {
+                description: "게시글이 임시 저장되었습니다. 나중에 이어서 작성할 수 있습니다.",
+              });
+            }}
+          >
+            임시 저장
+          </Button>
+          <Button
+            type="submit"
+            className={`rounded-4xl bg-[#20242B] px-6 py-2 text-white transition-colors duration-150 ${
+              isLoading
+                ? "cursor-not-allowed opacity-70"
+                : "hover:cursor-pointer hover:bg-[#33373E]/90"
+            }`}
+            disabled={isLoading}
+          >
+            {buttonText}
+          </Button>
+        </div>
       </form>
     </Form>
   );
