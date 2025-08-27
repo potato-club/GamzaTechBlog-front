@@ -2,7 +2,7 @@ import BlogHeader from "@/components/shared/layout/BlogHeader";
 import { Toaster } from "@/components/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
-import SessionSynchronizer from "../components/shared/interactive/SessionSynchronizer";
+import AutoSessionManager from "../components/shared/interactive/AutoSessionManager";
 import Footer from "../components/shared/layout/Footer";
 import AuthProvider from "../providers/AuthProvider";
 import QueryProvider from "../providers/QueryProvider";
@@ -48,7 +48,7 @@ export default async function RootLayout({
           <div className="flex min-h-screen flex-col">
             <AuthProvider>
               <QueryProvider>
-                <SessionSynchronizer />
+                <AutoSessionManager />
                 <BlogHeader />
                 <div
                   id="main-content"

@@ -1,45 +1,38 @@
-import { getSession } from "next-auth/react";
 import { auth } from "../auth";
 import { Configuration, DefaultApi } from "../generated/api";
 
 /**
- * NextAuth.js 세션과 통합된 새로운 fetch 함수입니다.
- * API 요청 시 자동으로 Authorization 헤더에 액세스 토큰을 추가합니다.
- * 토큰 재발급 및 요청 대기열과 같은 복잡한 로직은 모두 Auth.js의 콜백에서 처리되므로
- * 이 파일에서는 해당 로직이 모두 제거되었습니다.
+ * 쿠키 기반 인증을 사용하는 단순화된 fetch 함수
+ * 쿠키를 Single Source of Truth로 사용하여 동기화 문제 해결
+ * 401 에러 시 자동 토큰 갱신 후 재시도
  */
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
-  let session;
-  if (typeof window === "undefined") {
-    // Server-side
-    try {
-      session = await auth();
-    } catch {
-      // 빌드 시점에는 세션이 없을 수 있으므로 오류를 무시하고 진행합니다.
-      console.warn("Auth.js failed during build, continuing without session.");
-      session = null;
-    }
-  } else {
-    // Client-side
-    session = await getSession();
-  }
-
   const headers = new Headers(options.headers);
 
-  // 디버깅을 위한 로그 (프로덕션에서도 확인 가능)
-  console.warn("fetchWithAuth - URL:", url);
-  console.warn("fetchWithAuth - Session exists:", !!session);
-  console.warn("fetchWithAuth - Authorization exists:", !!session?.authorization);
-
-  // 세션에 액세스 토큰이 있으면 Authorization 헤더에 추가합니다.
-  if (session?.authorization) {
-    headers.set("Authorization", `Bearer ${session.authorization}`);
-    console.warn(
-      "fetchWithAuth - Authorization header set with token:",
-      session.authorization.substring(0, 20) + "..."
-    );
+  if (typeof window === "undefined") {
+    // Server-side - NextAuth 세션 사용
+    try {
+      const session = await auth();
+      if (session?.authorization) {
+        headers.set("Authorization", `Bearer ${session.authorization}`);
+        console.warn("fetchWithAuth - Server: Using session token");
+      }
+    } catch {
+      console.warn("fetchWithAuth - Server: No session available");
+    }
   } else {
-    console.warn("fetchWithAuth - No authorization token found in session");
+    // Client-side - 항상 쿠키 우선 사용
+    const cookieAuth = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("authorization="))
+      ?.split("=")[1];
+
+    if (cookieAuth) {
+      headers.set("Authorization", `Bearer ${cookieAuth}`);
+      console.warn("fetchWithAuth - Client: Using cookie token");
+    } else {
+      console.warn("fetchWithAuth - Client: No authorization cookie found");
+    }
   }
 
   // FormData가 아닌 요청 본문이 있을 경우, Content-Type을 설정합니다.
@@ -68,9 +61,39 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   // 응답 상태 로깅
   console.warn(`fetchWithAuth - Response status: ${response.status} for ${url}`);
 
-  // 401 Unauthorized 응답 시 클라이언트 사이드에서 메인 페이지로 리다이렉트
+  // 401 Unauthorized 응답 시 토큰 갱신 시도 또는 로그아웃
   if (response.status === 401 && typeof window !== "undefined") {
-    console.warn("API request returned 401, redirecting to home...");
+    console.warn("API request returned 401, attempting token refresh...");
+
+    try {
+      // 토큰 갱신 시도
+      const refreshResponse = await fetch("/api/auth/session-check", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (refreshResponse.ok) {
+        const result = await refreshResponse.json();
+        if (result.success && result.authorization) {
+          console.warn("Token refresh successful, retrying original request");
+
+          // 새 토큰으로 원래 요청 재시도
+          const newHeaders = new Headers(headers);
+          newHeaders.set("Authorization", `Bearer ${result.authorization}`);
+
+          return fetch(url, {
+            ...options,
+            headers: newHeaders,
+            credentials: "include",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+    }
+
+    // 토큰 갱신 실패 시 로그아웃 처리
+    console.warn("Token refresh failed, redirecting to home...");
     const currentPath = window.location.pathname;
     window.location.href = `/?error=session_expired&redirect=${encodeURIComponent(currentPath)}`;
     return response;
@@ -80,8 +103,6 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   if (response.status === 403) {
     console.error("API request returned 403 Forbidden:", {
       url,
-      hasSession: !!session,
-      hasAuthorization: !!session?.authorization,
       headers: Object.fromEntries(headers.entries()),
     });
   }

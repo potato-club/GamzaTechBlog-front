@@ -174,12 +174,41 @@ export async function POST() {
 
     console.warn("User profile fetched successfully");
 
+    // JWT에서 만료시간 파싱하여 정확한 maxAge 설정
+    let maxAge = 3600; // 기본값 1시간
+    try {
+      const tokenParts = newAuthorization.split(".");
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(Buffer.from(tokenParts[1], "base64").toString());
+        const exp = payload.exp; // Unix timestamp (seconds)
+        const now = Math.floor(Date.now() / 1000);
+        maxAge = exp - now > 0 ? exp - now : 3600;
+        console.warn("Parsed JWT maxAge:", maxAge);
+      }
+    } catch (e) {
+      console.warn("Failed to parse JWT for maxAge, using default:", e);
+    }
+
     // 응답 생성
     const response = NextResponse.json({
       success: true,
       authorization: newAuthorization,
       userProfile: userProfile.data,
       message: "New access token and user profile retrieved",
+    });
+
+    // 프로덕션 환경 감지 (Vercel 배포 시)
+    const isProduction =
+      process.env.NODE_ENV === "production" ||
+      process.env.VERCEL_ENV === "production" ||
+      process.env.NEXT_PUBLIC_VERCEL_URL?.includes("vercel.app") ||
+      process.env.NEXT_PUBLIC_VERCEL_URL?.includes("gamzatech.site");
+
+    console.warn("Environment detection:", {
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL_ENV: process.env.VERCEL_ENV,
+      VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
+      isProduction,
     });
 
     // 백엔드에서 받은 Set-Cookie 헤더를 그대로 클라이언트에 전달
@@ -194,13 +223,23 @@ export async function POST() {
     } else {
       // Set-Cookie 헤더가 없는 경우에만 응답 본문의 authorization으로 쿠키 설정
       console.warn("No Set-Cookie headers, setting authorization from response body");
+
+      // authorization 쿠키 설정 (클라이언트에서 접근 가능)
       response.cookies.set("authorization", newAuthorization, {
         path: "/",
-        domain: process.env.NODE_ENV === "production" ? ".gamzatech.site" : undefined,
-        maxAge: 3600, // 기본 1시간
-        secure: true,
+        domain: isProduction ? ".gamzatech.site" : undefined,
+        maxAge: maxAge,
+        secure: isProduction, // 프로덕션에서만 secure
         sameSite: "lax",
         httpOnly: false, // 클라이언트에서 접근 가능해야 함
+      });
+
+      console.warn("Authorization cookie set with options:", {
+        domain: isProduction ? ".gamzatech.site" : undefined,
+        maxAge: maxAge,
+        secure: isProduction,
+        sameSite: "lax",
+        httpOnly: false,
       });
     }
 

@@ -83,67 +83,6 @@ function getJwtSecretKey(): Uint8Array {
   }
 }
 
-/**
- * 만료된 액세스 토큰을 재발급하는 함수입니다.
- */
-async function refreshAccessToken(token: JWT): Promise<JWT> {
-  console.warn("refreshAccessToken called - using internal session-check API");
-
-  // NEXTAUTH_URL 환경변수를 사용하거나 로컬 개발 환경에서는 localhost 사용
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-
-  console.warn("Using base URL for session check:", baseUrl);
-
-  try {
-    const response = await fetch(`${baseUrl}/api/auth/session-check`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `refreshToken=${token.refreshToken}`,
-      },
-      credentials: "include",
-    });
-
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
-      if (result.code === "REFRESH_TOKEN_EXPIRED") {
-        console.warn("RefreshToken expired in session-check, marking for logout");
-        return {
-          ...token,
-          error: "RefreshAccessTokenError" as const,
-        };
-      }
-      throw new Error(`Session check failed: ${result.message || "Unknown error"}`);
-    }
-
-    if (!result.authorization) {
-      throw new Error("New access token not found in session check response");
-    }
-
-    const newAccessToken = result.authorization;
-    const secretKey = getJwtSecretKey();
-    const { payload } = await jose.jwtVerify(newAccessToken, secretKey);
-    const newExpiry = (payload.exp as number) * 1000;
-
-    console.warn("Token refresh successful via session-check API");
-
-    return {
-      ...token,
-      authorization: newAccessToken,
-      refreshToken: token.refreshToken,
-      accessTokenExpires: newExpiry,
-      error: undefined,
-    };
-  } catch (error) {
-    console.error("Error refreshing access token:", error);
-    return {
-      ...token,
-      error: "RefreshAccessTokenError",
-    };
-  }
-}
-
 export const config: NextAuthConfig = {
   providers: [
     Credentials({
@@ -251,12 +190,16 @@ export const config: NextAuthConfig = {
         } as JWT;
       }
 
-      const REFRESH_BUFFER = 5 * 60 * 1000;
-      if (Date.now() < token.accessTokenExpires - REFRESH_BUFFER) {
-        return token;
+      // 토큰 만료 확인 - 만료되면 API 클라이언트에서 처리하도록 에러 표시
+      if (Date.now() >= token.accessTokenExpires) {
+        console.warn("Token expired, will be handled by API client");
+        return {
+          ...token,
+          error: "RefreshAccessTokenError" as const,
+        };
       }
 
-      return await refreshAccessToken(token as JWT);
+      return token;
     },
     async session({ session, token }) {
       if (token) {
