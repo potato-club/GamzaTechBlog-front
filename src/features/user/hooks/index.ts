@@ -1,5 +1,4 @@
 export {
-  useAuth,
   USER_QUERY_KEYS,
   useUpdateProfile,
   useUpdateProfileInSignup,

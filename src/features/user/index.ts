@@ -6,7 +6,6 @@ export * from "./types";
 
 // Hooks
 export {
-  useAuth,
   USER_QUERY_KEYS,
   useUpdateProfile,
   useUpdateProfileImage,

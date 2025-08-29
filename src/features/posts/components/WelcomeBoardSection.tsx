@@ -2,8 +2,8 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommentForm, CommentList } from "@/features/comments";
-import { useAuth } from "@/features/user";
 import { CommentResponse } from "@/generated/api";
+// Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 
 // TODO: 가입인사 게시판을 위한 전용 postId를 백엔드에서 할당받아 사용해야 합니다.
 const WELCOME_POST_ID = 1;
@@ -29,7 +29,8 @@ const mockComments: CommentResponse[] = [
 ];
 
 export default function WelcomeBoardSection() {
-  const { userProfile } = useAuth();
+  // Zustand 로직 제거됨 - const { user } = useAuth();
+  const user = null; // 임시로 null로 설정
   const comments = mockComments;
   const isLoading = false;
   const isError = false;
@@ -57,7 +58,7 @@ export default function WelcomeBoardSection() {
       <p className="mb-6 text-gray-600">
         감자 기술 블로그에 오신 것을 환영합니다! 간단한 가입인사를 남겨주세요.
       </p>
-      <CommentForm postId={WELCOME_POST_ID} userProfile={userProfile} />
+      <CommentForm postId={WELCOME_POST_ID} userProfile={user} />
       <CommentList comments={comments} postId={WELCOME_POST_ID} />
     </div>
   );

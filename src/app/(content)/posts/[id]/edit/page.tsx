@@ -7,7 +7,7 @@
  */
 
 import { PostForm, usePost, useUpdatePost, type PostFormData } from "@/features/posts";
-import { useAuth } from "@/features/user";
+// Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 
@@ -24,8 +24,12 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   const resolvedParams = use(params);
   const postId = parseInt(resolvedParams.id);
 
-  // 현재 사용자 정보 조회
-  const { userProfile, isLoggedIn, isLoading: isLoadingAuth } = useAuth();
+  // 현재 사용자 정보 조회 - Zustand 로직 제거됨
+  // const { user, isAuthenticated, isLoading: isLoadingAuth } = useAuth();
+  // const isLoggedIn = isAuthenticated && !!user;
+  const user = null; // 임시로 null로 설정
+  const isLoggedIn = false; // 임시로 false로 설정
+  const isLoadingAuth = false; // 임시로 false로 설정
 
   // 기존 게시글 데이터 조회
   const { data: post, isLoading: isLoadingPost, error } = usePost(postId);
@@ -59,7 +63,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   }
 
   // 로그인하지 않은 경우
-  if (!isLoggedIn || !userProfile) {
+  if (!isLoggedIn || !user) {
     return (
       <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
         <div className="text-lg text-red-600">로그인이 필요합니다.</div>
@@ -88,11 +92,9 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     );
   }
 
-  // 작성자 권한 확인 (GitHub ID 또는 닉네임으로 비교)
-  const isAuthor =
-    userProfile.githubId === post.writer ||
-    userProfile.nickname === post.writer ||
-    userProfile.name === post.writer;
+  // 작성자 권한 확인 (기존 닉네임 비교로 간소화) - Zustand 로직 제거됨
+  // const isAuthor = user.nickname === post.writer;
+  const isAuthor = false; // 임시로 false로 설정
 
   if (!isAuthor) {
     return (
