@@ -9,7 +9,7 @@
  */
 
 import { CommentForm, CommentList } from "@/features/comments";
-import { useAuth } from "@/features/user";
+import { useAuth } from "../../user/hooks/useUserQueries";
 import { usePost } from "../hooks";
 
 interface PostCommentsSectionProps {

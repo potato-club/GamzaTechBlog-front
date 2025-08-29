@@ -10,8 +10,8 @@
 
 import { Button } from "@/components/ui/button";
 import { useCreateComment } from "@/features/comments";
-import { useAuth } from "@/features/user";
 import { CommentResponse, UserProfileResponse } from "@/generated/api";
+// Zustand import 제거됨 - import { useAuth, User } from "@/store/authStore";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 
@@ -23,10 +23,27 @@ interface CommentFormProps {
 
 export default function CommentForm({ postId, onCommentSubmitted, userProfile }: CommentFormProps) {
   const [newComment, setNewComment] = useState("");
-  const { userProfile: authUserProfile, isLoggedIn } = useAuth();
+  // Zustand 로직 제거됨 - const { user, isAuthenticated } = useAuth();
+  // const isLoggedIn = isAuthenticated && !!user;
+  // const user = null; // 임시로 null로 설정
+  // const isAuthenticated = false; // 임시로 false로 설정
+  const isLoggedIn = false; // 임시로 false로 설정
 
-  // userProfile prop이 제공되지 않으면 Auth.js session에서 가져옴
-  const currentUserProfile = userProfile ?? authUserProfile;
+  // userProfile prop이 제공되지 않으면 Zustand 스토어에서 가져옴 - Zustand 로직 제거됨
+  // const currentUserProfile = userProfile ?? user;
+  const currentUserProfile = userProfile ?? null; // 임시로 null로 설정
+
+  // 이미지 URL 가져오기 함수
+  const getUserImageUrl = () => {
+    if (!currentUserProfile) return "/profileSVG.svg";
+    // UserProfileResponse 타입인 경우
+    if ("profileImageUrl" in currentUserProfile) {
+      return currentUserProfile.profileImageUrl || "/profileSVG.svg";
+    }
+    // User 타입인 경우 (image 필드 사용) - User 타입 제거됨
+    // return (currentUserProfile as User).image || "/profileSVG.svg";
+    return "/profileSVG.svg";
+  };
 
   /**
    * TanStack Query 뮤테이션을 사용한 댓글 등록
@@ -89,7 +106,7 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
       <div className="flex items-start gap-3">
         <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
           <Image
-            src={currentUserProfile?.profileImageUrl || "/profileSVG.svg"}
+            src={getUserImageUrl()}
             alt="현재 사용자의 프로필 이미지"
             width={36}
             height={36}

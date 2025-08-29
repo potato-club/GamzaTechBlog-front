@@ -1,8 +1,8 @@
 import UserIcon from "@/components/ui/UserIcon";
-import { UserActivityStatItem, userService } from "@/features/user";
+import { UserActivityStatItem } from "@/features/user";
 import ProfileEditDialog from "@/features/user/components/ProfileEditDialog";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { createServerApiClient } from "../../../../lib/apiClient";
 
 interface StatItem {
   icon: string;
@@ -18,20 +18,15 @@ interface StatItem {
  * 빠른 초기 렌더링을 제공합니다.
  */
 export default async function MyPageSidebarServer() {
-  // 사용자 프로필과 활동 통계를 병렬로 가져옵니다
-  const [userProfileResult, activityStatsResult] = await Promise.allSettled([
-    userService.getProfile(),
-    userService.getActivityCounts(),
-  ]);
+  const api = createServerApiClient();
 
-  const userProfile = userProfileResult.status === "fulfilled" ? userProfileResult.value : null;
-  const activityStats =
-    activityStatsResult.status === "fulfilled" ? activityStatsResult.value : null;
+  // 3. 생성된 클라이언트로 직접 API를 호출합니다.
+  // openapi-generator로 생성된 클라이언트는 보통 .data 프로퍼티에 실제 응답 데이터가 들어있습니다.
+  const userProfile = (await api.getCurrentUserProfile()).data;
+  const activityStats = (await api.getActivitySummary()).data;
 
-  if (!userProfile) {
-    // 프로필을 가져올 수 없는 경우 (인증 실패 등) 홈으로 리디렉션
-    redirect("/");
-  }
+  console.log("User Profile:", userProfile);
+  console.log("Activity Stats:", activityStats);
 
   const stats: StatItem[] = [
     {
@@ -58,12 +53,12 @@ export default async function MyPageSidebarServer() {
     <aside className="flex w-64 flex-col items-center py-10 pr-8">
       <section aria-labelledby="user-profile-heading" className="flex flex-col items-center">
         <h2 id="user-profile-heading" className="sr-only">
-          {userProfile.nickname}님의 프로필 정보
+          {userProfile?.nickname}님의 프로필 정보
         </h2>
 
         {/* 프로필 이미지 */}
         <figure className="relative mb-4 h-28 w-28 overflow-hidden rounded-full bg-gray-200">
-          {userProfile.profileImageUrl ? (
+          {userProfile?.profileImageUrl ? (
             <Image
               src={userProfile.profileImageUrl}
               alt={`${userProfile.nickname} 프로필 이미지`}
@@ -83,14 +78,14 @@ export default async function MyPageSidebarServer() {
         {/* 사용자 정보 */}
         <div className="mb-2 text-center">
           <p className="text-2xl font-bold" aria-label="닉네임">
-            {userProfile.nickname}
+            {userProfile?.nickname}
           </p>
-          {userProfile.gamjaBatch && (
+          {userProfile?.gamjaBatch && (
             <p className="mt-0.5 text-sm text-gray-400" aria-label="감자 기수">
               감자 {userProfile.gamjaBatch}기
             </p>
           )}
-          {userProfile.email && (
+          {userProfile?.email && (
             <p className="mt-1 text-sm text-gray-500" aria-label="이메일">
               {userProfile.email}
             </p>
@@ -98,7 +93,7 @@ export default async function MyPageSidebarServer() {
         </div>
 
         {/* 프로필 수정 Dialog - 클라이언트 컴포넌트 */}
-        <ProfileEditDialog userProfile={userProfile} />
+        {userProfile && <ProfileEditDialog userProfile={userProfile} />}
       </section>
 
       {/* 작성 글, 작성 댓글, 좋아요 수 표시 */}
@@ -107,18 +102,14 @@ export default async function MyPageSidebarServer() {
           사용자 활동 통계
         </h2>
         <ul className="flex justify-around text-center text-sm">
-          {activityStatsResult.status === "rejected" ? (
-            <div className="text-sm text-red-500">통계를 불러올 수 없습니다</div>
-          ) : (
-            stats.map((stat) => (
-              <UserActivityStatItem
-                key={stat.label}
-                icon={stat.icon}
-                label={stat.label}
-                count={stat.count}
-              />
-            ))
-          )}
+          {stats.map((stat) => (
+            <UserActivityStatItem
+              key={stat.label}
+              icon={stat.icon}
+              label={stat.label}
+              count={stat.count}
+            />
+          ))}
         </ul>
       </section>
     </aside>

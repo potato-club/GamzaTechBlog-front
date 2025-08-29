@@ -13,6 +13,7 @@ import { MyPageTabContent } from "@/features/user";
 import MyPageSidebarServer from "@/features/user/components/mypage/MyPageSidebar.server";
 
 export default function MyPage() {
+  console.log("Rendering MyPage Server Component");
   return (
     <div className="mt-10 flex gap-4">
       {/* 사용자 프로필 - 서버 컴포넌트로 빠른 렌더링 */}

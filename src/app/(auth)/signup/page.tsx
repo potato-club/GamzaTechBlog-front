@@ -9,9 +9,10 @@
 
 import { Position } from "@/enums/position";
 import { SignupForm } from "@/features/auth";
-import { useAuth, useUpdateProfileInSignup } from "@/features/user";
+import { useUpdateProfileInSignup } from "@/features/user";
 import type { UserProfileRequest } from "@/generated/api";
 import { SignupFormValues, signupSchema } from "@/lib/schemas/signupSchema";
+// Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,7 +21,7 @@ import { useForm } from "react-hook-form";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { refetchAuthStatus } = useAuth();
+  // Zustand checkAuth 제거됨 - const { checkAuth } = useAuth();
 
   /**
    * TanStack Query 뮤테이션을 사용한 회원가입 프로필 업데이트
@@ -64,8 +65,8 @@ export default function SignupPage() {
     try {
       await updateProfileMutation.mutateAsync(payload);
 
-      // 인증 상태 업데이트 (기존 로직 유지)
-      await refetchAuthStatus();
+      // 인증 상태 업데이트 (기존 로직 유지) - Zustand 로직 제거됨
+      // await checkAuth();
 
       // 성공 시 메인 페이지로 이동
       router.push("/");
