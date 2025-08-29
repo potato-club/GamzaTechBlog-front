@@ -12,6 +12,8 @@
 import { MyPageTabContent } from "@/features/user";
 import MyPageSidebarServer from "@/features/user/components/mypage/MyPageSidebar.server";
 
+export const dynamic = "force-dynamic";
+
 export default function MyPage() {
   console.log("Rendering MyPage Server Component");
   return (
