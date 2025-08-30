@@ -4,12 +4,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Footer from "../components/shared/layout/Footer";
 import Providers from "../providers/Providers";
+import { pretendard } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "감자 기술 블로그",
   description: "안녕하세요. 감자 기술 블로그입니다.",
   keywords: "개발, 기술블로그, 프로그래밍, 감자",
+  viewport: "width=device-width, initial-scale=1",
   icons: {
     icon: "/logo.svg",
     shortcut: "/logo.svg",
@@ -28,9 +30,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={pretendard.variable}>
       {/* body 태그는 전체 너비를 차지하도록 기본 스타일 유지 */}
-      <body className="bg-white">
+      <body className={`bg-white ${pretendard.className}`}>
         {" "}
         {/* 기존 max-w, mx-auto, px 제거 */}
         {/* Skip to main content for accessibility */}
@@ -42,7 +44,7 @@ export default async function RootLayout({
           메인 콘텐츠로 이동
         </Link>
         {/* 콘텐츠를 중앙 정렬하고 최대 너비를 제한하는 wrapper div 추가 */}
-        <div className="mx-auto w-full max-w-[1100px]">
+        <div className="layout-stable mx-auto w-full max-w-[1100px]" style={{ minHeight: "100vh" }}>
           <div className="flex min-h-screen flex-col">
             <Providers>
               <BlogHeader />

@@ -52,12 +52,12 @@ export default function Home({
     <>
       <DynamicWelcomeModal />
 
-      <div className="mx-auto flex flex-col gap-12">
+      <div className="layout-stable mx-auto flex flex-col gap-12">
         {/* 로고 섹션 - 즉시 렌더링 */}
         <LogoSection />
 
         {/* 메인 콘텐츠 - 스트리밍 */}
-        <div className="flex pb-10">
+        <div className="dynamic-content flex pb-10">
           <MainContent
             postsTabContent={
               <Suspense fallback={<PostListSkeleton count={3} />}>

@@ -5,8 +5,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        pretendard: ["var(--font-pretendard)"],
-        sans: ["Pretendard", "sans-serif"],
+        sans: ["var(--font-pretendard)", "system-ui", "arial", "sans-serif"],
       },
     },
   },
