@@ -307,16 +307,16 @@ div[style*="width: 255px"] {
   contain: layout;
   flex-shrink: 0;
 }
-/* 레이아웃 시프트 완전 방지 */
+/* 레이아웃 시프트 방지 - 스크롤 안전 */
 .layout-stable {
-  contain: layout style;
+  contain: layout;
   will-change: auto;
   transform: translateZ(0); /* GPU 가속으로 레이어 분리 */
 }
 
-/* 메인 컨테이너 특별 처리 */
+/* 메인 컨테이너 특별 처리 - 스크롤 허용 */
 .mx-auto.w-full.max-w-\[1100px\] {
-  contain: strict;
+  contain: layout style;
   isolation: isolate;
 }
 

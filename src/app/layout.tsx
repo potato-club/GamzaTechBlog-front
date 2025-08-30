@@ -44,7 +44,7 @@ export default async function RootLayout({
           메인 콘텐츠로 이동
         </Link>
         {/* 콘텐츠를 중앙 정렬하고 최대 너비를 제한하는 wrapper div 추가 */}
-        <div className="layout-stable mx-auto w-full max-w-[1100px]" style={{ minHeight: "100vh" }}>
+        <div className="layout-stable mx-auto w-full max-w-[1100px]">
           <div className="flex min-h-screen flex-col">
             <Providers>
               <BlogHeader />
