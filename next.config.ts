@@ -1,18 +1,45 @@
+import withBundleAnalyzer from "@next/bundle-analyzer";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // 실험적 기능들
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "@radix-ui/react-icons",
+      "@toast-ui/editor",
+      "@toast-ui/react-editor",
+      "react-syntax-highlighter",
+      "react-markdown",
+    ],
+  },
+
   compiler: {
     // 프로덕션 빌드 시 특정 console 로그만 제거
     removeConsole:
       process.env.NODE_ENV === "production"
         ? {
-            exclude: ["error", "warn"], // error와 warn은 남기고 나머지(log, info, debug 등) 제거
+            exclude: ["error", "warn"],
           }
         : false,
   },
+
+  // 압축 최적화
+  compress: true,
+
+  // 정적 최적화
+  trailingSlash: false,
+
+  // 성능 최적화
+  swcMinify: true,
+
+  // 파워풀한 압축
+  poweredByHeader: false,
   images: {
-    unoptimized: true, // Disable global image optimization
+    unoptimized: true, // 일시적으로 비활성화하여 레이아웃 시프트 방지
+    // formats: ["image/webp", "image/avif"],
+    // minimumCacheTTL: 60,
     remotePatterns: [
       {
         protocol: "https",
@@ -28,6 +55,39 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: "/images/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/fonts/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/:path*.(ico|png|jpg|jpeg|gif|webp|avif|svg)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+})(nextConfig);
