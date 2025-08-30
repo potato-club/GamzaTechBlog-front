@@ -14,6 +14,7 @@ import { CommentResponse, UserProfileResponse } from "@/generated/api";
 // Zustand import 제거됨 - import { useAuth, User } from "@/store/authStore";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
+import { useAuth } from "../../user/hooks/useUserQueries";
 
 interface CommentFormProps {
   postId: number;
@@ -27,7 +28,8 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
   // const isLoggedIn = isAuthenticated && !!user;
   // const user = null; // 임시로 null로 설정
   // const isAuthenticated = false; // 임시로 false로 설정
-  const isLoggedIn = false; // 임시로 false로 설정
+
+  const { isLoggedIn } = useAuth();
 
   // userProfile prop이 제공되지 않으면 Zustand 스토어에서 가져옴 - Zustand 로직 제거됨
   // const currentUserProfile = userProfile ?? user;
