@@ -127,6 +127,8 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     // 현재 로그인한 사용자가 게시글 작성자인지 확인
     const isCurrentUserAuthor = post.githubId ? await isPostAuthor(post.githubId) : false;
 
+    console.log(isCurrentUserAuthor);
+
     return (
       <main className="mx-16 my-16 max-w-full overflow-hidden">
         <article className="max-w-full border-b border-[#D5D9E3] py-8">

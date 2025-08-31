@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 // Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import { DropdownActionItem } from "@/types/dropdown";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../user/hooks/useUserQueries";
 
 interface PostActionsDropdownProps {
   postId: number;
@@ -16,11 +17,7 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   const router = useRouter();
   const deletePostMutation = useDeletePost();
 
-  // 현재 사용자 정보 가져오기 - Zustand 로직 제거됨
-  // const { user, isAuthenticated } = useAuth();
-  // const isLoggedIn = isAuthenticated && !!user;
-  const user = null; // 임시로 null로 설정
-  const isLoggedIn = false; // 임시로 false로 설정
+  const { userProfile, isLoggedIn } = useAuth();
 
   // 게시글 정보 가져오기
   const { data: post } = usePost(postId);
@@ -32,7 +29,7 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
 
   const handleEditPost = () => {
     // 로그인 상태 확인
-    if (!isLoggedIn || !user) {
+    if (!isLoggedIn || !userProfile) {
       alert("로그인이 필요합니다.");
       return;
     }
@@ -43,9 +40,9 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
       return;
     }
 
-    // 작성자 확인 (현재 사용자의 닉네임과 게시글 작성자 비교) - Zustand 로직 제거됨
-    // const isAuthor = user.nickname === post.writer;
-    const isAuthor = false; // 임시로 false로 설정
+    const isAuthor = userProfile.nickname === post.writer;
+
+    console.log("isAuthor", isAuthor);
 
     if (!isAuthor) {
       alert("본인이 작성한 게시글만 수정할 수 있습니다.");

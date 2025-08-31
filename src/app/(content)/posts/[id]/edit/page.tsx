@@ -10,6 +10,7 @@ import { PostForm, usePost, useUpdatePost, type PostFormData } from "@/features/
 // Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { use } from "react";
+import { useAuth } from "../../../../../features/user/hooks/useUserQueries";
 
 interface EditPostPageProps {
   params: Promise<{
@@ -24,12 +25,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   const resolvedParams = use(params);
   const postId = parseInt(resolvedParams.id);
 
-  // 현재 사용자 정보 조회 - Zustand 로직 제거됨
-  // const { user, isAuthenticated, isLoading: isLoadingAuth } = useAuth();
-  // const isLoggedIn = isAuthenticated && !!user;
-  const user = null; // 임시로 null로 설정
-  const isLoggedIn = false; // 임시로 false로 설정
-  const isLoadingAuth = false; // 임시로 false로 설정
+  const { userProfile, isLoggedIn, isLoading } = useAuth();
 
   // 기존 게시글 데이터 조회
   const { data: post, isLoading: isLoadingPost, error } = usePost(postId);
@@ -52,18 +48,18 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   };
 
   // 로딩 중 UI (인증 정보 또는 게시글 로딩 중)
-  if (isLoadingAuth || isLoadingPost) {
+  if (isLoading || isLoadingPost) {
     return (
       <div className="mt-32 flex min-h-[400px] items-center justify-center">
         <div className="text-lg text-gray-600">
-          {isLoadingAuth ? "사용자 정보를 확인하는 중..." : "게시글을 불러오는 중..."}
+          {isLoading ? "사용자 정보를 확인하는 중..." : "게시글을 불러오는 중..."}
         </div>
       </div>
     );
   }
 
   // 로그인하지 않은 경우
-  if (!isLoggedIn || !user) {
+  if (!isLoggedIn || !userProfile) {
     return (
       <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
         <div className="text-lg text-red-600">로그인이 필요합니다.</div>
@@ -92,9 +88,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     );
   }
 
-  // 작성자 권한 확인 (기존 닉네임 비교로 간소화) - Zustand 로직 제거됨
-  // const isAuthor = user.nickname === post.writer;
-  const isAuthor = false; // 임시로 false로 설정
+  const isAuthor = userProfile.nickname === post.writer;
 
   if (!isAuthor) {
     return (
