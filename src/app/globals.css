@@ -321,7 +321,7 @@ div[style*="width: 255px"] {
 }
 
 /* 이미지 로딩 안정화 */
-img[src$=".svg"] {
+img[src$=".svg"]:not([width]):not([height]) {
   display: block;
   width: auto;
   height: auto;

@@ -1,9 +1,9 @@
 "use client";
 
 import { useAddLike, useLikeStatus, useRemoveLike } from "@/features/posts";
-// Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../user/hooks/useUserQueries";
 
 interface PostStatsProps {
   postId: number;
@@ -18,10 +18,7 @@ export default function PostStats({
   initialIsLiked = false,
   commentsCount = 0,
 }: PostStatsProps) {
-  // Zustand 로직 제거됨 - const { isAuthenticated } = useAuth();
-  // const isLoggedIn = isAuthenticated;
-  // const isAuthenticated = false; // 임시로 false로 설정
-  const isLoggedIn = false; // 임시로 false로 설정
+  const { isLoggedIn } = useAuth();
   const [likesCount, setLikesCount] = useState(initialLikesCount);
 
   // 실제 좋아요 상태를 API에서 가져오기
