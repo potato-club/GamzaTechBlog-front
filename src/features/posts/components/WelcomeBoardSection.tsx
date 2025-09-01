@@ -1,37 +1,35 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { CommentResponse } from "@/generated/api";
-import { useAuth } from "../../user/hooks/useUserQueries";
 // Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 
 // TODO: 가입인사 게시판을 위한 전용 postId를 백엔드에서 할당받아 사용해야 합니다.
-const WELCOME_POST_ID = 1;
+// const WELCOME_POST_ID = 1;
 
 // Mock comments data
-const mockComments: CommentResponse[] = [
-  {
-    commentId: 1,
-    writer: "감자",
-    writerProfileImageUrl: "/profileSVG.svg",
-    content: "안녕하세요! 잘 부탁드립니다.",
-    createdAt: new Date("2025-08-24T11:42:12.733Z"),
-    replies: [],
-  },
-  {
-    commentId: 2,
-    writer: "고구마",
-    writerProfileImageUrl: "/profileSVG.svg",
-    content: "반갑습니다~",
-    createdAt: new Date("2025-08-24T11:43:12.733Z"),
-    replies: [],
-  },
-];
+// const mockComments: CommentResponse[] = [
+//   {
+//     commentId: 1,
+//     writer: "감자",
+//     writerProfileImageUrl: "/profileSVG.svg",
+//     content: "안녕하세요! 잘 부탁드립니다.",
+//     createdAt: new Date("2025-08-24T11:42:12.733Z"),
+//     replies: [],
+//   },
+//   {
+//     commentId: 2,
+//     writer: "고구마",
+//     writerProfileImageUrl: "/profileSVG.svg",
+//     content: "반갑습니다~",
+//     createdAt: new Date("2025-08-24T11:43:12.733Z"),
+//     replies: [],
+//   },
+// ];
 
 export default function WelcomeBoardSection() {
-  const { userProfile } = useAuth();
+  // const { userProfile } = useAuth();
 
-  const comments = mockComments;
+  // const comments = mockComments;
   const isLoading = false;
   const isError = false;
 
