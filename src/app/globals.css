@@ -225,19 +225,6 @@ body {
   }
 }
 
-/* 레이아웃 시프트 방지 */
-img {
-  height: auto;
-  max-width: 100%;
-  /* 기본 aspect-ratio 설정으로 레이아웃 시프트 방지 */
-  aspect-ratio: attr(width) / attr(height);
-}
-
-/* Next.js Image 컴포넌트 최적화 */
-img[data-nimg] {
-  color: transparent;
-}
-
 /* 이미지 컨테이너 기본 스타일 */
 .image-container {
   position: relative;
