@@ -7,9 +7,10 @@
  */
 
 import { PostForm, usePost, useUpdatePost, type PostFormData } from "@/features/posts";
-import { useAuth } from "@/features/user";
+// Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { use } from "react";
+import { useAuth } from "../../../../../features/user/hooks/useUserQueries";
 
 interface EditPostPageProps {
   params: Promise<{
@@ -24,8 +25,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   const resolvedParams = use(params);
   const postId = parseInt(resolvedParams.id);
 
-  // 현재 사용자 정보 조회
-  const { userProfile, isLoggedIn, isLoading: isLoadingAuth } = useAuth();
+  const { userProfile, isLoggedIn, isLoading } = useAuth();
 
   // 기존 게시글 데이터 조회
   const { data: post, isLoading: isLoadingPost, error } = usePost(postId);
@@ -48,11 +48,11 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   };
 
   // 로딩 중 UI (인증 정보 또는 게시글 로딩 중)
-  if (isLoadingAuth || isLoadingPost) {
+  if (isLoading || isLoadingPost) {
     return (
       <div className="mt-32 flex min-h-[400px] items-center justify-center">
         <div className="text-lg text-gray-600">
-          {isLoadingAuth ? "사용자 정보를 확인하는 중..." : "게시글을 불러오는 중..."}
+          {isLoading ? "사용자 정보를 확인하는 중..." : "게시글을 불러오는 중..."}
         </div>
       </div>
     );
@@ -88,11 +88,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     );
   }
 
-  // 작성자 권한 확인 (GitHub ID 또는 닉네임으로 비교)
-  const isAuthor =
-    userProfile.githubId === post.writer ||
-    userProfile.nickname === post.writer ||
-    userProfile.name === post.writer;
+  const isAuthor = userProfile.nickname === post.writer;
 
   if (!isAuthor) {
     return (

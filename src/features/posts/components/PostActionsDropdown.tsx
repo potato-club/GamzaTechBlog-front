@@ -3,10 +3,11 @@
 import { DropdownMenuList } from "@/components/shared/navigation/DropdownMenuList";
 import { Button } from "@/components/ui/button";
 import { useDeletePost, usePost } from "@/features/posts";
-import { useAuth } from "@/features/user";
 import { cn } from "@/lib/utils";
+// Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import { DropdownActionItem } from "@/types/dropdown";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../user/hooks/useUserQueries";
 
 interface PostActionsDropdownProps {
   postId: number;
@@ -16,7 +17,6 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   const router = useRouter();
   const deletePostMutation = useDeletePost();
 
-  // 현재 사용자 정보 가져오기
   const { userProfile, isLoggedIn } = useAuth();
 
   // 게시글 정보 가져오기
@@ -40,8 +40,9 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
       return;
     }
 
-    // 작성자 확인 (현재 사용자의 닉네임과 게시글 작성자 비교)
     const isAuthor = userProfile.nickname === post.writer;
+
+    console.log("isAuthor", isAuthor);
 
     if (!isAuthor) {
       alert("본인이 작성한 게시글만 수정할 수 있습니다.");

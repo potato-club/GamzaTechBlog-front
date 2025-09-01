@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/features/user"; // 인증 상태 컴포지션 훅 직접 import
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation"; // usePathname import
 import { useEffect, useState } from "react";
+import { useAuth } from "../../../features/user/hooks/useUserQueries";
 import { DropdownMenuList } from "../navigation/DropdownMenuList";
 
 export const HeaderNavigation = () => {

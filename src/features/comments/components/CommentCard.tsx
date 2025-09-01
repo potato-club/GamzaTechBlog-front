@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * 댓글 카드 컴포넌트
  *
@@ -17,8 +19,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useDeleteComment } from "@/features/comments";
-import { useAuth } from "@/features/user";
 import { CommentResponse } from "@/generated/api";
+
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
 import Link from "next/link";
@@ -46,7 +48,8 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
    * - 캐시 갱신: 성공 시 관련 쿼리 자동 무효화
    */
 
-  const { userProfile } = useAuth();
+  // const { user } = useAuth(); // Zustand 로직 제거됨
+  // const user = null; // 임시로 null로 설정
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const deleteCommentMutation = useDeleteComment(postId);
@@ -77,11 +80,12 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
     }
   };
 
-  // 현재 사용자가 댓글 작성자인지 확인하는 로직
-  const isCurrentUserCommentOwner = (() => {
-    if (!userProfile || !comment.writer) return false;
-    return comment.writer === userProfile.nickname;
-  })();
+  // 현재 사용자가 댓글 작성자인지 확인하는 로직 - Zustand 로직 제거됨
+  // const isCurrentUserCommentOwner = (() => {
+  //   if (!user || !comment.writer) return false;
+  //   return comment.writer === user.nickname;
+  // })();
+  const isCurrentUserCommentOwner = false; // 임시로 false로 설정
 
   const commentDropdownItems: DropdownActionItem[] = [
     // {

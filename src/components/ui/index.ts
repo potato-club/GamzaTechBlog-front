@@ -1,4 +1,5 @@
 // UI 컴포넌트 Barrel Exports
+export { Alert, AlertDescription, AlertTitle } from "./alert";
 export {
   AlertDialog,
   AlertDialogAction,
@@ -63,6 +64,7 @@ export {
 } from "./pagination";
 export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 export { Skeleton } from "./skeleton";
+export { Toaster } from "./sonner";
 export {
   Table,
   TableBody,

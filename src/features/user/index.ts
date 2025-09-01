@@ -6,8 +6,6 @@ export * from "./types";
 
 // Hooks
 export {
-  useAuth,
-  useMyPageTab,
   USER_QUERY_KEYS,
   useUpdateProfile,
   useUpdateProfileImage,
@@ -23,11 +21,11 @@ export {
   CommentsTab,
   ErrorDisplay,
   LikesTab,
-  MyPageSidebar,
+  MyPageSidebarServer,
+  MyPageTabContent,
   PostsTab,
   ProfileEditDialog,
   ProfileEditDialogSkeleton,
-  TabMenu,
   UserActivityStatItem,
   UserActivityStatsSkeleton,
 } from "./components";

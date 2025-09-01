@@ -1,9 +1,9 @@
 "use client";
 
 import { useAddLike, useLikeStatus, useRemoveLike } from "@/features/posts";
-import { useAuth } from "@/features/user";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../user/hooks/useUserQueries";
 
 interface PostStatsProps {
   postId: number;

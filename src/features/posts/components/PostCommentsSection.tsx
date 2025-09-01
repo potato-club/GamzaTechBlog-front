@@ -9,6 +9,7 @@
  */
 
 import { CommentForm, CommentList } from "@/features/comments";
+import { useAuth } from "../../user/hooks/useUserQueries";
 import { usePost } from "../hooks";
 
 interface PostCommentsSectionProps {
@@ -26,6 +27,7 @@ export default function PostCommentsSection({ postId }: PostCommentsSectionProps
    * - 에러 처리: 네트워크 오류 시 자동 재시도
    */
   const { data: post, isLoading, error } = usePost(postId);
+  const { userProfile } = useAuth();
 
   // TanStack Query에서 가져온 댓글 데이터 사용
   const comments = post?.comments || [];
@@ -68,7 +70,7 @@ export default function PostCommentsSection({ postId }: PostCommentsSectionProps
   return (
     <section className="mx-4 mt-12 text-[17px] text-[#353841]" aria-label="댓글 섹션">
       {/* TanStack Query가 댓글 추가를 자동으로 처리하므로 onCommentSubmitted는 선택사항 */}
-      <CommentForm postId={postId} />
+      <CommentForm postId={postId} userProfile={userProfile} />
 
       {/* TanStack Query가 댓글 삭제를 자동으로 처리하므로 onCommentDeleted는 선택사항 */}
       <CommentList comments={comments} variant="post" postId={postId} />

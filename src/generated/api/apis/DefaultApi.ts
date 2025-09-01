@@ -24,6 +24,7 @@ import type {
   ResponseDtoAccessTokenResponse,
   ResponseDtoBoolean,
   ResponseDtoCommentResponse,
+  ResponseDtoListAdmissionResultResponse,
   ResponseDtoListCommentResponse,
   ResponseDtoListCommitHistoryResponse,
   ResponseDtoListPendingUserResponse,
@@ -43,6 +44,7 @@ import type {
   ResponseDtoUserActivityResponse,
   ResponseDtoUserProfileResponse,
   ResponseDtoVoid,
+  UpdateAdmissionResultRequest,
   UpdateProfileRequest,
   UserProfileRequest,
 } from '../models/index';
@@ -65,6 +67,8 @@ import {
     ResponseDtoBooleanToJSON,
     ResponseDtoCommentResponseFromJSON,
     ResponseDtoCommentResponseToJSON,
+    ResponseDtoListAdmissionResultResponseFromJSON,
+    ResponseDtoListAdmissionResultResponseToJSON,
     ResponseDtoListCommentResponseFromJSON,
     ResponseDtoListCommentResponseToJSON,
     ResponseDtoListCommitHistoryResponseFromJSON,
@@ -103,6 +107,8 @@ import {
     ResponseDtoUserProfileResponseToJSON,
     ResponseDtoVoidFromJSON,
     ResponseDtoVoidToJSON,
+    UpdateAdmissionResultRequestFromJSON,
+    UpdateAdmissionResultRequestToJSON,
     UpdateProfileRequestFromJSON,
     UpdateProfileRequestToJSON,
     UserProfileRequestFromJSON,
@@ -200,7 +206,7 @@ export interface LikePostRequest {
 }
 
 export interface LookupOperationRequest {
-    request: LookupRequest;
+    lookupRequest: LookupRequest;
 }
 
 export interface PublishPostRequest {
@@ -227,6 +233,11 @@ export interface SearchPostsRequest {
 
 export interface UnlikePostRequest {
     postId: number;
+}
+
+export interface UpdateRequest {
+    admissionId: number;
+    updateAdmissionResultRequest: UpdateAdmissionResultRequest;
 }
 
 export interface UpdateProfileOperationRequest {
@@ -728,6 +739,43 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async getActivitySummary(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoUserActivityResponse> {
         const response = await this.getActivitySummaryRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 합격/불합격 전체 목록 조회 (ADMIN)
+     */
+    async getAllRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoListAdmissionResultResponse>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/admissions/admin`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoListAdmissionResultResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 합격/불합격 전체 목록 조회 (ADMIN)
+     */
+    async getAll(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoListAdmissionResultResponse> {
+        const response = await this.getAllRaw(initOverrides);
         return await response.value();
     }
 
@@ -1523,23 +1571,21 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * 합격/불합격 조회 (공개 GET)
+     * 합격/불합격 조회 (공개 POST)
      */
     async lookupRaw(requestParameters: LookupOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoLookupResponse>> {
-        if (requestParameters['request'] == null) {
+        if (requestParameters['lookupRequest'] == null) {
             throw new runtime.RequiredError(
-                'request',
-                'Required parameter "request" was null or undefined when calling lookup().'
+                'lookupRequest',
+                'Required parameter "lookupRequest" was null or undefined when calling lookup().'
             );
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters['request'] != null) {
-            queryParameters['request'] = requestParameters['request'];
-        }
-
         const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
@@ -1554,16 +1600,17 @@ export class DefaultApi extends runtime.BaseAPI {
 
         const response = await this.request({
             path: urlPath,
-            method: 'GET',
+            method: 'POST',
             headers: headerParameters,
             query: queryParameters,
+            body: LookupRequestToJSON(requestParameters['lookupRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoLookupResponseFromJSON(jsonValue));
     }
 
     /**
-     * 합격/불합격 조회 (공개 GET)
+     * 합격/불합격 조회 (공개 POST)
      */
     async lookup(requestParameters: LookupOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoLookupResponse> {
         const response = await this.lookupRaw(requestParameters, initOverrides);
@@ -1855,6 +1902,61 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async unlikePost(requestParameters: UnlikePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoString> {
         const response = await this.unlikePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 합격/불합격 결과 수정 (ADMIN)
+     */
+    async updateRaw(requestParameters: UpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoLong>> {
+        if (requestParameters['admissionId'] == null) {
+            throw new runtime.RequiredError(
+                'admissionId',
+                'Required parameter "admissionId" was null or undefined when calling update().'
+            );
+        }
+
+        if (requestParameters['updateAdmissionResultRequest'] == null) {
+            throw new runtime.RequiredError(
+                'updateAdmissionResultRequest',
+                'Required parameter "updateAdmissionResultRequest" was null or undefined when calling update().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/admissions/admin/{admissionId}`;
+        urlPath = urlPath.replace(`{${"admissionId"}}`, encodeURIComponent(String(requestParameters['admissionId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateAdmissionResultRequestToJSON(requestParameters['updateAdmissionResultRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoLongFromJSON(jsonValue));
+    }
+
+    /**
+     * 합격/불합격 결과 수정 (ADMIN)
+     */
+    async update(requestParameters: UpdateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoLong> {
+        const response = await this.updateRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

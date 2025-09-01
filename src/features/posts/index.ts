@@ -22,6 +22,8 @@ export {
 // Components
 export {
   InteractivePostList,
+  MainContent,
+  MainTabMenu,
   MarkdownViewer,
   MarkdownViewerSkeleton,
   PopularPost,
@@ -41,6 +43,7 @@ export {
   PostStats,
   ToastEditor,
   ToastEditorSkeleton,
+  WelcomeBoardSection,
 } from "./components";
 
 // Services

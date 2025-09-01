@@ -20,6 +20,7 @@ export { default as InteractivePagination } from "./interactive/InteractivePagin
 export { default as InteractiveTagSection } from "./interactive/InteractiveTagSection";
 
 // Common UI Components
+export { default as EmptyState } from "./EmptyState";
 export { default as ErrorDisplay } from "./ErrorDisplay";
 export { default as WelcomeModal } from "./interactive/WelcomeModal";
 

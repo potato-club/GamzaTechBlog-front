@@ -2,32 +2,11 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePendingUsers, UserApprovalTable } from "@/features/admin";
-import { useAuth } from "@/features/user";
 
 export default function AdminPage() {
   const { data: users, isLoading, isError, error } = usePendingUsers();
-  const { userProfile, isLoading: isAuthLoading } = useAuth();
 
-  if (isAuthLoading) {
-    return (
-      <div className="container mx-auto py-10">
-        <p>권한 확인 중...</p>
-      </div>
-    );
-  }
-
-  if (!userProfile || userProfile.role !== "ADMIN") {
-    return (
-      <div className="container mx-auto py-10 text-center">
-        <Card>
-          <CardHeader>
-            <CardTitle>접근 불가</CardTitle>
-            <CardDescription>관리자만 접근할 수 있습니다.</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
+  // 권한 체크는 layout.tsx에서 서버 사이드로 처리됨
 
   return (
     <div className="container mx-auto py-10">
