@@ -9,7 +9,6 @@ import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import type { ToastEditorHandle } from "./ToastEditor";
 
@@ -223,7 +222,7 @@ export default function PostForm({ mode, initialData, onSubmitAction, isLoading 
         </div>
 
         <div className="flex items-center justify-end gap-3">
-          <Button
+          {/* <Button
             type="button"
             variant="outline"
             className="rounded-4xl border-[#20242B] bg-white px-6 py-2 text-[#20242B] transition-colors duration-150 hover:bg-[#F8F9FA]"
@@ -236,7 +235,7 @@ export default function PostForm({ mode, initialData, onSubmitAction, isLoading 
             }}
           >
             임시 저장
-          </Button>
+          </Button> */}
           <Button
             type="submit"
             className={`rounded-4xl bg-[#20242B] px-6 py-2 text-white transition-colors duration-150 ${
