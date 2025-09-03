@@ -24,6 +24,7 @@ import type {
   ResponseDtoAccessTokenResponse,
   ResponseDtoBoolean,
   ResponseDtoCommentResponse,
+  ResponseDtoHomeFeedResponse,
   ResponseDtoListAdmissionResultResponse,
   ResponseDtoListCommentResponse,
   ResponseDtoListCommitHistoryResponse,
@@ -67,6 +68,8 @@ import {
     ResponseDtoBooleanToJSON,
     ResponseDtoCommentResponseFromJSON,
     ResponseDtoCommentResponseToJSON,
+    ResponseDtoHomeFeedResponseFromJSON,
+    ResponseDtoHomeFeedResponseToJSON,
     ResponseDtoListAdmissionResultResponseFromJSON,
     ResponseDtoListAdmissionResultResponseToJSON,
     ResponseDtoListCommentResponseFromJSON,
@@ -159,6 +162,13 @@ export interface GetCommentsRequest {
 
 export interface GetCommitHistoriesRequest {
     postId: number;
+}
+
+export interface GetHomeFeedRequest {
+    page?: number;
+    size?: number;
+    sort?: Array<string>;
+    tags?: Array<string>;
 }
 
 export interface GetMyCommentsRequest {
@@ -1027,6 +1037,59 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async getCurrentUserRole(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoString> {
         const response = await this.getCurrentUserRoleRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 홈 피드 조회
+     */
+    async getHomeFeedRaw(requestParameters: GetHomeFeedRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoHomeFeedResponse>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['page'] != null) {
+            queryParameters['page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
+
+        if (requestParameters['sort'] != null) {
+            queryParameters['sort'] = requestParameters['sort'];
+        }
+
+        if (requestParameters['tags'] != null) {
+            queryParameters['tags'] = requestParameters['tags'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/posts/feed`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoHomeFeedResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 홈 피드 조회
+     */
+    async getHomeFeed(requestParameters: GetHomeFeedRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoHomeFeedResponse> {
+        const response = await this.getHomeFeedRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
