@@ -1,10 +1,8 @@
 import { DynamicWelcomeModal } from "@/components/dynamic/DynamicComponents";
 import LogoSection from "@/components/shared/layout/LogoSection";
 import SidebarSection from "@/components/shared/layout/SidebarSection.server";
-import SidebarSkeleton from "@/components/shared/layout/skeletons/SidebarSkeleton";
-import { MainContent, PostListSection, PostListSkeleton } from "@/features/posts";
+import { MainContent, PostListSection, postService } from "@/features/posts";
 import { Metadata } from "next";
-import { Suspense } from "react";
 
 export async function generateMetadata({
   searchParams,
@@ -43,11 +41,23 @@ export async function generateMetadata({
   };
 }
 
-export default function Home({
+export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<{ tag?: string; page?: string }>;
 }) {
+  const { tag, page } = await searchParams;
+  const currentPage = Number(page) || 1;
+  const pageSize = 10;
+
+  // 홈 피드 데이터를 한 번에 가져오기
+  const homeFeedData = await postService.getHomeFeed({
+    page: currentPage - 1,
+    size: pageSize,
+    sort: ["createdAt,desc"],
+    tags: tag ? [tag] : undefined,
+  });
+
   return (
     <>
       <DynamicWelcomeModal />
@@ -56,20 +66,20 @@ export default function Home({
         {/* 로고 섹션 - 즉시 렌더링 */}
         <LogoSection />
 
-        {/* 메인 콘텐츠 - 스트리밍 */}
+        {/* 메인 콘텐츠 */}
         <div className="dynamic-content flex pb-10">
           <MainContent
             postsTabContent={
-              <Suspense fallback={<PostListSkeleton count={3} />}>
-                <PostListSection searchParams={searchParams} />
-              </Suspense>
+              <PostListSection
+                initialData={homeFeedData.latest}
+                initialTag={tag}
+                initialPage={currentPage}
+              />
             }
           />
 
-          {/* 사이드바 섹션 - 독립적 스트리밍 */}
-          <Suspense fallback={<SidebarSkeleton />}>
-            <SidebarSection />
-          </Suspense>
+          {/* 사이드바 섹션 */}
+          <SidebarSection popularPosts={homeFeedData.weeklyPopular} tags={homeFeedData.allTags} />
         </div>
       </div>
     </>

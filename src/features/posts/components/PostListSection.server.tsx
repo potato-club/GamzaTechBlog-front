@@ -1,53 +1,57 @@
-import InteractivePagination from "@/components/shared/interactive/InteractivePagination"; // Re-import pagination
-import { postService } from "@/features/posts";
+import InteractivePagination from "@/components/shared/interactive/InteractivePagination";
+import { PagedResponsePostListResponse } from "@/generated/api";
 import InteractivePostList from "./InteractivePostList";
 
 /**
- * 게시글 목록 섹션 서버 컴포넌트
+ * 게시글 목록 섹션 컴포넌트
  *
- * 단일 책임: 초기 게시글 데이터 페칭 및 클라이언트 컴포넌트에 전달
+ * 단일 책임: 게시글 데이터 표시 (데이터는 props로 받음)
  */
 
 interface PostListSectionProps {
-  searchParams: Promise<{ tag?: string; page?: string }>;
+  initialData?: PagedResponsePostListResponse;
+  initialTag?: string;
+  initialPage: number;
 }
 
-export default async function PostListSection({ searchParams }: PostListSectionProps) {
-  const { tag, page } = await searchParams;
-  const currentPage = Number(page) || 1;
-  const pageSize = 10;
-
-  // 서버에서 초기 게시글 데이터 페칭
-  const initialData = tag
-    ? await postService.getPostsByTag(tag, {
-        page: currentPage - 1,
-        size: pageSize,
-        sort: ["createdAt,desc"],
-      })
-    : await postService.getPosts({
-        page: currentPage - 1,
-        size: pageSize,
-        sort: ["createdAt,desc"],
-      });
+export default function PostListSection({
+  initialData,
+  initialTag,
+  initialPage,
+}: PostListSectionProps) {
+  // 데이터가 없으면 로딩 상태 표시
+  if (!initialData) {
+    return (
+      <main className="flex-3">
+        <div className="py-8 text-center text-gray-500">
+          <p className="text-sm">게시글을 불러오는 중...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-3">
-      {tag && ( // Conditionally render the h2 tag
+      {initialTag && ( // Conditionally render the h2 tag
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">#{tag} 태그 게시글</h2>
+          <h2 className="text-2xl font-semibold">#{initialTag} 태그 게시글</h2>
         </div>
       )}
 
       {/* 인터랙티브 게시글 목록 */}
-      <InteractivePostList initialData={initialData} initialTag={tag} initialPage={currentPage} />
+      <InteractivePostList
+        initialData={initialData}
+        initialTag={initialTag}
+        initialPage={initialPage}
+      />
 
       {/* 페이지네이션 */}
       {initialData.totalPages && initialData.totalPages > 1 && (
         <div className="mt-12 flex justify-center">
           <InteractivePagination
-            currentPage={currentPage}
+            currentPage={initialPage}
             totalPages={initialData.totalPages}
-            tag={tag}
+            tag={initialTag}
           />
         </div>
       )}

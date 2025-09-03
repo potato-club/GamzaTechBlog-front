@@ -24,7 +24,7 @@ export interface UserProfileRequest {
      * @type {string}
      * @memberof UserProfileRequest
      */
-    email: string;
+    email?: string;
     /**
      * 학번
      * @type {string}
@@ -62,7 +62,6 @@ export type UserProfileRequestPositionEnum = typeof UserProfileRequestPositionEn
  * Check if a given object implements the UserProfileRequest interface.
  */
 export function instanceOfUserProfileRequest(value: object): value is UserProfileRequest {
-    if (!('email' in value) || value['email'] === undefined) return false;
     if (!('studentNumber' in value) || value['studentNumber'] === undefined) return false;
     if (!('gamjaBatch' in value) || value['gamjaBatch'] === undefined) return false;
     if (!('position' in value) || value['position'] === undefined) return false;
@@ -79,7 +78,7 @@ export function UserProfileRequestFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-        'email': json['email'],
+        'email': json['email'] == null ? undefined : json['email'],
         'studentNumber': json['studentNumber'],
         'gamjaBatch': json['gamjaBatch'],
         'position': json['position'],

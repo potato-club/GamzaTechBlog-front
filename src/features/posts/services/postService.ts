@@ -1,4 +1,5 @@
 import {
+  HomeFeedResponse,
   Pageable,
   PagedResponseLikeResponse,
   PagedResponsePostListResponse,
@@ -102,5 +103,21 @@ export const postService = {
   async searchPosts(keyword: string, params: Pageable): Promise<PagedResponsePostListResponse> {
     const response = await apiClient.searchPosts({ keyword, pageable: params });
     return response.data as PagedResponsePostListResponse;
+  },
+
+  /**
+   * 홈 피드 데이터를 조회합니다. (게시글 리스트, 인기 게시글, 태그를 한 번에)
+   */
+  async getHomeFeed(
+    params?: {
+      page?: number;
+      size?: number;
+      sort?: string[];
+      tags?: string[];
+    },
+    options?: RequestInit
+  ): Promise<HomeFeedResponse> {
+    const response = await apiClient.getHomeFeed(params || {}, options);
+    return response.data as HomeFeedResponse;
   },
 } as const;
