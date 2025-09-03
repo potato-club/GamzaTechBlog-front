@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useDeleteComment } from "@/features/comments";
+import { useAuth } from "@/features/user/hooks/useUserQueries";
 import { CommentResponse } from "@/generated/api";
 
 import { DropdownActionItem } from "@/types/dropdown";
@@ -50,6 +51,7 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
 
   // const { user } = useAuth(); // Zustand 로직 제거됨
   // const user = null; // 임시로 null로 설정
+  const { userProfile } = useAuth();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const deleteCommentMutation = useDeleteComment(postId);
@@ -85,7 +87,11 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
   //   if (!user || !comment.writer) return false;
   //   return comment.writer === user.nickname;
   // })();
-  const isCurrentUserCommentOwner = false; // 임시로 false로 설정
+  // const isCurrentUserCommentOwner = false; // 임시로 false로 설정
+  const isCurrentUserCommentOwner = (() => {
+    if (!userProfile || !comment.writer) return false;
+    return comment.writer === userProfile.nickname;
+  })();
 
   const commentDropdownItems: DropdownActionItem[] = [
     // {
