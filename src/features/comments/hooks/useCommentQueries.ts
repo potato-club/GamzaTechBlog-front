@@ -5,22 +5,16 @@
  * 효율적인 상태 관리와 UI 업데이트를 제공합니다.
  */
 
-import { CommentRequest, CommentResponse, PostDetailResponse } from "@/generated/api";
+import {
+  CommentRequest,
+  CommentResponse,
+  PostDetailResponse,
+  UserProfileResponse,
+} from "@/generated/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { POST_QUERY_KEYS } from "../../posts/hooks/usePostQueries";
+import { USER_QUERY_KEYS } from "../../user/hooks/useUserQueries";
 import { commentService } from "../services";
-// import { POST_QUERY_KEYS } from "./usePostQueries";
-// import { USER_QUERY_KEYS } from "./useUserQueries";
-
-// 임시로 로컬에서 정의
-const POST_QUERY_KEYS = {
-  all: ["posts"] as const,
-  detail: (id: number) => [...POST_QUERY_KEYS.all, "detail", id] as const,
-};
-
-const USER_QUERY_KEYS = {
-  all: ["users"] as const,
-  profile: (id: number) => [...USER_QUERY_KEYS.all, "profile", id] as const,
-};
 
 /**
  * 댓글을 등록하는 뮤테이션 훅
@@ -46,7 +40,8 @@ export function useCreateComment(postId: number) {
         POST_QUERY_KEYS.detail(postId)
       );
 
-      // const userProfile = queryClient.getQueryData<UserProfileResponse>(USER_QUERY_KEYS.profile(1));
+      // 현재 사용자 프로필 정보 가져오기
+      const userProfile = queryClient.getQueryData<UserProfileResponse>(USER_QUERY_KEYS.profile());
 
       queryClient.setQueryData<PostDetailResponse | undefined>(
         POST_QUERY_KEYS.detail(postId),
@@ -56,8 +51,8 @@ export function useCreateComment(postId: number) {
           // Optimistic Update를 위한 임시 댓글 객체 생성
           const optimisticComment: CommentResponse = {
             commentId: Date.now(), // 임시 ID
-            writer: "Me", // userProfile?.nickname ?? "Me",
-            writerProfileImageUrl: "", // userProfile?.profileImageUrl ?? "",
+            writer: userProfile?.nickname ?? "Me", // 실제 사용자 닉네임
+            writerProfileImageUrl: userProfile?.profileImageUrl ?? "/profileSVG.svg", // 실제 프로필 이미지
             content: newComment.content,
             createdAt: new Date(), // 현재 시간으로 설정
             // replies: [],
@@ -66,7 +61,7 @@ export function useCreateComment(postId: number) {
           return {
             ...old,
             comments: Array.isArray(old.comments)
-              ? [...old.comments, optimisticComment]
+              ? [optimisticComment, ...old.comments] // 최신 댓글을 맨 앞에 추가 (내림차순)
               : [optimisticComment],
           };
         }

@@ -2,6 +2,7 @@
 
 import { apiClient, updateTokenExpiration } from "@/lib/apiClient";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getCookie } from "cookies-next";
 import { decodeJwt } from "jose";
 import { useEffect } from "react";
@@ -49,7 +50,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
