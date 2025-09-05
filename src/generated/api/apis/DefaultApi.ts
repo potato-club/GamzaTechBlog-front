@@ -17,6 +17,7 @@ import * as runtime from '../runtime';
 import type {
   CommentRequest,
   CreateAdmissionResultRequest,
+  IntroCreateRequest,
   LookupRequest,
   Pageable,
   PostRequest,
@@ -25,6 +26,7 @@ import type {
   ResponseDtoBoolean,
   ResponseDtoCommentResponse,
   ResponseDtoHomeFeedResponse,
+  ResponseDtoIntroResponse,
   ResponseDtoListAdmissionResultResponse,
   ResponseDtoListCommentResponse,
   ResponseDtoListCommitHistoryResponse,
@@ -35,6 +37,7 @@ import type {
   ResponseDtoLong,
   ResponseDtoLookupResponse,
   ResponseDtoPagedResponseCommentListResponse,
+  ResponseDtoPagedResponseIntroResponse,
   ResponseDtoPagedResponseLikeResponse,
   ResponseDtoPagedResponsePostListResponse,
   ResponseDtoPostDetailResponse,
@@ -54,6 +57,8 @@ import {
     CommentRequestToJSON,
     CreateAdmissionResultRequestFromJSON,
     CreateAdmissionResultRequestToJSON,
+    IntroCreateRequestFromJSON,
+    IntroCreateRequestToJSON,
     LookupRequestFromJSON,
     LookupRequestToJSON,
     PageableFromJSON,
@@ -70,6 +75,8 @@ import {
     ResponseDtoCommentResponseToJSON,
     ResponseDtoHomeFeedResponseFromJSON,
     ResponseDtoHomeFeedResponseToJSON,
+    ResponseDtoIntroResponseFromJSON,
+    ResponseDtoIntroResponseToJSON,
     ResponseDtoListAdmissionResultResponseFromJSON,
     ResponseDtoListAdmissionResultResponseToJSON,
     ResponseDtoListCommentResponseFromJSON,
@@ -90,6 +97,8 @@ import {
     ResponseDtoLookupResponseToJSON,
     ResponseDtoPagedResponseCommentListResponseFromJSON,
     ResponseDtoPagedResponseCommentListResponseToJSON,
+    ResponseDtoPagedResponseIntroResponseFromJSON,
+    ResponseDtoPagedResponseIntroResponseToJSON,
     ResponseDtoPagedResponseLikeResponseFromJSON,
     ResponseDtoPagedResponseLikeResponseToJSON,
     ResponseDtoPagedResponsePostListResponseFromJSON,
@@ -139,6 +148,10 @@ export interface CreateRequest {
     createAdmissionResultRequest: CreateAdmissionResultRequest;
 }
 
+export interface CreateIntroRequest {
+    introCreateRequest: IntroCreateRequest;
+}
+
 export interface CreateProjectRequest {
     request: ProjectRequest;
     thumbnail: Blob;
@@ -146,6 +159,10 @@ export interface CreateProjectRequest {
 
 export interface DeleteCommentRequest {
     commentId: number;
+}
+
+export interface DeleteIntroRequest {
+    introId: number;
 }
 
 export interface DeleteProjectRequest {
@@ -169,6 +186,12 @@ export interface GetHomeFeedRequest {
     size?: number;
     sort?: Array<string>;
     tags?: Array<string>;
+}
+
+export interface GetIntroListRequest {
+    page?: number;
+    size?: number;
+    sort?: Array<string>;
 }
 
 export interface GetMyCommentsRequest {
@@ -513,6 +536,53 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
+     * 자기소개 작성
+     */
+    async createIntroRaw(requestParameters: CreateIntroRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoIntroResponse>> {
+        if (requestParameters['introCreateRequest'] == null) {
+            throw new runtime.RequiredError(
+                'introCreateRequest',
+                'Required parameter "introCreateRequest" was null or undefined when calling createIntro().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/intros`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: IntroCreateRequestToJSON(requestParameters['introCreateRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoIntroResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 자기소개 작성
+     */
+    async createIntro(requestParameters: CreateIntroRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoIntroResponse> {
+        const response = await this.createIntroRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * 프로젝트 생성
      */
     async createProjectRaw(requestParameters: CreateProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoProjectListResponse>> {
@@ -630,6 +700,51 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async deleteComment(requestParameters: DeleteCommentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoString> {
         const response = await this.deleteCommentRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 자기소개 삭제(본인만)
+     */
+    async deleteIntroRaw(requestParameters: DeleteIntroRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoVoid>> {
+        if (requestParameters['introId'] == null) {
+            throw new runtime.RequiredError(
+                'introId',
+                'Required parameter "introId" was null or undefined when calling deleteIntro().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/intros/{introId}`;
+        urlPath = urlPath.replace(`{${"introId"}}`, encodeURIComponent(String(requestParameters['introId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoVoidFromJSON(jsonValue));
+    }
+
+    /**
+     * 자기소개 삭제(본인만)
+     */
+    async deleteIntro(requestParameters: DeleteIntroRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoVoid> {
+        const response = await this.deleteIntroRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1090,6 +1205,55 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async getHomeFeed(requestParameters: GetHomeFeedRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoHomeFeedResponse> {
         const response = await this.getHomeFeedRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 자기소개 목록 조회(페이지네이션)
+     */
+    async getIntroListRaw(requestParameters: GetIntroListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoPagedResponseIntroResponse>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['page'] != null) {
+            queryParameters['page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
+
+        if (requestParameters['sort'] != null) {
+            queryParameters['sort'] = requestParameters['sort'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/intros`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoPagedResponseIntroResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 자기소개 목록 조회(페이지네이션)
+     */
+    async getIntroList(requestParameters: GetIntroListRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoPagedResponseIntroResponse> {
+        const response = await this.getIntroListRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

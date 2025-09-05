@@ -9,11 +9,14 @@ models/CommentResponse.ts
 models/CommitHistoryResponse.ts
 models/CreateAdmissionResultRequest.ts
 models/HomeFeedResponse.ts
+models/IntroCreateRequest.ts
+models/IntroResponse.ts
 models/LikeResponse.ts
 models/LookupRequest.ts
 models/LookupResponse.ts
 models/Pageable.ts
 models/PagedResponseCommentListResponse.ts
+models/PagedResponseIntroResponse.ts
 models/PagedResponseLikeResponse.ts
 models/PagedResponsePostListResponse.ts
 models/PendingUserResponse.ts
@@ -29,6 +32,7 @@ models/ResponseDtoAccessTokenResponse.ts
 models/ResponseDtoBoolean.ts
 models/ResponseDtoCommentResponse.ts
 models/ResponseDtoHomeFeedResponse.ts
+models/ResponseDtoIntroResponse.ts
 models/ResponseDtoListAdmissionResultResponse.ts
 models/ResponseDtoListCommentResponse.ts
 models/ResponseDtoListCommitHistoryResponse.ts
@@ -39,6 +43,7 @@ models/ResponseDtoListString.ts
 models/ResponseDtoLong.ts
 models/ResponseDtoLookupResponse.ts
 models/ResponseDtoPagedResponseCommentListResponse.ts
+models/ResponseDtoPagedResponseIntroResponse.ts
 models/ResponseDtoPagedResponseLikeResponse.ts
 models/ResponseDtoPagedResponsePostListResponse.ts
 models/ResponseDtoPostDetailResponse.ts
