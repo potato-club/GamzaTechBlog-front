@@ -123,9 +123,9 @@ export default function IntroCard({ intro }: IntroCardProps) {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>자기소개 삭제</AlertDialogTitle>
+            <AlertDialogTitle>텃밭인사 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              {`'${(intro.content ?? "").substring(0, 30).trim()}${(intro.content ?? "").length > 30 ? "..." : ""}' 자기소개를 정말 삭제하시겠습니까?`}
+              자기소개를 정말 삭제하시겠습니까?
               <br />이 작업은 되돌릴 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
