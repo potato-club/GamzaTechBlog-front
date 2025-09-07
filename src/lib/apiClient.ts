@@ -1,4 +1,4 @@
-import { deleteCookie, getCookie, setCookie } from "cookies-next";
+import { deleteCookie, getCookie } from "cookies-next";
 import { decodeJwt } from "jose";
 import { Configuration, DefaultApi, ResponseDtoAccessTokenResponse } from "../generated/api";
 
@@ -117,13 +117,9 @@ async function refreshAccessToken(): Promise<string | null> {
     const newAccessToken = data.data?.authorization;
 
     if (newAccessToken) {
-      setCookie("authorization", newAccessToken, {
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      });
+      // 백엔드에서 이미 .gamzatech.site 도메인으로 쿠키를 설정하므로 클라이언트에서 추가 설정 불필요
       updateTokenExpiration(newAccessToken); // 새 토큰의 만료 시간 업데이트
-      console.log("새 액세스 토큰 발급 및 저장 성공.");
+      console.log("새 액세스 토큰 발급 성공 (백엔드에서 쿠키 설정됨).");
       return newAccessToken;
     }
     return null;
