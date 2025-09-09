@@ -8,9 +8,9 @@
 
 import { PostForm, usePost, useUpdatePost, type PostFormData } from "@/features/posts";
 // Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
+import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { use } from "react";
-import { useAuth } from "../../../../../features/user/hooks/useUserQueries";
 
 interface EditPostPageProps {
   params: Promise<{

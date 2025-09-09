@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { useDeletePost, usePost } from "@/features/posts";
 import { cn } from "@/lib/utils";
 // Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
+import { useAuth } from "@/hooks/useAuth";
 import { DropdownActionItem } from "@/types/dropdown";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../user/hooks/useUserQueries";
 
 interface PostActionsDropdownProps {
   postId: number;

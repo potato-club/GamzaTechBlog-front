@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { useCreateComment } from "@/features/comments";
 import { CommentResponse, UserProfileResponse } from "@/generated/api";
 // Zustand import 제거됨 - import { useAuth, User } from "@/store/authStore";
+import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
-import { useAuth } from "../../user/hooks/useUserQueries";
 
 interface CommentFormProps {
   postId: number;

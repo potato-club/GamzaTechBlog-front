@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/features/user/hooks/useUserQueries";
+import { INTRO_TEXTS } from "@/constants/uiTexts";
+import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
@@ -64,7 +65,7 @@ export default function IntroForm() {
         </div>
         <textarea
           id="intro-input"
-          placeholder="감자 기술 블로그에 오신 것을 환영합니다! 간단한 자기소개를 남겨주세요."
+          placeholder={INTRO_TEXTS.WELCOME_PLACEHOLDER}
           className="min-h-[80px] w-full resize-none rounded-xl border border-[#E7EEFE] px-5 py-3.5 text-sm text-gray-800 transition focus:ring-2 focus:ring-[#FAA631]/50 focus:outline-none"
           aria-required="true"
           value={content}

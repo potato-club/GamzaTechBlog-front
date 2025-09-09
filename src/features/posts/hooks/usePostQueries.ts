@@ -2,6 +2,7 @@
  * TanStack Query를 사용한 게시글 관련 API 훅들
  */
 
+import { POST_TEXTS } from "@/constants/uiTexts";
 import {
   Pageable,
   PagedResponsePostListResponse,
@@ -130,7 +131,7 @@ export function useCreatePost(
         tags: postData.tags || [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        nickname: "작성 중...", // 실제 사용자 정보는 서버에서 설정
+        nickname: POST_TEXTS.STATUS_WRITING, // 실제 사용자 정보는 서버에서 설정
         profileImageUrl: undefined,
         likeCount: 0,
         commentCount: 0,

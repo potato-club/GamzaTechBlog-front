@@ -19,8 +19,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useDeleteComment } from "@/features/comments";
-import { useAuth } from "@/features/user/hooks/useUserQueries";
 import { CommentResponse } from "@/generated/api";
+import { useAuth } from "@/hooks/useAuth";
 
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";

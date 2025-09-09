@@ -11,8 +11,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useAuth } from "@/features/user/hooks/useUserQueries";
+import { INTRO_TEXTS } from "@/constants/uiTexts";
 import { IntroResponse } from "@/generated/api";
+import { useAuth } from "@/hooks/useAuth";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
 import { useState } from "react";
@@ -123,7 +124,7 @@ export default function IntroCard({ intro }: IntroCardProps) {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>텃밭인사 삭제</AlertDialogTitle>
+            <AlertDialogTitle>{INTRO_TEXTS.DELETE_TITLE}</AlertDialogTitle>
             <AlertDialogDescription>
               자기소개를 정말 삭제하시겠습니까?
               <br />이 작업은 되돌릴 수 없습니다.

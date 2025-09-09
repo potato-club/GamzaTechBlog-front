@@ -97,6 +97,12 @@ export const MESSAGE_TEXTS = {
     "리프레시 토큰이 만료되었거나 유효하지 않습니다. 강제 로그아웃이 필요합니다.",
 } as const;
 
+// 자기소개 관련
+export const INTRO_TEXTS = {
+  DELETE_TITLE: "텃밭인사 삭제",
+  WELCOME_PLACEHOLDER: "감자 기술 블로그에 오신 것을 환영합니다! 간단한 자기소개를 남겨주세요.",
+} as const;
+
 // 모든 텍스트를 하나의 객체로 통합 (선택적)
 export const UI_TEXTS = {
   POST: POST_TEXTS,
@@ -107,6 +113,7 @@ export const UI_TEXTS = {
   ACTION: ACTION_TEXTS,
   A11Y: A11Y_TEXTS,
   MESSAGE: MESSAGE_TEXTS,
+  INTRO: INTRO_TEXTS,
 } as const;
 
 // 타입 정의 (TypeScript 지원)
@@ -118,4 +125,5 @@ export type SearchTexts = typeof SEARCH_TEXTS;
 export type ActionTexts = typeof ACTION_TEXTS;
 export type A11yTexts = typeof A11Y_TEXTS;
 export type MessageTexts = typeof MESSAGE_TEXTS;
+export type IntroTexts = typeof INTRO_TEXTS;
 export type UITexts = typeof UI_TEXTS;

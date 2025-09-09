@@ -3,6 +3,7 @@
  */
 
 import { IntroResponse, Pageable, PagedResponseIntroResponse } from "@/generated/api/models";
+import { useAuth } from "@/hooks/useAuth";
 import {
   keepPreviousData,
   useMutation,
@@ -11,7 +12,6 @@ import {
   useQueryClient,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { useAuth } from "../../user/hooks/useUserQueries";
 import { introService } from "../services/introService";
 
 // 뮤테이션 컨텍스트 타입 정의
@@ -80,7 +80,7 @@ export function useCreateIntro(
         nickname: userProfile?.nickname || "사용자",
         profileImageUrl: userProfile?.profileImageUrl,
         // IntroResponse에는 userId가 있지만 UserProfileResponse에는 없으므로 임시값 사용
-        userId: 0, // 서버에서 실제 값으로 교체됨
+        userId: -1, // 서버에서 실제 값으로 교체됨
       };
 
       // 모든 자기소개 목록 쿼리에 대해 낙관적 업데이트 적용
