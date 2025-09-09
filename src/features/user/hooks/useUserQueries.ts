@@ -18,6 +18,11 @@ import {
 import { deleteCookie } from "cookies-next";
 import { userService } from "../services";
 
+// 뮤테이션 컨텍스트 타입 정의
+interface UpdateProfileContext {
+  previousProfile: UserProfileResponse | undefined;
+}
+
 // Query Key 상수들
 export const USER_QUERY_KEYS = {
   all: ["user"] as const,
@@ -157,77 +162,67 @@ export function useWithdrawAccount(options?: UseMutationOptions<void, Error, voi
 }
 
 /**
- * 사용자 프로필을 업데이트하는 뮤테이션 훅
+ * 사용자 프로필을 업데이트하는 뮤테이션 훅 (낙관적 업데이트 포함)
  */
 export function useUpdateProfile(
-  options?: UseMutationOptions<UserProfileResponse, Error, UpdateProfileRequest>
+  options?: UseMutationOptions<
+    UserProfileResponse,
+    Error,
+    UpdateProfileRequest,
+    UpdateProfileContext
+  >
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (profileData: UpdateProfileRequest) => userService.updateProfile(profileData),
+
+    // 낙관적 업데이트: 서버 응답 전에 UI 즉시 업데이트
+    onMutate: async (profileData: UpdateProfileRequest): Promise<UpdateProfileContext> => {
+      // 진행 중인 쿼리들을 취소하여 낙관적 업데이트와 충돌 방지
+      await queryClient.cancelQueries({ queryKey: USER_QUERY_KEYS.profile() });
+
+      // 현재 캐시된 데이터를 백업 (롤백용)
+      const previousProfile = queryClient.getQueryData<UserProfileResponse>(
+        USER_QUERY_KEYS.profile()
+      );
+
+      // 낙관적으로 프로필 데이터 업데이트
+      if (previousProfile) {
+        const optimisticProfile: UserProfileResponse = {
+          ...previousProfile,
+          ...profileData,
+        };
+        queryClient.setQueryData(USER_QUERY_KEYS.profile(), optimisticProfile);
+      }
+
+      return { previousProfile };
+    },
+
     onSuccess: (updatedProfile, variables, context) => {
+      // 서버에서 받은 실제 데이터로 캐시 업데이트
       queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
       options?.onSuccess?.(updatedProfile, variables, context);
     },
+
+    // 실패 시: 이전 상태로 롤백
     onError: (error, variables, context) => {
       console.error("프로필 업데이트 실패:", error);
+
+      // 백업된 데이터로 롤백
+      if (context?.previousProfile) {
+        queryClient.setQueryData(USER_QUERY_KEYS.profile(), context.previousProfile);
+      }
+
       options?.onError?.(error, variables, context);
     },
+
+    // 완료 시: 관련 쿼리 다시 가져오기
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.profile() });
+    },
+
     ...options,
   });
-}
-
-/**
- * 인증 상태를 종합적으로 관리하는 컴포지션 훅
- */
-export function useAuth() {
-  const queryClient = useQueryClient();
-
-  const profileQuery = useUserProfile();
-  const roleQuery = useUserRole();
-
-  const isLoggedIn = roleQuery.data !== null && roleQuery.data !== undefined;
-  const needsProfileCompletion = roleQuery.data === "PRE_REGISTER";
-  const userProfile = needsProfileCompletion ? null : profileQuery.data;
-
-  const isLoading =
-    roleQuery.isLoading || (isLoggedIn && !needsProfileCompletion && profileQuery.isLoading);
-
-  const login = (userData: UserProfileResponse, userRole: string) => {
-    queryClient.setQueryData(USER_QUERY_KEYS.profile(), userData);
-    queryClient.setQueryData(USER_QUERY_KEYS.role(), userRole);
-  };
-
-  const logout = async () => {
-    try {
-      await userService.logout();
-    } catch (logoutError) {
-      console.error("백엔드 로그아웃 API 호출 실패:", logoutError);
-    } finally {
-      queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.profile() });
-      queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.role() });
-      deleteCookie("authorization", { path: "/", domain: ".gamzatech.site" });
-    }
-  };
-
-  const refetchAuthStatus = async () => {
-    const results = await Promise.allSettled([roleQuery.refetch(), profileQuery.refetch()]);
-    return results;
-  };
-
-  return {
-    isLoggedIn,
-    userProfile,
-    needsProfileCompletion,
-    isLoading,
-    error: roleQuery.error || profileQuery.error,
-    isError: roleQuery.isError || profileQuery.isError,
-    login,
-    logout,
-    refetchAuthStatus,
-    profileQuery,
-    roleQuery,
-  };
 }

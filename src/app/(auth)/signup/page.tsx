@@ -10,6 +10,7 @@
 import { Position } from "@/enums/position";
 import { SignupForm } from "@/features/auth";
 import type { UserProfileRequest } from "@/generated/api";
+import { useAuth } from "@/hooks/useAuth";
 import { SignupFormValues, signupSchema } from "@/lib/schemas/signupSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -17,7 +18,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useUpdateProfileInSignup } from "../../../features";
-import { useAuth } from "../../../features/user/hooks/useUserQueries";
 
 export default function SignupPage() {
   const router = useRouter();

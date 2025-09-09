@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { useCreateComment } from "@/features/comments";
 import { CommentResponse, UserProfileResponse } from "@/generated/api";
 // Zustand import 제거됨 - import { useAuth, User } from "@/store/authStore";
+import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
-import { useAuth } from "../../user/hooks/useUserQueries";
 
 interface CommentFormProps {
   postId: number;
@@ -129,7 +129,7 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
         <Button
           type="submit"
           className="rounded-[63px] bg-[#20242B] px-3 py-1.5 text-[12px] text-white hover:bg-[#1C222E]"
-          disabled={createCommentMutation.isPending} // TanStack Query 로딩 상태 사용
+          disabled={createCommentMutation.isPending || !newComment.trim()}
         >
           {createCommentMutation.isPending ? "등록 중..." : "등록"}
         </Button>
