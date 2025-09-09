@@ -129,7 +129,7 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
         <Button
           type="submit"
           className="rounded-[63px] bg-[#20242B] px-3 py-1.5 text-[12px] text-white hover:bg-[#1C222E]"
-          disabled={createCommentMutation.isPending || !content.trim()}
+          disabled={createCommentMutation.isPending || !newComment.trim()}
         >
           {createCommentMutation.isPending ? "등록 중..." : "등록"}
         </Button>
