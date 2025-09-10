@@ -15,7 +15,8 @@ import { isPostAuthor } from "../../../../lib/auth";
  * generateMetadata와 PostPage 컴포넌트에서 동일한 데이터를 사용할 때 최적화됩니다.
  */
 const getCachedPost = cache(async (postId: number) => {
-  return await postService.getPostById(postId);
+  // ISR 적용: 3600초(1시간) 주기로 페이지를 재생성합니다.
+  return await postService.getPostById(postId, { next: { revalidate: 3600 } });
 });
 
 /**

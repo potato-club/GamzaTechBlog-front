@@ -50,13 +50,16 @@ export default async function Home({
   const currentPage = Number(page) || 1;
   const pageSize = 10;
 
-  // 홈 피드 데이터를 한 번에 가져오기
-  const homeFeedData = await postService.getHomeFeed({
-    page: currentPage - 1,
-    size: pageSize,
-    sort: ["createdAt,desc"],
-    tags: tag ? [tag] : undefined,
-  });
+  // 홈 피드 데이터를 한 번에 가져오기 (ISR 적용: 10분 주기)
+  const homeFeedData = await postService.getHomeFeed(
+    {
+      page: currentPage - 1,
+      size: pageSize,
+      sort: ["createdAt,desc"],
+      tags: tag ? [tag] : undefined,
+    },
+    { next: { revalidate: 600 } }
+  );
 
   return (
     <>
