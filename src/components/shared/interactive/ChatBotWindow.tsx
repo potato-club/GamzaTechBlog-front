@@ -16,6 +16,7 @@ export default function ChatBotWindow({ isOpen }: ChatBotWindowProps) {
           ? "translate-y-0 scale-100 opacity-100"
           : "pointer-events-none translate-y-4 scale-95 opacity-0"
       }`}
+    >
       {/* 헤더 */}
       <div className="flex items-center justify-center rounded-t-lg border-b border-gray-100 p-4">
         <h3 className="text-xl font-semibold text-gray-800">감자봇</h3>
