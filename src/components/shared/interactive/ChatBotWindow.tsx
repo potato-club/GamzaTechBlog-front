@@ -56,7 +56,7 @@ export default function ChatBotWindow({ isOpen }: ChatBotWindowProps) {
         <div className="flex flex-1 items-center gap-2 rounded-full bg-[#F2F4F5] px-4 py-1">
           <input
             type="text"
-            placeholder="메세지를 입력해주세요."
+            placeholder="메시지를 입력해주세요."
             className="flex-1 bg-transparent outline-none placeholder:font-semibold"
           />
           <button
