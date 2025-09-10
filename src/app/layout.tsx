@@ -1,3 +1,4 @@
+import { ChatBotToggle } from "@/components/shared/interactive";
 import BlogHeader from "@/components/shared/layout/BlogHeader";
 import { Toaster } from "@/components/ui";
 import type { Metadata } from "next";
@@ -59,6 +60,8 @@ export default async function RootLayout({
             <Footer />
           </div>
         </div>
+        {/* ChatBotToggle을 제한된 너비 컨테이너 밖으로 이동 */}
+        <ChatBotToggle />
       </body>
     </html>
   );
