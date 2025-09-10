@@ -1,4 +1,4 @@
-import InteractiveTagSection from "@/components/shared/interactive/InteractiveTagSection";
+import InteractiveTagSection from "@/features/tags/components/InteractiveTagSection";
 
 /**
  * 태그 섹션 컴포넌트
