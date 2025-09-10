@@ -7,14 +7,15 @@ interface ChatBotWindowProps {
 }
 
 export default function ChatBotWindow({ isOpen }: ChatBotWindowProps) {
+  const baseWindowClass =
+    "fixed right-6 bottom-[100px] z-[9998] flex h-[56.29vh] max-h-[900px] min-h-[600px] w-[23.45vw] max-w-[600px] min-w-[400px] flex-col rounded-3xl bg-white shadow-[0_0_24px_9px_rgba(33,37,40,0.06)] transition-all duration-300 ease-in-out";
   return (
     <div
-      className={`fixed right-6 bottom-[100px] z-[9998] flex h-[56.29vh] max-h-[900px] min-h-[600px] w-[23.45vw] max-w-[600px] min-w-[400px] flex-col rounded-3xl bg-white shadow-[0_0_24px_9px_rgba(33,37,40,0.06)] transition-all duration-300 ease-in-out ${
+      className={`${baseWindowClass} ${
         isOpen
           ? "translate-y-0 scale-100 opacity-100"
           : "pointer-events-none translate-y-4 scale-95 opacity-0"
       }`}
-    >
       {/* 헤더 */}
       <div className="flex items-center justify-center rounded-t-lg border-b border-gray-100 p-4">
         <h3 className="text-xl font-semibold text-gray-800">감자봇</h3>
