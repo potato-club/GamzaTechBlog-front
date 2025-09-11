@@ -61,7 +61,7 @@ export default function PostTagManager({
 
   return (
     <div className="flex flex-wrap gap-2 text-[14px]">
-      {tags.map((tag, idx) => (
+      {tags.map((tag) => (
         <div
           key={tag}
           className="flex w-fit items-center gap-1 rounded-2xl bg-[#F2F4F6] px-2 py-1.5 text-[#848484]"

@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui";
 import { UI_CONSTANTS } from "@/constants/ui";
 import { useEffect, useState } from "react";
