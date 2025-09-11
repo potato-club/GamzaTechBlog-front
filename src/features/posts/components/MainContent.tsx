@@ -26,11 +26,11 @@ export default function MainContent({ postsTabContent }: { postsTabContent: Reac
   };
 
   return (
-    <main className="flex-3">
+    <div className="flex-3">
       <MainTabMenu tab={currentTab} onTabChange={handleTabChange} />
       <div role="tabpanel" aria-labelledby={`${currentTab}-tab`} key={currentTab} className="mt-6">
         {renderTabContent()}
       </div>
-    </main>
+    </div>
   );
 }

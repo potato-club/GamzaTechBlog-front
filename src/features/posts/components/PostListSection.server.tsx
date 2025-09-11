@@ -22,16 +22,16 @@ export default function PostListSection({
   // 데이터가 없으면 로딩 상태 표시
   if (!initialData) {
     return (
-      <main className="flex-3">
+      <section className="flex-3">
         <div className="py-8 text-center text-gray-500">
           <p className="text-sm">게시글을 불러오는 중...</p>
         </div>
-      </main>
+      </section>
     );
   }
 
   return (
-    <main className="flex-3">
+    <section className="flex-3">
       {initialTag && ( // Conditionally render the h2 tag
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-semibold">#{initialTag} 태그 게시글</h2>
@@ -55,6 +55,6 @@ export default function PostListSection({
           />
         </div>
       )}
-    </main>
+    </section>
   );
 }

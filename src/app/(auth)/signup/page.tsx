@@ -79,7 +79,7 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-white">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white">
       <header className="mb-8">
         <Link href="/" aria-label="메인페이지로 이동">
           <Image src="/logo2.svg" alt="Gamza Tech Blog 로고" width={220} height={180} priority />
@@ -90,6 +90,6 @@ export default function SignupPage() {
         <h1 className="sr-only">회원가입</h1>
         <SignupForm form={form} onSubmitAction={onSubmit} isValid={isValid} />
       </section>
-    </main>
+    </div>
   );
 }
