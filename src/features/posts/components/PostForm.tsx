@@ -9,6 +9,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
+import PostFormActions from "./PostFormActions";
 import PostTagManager from "./PostTagManager";
 import PostTitleInput from "./PostTitleInput";
 import type { ToastEditorHandle } from "./ToastEditor";
@@ -134,11 +135,7 @@ export default function PostForm({ mode, initialData, onSubmitAction, isLoading 
           onCurrentTagChange={setCurrentTag}
         />
 
-        <PostFormActions
-          mode={mode}
-          isLoading={isLoading}
-          onSubmit={() => {}} // handleSubmit은 form의 onSubmit에서 처리됨
-        />
+        <PostFormActions mode={mode} isLoading={isLoading} />
       </form>
     </Form>
   );

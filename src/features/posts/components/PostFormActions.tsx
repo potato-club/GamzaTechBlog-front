@@ -5,10 +5,9 @@ import { useEffect, useState } from "react";
 interface PostFormActionsProps {
   mode: "create" | "edit";
   isLoading: boolean;
-  onSubmit: () => void;
 }
 
-export default function PostFormActions({ mode, isLoading, onSubmit }: PostFormActionsProps) {
+export default function PostFormActions({ mode, isLoading }: PostFormActionsProps) {
   const [uploadingDots, setUploadingDots] = useState("");
 
   useEffect(() => {
@@ -47,7 +46,6 @@ export default function PostFormActions({ mode, isLoading, onSubmit }: PostFormA
           isLoading ? "cursor-not-allowed opacity-70" : "hover:cursor-pointer hover:bg-[#33373E]/90"
         }`}
         disabled={isLoading}
-        onClick={onSubmit}
       >
         {getButtonText()}
       </Button>
