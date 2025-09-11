@@ -180,6 +180,16 @@ body {
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  /* 커스텀 디자인 토큰 */
+  --color-text-primary: oklch(0.141 0.005 285.823);
+  --color-text-secondary: oklch(0.552 0.016 285.938);
+  --color-text-muted: oklch(0.705 0.015 286.067);
+  --color-bg-primary: oklch(1 0 0);
+  --color-bg-secondary: oklch(0.967 0.001 286.375);
+  --color-bg-accent: oklch(0.21 0.006 285.885);
+  --color-border-light: oklch(0.92 0.004 286.32);
+  --color-border-medium: oklch(0.705 0.015 286.067);
 }
 
 .dark {
@@ -214,6 +224,16 @@ body {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
+
+  /* 다크모드 커스텀 디자인 토큰 */
+  --color-text-primary: oklch(0.985 0 0);
+  --color-text-secondary: oklch(0.705 0.015 286.067);
+  --color-text-muted: oklch(0.552 0.016 285.938);
+  --color-bg-primary: oklch(0.141 0.005 285.823);
+  --color-bg-secondary: oklch(0.21 0.006 285.885);
+  --color-bg-accent: oklch(0.274 0.006 286.033);
+  --color-border-light: oklch(1 0 0 / 10%);
+  --color-border-medium: oklch(1 0 0 / 15%);
 }
 
 @layer base {
@@ -312,4 +332,72 @@ img[src$=".svg"]:not([width]):not([height]) {
   display: block;
   width: auto;
   height: auto;
+}
+/* 커스텀 유틸리티 클래스 */
+.text-primary {
+  color: var(--color-text-primary);
+}
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+.text-muted {
+  color: var(--color-text-muted);
+}
+.bg-primary {
+  background-color: var(--color-bg-primary);
+}
+.bg-secondary {
+  background-color: var(--color-bg-secondary);
+}
+.bg-accent {
+  background-color: var(--color-bg-accent);
+}
+.border-light {
+  border-color: var(--color-border-light);
+}
+.border-medium {
+  border-color: var(--color-border-medium);
+}
+
+/* 접근성 개선 */
+.focus-visible-enhanced {
+  @apply focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none;
+}
+
+/* 키보드 네비게이션 개선 */
+.keyboard-navigable {
+  @apply focus-visible-enhanced transition-colors duration-150;
+}
+
+.keyboard-navigable:focus-visible {
+  @apply bg-accent/10;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  :root {
+    --color-text-primary: #000000;
+    --color-text-secondary: #333333;
+    --color-bg-primary: #ffffff;
+    --color-border-light: #000000;
+  }
+
+  .dark {
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #cccccc;
+    --color-bg-primary: #000000;
+    --color-border-light: #ffffff;
+  }
+}
+
+/* 모션 감소 설정 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
