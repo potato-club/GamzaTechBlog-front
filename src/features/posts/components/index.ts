@@ -2,10 +2,13 @@
 export { default as InteractivePostList } from "./InteractivePostList";
 export { default as PostCard } from "./PostCard";
 export { default as PostForm } from "./PostForm";
+export { default as PostFormActions } from "./PostFormActions";
 export { default as PostHeader } from "./PostHeader";
 export { default as PostList } from "./PostList";
 export { default as PostMeta } from "./PostMeta";
 export { default as PostStats } from "./PostStats";
+export { default as PostTagManager } from "./PostTagManager";
+export { default as PostTitleInput } from "./PostTitleInput";
 
 // Popular Posts
 export { default as PopularPost } from "./PopularPost";
