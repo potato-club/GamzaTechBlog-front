@@ -51,7 +51,7 @@ export default function SearchPageContent() {
           {/* 로고 이미지(230px) + 텍스트 간격(mt-2) + 텍스트 높이 ≈ 262px */}
         </section>
         <div className="flex pb-10">
-          <main className="flex-3">
+          <section className="flex-3">
             <h2 className="text-2xl font-semibold">검색 결과</h2>
             {keyword && (
               <p className="mt-2 mb-6 text-gray-600">&quot;{keyword}&quot;에 대한 검색 결과</p>
@@ -66,7 +66,7 @@ export default function SearchPageContent() {
                 </div>
               ))}
             </div>
-          </main>
+          </section>
 
           {/* 사이드바 로딩 스켈레톤 */}
           <aside className="ml-8 flex-1">
@@ -117,7 +117,7 @@ export default function SearchPageContent() {
         )}
       </section>
       <div className="flex pb-10">
-        <main className="flex-3">
+        <section className="flex-3">
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-semibold">Posts</h2>
@@ -144,7 +144,7 @@ export default function SearchPageContent() {
               className="mt-12"
             />
           )}
-        </main>
+        </section>
         <SearchPageSidebar />
       </div>
     </div>

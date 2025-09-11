@@ -8,7 +8,7 @@ export default function MainPageSkeleton() {
         <Skeleton className="mx-auto h-[230px] w-[320px] rounded-lg" />
       </section>
 
-      <main className="flex pb-10">
+      <div className="flex pb-10">
         {/* 게시물 목록 섹션 스켈레톤 */}
         <section className="flex-3">
           <Skeleton className="mb-6 h-8 w-32 rounded-md" /> {/* "Posts" 제목 스켈레톤 */}
@@ -76,7 +76,7 @@ export default function MainPageSkeleton() {
             </div>
           </div>
         </aside>
-      </main>
+      </div>
     </div>
   );
 }

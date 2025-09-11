@@ -131,7 +131,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     console.log(isCurrentUserAuthor);
 
     return (
-      <main className="mx-16 my-16 max-w-full overflow-hidden">
+      <div className="mx-16 my-16 max-w-full overflow-hidden">
         <article className="max-w-full border-b border-[#D5D9E3] py-8">
           <PostHeader post={post} postId={postId} isCurrentUserAuthor={isCurrentUserAuthor} />
           <DynamicMarkdownViewer content={post.content || ""} />
@@ -144,7 +144,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         </article>
 
         <DynamicPostCommentsSection postId={postId} />
-      </main>
+      </div>
     );
   } catch (error) {
     console.error("Error fetching post:", error);
