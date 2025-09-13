@@ -1,14 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
-
-interface MessageInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSend: () => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-  disabled: boolean;
-}
+import { MessageInputProps } from "../types";
 
 const MessageInput = forwardRef<HTMLInputElement, MessageInputProps>(
   ({ value, onChange, onSend, onKeyDown, disabled }, ref) => {

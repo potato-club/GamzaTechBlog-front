@@ -35,3 +35,48 @@ export interface ChatBotToggleProps {
   /** 토글 핸들러 */
   onToggle: () => void;
 }
+
+/**
+ * 챗봇 컴포넌트 Props 타입들
+ */
+
+/**
+ * TextContent 컴포넌트 Props
+ */
+export interface TextContentProps {
+  content: string;
+}
+
+/**
+ * BotMessage 컴포넌트 Props
+ */
+export interface BotMessageProps {
+  content: string;
+  isPendingContent?: boolean;
+}
+
+/**
+ * UserMessage 컴포넌트 Props
+ */
+export interface UserMessageProps {
+  content: string;
+}
+
+/**
+ * MessageInput 컴포넌트 Props
+ */
+export interface MessageInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSend: () => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+  disabled: boolean;
+}
+
+/**
+ * MessageList 컴포넌트 Props
+ */
+export interface MessageListProps {
+  messages: Message[];
+  isPending: boolean;
+}
