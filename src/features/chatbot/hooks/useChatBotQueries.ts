@@ -23,22 +23,22 @@ export const useSendMessageMutation = (
     mutationFn: chatBotService.sendMessage,
     onSuccess: (response) => {
       const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         content: response.content || "죄송합니다. 응답을 받을 수 없습니다.",
         isBot: true,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
     },
-    onError: () => {
+    onError: (err) => {
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         content: "죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.",
         isBot: true,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
-      console.error("챗봇 메시지 전송 실패");
+      console.error("챗봇 메시지 전송 실패", err);
     },
   });
 };

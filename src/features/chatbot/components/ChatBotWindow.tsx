@@ -32,7 +32,7 @@ export default function ChatBotWindow({ isOpen }: ChatBotWindowProps) {
     if (!inputValue.trim() || sendMessageMutation.isPending) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content: inputValue,
       isBot: false,
       timestamp: new Date(),
