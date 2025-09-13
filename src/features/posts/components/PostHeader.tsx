@@ -1,8 +1,8 @@
-"use client";
-
 import TagBadge from "@/components/ui/TagBadge";
+import { UI_CONSTANTS } from "@/constants/ui";
 import { PostDetailResponse } from "@/generated/api";
 import Image from "next/image";
+import { isValidTagArray } from "../../../lib/typeGuards";
 import { PostActionsDropdown } from "./PostActionsDropdown";
 
 interface PostHeaderProps {
@@ -21,7 +21,7 @@ export default function PostHeader({ post, postId, isCurrentUserAuthor = false }
           {post.writerProfileImageUrl ? (
             <Image
               src={post.writerProfileImageUrl}
-              alt={`${post.writer}의 프로필 이미지`}
+              alt={UI_CONSTANTS.ACCESSIBILITY.PROFILE_IMAGE_ALT(post.writer || "사용자")}
               width={24}
               height={24}
               className="h-6 w-6 rounded-full object-cover"
@@ -51,11 +51,12 @@ export default function PostHeader({ post, postId, isCurrentUserAuthor = false }
       </div>
 
       <ul className="flex gap-2 text-[14px]" role="list">
-        {post.tags?.map((tag, index) => (
-          <li key={index}>
-            <TagBadge tag={tag} variant="gray" />
-          </li>
-        ))}
+        {isValidTagArray(post.tags) &&
+          post.tags.map((tag) => (
+            <li key={tag}>
+              <TagBadge tag={tag} variant="gray" />
+            </li>
+          ))}
       </ul>
     </header>
   );

@@ -19,7 +19,7 @@ export default function Loading() {
 
       {/* 콘텐츠 영역 스켈레톤 */}
       <div className="flex pb-10">
-        <main className="flex-3">
+        <div className="flex-3">
           <div className="animate-pulse">
             <div className="mb-6 h-8 w-32 rounded bg-gray-200"></div>
 
@@ -41,7 +41,7 @@ export default function Loading() {
               ))}
             </div>
           </div>
-        </main>
+        </div>
 
         {/* 사이드바 스켈레톤 */}
         <aside className="ml-8 flex-1">

@@ -10,7 +10,7 @@ interface PostListSkeletonProps {
 
 export default function PostListSkeleton({ count = 3 }: PostListSkeletonProps) {
   return (
-    <main className="flex-3">
+    <div className="flex-3">
       <div className="mb-6 h-8 w-32 animate-pulse rounded bg-gray-200"></div>
       <div className="mt-8 flex flex-col gap-8">
         {[...Array(count)].map((_, index) => (
@@ -21,6 +21,6 @@ export default function PostListSkeleton({ count = 3 }: PostListSkeletonProps) {
           </div>
         ))}
       </div>
-    </main>
+    </div>
   );
 }

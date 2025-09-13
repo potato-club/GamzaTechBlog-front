@@ -17,7 +17,6 @@ export { default as OptimizedLink } from "./navigation/OptimizedLink";
 
 // Interactive Components
 export { default as InteractivePagination } from "./interactive/InteractivePagination";
-export { default as InteractiveTagSection } from "./interactive/InteractiveTagSection";
 
 // Common UI Components
 export { default as EmptyState } from "./EmptyState";

@@ -2,12 +2,13 @@
 
 import { DropdownMenuList } from "@/components/shared/navigation/DropdownMenuList";
 import { Button } from "@/components/ui/button";
+import { UI_CONSTANTS } from "@/constants/ui";
 import { useDeletePost, usePost } from "@/features/posts";
-import { cn } from "@/lib/utils";
-// Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 import { DropdownActionItem } from "@/types/dropdown";
 import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 
 interface PostActionsDropdownProps {
   postId: number;
@@ -22,15 +23,17 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   // 게시글 정보 가져오기
   const { data: post } = usePost(postId);
 
-  const handleDeletePost = () => {
-    deletePostMutation.mutate(postId);
-    router.push("/");
-  };
+  const handleDeletePost = useCallback(() => {
+    if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+      deletePostMutation.mutate(postId);
+      router.push("/");
+    }
+  }, [deletePostMutation, postId, router]);
 
-  const handleEditPost = () => {
+  const handleEditPost = useCallback(() => {
     // 로그인 상태 확인
     if (!isLoggedIn || !userProfile) {
-      alert("로그인이 필요합니다.");
+      alert(UI_CONSTANTS.FORMS.VALIDATION_MESSAGES.REQUIRED_LOGIN);
       return;
     }
 
@@ -42,26 +45,28 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
 
     const isAuthor = userProfile.nickname === post.writer;
 
-    console.log("isAuthor", isAuthor);
-
     if (!isAuthor) {
       alert("본인이 작성한 게시글만 수정할 수 있습니다.");
       return;
     }
 
     // 작성자가 맞으면 편집 페이지로 이동
-    console.log("Edit post:", postId);
     router.push(`/posts/${postId}/edit`);
-  };
+  }, [isLoggedIn, userProfile, post, postId, router]);
 
   const headerDropdownItems: DropdownActionItem[] = [
     {
-      label: "수정",
+      label: UI_CONSTANTS.ACTIONS.POST.EDIT,
       onClick: handleEditPost,
+      ariaLabel: UI_CONSTANTS.ACTIONS.POST.EDIT_ARIA_LABEL,
+      shortcut: "Ctrl+E",
     },
     {
-      label: "삭제",
+      label: UI_CONSTANTS.ACTIONS.POST.DELETE,
       onClick: handleDeletePost,
+      ariaLabel: UI_CONSTANTS.ACTIONS.POST.DELETE_ARIA_LABEL,
+      shortcut: "Delete",
+      variant: "destructive",
     },
   ];
 

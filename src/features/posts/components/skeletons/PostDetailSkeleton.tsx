@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PostDetailSkeleton() {
   return (
-    <main className="mx-16 my-16" role="status" aria-label="게시글 로딩중">
+    <div className="mx-16 my-16" role="status" aria-label="게시글 로딩중">
       <article className="border-b border-[#D5D9E3] py-8">
         <header className="mb-8">
           {/* 게시글 제목 스켈레톤 */}
@@ -90,6 +90,6 @@ export default function PostDetailSkeleton() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }
