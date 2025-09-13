@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 
-import { ChatBotToggle } from "@/components/shared/interactive";
 import BlogHeader from "@/components/shared/layout/BlogHeader";
 import Footer from "@/components/shared/layout/Footer";
 import { Toaster } from "@/components/ui";
 import Providers from "@/providers/Providers";
+import { ChatBot } from "../features/chatbot";
 import { pretendard } from "./fonts";
 import "./globals.css";
 
@@ -80,28 +80,28 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="ko" className={pretendard.variable}>
       <body className={`bg-white antialiased ${pretendard.className}`}>
-        <Link
-          href="#main-content"
-          className="sr-only z-50 rounded bg-[#20242B] px-4 py-2 text-white transition-all focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:ring-2 focus:ring-white focus:outline-none"
-          aria-label="메인 콘텐츠로 바로 이동"
-        >
-          메인 콘텐츠로 이동
-        </Link>
+        <Providers>
+          <Link
+            href="#main-content"
+            className="sr-only z-50 rounded bg-[#20242B] px-4 py-2 text-white transition-all focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:ring-2 focus:ring-white focus:outline-none"
+            aria-label="메인 콘텐츠로 바로 이동"
+          >
+            메인 콘텐츠로 이동
+          </Link>
 
-        <div className="layout-stable mx-auto w-full max-w-[1100px]">
-          <div className="flex min-h-screen flex-col">
-            <Providers>
+          <div className="layout-stable mx-auto w-full max-w-[1100px]">
+            <div className="flex min-h-screen flex-col">
               <BlogHeader />
               <main id="main-content" className="flex-grow">
                 {children}
               </main>
               <Toaster />
-            </Providers>
-            <Footer />
+              <Footer />
+            </div>
           </div>
-        </div>
 
-        <ChatBotToggle />
+          <ChatBot />
+        </Providers>
       </body>
     </html>
   );

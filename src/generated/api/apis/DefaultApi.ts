@@ -15,6 +15,8 @@
 
 import * as runtime from '../runtime';
 import type {
+  ChatMessageRequest,
+  ChatMessageResponse,
   CommentRequest,
   CreateAdmissionResultRequest,
   IntroCreateRequest,
@@ -53,6 +55,10 @@ import type {
   UserProfileRequest,
 } from '../models/index';
 import {
+    ChatMessageRequestFromJSON,
+    ChatMessageRequestToJSON,
+    ChatMessageResponseFromJSON,
+    ChatMessageResponseToJSON,
     CommentRequestFromJSON,
     CommentRequestToJSON,
     CreateAdmissionResultRequestFromJSON,
@@ -138,6 +144,10 @@ export interface AddCommentRequest {
 
 export interface ApproveUserProfileRequest {
     id: number;
+}
+
+export interface ChatRequest {
+    chatMessageRequest: ChatMessageRequest;
 }
 
 export interface CompleteProfileRequest {
@@ -442,6 +452,53 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
+     * 챗봇
+     */
+    async chatRaw(requestParameters: ChatRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ChatMessageResponse>> {
+        if (requestParameters['chatMessageRequest'] == null) {
+            throw new runtime.RequiredError(
+                'chatMessageRequest',
+                'Required parameter "chatMessageRequest" was null or undefined when calling chat().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/ai/chat`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ChatMessageRequestToJSON(requestParameters['chatMessageRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ChatMessageResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 챗봇
+     */
+    async chat(requestParameters: ChatRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ChatMessageResponse> {
+        const response = await this.chatRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * 추가 정보 입력(회원가입용)
      */
     async completeProfileRaw(requestParameters: CompleteProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoUserProfileResponse>> {
@@ -704,7 +761,7 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * 자기소개 삭제(본인만)
+     * 자기소개 삭제
      */
     async deleteIntroRaw(requestParameters: DeleteIntroRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoVoid>> {
         if (requestParameters['introId'] == null) {
@@ -741,7 +798,7 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * 자기소개 삭제(본인만)
+     * 자기소개 삭제
      */
     async deleteIntro(requestParameters: DeleteIntroRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoVoid> {
         const response = await this.deleteIntroRaw(requestParameters, initOverrides);
@@ -1209,7 +1266,7 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * 자기소개 목록 조회(페이지네이션)
+     * 자기소개 목록 조회
      */
     async getIntroListRaw(requestParameters: GetIntroListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoPagedResponseIntroResponse>> {
         const queryParameters: any = {};
@@ -1250,7 +1307,7 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * 자기소개 목록 조회(페이지네이션)
+     * 자기소개 목록 조회
      */
     async getIntroList(requestParameters: GetIntroListRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoPagedResponseIntroResponse> {
         const response = await this.getIntroListRaw(requestParameters, initOverrides);

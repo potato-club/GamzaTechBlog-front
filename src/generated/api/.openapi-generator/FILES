@@ -3,6 +3,8 @@ apis/index.ts
 index.ts
 models/AccessTokenResponse.ts
 models/AdmissionResultResponse.ts
+models/ChatMessageRequest.ts
+models/ChatMessageResponse.ts
 models/CommentListResponse.ts
 models/CommentRequest.ts
 models/CommentResponse.ts
