@@ -18,7 +18,7 @@ export default function ChatBotWindow({ isOpen }: ChatBotWindowProps) {
   ]);
   const [inputValue, setInputValue] = useState("");
 
-  const sendMessageMutation = useSendMessageMutation();
+  const sendMessageMutation = useSendMessageMutation(setMessages);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -42,26 +42,7 @@ export default function ChatBotWindow({ isOpen }: ChatBotWindowProps) {
     const messageToSend = inputValue;
     setInputValue("");
 
-    sendMessageMutation.mutate(messageToSend, {
-      onSuccess: (response) => {
-        const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: response.content || "죄송합니다. 응답을 받을 수 없습니다.",
-          isBot: true,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, botMessage]);
-      },
-      onError: () => {
-        const errorMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: "죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.",
-          isBot: true,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, errorMessage]);
-      },
-    });
+    sendMessageMutation.mutate(messageToSend);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

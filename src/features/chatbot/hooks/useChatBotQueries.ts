@@ -7,33 +7,38 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { chatBotService } from "../services";
+import { Message } from "../types";
 
 /**
  * 챗봇에게 메시지를 전송하는 뮤테이션 훅
+ * 성공/실패 시 메시지 상태 업데이트 로직 포함
  *
+ * @param setMessages - 메시지 상태 업데이트 함수
  * @returns 메시지 전송을 위한 뮤테이션 객체
- *
- * @example
- * ```tsx
- * const sendMessageMutation = useSendMessageMutation();
- *
- * const handleSendMessage = () => {
- *   sendMessageMutation.mutate("안녕하세요!", {
- *     onSuccess: (response) => {
- *       console.log("봇 응답:", response.content);
- *     },
- *     onError: (error) => {
- *       console.error("메시지 전송 실패:", error);
- *     }
- *   });
- * };
- * ```
  */
-export const useSendMessageMutation = () => {
+export const useSendMessageMutation = (
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+) => {
   return useMutation({
     mutationFn: chatBotService.sendMessage,
-    onError: (error) => {
-      console.error("챗봇 메시지 전송 실패:", error);
+    onSuccess: (response) => {
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: response.content || "죄송합니다. 응답을 받을 수 없습니다.",
+        isBot: true,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, botMessage]);
+    },
+    onError: () => {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.",
+        isBot: true,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      console.error("챗봇 메시지 전송 실패");
     },
   });
 };
