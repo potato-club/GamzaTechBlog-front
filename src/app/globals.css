@@ -216,6 +216,15 @@ body {
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
 /* 이미지 컨테이너 기본 스타일 */
 .image-container {
   position: relative;
