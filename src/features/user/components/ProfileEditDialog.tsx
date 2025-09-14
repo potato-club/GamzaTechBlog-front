@@ -231,13 +231,6 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
             </div>
             {isEditMode && (
               <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => document.getElementById("profileImageUploadModal")?.click()}
-                >
-                  이미지 변경
-                </Button>
                 <Input
                   type="file"
                   className="hidden"
