@@ -78,8 +78,7 @@ export default function IntroForm() {
           disabled={createIntroMutation.isPending}
         />
       </div>
-      <div className="flex items-center justify-between">
-        <div className="hidden md:block"></div>
+      <div className="flex items-center justify-end">
         <Button
           type="submit"
           className="w-full rounded-[63px] bg-[#20242B] px-3 py-1.5 text-[12px] text-white hover:bg-[#1C222E] md:w-auto"
