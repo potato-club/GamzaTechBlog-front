@@ -89,7 +89,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             메인 콘텐츠로 이동
           </Link>
 
-          <div className="layout-stable mx-auto w-full max-w-[1100px]">
+          <div className="layout-stable mx-auto w-full max-w-[1100px] px-4 md:px-6 lg:px-0">
             <div className="flex min-h-screen flex-col">
               <BlogHeader />
               <main id="main-content" className="flex-grow">

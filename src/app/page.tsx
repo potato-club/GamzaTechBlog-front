@@ -65,12 +65,12 @@ export default async function Home({
     <>
       <DynamicWelcomeModal />
 
-      <div className="layout-stable mx-auto flex flex-col gap-12">
+      <div className="layout-stable mx-auto flex flex-col gap-6 md:gap-12">
         {/* 로고 섹션 - 즉시 렌더링 */}
         <LogoSection />
 
-        {/* 메인 콘텐츠 */}
-        <div className="dynamic-content flex pb-10">
+        {/* 메인 콘텐츠 - 모바일: 세로 정렬, 데스크톱: 가로 정렬 */}
+        <div className="dynamic-content flex flex-col pb-6 md:flex-row md:pb-10">
           <MainContent
             postsTabContent={
               <PostListSection
@@ -81,7 +81,7 @@ export default async function Home({
             }
           />
 
-          {/* 사이드바 섹션 */}
+          {/* 사이드바 섹션 - 모바일에서는 메인 콘텐츠 아래에 표시 */}
           <SidebarSection popularPosts={homeFeedData.weeklyPopular} tags={homeFeedData.allTags} />
         </div>
       </div>

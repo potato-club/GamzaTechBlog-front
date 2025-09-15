@@ -100,7 +100,7 @@ export const MESSAGE_TEXTS = {
 // 자기소개 관련
 export const INTRO_TEXTS = {
   DELETE_TITLE: "텃밭인사 삭제",
-  WELCOME_PLACEHOLDER: "감자 기술 블로그에 오신 것을 환영합니다! 간단한 자기소개를 남겨주세요.",
+  WELCOME_PLACEHOLDER: "간단한 자기소개를 남겨주세요.",
 } as const;
 
 // 모든 텍스트를 하나의 객체로 통합 (선택적)
