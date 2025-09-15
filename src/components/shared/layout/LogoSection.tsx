@@ -19,7 +19,7 @@ export default function LogoSection() {
       className="layout-stable mt-3 block cursor-pointer text-center transition-opacity hover:opacity-80 md:mt-5"
     >
       {/* 모바일: 작은 로고, 데스크톱: 원래 크기 */}
-      <div className="mx-auto" style={{ width: "180px", height: "162px" }}>
+      <div className="mx-auto h-[162px] w-[180px]">
         <Image
           src="/logo2.svg"
           alt="메인페이지 로고 (클릭하면 홈으로 이동)"
@@ -27,7 +27,6 @@ export default function LogoSection() {
           height={162}
           className="mx-auto md:h-[230px] md:w-[255px]"
           priority
-          style={{ width: "180px", height: "162px" }}
         />
       </div>
       {/* 모바일: 작은 폰트, 데스크톱: 원래 크기 */}
