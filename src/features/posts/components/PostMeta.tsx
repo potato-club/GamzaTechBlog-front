@@ -20,8 +20,8 @@ export default function PostMeta({
             <Image
               src={profileImage || "/profileSVG.svg"}
               alt={`${author}의 프로필 이미지`}
-              width={20}
-              height={20}
+              width={24}
+              height={24}
               className="h-full w-full object-cover md:h-6 md:w-6"
               loading="lazy"
               placeholder="blur"
