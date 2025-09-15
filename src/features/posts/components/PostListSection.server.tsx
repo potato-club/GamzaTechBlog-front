@@ -22,7 +22,7 @@ export default function PostListSection({
   // 데이터가 없으면 로딩 상태 표시
   if (!initialData) {
     return (
-      <section className="flex-3">
+      <section className="flex-1 md:flex-3">
         <div className="py-8 text-center text-gray-500">
           <p className="text-sm">게시글을 불러오는 중...</p>
         </div>
@@ -31,10 +31,10 @@ export default function PostListSection({
   }
 
   return (
-    <section className="flex-3">
+    <section className="flex-1 md:flex-3">
       {initialTag && ( // Conditionally render the h2 tag
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">#{initialTag} 태그 게시글</h2>
+        <div className="mb-4 flex items-center justify-between md:mb-6">
+          <h2 className="text-xl font-semibold md:text-2xl">#{initialTag} 태그 게시글</h2>
         </div>
       )}
 
@@ -47,7 +47,7 @@ export default function PostListSection({
 
       {/* 페이지네이션 */}
       {initialData.totalPages && initialData.totalPages > 1 && (
-        <div className="mt-12 flex justify-center">
+        <div className="mt-8 flex justify-center md:mt-12">
           <InteractivePagination
             currentPage={initialPage}
             totalPages={initialData.totalPages}
