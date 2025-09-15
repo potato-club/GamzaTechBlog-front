@@ -22,9 +22,14 @@ export default function MainTabMenu({ tab, onTabChange }: TabMenuProps) {
   return (
     <div className="w-full">
       <Tabs value={tab} onValueChange={handleValueChange} className="w-full">
-        <TabsList className="flex w-full border-b border-[#F2F4F6] bg-transparent px-0 pb-4">
+        <TabsList className="flex w-full border-b border-[#F2F4F6] bg-transparent px-0 pb-3 md:pb-4">
           {Object.entries(TAB_LABELS).map(([value, label]) => (
-            <TabsTrigger key={value} value={value} id={`${value}-tab`} className="text-xl">
+            <TabsTrigger
+              key={value}
+              value={value}
+              id={`${value}-tab`}
+              className="text-lg md:text-xl"
+            >
               {label}
             </TabsTrigger>
           ))}
