@@ -170,7 +170,7 @@ export const HeaderNavigation = () => {
   return (
     <nav className="flex h-8 items-center gap-4" key={forceUpdateKey}>
       {/* 검색창 */}
-      <form onSubmit={handleSearch} className="relative">
+      <form onSubmit={handleSearch} className="relative mx-auto md:mx-0">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <svg
             className="h-4 w-4 text-gray-400"
@@ -194,7 +194,7 @@ export const HeaderNavigation = () => {
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="w-48 rounded-full border border-gray-300 bg-gray-50 py-2 pr-4 pl-10 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-[#FAA631]"
+          className="w-40 rounded-full border border-gray-300 bg-gray-50 py-2 pr-4 pl-10 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-[#FAA631] md:w-48"
         />
       </form>
 
@@ -233,7 +233,8 @@ export const HeaderNavigation = () => {
                 `Logging in${loginDots}`
               ) : (
                 <>
-                  Login with <Image src="/githubIcon.svg" alt="GitHub" width={22} height={22} />
+                  <span className="hidden md:inline">Login with </span>
+                  <Image src="/githubIcon.svg" alt="GitHub" width={22} height={22} />
                 </>
               )}
             </Button>
