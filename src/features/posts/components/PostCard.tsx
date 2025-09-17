@@ -49,7 +49,7 @@ export default function PostCard({
             alt={`${post.title} 썸네일`}
             fill
             className="rounded-lg object-cover md:rounded-2xl"
-            sizes="(max-width: 768px) 80px, 176px"
+            sizes="(max-width: 768px) 112px, 176px"
             quality={75}
             loading="lazy"
             unoptimized={post.thumbnailImageUrl.includes(".svg")}
