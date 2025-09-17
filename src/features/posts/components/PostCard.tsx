@@ -18,25 +18,7 @@ export default function PostCard({
   searchKeyword?: string;
 }) {
   return (
-    <article className="flex flex-col gap-4 rounded-lg bg-white py-4 md:flex-row md:items-center md:gap-6 md:py-6">
-      {/* 썸네일 영역 - 모바일에서는 위쪽에 표시 */}
-      <div className="relative h-48 w-full shrink-0 md:h-32 md:w-44">
-        {post.thumbnailImageUrl ? (
-          <Image
-            src={post.thumbnailImageUrl}
-            alt={`${post.title} 썸네일`}
-            fill
-            className="rounded-lg object-cover md:rounded-2xl"
-            sizes="(max-width: 768px) 100vw, 176px"
-            quality={75}
-            loading="lazy"
-            unoptimized={post.thumbnailImageUrl.includes(".svg")}
-          />
-        ) : (
-          <div className="h-full w-full shrink-0 rounded-lg bg-gray-100 md:rounded-2xl" />
-        )}
-      </div>
-
+    <article className="flex flex-row items-start gap-3 rounded-lg bg-white py-4 md:items-center md:gap-6 md:py-6">
       {/* 콘텐츠 영역 */}
       <div className="flex-1 md:h-[140px] md:w-[500px]">
         <PostLink
@@ -57,6 +39,24 @@ export default function PostCard({
           date={post.createdAt ? new Date(post.createdAt).toISOString().split("T")[0] : ""}
           tags={post.tags ?? []}
         />
+      </div>
+
+      {/* 썸네일 영역 - 모바일과 데스크톱 모두 우측에 표시 */}
+      <div className="relative h-20 w-28 shrink-0 md:h-32 md:w-44">
+        {post.thumbnailImageUrl ? (
+          <Image
+            src={post.thumbnailImageUrl}
+            alt={`${post.title} 썸네일`}
+            fill
+            className="rounded-lg object-cover md:rounded-2xl"
+            sizes="(max-width: 768px) 80px, 176px"
+            quality={75}
+            loading="lazy"
+            unoptimized={post.thumbnailImageUrl.includes(".svg")}
+          />
+        ) : (
+          <div className="h-full w-full shrink-0 rounded-lg bg-gray-100 md:rounded-2xl" />
+        )}
       </div>
     </article>
   );
