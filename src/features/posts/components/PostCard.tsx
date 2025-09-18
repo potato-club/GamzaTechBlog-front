@@ -55,7 +55,7 @@ export default function PostCard({
             unoptimized={post.thumbnailImageUrl.includes(".svg")}
           />
         ) : (
-          <div className="h-full w-full shrink-0 rounded-lg bg-gray-100 md:rounded-2xl" />
+          <div className="h-full w-full shrink-0 rounded-lg bg-transparent md:rounded-2xl" />
         )}
       </div>
     </article>
