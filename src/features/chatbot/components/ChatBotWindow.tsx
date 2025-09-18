@@ -53,7 +53,13 @@ export default function ChatBotWindow({ isOpen }: ChatBotWindowProps) {
   };
 
   const baseWindowClass =
-    "fixed right-6 bottom-[100px] z-[9998] flex h-[56.29vh] max-h-[900px] min-h-[600px] w-[23.45vw] max-w-[600px] min-w-[400px] flex-col rounded-3xl bg-white shadow-[0_0_24px_9px_rgba(33,37,40,0.06)] transition-all duration-300 ease-in-out";
+    "fixed right-6 bottom-[100px] z-[9998] flex flex-col rounded-3xl bg-white shadow-[0_0_24px_9px_rgba(33,37,40,0.06)] transition-all duration-300 ease-in-out " +
+    // 모바일 크기
+    "h-[70vh] w-[90vw] min-h-[400px] min-w-[280px] max-h-[500px] max-w-[350px] " +
+    // 태블릿 크기
+    "sm:h-[60vh] sm:w-[50vw] sm:min-h-[500px] sm:min-w-[350px] sm:max-h-[600px] sm:max-w-[450px] " +
+    // 데스크톱 크기
+    "lg:h-[56.29vh] lg:w-[23.45vw] lg:min-h-[600px] lg:min-w-[400px] lg:max-h-[900px] lg:max-w-[600px]";
 
   return (
     <div
