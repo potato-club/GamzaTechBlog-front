@@ -84,7 +84,7 @@ export default function WelcomeModal() {
             😊
           </p>
         </AlertDialogDescription>
-        <div className="mt-2 flex items-center space-x-2 md:mt-16">
+        <div className="mt-4 flex items-center space-x-2 md:mt-8">
           <Checkbox
             id="dont-show-again"
             checked={dontShowAgain}
