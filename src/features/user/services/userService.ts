@@ -1,9 +1,11 @@
 import {
+  Pageable,
   ProfileImageResponse,
   UpdateProfileRequest,
   UserActivityResponse,
   UserProfileRequest,
   UserProfileResponse,
+  UserPublicProfileResponse,
 } from "@/generated/api";
 import { apiClient } from "@/lib/apiClient";
 
@@ -83,6 +85,42 @@ export const userService = {
     });
     return response.data as ProfileImageResponse;
   },
+  /**
+   * 사용자명으로 공개 프로필 정보를 가져옵니다.
+   */
+  async getPublicProfile(nickname: string, params?: Pageable): Promise<UserPublicProfileResponse> {
+    console.log("!!WOWOWOWOW", params);
+    const response = await apiClient.getPublicProfileByNickname({
+      nickname,
+      pageable: params || { page: 0, size: 5 },
+    });
+    return response.data as UserPublicProfileResponse;
+  },
+
+  /**
+   * 사용자의 공개 활동 통계를 가져옵니다.
+   * 공개 프로필 API에서 활동 통계 정보를 추출합니다.
+   */
+  // async getPublicActivityCounts(nickname: string): Promise<UserActivityResponse | null> {
+  //   const response = await apiClient.getPublicProfileByNickname({
+  //     nickname,
+  //     pageable: { page: 0, size: 10 },
+  //   });
+  //   return response.data?.activity || null;
+  // },
+
+  /**
+   * 사용자의 공개 게시글 목록을 가져옵니다.
+   * 공개 프로필 API에서 게시글 정보를 추출합니다.
+   */
+  // async getPublicPosts(nickname: string, params: Pageable = { page: 0, size: 10 }) {
+  //   console.log("getPublicPosts params : ", params);
+  //   const response = await apiClient.getPublicProfileByNickname({
+  //     nickname,
+  //     pageable: params,
+  //   });
+  //   return response.data?.posts || null;
+  // },
 } as const;
 
 /**
@@ -98,6 +136,22 @@ export async function getCurrentUser(): Promise<UserProfileResponse | null> {
     //   return null;
     // }
     console.error("Failed to get current user:", error);
+    return null;
+  }
+}
+
+/**
+ * [추천] 서버 컴포넌트에서 사용할 공개 프로필 정보 조회 함수입니다.
+ */
+export async function getPublicUser(
+  nickname: string,
+  params?: Pageable
+): Promise<UserPublicProfileResponse | null> {
+  try {
+    const userProfile = await userService.getPublicProfile(nickname, params);
+    return userProfile;
+  } catch (error) {
+    console.error(`Failed to get public user profile for ${nickname}:`, error);
     return null;
   }
 }

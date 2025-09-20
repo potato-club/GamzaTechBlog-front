@@ -1,8 +1,12 @@
 /**
- * 마이페이지 좋아요 탭 컴포넌트
+ * 좋아요 탭 컴포넌트
  *
  * 사용자가 좋아요한 게시글 목록을 표시하며,
  * 로딩, 에러, 빈 상태를 독립적으로 관리합니다.
+ * 마이페이지와 공개 프로필 페이지에서 공유하여 사용됩니다.
+ *
+ * @param isOwner - 현재 사용자가 프로필 소유자인지 여부
+ * @param username - 조회할 사용자명 (공개 프로필용)
  */
 
 import EmptyState from "@/components/shared/EmptyState";
@@ -14,7 +18,15 @@ import { PostDetailResponse } from "@/generated/api";
 import { usePagination } from "@/hooks/usePagination";
 import ErrorDisplay from "../shared/ErrorDisplay";
 
-export default function LikesTab() {
+interface LikesTabProps {
+  isOwner?: boolean;
+  username?: string;
+}
+
+export default function LikesTab({
+  isOwner = true,
+  username: _username, // eslint-disable-line @typescript-eslint/no-unused-vars
+}: LikesTabProps = {}) {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 5;
 
@@ -42,7 +54,14 @@ export default function LikesTab() {
 
   // 에러 상태
   if (error) {
-    return <ErrorDisplay title="좋아요 목록을 불러올 수 없습니다" error={error} />;
+    return (
+      <ErrorDisplay
+        title={
+          isOwner ? "좋아요 목록을 불러올 수 없습니다" : "프로필 좋아요 목록을 불러올 수 없습니다"
+        }
+        error={error}
+      />
+    );
   }
 
   // 빈 상태
@@ -59,8 +78,10 @@ export default function LikesTab() {
             />
           </svg>
         }
-        title="좋아요한 게시글이 없습니다"
-        description="마음에 드는 게시글에 좋아요를 눌러보세요!"
+        title={isOwner ? "좋아요한 게시글이 없습니다" : "공개된 좋아요가 없습니다"}
+        description={
+          isOwner ? "마음에 드는 게시글에 좋아요를 눌러보세요!" : "아직 공개된 좋아요가 없습니다."
+        }
       />
     );
   }

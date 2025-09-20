@@ -11,22 +11,82 @@ interface StatItem {
   count: number;
 }
 
+interface MyPageSidebarServerProps {
+  isOwner?: boolean;
+  username?: string;
+}
+
 /**
  * MyPageSidebar 서버 컴포넌트
  *
  * 사용자 프로필과 활동 통계를 서버에서 직접 fetch하여
  * 빠른 초기 렌더링을 제공합니다.
+ *
+ * @param isOwner - 현재 사용자가 프로필 소유자인지 여부 (편집 기능 표시 제어)
+ * @param username - 조회할 사용자명 (공개 프로필용, 없으면 현재 사용자)
  */
-export default async function MyPageSidebarServer() {
-  const api = createServerApiClient();
+export default async function MyPageSidebarServer({
+  isOwner = true,
+  username,
+}: MyPageSidebarServerProps = {}) {
+  // API 호출: 소유자인 경우 현재 사용자 정보, 아닌 경우 공개 프로필 정보 조회
+  let userProfile;
+  let activityStats;
 
-  // 3. 생성된 클라이언트로 직접 API를 호출합니다.
-  // openapi-generator로 생성된 클라이언트는 보통 .data 프로퍼티에 실제 응답 데이터가 들어있습니다.
-  const userProfile = (await api.getCurrentUserProfile()).data;
-  const activityStats = (await api.getActivitySummary()).data;
+  try {
+    const api = createServerApiClient();
+
+    if (isOwner) {
+      // 내 프로필 조회 - 서버 API 클라이언트 사용
+      userProfile = (await api.getCurrentUserProfile()).data;
+      activityStats = (await api.getActivitySummary()).data;
+    } else {
+      // 공개 프로필 조회
+      if (!username) {
+        throw new Error("Username is required for public profile");
+      }
+      const publicProfileResponse = await api.getPublicProfileByNickname({
+        nickname: username,
+        pageable: { page: 0, size: 10 },
+      });
+      const publicData = publicProfileResponse.data;
+      // UserMiniProfileResponse를 UserProfileResponse 형태로 변환
+      userProfile = publicData?.profile
+        ? {
+            nickname: publicData.profile.nickname,
+            profileImageUrl: publicData.profile.profileImageUrl,
+            gamjaBatch: publicData.profile.gamjaBatch,
+            // 공개 프로필에서는 이메일 등 민감한 정보는 제공되지 않음
+          }
+        : null;
+      activityStats = publicData?.activity || null;
+    }
+  } catch (error) {
+    console.error("Failed to fetch profile data:", error);
+    // 인증 에러인 경우 null로 처리하여 기본 UI 표시
+    userProfile = null;
+    activityStats = null;
+  }
 
   console.log("User Profile:", userProfile);
   console.log("Activity Stats:", activityStats);
+
+  // 프로필 데이터가 없는 경우 (인증 실패 등)
+  if (!userProfile) {
+    return (
+      <aside className="flex w-64 flex-col items-center py-10 pr-8">
+        <div className="text-center">
+          <div className="relative mb-4 h-28 w-28 overflow-hidden rounded-full bg-gray-200">
+            <div className="flex h-full w-full items-center justify-center rounded-full bg-gray-300 text-gray-500">
+              <UserIcon className="h-16 w-16" />
+            </div>
+          </div>
+          <p className="text-gray-500">프로필을 불러올 수 없습니다</p>
+          <p className="text-sm text-gray-400">로그인이 필요합니다</p>
+        </div>
+      </aside>
+    );
+  }
 
   const stats: StatItem[] = [
     {
@@ -53,7 +113,7 @@ export default async function MyPageSidebarServer() {
     <aside className="flex w-64 flex-col items-center py-10 pr-8">
       <section aria-labelledby="user-profile-heading" className="flex flex-col items-center">
         <h2 id="user-profile-heading" className="sr-only">
-          {userProfile?.nickname}님의 프로필 정보
+          {userProfile?.nickname}님의 {isOwner ? "프로필 정보" : "공개 프로필"}
         </h2>
 
         {/* 프로필 이미지 */}
@@ -85,15 +145,16 @@ export default async function MyPageSidebarServer() {
               감자 {userProfile.gamjaBatch}기
             </p>
           )}
-          {userProfile?.email && (
+          {/* 이메일은 소유자에게만 표시 */}
+          {isOwner && userProfile?.email && (
             <p className="mt-1 text-sm text-gray-500" aria-label="이메일">
               {userProfile.email}
             </p>
           )}
         </div>
 
-        {/* 프로필 수정 Dialog - 클라이언트 컴포넌트 */}
-        {userProfile && <ProfileEditDialog userProfile={userProfile} />}
+        {/* 프로필 수정 Dialog - 소유자에게만 표시 */}
+        {isOwner && userProfile && <ProfileEditDialog userProfile={userProfile} />}
       </section>
 
       {/* 작성 글, 작성 댓글, 좋아요 수 표시 */}

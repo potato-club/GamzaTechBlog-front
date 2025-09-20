@@ -4,6 +4,7 @@ export { default as Footer } from "./layout/Footer";
 export { HeaderLogo } from "./layout/HeaderLogo";
 export { HeaderNavigation } from "./layout/HeaderNavigation";
 export { default as LogoSection } from "./layout/LogoSection";
+export { default as ProfileLayout } from "./layout/ProfileLayout";
 export { default as SidebarSection } from "./layout/SidebarSection.server";
 
 // Layout Skeletons
