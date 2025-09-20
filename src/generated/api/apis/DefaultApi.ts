@@ -245,7 +245,9 @@ export interface GetPostsByTagRequest {
 
 export interface GetPublicProfileByNicknameRequest {
     nickname: string;
-    pageable: Pageable;
+    page?: number;
+    size?: number;
+    sort?: Array<string>;
 }
 
 export interface IsPostLikedRequest {
@@ -1709,17 +1711,18 @@ export class DefaultApi extends runtime.BaseAPI {
             );
         }
 
-        if (requestParameters['pageable'] == null) {
-            throw new runtime.RequiredError(
-                'pageable',
-                'Required parameter "pageable" was null or undefined when calling getPublicProfileByNickname().'
-            );
-        }
-
         const queryParameters: any = {};
 
-        if (requestParameters['pageable'] != null) {
-            queryParameters['pageable'] = requestParameters['pageable'];
+        if (requestParameters['page'] != null) {
+            queryParameters['page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
+
+        if (requestParameters['sort'] != null) {
+            queryParameters['sort'] = requestParameters['sort'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

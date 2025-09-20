@@ -89,10 +89,9 @@ export const userService = {
    * 사용자명으로 공개 프로필 정보를 가져옵니다.
    */
   async getPublicProfile(nickname: string, params?: Pageable): Promise<UserPublicProfileResponse> {
-    console.log("!!WOWOWOWOW", params);
     const response = await apiClient.getPublicProfileByNickname({
       nickname,
-      pageable: params || { page: 0, size: 5 },
+      ...params,
     });
     return response.data as UserPublicProfileResponse;
   },

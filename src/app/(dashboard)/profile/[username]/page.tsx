@@ -22,12 +22,8 @@ export const dynamic = "force-dynamic";
 export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
   const { username } = await params;
 
-  console.log(`Rendering PublicProfilePage for username: ${username}`);
-
   // 공개 프로필 정보 조회
   const userProfile = await getPublicUser(username);
-
-  console.log("profile:", userProfile);
 
   // 사용자가 존재하지 않으면 404 페이지 표시
   if (!userProfile) {
