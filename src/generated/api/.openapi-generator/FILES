@@ -55,11 +55,14 @@ models/ResponseDtoProjectListResponse.ts
 models/ResponseDtoString.ts
 models/ResponseDtoUserActivityResponse.ts
 models/ResponseDtoUserProfileResponse.ts
+models/ResponseDtoUserPublicProfileResponse.ts
 models/ResponseDtoVoid.ts
 models/UpdateAdmissionResultRequest.ts
 models/UpdateProfileRequest.ts
 models/UserActivityResponse.ts
+models/UserMiniProfileResponse.ts
 models/UserProfileRequest.ts
 models/UserProfileResponse.ts
+models/UserPublicProfileResponse.ts
 models/index.ts
 runtime.ts

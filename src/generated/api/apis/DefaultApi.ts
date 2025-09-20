@@ -49,6 +49,7 @@ import type {
   ResponseDtoString,
   ResponseDtoUserActivityResponse,
   ResponseDtoUserProfileResponse,
+  ResponseDtoUserPublicProfileResponse,
   ResponseDtoVoid,
   UpdateAdmissionResultRequest,
   UpdateProfileRequest,
@@ -123,6 +124,8 @@ import {
     ResponseDtoUserActivityResponseToJSON,
     ResponseDtoUserProfileResponseFromJSON,
     ResponseDtoUserProfileResponseToJSON,
+    ResponseDtoUserPublicProfileResponseFromJSON,
+    ResponseDtoUserPublicProfileResponseToJSON,
     ResponseDtoVoidFromJSON,
     ResponseDtoVoidToJSON,
     UpdateAdmissionResultRequestFromJSON,
@@ -238,6 +241,11 @@ export interface GetPostsByTagRequest {
     page?: number;
     size?: number;
     sort?: Array<string>;
+}
+
+export interface GetPublicProfileByNicknameRequest {
+    nickname: string;
+    pageable: Pageable;
 }
 
 export interface IsPostLikedRequest {
@@ -1687,6 +1695,62 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async getProfileImage(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoProfileImageResponse> {
         const response = await this.getProfileImageRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 상대방 공개 프로필 조회
+     */
+    async getPublicProfileByNicknameRaw(requestParameters: GetPublicProfileByNicknameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoUserPublicProfileResponse>> {
+        if (requestParameters['nickname'] == null) {
+            throw new runtime.RequiredError(
+                'nickname',
+                'Required parameter "nickname" was null or undefined when calling getPublicProfileByNickname().'
+            );
+        }
+
+        if (requestParameters['pageable'] == null) {
+            throw new runtime.RequiredError(
+                'pageable',
+                'Required parameter "pageable" was null or undefined when calling getPublicProfileByNickname().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['pageable'] != null) {
+            queryParameters['pageable'] = requestParameters['pageable'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/users/public/profile/{nickname}`;
+        urlPath = urlPath.replace(`{${"nickname"}}`, encodeURIComponent(String(requestParameters['nickname'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoUserPublicProfileResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 상대방 공개 프로필 조회
+     */
+    async getPublicProfileByNickname(requestParameters: GetPublicProfileByNicknameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoUserPublicProfileResponse> {
+        const response = await this.getPublicProfileByNicknameRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
