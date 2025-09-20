@@ -243,10 +243,7 @@ export function usePublicProfile(
 ) {
   return useQuery({
     queryKey: [...USER_QUERY_KEYS.publicProfile(nickname), params],
-    queryFn: () => {
-      console.log("!!wowowowo!!", params);
-      return userService.getPublicProfile(nickname, params);
-    },
+    queryFn: () => userService.getPublicProfile(nickname, params),
     enabled: !!nickname,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,

@@ -91,7 +91,7 @@ export const userService = {
   async getPublicProfile(nickname: string, params?: Pageable): Promise<UserPublicProfileResponse> {
     const response = await apiClient.getPublicProfileByNickname({
       nickname,
-      ...params,
+      ...(params || {}),
     });
     return response.data as UserPublicProfileResponse;
   },
