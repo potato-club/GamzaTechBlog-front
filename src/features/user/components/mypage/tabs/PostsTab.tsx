@@ -42,7 +42,6 @@ export default function PostsTab({ isOwner = true, username }: PostsTabProps = {
   let totalPages = 0;
 
   if (postsData) {
-    console.log("postsData", postsData);
     posts = (postsData.content as PostDetailResponse[]) || [];
     totalPages = postsData.totalPages || 0;
   }

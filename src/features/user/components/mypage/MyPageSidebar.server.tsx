@@ -1,6 +1,7 @@
 import UserIcon from "@/components/ui/UserIcon";
 import { UserActivityStatItem } from "@/features/user";
 import ProfileEditDialog from "@/features/user/components/ProfileEditDialog";
+import type { UserActivityResponse, UserProfileResponse } from "@/generated/api";
 import Image from "next/image";
 import { createServerApiClient } from "../../../../lib/apiClient";
 
@@ -30,16 +31,16 @@ export default async function MyPageSidebarServer({
   username,
 }: MyPageSidebarServerProps = {}) {
   // API 호출: 소유자인 경우 현재 사용자 정보, 아닌 경우 공개 프로필 정보 조회
-  let userProfile;
-  let activityStats;
+  let userProfile: UserProfileResponse | null = null;
+  let activityStats: UserActivityResponse | null = null;
 
   try {
     const api = createServerApiClient();
 
     if (isOwner) {
       // 내 프로필 조회 - 서버 API 클라이언트 사용
-      userProfile = (await api.getCurrentUserProfile()).data;
-      activityStats = (await api.getActivitySummary()).data;
+      userProfile = (await api.getCurrentUserProfile()).data || null;
+      activityStats = (await api.getActivitySummary()).data || null;
     } else {
       // 공개 프로필 조회
       if (!username) {
@@ -47,17 +48,18 @@ export default async function MyPageSidebarServer({
       }
       const publicProfileResponse = await api.getPublicProfileByNickname({
         nickname: username,
-        pageable: { page: 0, size: 10 },
+        page: 0,
+        size: 10,
       });
       const publicData = publicProfileResponse.data;
       // UserMiniProfileResponse를 UserProfileResponse 형태로 변환
       userProfile = publicData?.profile
-        ? {
+        ? ({
             nickname: publicData.profile.nickname,
             profileImageUrl: publicData.profile.profileImageUrl,
             gamjaBatch: publicData.profile.gamjaBatch,
             // 공개 프로필에서는 이메일 등 민감한 정보는 제공되지 않음
-          }
+          } as UserProfileResponse)
         : null;
       activityStats = publicData?.activity || null;
     }

@@ -56,8 +56,6 @@ export function useProfileData(
   const myCommentsQuery = useMyComments(postsParams, { enabled: isOwner });
   const myLikesQuery = useMyLikes(postsParams, { enabled: isOwner });
 
-  console.log("wowowowowow", postsParams);
-
   // 공개 프로필용 통합 API 호출
   const publicProfileQuery = usePublicProfile(username || "", postsParams, {
     enabled: !isOwner && !!username,

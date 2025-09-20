@@ -1,5 +1,6 @@
 import TagBadge from "@/components/ui/TagBadge";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function PostMeta({
   author,
@@ -15,7 +16,10 @@ export default function PostMeta({
   return (
     <div className="mt-4 flex flex-col gap-2 text-sm text-gray-500 md:mt-7">
       <div className="flex flex-wrap items-center gap-2 text-xs md:gap-3">
-        <span className="flex items-center gap-1 text-[#798191]">
+        <Link
+          href={`/profile/${author}`}
+          className="flex items-center gap-1 text-[#798191] hover:text-[#FAA631]"
+        >
           <div className="mr-1 h-5 w-5 overflow-hidden rounded-full md:h-6 md:w-6">
             <Image
               src={profileImage || "/profileSVG.svg"}
@@ -29,7 +33,7 @@ export default function PostMeta({
             />
           </div>
           {author}
-        </span>
+        </Link>
         <span className="hidden md:inline">|</span>
         <span className="text-[#B5BBC7]">{date}</span>
 
