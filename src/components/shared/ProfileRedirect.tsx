@@ -22,7 +22,7 @@ export const ProfileRedirect = ({ targetUsername }: ProfileRedirectProps) => {
     if (!isLoading && userProfile?.nickname === targetUsername) {
       router.replace("/mypage");
     }
-  }, [isLoading, userProfile?.nickname, targetUsername, router]);
+  }, [isLoading, userProfile?.nickname, targetUsername]);
 
   // 로딩 중이거나 리다이렉트 처리 중에는 아무것도 렌더링하지 않음
   return null;
