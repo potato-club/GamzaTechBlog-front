@@ -16,7 +16,7 @@ import { isPostAuthor } from "../../../../lib/auth";
  */
 const getCachedPost = cache(async (postId: number) => {
   // ISR 적용: 3600초(1시간) 주기로 페이지를 재생성합니다.
-  return await postService.getPostById(postId, { next: { revalidate: 3600 } });
+  return await postService.getPostById(postId, { next: { revalidate: 86400 } });
 });
 
 /**
@@ -118,8 +118,6 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     // 캐싱된 함수를 사용하여 중복 요청 방지
     const post = await getCachedPost(postId);
 
-    console.log("post", post);
-
     // 게시글이 없는 경우
     if (!post) {
       notFound();
@@ -127,8 +125,6 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
     // 현재 로그인한 사용자가 게시글 작성자인지 확인
     const isCurrentUserAuthor = post.githubId ? await isPostAuthor(post.githubId) : false;
-
-    console.log(isCurrentUserAuthor);
 
     return (
       <div className="mx-16 my-16 max-w-full overflow-hidden">
