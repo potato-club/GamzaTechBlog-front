@@ -1,3 +1,4 @@
+import { ProfileLink } from "@/components/shared/ProfileLink";
 import TagBadge from "@/components/ui/TagBadge";
 import { UI_CONSTANTS } from "@/constants/ui";
 import { PostDetailResponse } from "@/generated/api";
@@ -18,24 +19,32 @@ export default function PostHeader({ post, postId, isCurrentUserAuthor = false }
 
       <div className="flex h-12 items-center gap-4 text-[14px]">
         <div className="flex h-5 items-center border-r border-[#B5BBC7] pr-3">
-          {post.writerProfileImageUrl ? (
-            <Image
-              src={post.writerProfileImageUrl}
-              alt={UI_CONSTANTS.ACCESSIBILITY.PROFILE_IMAGE_ALT(post.writer || "사용자")}
-              width={24}
-              height={24}
-              className="h-6 w-6 rounded-full object-cover"
-              priority={true}
-              unoptimized={post.writerProfileImageUrl.includes("amazonaws.com")}
-            />
-          ) : (
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-300">
-              <span className="text-xs text-gray-600">
-                {post.writer?.[0]?.toUpperCase() || "?"}
-              </span>
-            </div>
-          )}
-          <span className="ml-2 font-medium text-[#798191]">{post.writer}</span>
+          <ProfileLink nickname={post.writer || ""} showTooltip>
+            {post.writerProfileImageUrl ? (
+              <Image
+                src={post.writerProfileImageUrl}
+                alt={UI_CONSTANTS.ACCESSIBILITY.PROFILE_IMAGE_ALT(post.writer || "사용자")}
+                width={24}
+                height={24}
+                className="h-6 w-6 cursor-pointer rounded-full object-cover transition-all hover:ring-2 hover:ring-[#FAA631]"
+                priority={true}
+                unoptimized={post.writerProfileImageUrl.includes("amazonaws.com")}
+              />
+            ) : (
+              <div className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-gray-300 transition-all hover:ring-2 hover:ring-[#FAA631]">
+                <span className="text-xs text-gray-600">
+                  {post.writer?.[0]?.toUpperCase() || "?"}
+                </span>
+              </div>
+            )}
+          </ProfileLink>
+          <ProfileLink
+            nickname={post.writer || ""}
+            className="ml-2 font-medium text-[#798191] hover:text-[#FAA631]"
+            showTooltip
+          >
+            {post.writer}
+          </ProfileLink>
         </div>
         <time
           dateTime={
