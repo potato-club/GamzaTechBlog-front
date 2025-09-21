@@ -150,7 +150,7 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
             </div>
             <Link
               href={`/profile/${encodeURIComponent(comment.writer)}`}
-              className="text-[14px] font-medium text-[#1C222E] hover:text-[#FAA631]"
+              className="text-[14px] font-medium text-[#1C222E] hover:text-[#FAA631] focus-visible:text-[#FAA631] focus-visible:underline"
             >
               {comment.writer}
             </Link>
