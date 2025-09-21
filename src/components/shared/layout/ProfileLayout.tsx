@@ -1,5 +1,7 @@
 import { MyPageTabContent } from "@/features/user";
 import MyPageSidebarServer from "@/features/user/components/mypage/MyPageSidebar.server";
+import { ProfileActions } from "../ProfileActions";
+import { ProfileRedirect } from "../ProfileRedirect";
 
 interface ProfileLayoutProps {
   mode: "mypage" | "public";
@@ -21,14 +23,24 @@ export default function ProfileLayout({ mode, username, children }: ProfileLayou
   const isOwner = mode === "mypage";
 
   return (
-    <div className="mt-10 flex gap-4">
-      {/* 사용자 프로필 사이드바 */}
-      <MyPageSidebarServer isOwner={isOwner} username={username} />
+    <>
+      {/* 공개 프로필에서 본인 프로필 접근 시 자동 리다이렉트 */}
+      {mode === "public" && username && <ProfileRedirect targetUsername={username} />}
 
-      {/* 탭 콘텐츠 - 통합 데이터 관리 */}
-      <MyPageTabContent isOwner={isOwner} username={username} />
+      <div className="mt-10 flex gap-4">
+        {/* 사용자 프로필 사이드바 */}
+        <MyPageSidebarServer isOwner={isOwner} username={username} />
 
-      {children}
-    </div>
+        {/* 탭 콘텐츠 - 통합 데이터 관리 */}
+        <div className="flex-1">
+          <MyPageTabContent isOwner={isOwner} username={username} />
+
+          {/* 추가 프로필 액션 버튼들 */}
+          <ProfileActions targetUsername={username || ""} mode={mode} />
+        </div>
+
+        {children}
+      </div>
+    </>
   );
 }

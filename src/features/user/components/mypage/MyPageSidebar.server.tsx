@@ -1,16 +1,12 @@
 import UserIcon from "@/components/ui/UserIcon";
+import { Button } from "@/components/ui/button";
+import { createMyPageStats } from "@/constants/mypageConstants";
 import { UserActivityStatItem } from "@/features/user";
 import ProfileEditDialog from "@/features/user/components/ProfileEditDialog";
 import type { UserActivityResponse, UserProfileResponse } from "@/generated/api";
 import Image from "next/image";
+import Link from "next/link";
 import { createServerApiClient } from "../../../../lib/apiClient";
-
-interface StatItem {
-  icon: string;
-  alt: string;
-  label: string;
-  count: number;
-}
 
 interface MyPageSidebarServerProps {
   isOwner?: boolean;
@@ -58,7 +54,6 @@ export default async function MyPageSidebarServer({
             nickname: publicData.profile.nickname,
             profileImageUrl: publicData.profile.profileImageUrl,
             gamjaBatch: publicData.profile.gamjaBatch,
-            // 공개 프로필에서는 이메일 등 민감한 정보는 제공되지 않음
           } as UserProfileResponse)
         : null;
       activityStats = publicData?.activity || null;
@@ -70,8 +65,7 @@ export default async function MyPageSidebarServer({
     activityStats = null;
   }
 
-  console.log("User Profile:", userProfile);
-  console.log("Activity Stats:", activityStats);
+  const stats = createMyPageStats(activityStats);
 
   // 프로필 데이터가 없는 경우 (인증 실패 등)
   if (!userProfile) {
@@ -89,27 +83,6 @@ export default async function MyPageSidebarServer({
       </aside>
     );
   }
-
-  const stats: StatItem[] = [
-    {
-      icon: "/postIcon.svg",
-      alt: "작성 글 아이콘",
-      label: "작성 글",
-      count: activityStats?.writtenPostCount ?? 0,
-    },
-    {
-      icon: "/commentIcon.svg",
-      alt: "작성 댓글 아이콘",
-      label: "작성 댓글",
-      count: activityStats?.writtenCommentCount ?? 0,
-    },
-    {
-      icon: "/likeIcon.svg",
-      alt: "좋아요 아이콘",
-      label: "좋아요",
-      count: activityStats?.likedPostCount ?? 0,
-    },
-  ];
 
   return (
     <aside className="flex w-64 flex-col items-center py-10 pr-8">
@@ -155,8 +128,23 @@ export default async function MyPageSidebarServer({
           )}
         </div>
 
-        {/* 프로필 수정 Dialog - 소유자에게만 표시 */}
-        {isOwner && userProfile && <ProfileEditDialog userProfile={userProfile} />}
+        {/* 프로필 수정 Dialog 또는 GitHub 방문 버튼 */}
+        {isOwner && userProfile ? (
+          <ProfileEditDialog userProfile={userProfile} />
+        ) : (
+          userProfile?.nickname && (
+            <Link
+              href={`https://github.com/${userProfile.nickname}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="primary" size="rounded" className="mt-2 flex gap-1.5">
+                <Image src="/githubIcon.svg" alt="GitHub 프로필 방문" width={16} height={16} />
+                <span>GitHub</span>
+              </Button>
+            </Link>
+          )
+        )}
       </section>
 
       {/* 작성 글, 작성 댓글, 좋아요 수 표시 */}

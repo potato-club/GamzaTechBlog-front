@@ -8,7 +8,7 @@
  * (dashboard) 그룹 내의 모든 페이지에서 사용됩니다.
  */
 
-import MyPageSkeleton from "@/components/shared/skeletons/MyPageSkeleton";
+import MyPageSidebarSkeleton from "../../components/shared/skeletons/MyPageSidebarSkeleton";
 
 export default function DashboardLoading() {
   return (
@@ -17,7 +17,7 @@ export default function DashboardLoading() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* 마이페이지용 스켈레톤 UI 사용 */}
         <div className="flex gap-4">
-          <MyPageSkeleton />
+          <MyPageSidebarSkeleton />
 
           {/* 탭 영역 스켈레톤 */}
           <div className="flex-1">

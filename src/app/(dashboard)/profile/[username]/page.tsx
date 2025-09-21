@@ -11,6 +11,25 @@ import { ProfileLayout } from "@/components/shared";
 import { getPublicUser } from "@/features/user/services/userService";
 import { notFound } from "next/navigation";
 
+/**
+ * 페이지 메타데이터 생성
+ */
+export async function generateMetadata({ params }: PublicProfilePageProps) {
+  const { username } = await params;
+  const userProfile = await getPublicUser(username);
+
+  if (!userProfile) {
+    return {
+      title: "사용자를 찾을 수 없습니다",
+    };
+  }
+
+  return {
+    title: `${userProfile.profile?.nickname}님의 프로필`,
+    description: `${userProfile.profile?.nickname}님이 작성한 게시글을 확인해보세요.`,
+  };
+}
+
 interface PublicProfilePageProps {
   params: Promise<{
     username: string;
@@ -31,23 +50,4 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }
 
   return <ProfileLayout mode="public" username={username} />;
-}
-
-/**
- * 페이지 메타데이터 생성
- */
-export async function generateMetadata({ params }: PublicProfilePageProps) {
-  const { username } = await params;
-  const userProfile = await getPublicUser(username);
-
-  if (!userProfile) {
-    return {
-      title: "사용자를 찾을 수 없습니다",
-    };
-  }
-
-  return {
-    title: `${userProfile.profile?.nickname}님의 프로필`,
-    description: `${userProfile.profile?.nickname}님이 작성한 게시글을 확인해보세요.`,
-  };
 }

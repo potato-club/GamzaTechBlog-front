@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
  * 탭 콘텐츠는 각 탭별 개별 스켈레톤이 처리하므로
  * 사이드바(프로필 정보) 영역만 스켈레톤으로 표시합니다.
  */
-export default function MyPageSkeleton() {
+export default function MyPageSidebarSkeleton() {
   return (
     <aside
       className="flex w-64 flex-col items-center bg-white py-10 pr-8"

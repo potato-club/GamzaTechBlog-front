@@ -25,7 +25,9 @@ export default function PopularPost({ postId, title, author, profileImage }: Pop
           ) : (
             <span className="inline-block h-6 w-6 rounded-full bg-gray-200" />
           )}
-          {author}
+          <Link href={`/profile/${author}`} className="hover:text-[#FAA631]">
+            {author}
+          </Link>
         </div>
       </article>
     </Link>
