@@ -23,7 +23,9 @@ export const useLoadingDots = (isLoading: boolean): string => {
       setDots("");
     }
 
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isLoading]);
 
   return dots;
