@@ -26,5 +26,5 @@ export { default as WelcomeModal } from "./interactive/WelcomeModal";
 
 // Skeletons
 export { default as MainPageSkeleton } from "./skeletons/MainPageSkeleton";
-export { default as MyPageSkeleton } from "./skeletons/MyPageSkeleton";
+export { default as MyPageSidebarSkeleton } from "./skeletons/MyPageSidebarSkeleton";
 export { default as TabContentSkeleton } from "./skeletons/TabContentSkeleton";

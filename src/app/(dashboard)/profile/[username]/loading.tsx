@@ -5,8 +5,8 @@
  * 기존 마이페이지와 동일한 레이아웃 구조를 유지합니다.
  */
 
-import { MyPageSkeleton } from "@/components/shared";
+import MyPageSidebarSkeleton from "../../../../components/shared/skeletons/MyPageSidebarSkeleton";
 
 export default function PublicProfileLoading() {
-  return <MyPageSkeleton />;
+  return <MyPageSidebarSkeleton />;
 }
