@@ -37,6 +37,6 @@ export const createMyPageStats = (activityStats: UserActivityResponse | null): S
   return MY_PAGE_STATS_DEFINITIONS.map((def) => ({
     ...def,
     // activityStats가 존재하고, 해당 키의 값이 있으면 그 값을 사용, 없으면 0
-    count: activityStats?.[def.key] ?? 0,
+    count: activityStats?.[def.key as keyof UserActivityResponse] ?? 0,
   }));
 };
