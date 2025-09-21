@@ -148,7 +148,12 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
                 className="h-full w-full object-cover"
               />
             </div>
-            <span className="text-[14px] font-medium text-[#1C222E]">{comment.writer}</span>
+            <Link
+              href={`/profile/${comment.writer}`}
+              className="text-[14px] font-medium text-[#1C222E] hover:text-[#FAA631]"
+            >
+              {comment.writer}
+            </Link>
           </div>
         )}
 
