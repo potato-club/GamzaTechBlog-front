@@ -23,7 +23,6 @@ export {
 export {
   InteractivePostList,
   MainContent,
-  MainTabMenu,
   MarkdownViewer,
   MarkdownViewerSkeleton,
   PopularPost,
