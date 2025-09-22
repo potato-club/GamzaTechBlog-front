@@ -137,8 +137,9 @@ export default async function MyPageSidebarServer({
               href={`https://github.com/${userProfile.nickname}`}
               target="_blank"
               rel="noopener noreferrer"
+              className="mt-2"
             >
-              <Button variant="primary" size="rounded" className="mt-2 flex gap-1.5">
+              <Button variant="primary" size="rounded" className="flex gap-1.5">
                 <Image src="/githubIcon.svg" alt="GitHub 프로필 방문" width={16} height={16} />
                 <span>GitHub</span>
               </Button>
