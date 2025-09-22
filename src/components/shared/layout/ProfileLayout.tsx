@@ -27,7 +27,7 @@ export default function ProfileLayout({ mode, username, children }: ProfileLayou
       {/* 공개 프로필에서 본인 프로필 접근 시 자동 리다이렉트 */}
       {mode === "public" && username && <ProfileRedirect targetUsername={username} />}
 
-      <div className="mt-10 flex gap-4">
+      <div className="flex flex-col gap-6 md:flex-row md:gap-8 md:px-8 md:py-8">
         {/* 사용자 프로필 사이드바 */}
         <MyPageSidebarServer isOwner={isOwner} username={username} />
 
