@@ -103,15 +103,20 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
 
   return (
     <form className="mt-4 flex flex-col gap-3" onSubmit={handleSubmit} aria-label="댓글 작성">
-      <div className="flex items-start gap-3">
-        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
-          <Image
-            src={getUserImageUrl()}
-            alt={UI_CONSTANTS.ACCESSIBILITY.CURRENT_USER_PROFILE_ALT}
-            width={36}
-            height={36}
-            className="h-full w-full object-cover"
-          />
+      <div className="flex flex-col items-start gap-3 md:flex-row">
+        <div className="flex w-full items-center gap-3 md:w-auto">
+          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
+            <Image
+              src={getUserImageUrl()}
+              alt={UI_CONSTANTS.ACCESSIBILITY.CURRENT_USER_PROFILE_ALT}
+              width={36}
+              height={36}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <span className="text-[14px] font-medium text-[#1C222E] md:hidden">
+            {currentUserProfile?.nickname || "사용자"}
+          </span>
         </div>
         <textarea
           id="comment-input"
@@ -123,10 +128,10 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
           disabled={createCommentMutation.isPending} // TanStack Query 로딩 상태 사용
         />
       </div>
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end">
         <Button
           type="submit"
-          className="rounded-[63px] bg-[#20242B] px-3 py-1.5 text-[12px] text-white hover:bg-[#1C222E]"
+          className="w-full rounded-[63px] bg-[#20242B] px-3 py-1.5 text-[12px] text-white hover:bg-[#1C222E] md:w-auto"
           disabled={createCommentMutation.isPending || !newComment.trim()}
         >
           {createCommentMutation.isPending
