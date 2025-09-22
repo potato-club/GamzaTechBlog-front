@@ -11,7 +11,15 @@
  * @param username - 조회할 사용자명 (공개 프로필용)
  */
 
-import { CommentsTab, LikesTab, PostsTab, TabMenu, useMyPageTab } from "@/features/user";
+import TabMenu from "@/components/shared/navigation/TabMenu";
+import { CommentsTab, LikesTab, PostsTab, useMyPageTab } from "@/features/user";
+import type { TabType } from "@/types/mypage";
+
+const MYPAGE_TAB_LABELS: Record<TabType, string> = {
+  posts: "작성 글",
+  likes: "좋아요",
+  comments: "작성 댓글",
+};
 
 interface MyPageTabContentProps {
   isOwner?: boolean;
@@ -20,6 +28,11 @@ interface MyPageTabContentProps {
 
 export default function MyPageTabContent({ isOwner = true, username }: MyPageTabContentProps = {}) {
   const { currentTab, handleTabChange } = useMyPageTab();
+
+  // 공개 프로필에서는 "작성 글" 탭만 표시
+  const visibleTabs = isOwner
+    ? Object.entries(MYPAGE_TAB_LABELS)
+    : Object.entries(MYPAGE_TAB_LABELS).filter(([key]) => key === "posts");
 
   /**
    * 현재 활성 탭에 따라 해당 탭 컴포넌트를 렌더링합니다.
@@ -43,12 +56,12 @@ export default function MyPageTabContent({ isOwner = true, username }: MyPageTab
       <TabMenu
         tab={currentTab}
         onTabChange={handleTabChange}
-        isOwner={isOwner}
-        aria-label="탭 메뉴"
+        labels={MYPAGE_TAB_LABELS}
+        visibleTabs={visibleTabs}
       />
-      <div role="tabpanel" aria-labelledby={`${currentTab}-tab`} className="mt-6">
-        <div className="px-10">
-          <div className="mx-auto min-w-[700px]">{renderTabContent()}</div>
+      <div role="tabpanel" aria-labelledby={`${currentTab}-tab`} className="mt-4 md:mt-6">
+        <div className="px-0 md:px-10">
+          <div className="mx-auto w-full md:min-w-[700px]">{renderTabContent()}</div>
         </div>
       </div>
     </section>
