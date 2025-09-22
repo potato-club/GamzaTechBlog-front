@@ -87,7 +87,7 @@ export default function CommentsTab({
       <CommentList
         comments={commentsData.content as CommentResponse[]}
         variant="my"
-        className="mt-6"
+        className="mt-4 md:mt-6"
       />
       {/* 페이지네이션 */}
       {totalPages > 1 && (
@@ -95,7 +95,7 @@ export default function CommentsTab({
           currentPage={currentPage} // 이미 1부터 시작하는 값
           totalPages={totalPages}
           onPageChange={handlePageChange}
-          className="mt-12"
+          className="mt-8 md:mt-12"
         />
       )}
     </>

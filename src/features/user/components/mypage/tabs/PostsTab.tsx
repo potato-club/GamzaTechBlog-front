@@ -85,7 +85,7 @@ export default function PostsTab({ isOwner = true, username }: PostsTabProps = {
 
   // 게시글 목록 표시
   return (
-    <div className="mt-8 flex flex-col gap-8">
+    <div className="mt-4 flex flex-col gap-4 md:mt-8 md:gap-8">
       {posts.map((post) => (
         <PostCard key={post.postId} post={post} />
       ))}
@@ -94,7 +94,7 @@ export default function PostsTab({ isOwner = true, username }: PostsTabProps = {
           currentPage={currentPage} // 이미 1부터 시작하는 값
           totalPages={totalPages}
           onPageChange={handlePageChange}
-          className="mt-12"
+          className="mt-8 md:mt-12"
         />
       )}
     </div>

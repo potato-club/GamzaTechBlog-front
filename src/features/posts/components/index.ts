@@ -34,5 +34,4 @@ export { default as PostListSkeleton } from "./skeletons/PostListSkeleton";
 export { default as ToastEditorSkeleton } from "./skeletons/ToastEditorSkeleton";
 
 export { default as MainContent } from "./MainContent";
-export { default as MainTabMenu } from "./MainTabMenu";
 export { default as WelcomeBoardSection } from "./WelcomeBoardSection";
