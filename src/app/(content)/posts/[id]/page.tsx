@@ -127,8 +127,8 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     const isCurrentUserAuthor = post.githubId ? await isPostAuthor(post.githubId) : false;
 
     return (
-      <div className="mx-16 my-16 max-w-full overflow-hidden">
-        <article className="max-w-full border-b border-[#D5D9E3] py-8">
+      <div className="layout-stable mx-auto flex flex-col gap-6 md:gap-12">
+        <article className="max-w-full border-b border-[#D5D9E3] px-4 py-6 md:px-8 md:py-8">
           <PostHeader post={post} postId={postId} isCurrentUserAuthor={isCurrentUserAuthor} />
           <DynamicMarkdownViewer content={post.content || ""} />
           {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
@@ -139,7 +139,9 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
           />
         </article>
 
-        <DynamicPostCommentsSection postId={postId} />
+        <div className="px-4 md:px-8">
+          <DynamicPostCommentsSection postId={postId} />
+        </div>
       </div>
     );
   } catch (error) {

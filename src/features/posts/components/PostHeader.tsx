@@ -15,7 +15,9 @@ interface PostHeaderProps {
 export default function PostHeader({ post, postId, isCurrentUserAuthor = false }: PostHeaderProps) {
   return (
     <header>
-      <h1 className="text-[32px] font-extrabold text-[#1C222E]">{post.title}</h1>
+      <h1 className="text-[24px] font-extrabold text-[#1C222E] sm:text-[28px] md:text-[32px]">
+        {post.title}
+      </h1>
 
       <div className="flex h-12 items-center gap-4 text-[14px]">
         <div className="flex h-5 items-center border-r border-[#B5BBC7] pr-3">
