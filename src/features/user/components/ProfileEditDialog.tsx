@@ -182,7 +182,7 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="mt-2 w-full max-w-[120px] rounded-lg text-sm hover:cursor-pointer"
+          className="mt-2 w-full rounded-lg text-sm hover:cursor-pointer md:max-w-[120px]"
         >
           프로필 보기
         </Button>
