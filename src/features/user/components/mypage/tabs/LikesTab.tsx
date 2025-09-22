@@ -87,7 +87,7 @@ export default function LikesTab({
   }
   // 좋아요 목록 표시
   return (
-    <div className="mt-8 flex flex-col gap-8">
+    <div className="mt-4 flex flex-col gap-4 md:mt-8 md:gap-8">
       {likedPosts.map((post: PostDetailResponse) => (
         <PostCard key={post.postId} post={post} />
       ))}
@@ -96,7 +96,7 @@ export default function LikesTab({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
-          className="mt-12"
+          className="mt-8 md:mt-12"
         />
       )}
     </div>
