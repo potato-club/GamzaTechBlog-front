@@ -15,6 +15,7 @@ export { default as SidebarSkeleton } from "./layout/skeletons/SidebarSkeleton";
 export { default as CustomPagination } from "./navigation/CustomPagination";
 export { DropdownMenuList } from "./navigation/DropdownMenuList";
 export { default as OptimizedLink } from "./navigation/OptimizedLink";
+export { default as TabMenu } from "./navigation/TabMenu";
 
 // Interactive Components
 export { default as InteractivePagination } from "./interactive/InteractivePagination";
