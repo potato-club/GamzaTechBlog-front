@@ -121,4 +121,21 @@ export const postService = {
     const response = await apiClient.getHomeFeed(params || {}, options);
     return response.data as HomeFeedResponse;
   },
+
+  /**
+   * 사이드바 데이터를 조회합니다. (인기 게시글, 태그)
+   */
+  async getSidebarData(
+    options?: RequestInit
+  ): Promise<{ weeklyPopular: PostPopularResponse[]; allTags: string[] }> {
+    const [popularPosts, tags] = await Promise.all([
+      this.getPopularPosts(options),
+      this.getTags(options),
+    ]);
+
+    return {
+      weeklyPopular: popularPosts,
+      allTags: tags,
+    };
+  },
 } as const;
