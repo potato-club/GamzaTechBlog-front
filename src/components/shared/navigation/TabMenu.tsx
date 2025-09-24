@@ -36,7 +36,7 @@ export default function TabMenu<T extends string>({
   return (
     <div className="w-full">
       <Tabs value={tab} onValueChange={handleValueChange} className="w-full">
-        <TabsList className="flex w-full justify-evenly border-b border-[#F2F4F6] bg-transparent px-0 pb-3 md:justify-start md:pb-4">
+        <TabsList className="flex w-full justify-around border-b border-[#F2F4F6] bg-transparent px-0 pb-3 md:justify-start md:pb-4">
           {tabsToShow.map(([value, label]) => (
             <TabsTrigger
               key={value}
