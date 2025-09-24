@@ -70,10 +70,9 @@ export function useCreateComment(postId: number) {
       return { previousPost };
     },
 
-    onSuccess: (newComment: CommentResponse) => {
+    onSuccess: () => {
       // 성공 시에는 서버로부터 받은 실제 데이터로 캐시를 무효화하여 갱신
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      console.log("댓글 등록 성공:", newComment);
     },
 
     onError: (error, variables, context) => {

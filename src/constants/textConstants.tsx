@@ -1,6 +1,8 @@
-export const BLOG_DESCRIPTIONS = [
-  "감자에서 시작되는 진짜 개발 이야기",
-  "뿌리부터 단단한 기술과 인사이트",
-  "우리 코드는 감자처럼 생겼지만 돌아갑니다",
-  "우리 얼굴은 감자처럼 생겼지만 돌아갑니다",
-];
+/**
+ * @deprecated 이 파일은 더 이상 사용되지 않습니다.
+ * 대신 src/constants/ui.ts의 UI_CONSTANTS를 사용해주세요.
+ */
+
+import { UI_CONSTANTS } from "./ui";
+
+export const BLOG_DESCRIPTIONS = UI_CONSTANTS.BLOG.DESCRIPTIONS;

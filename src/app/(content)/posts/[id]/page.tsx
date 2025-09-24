@@ -15,7 +15,8 @@ import { isPostAuthor } from "../../../../lib/auth";
  * generateMetadata와 PostPage 컴포넌트에서 동일한 데이터를 사용할 때 최적화됩니다.
  */
 const getCachedPost = cache(async (postId: number) => {
-  return await postService.getPostById(postId);
+  // ISR 적용: 3600초(1시간) 주기로 페이지를 재생성합니다.
+  return await postService.getPostById(postId, { next: { revalidate: 86400 } });
 });
 
 /**
@@ -117,8 +118,6 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     // 캐싱된 함수를 사용하여 중복 요청 방지
     const post = await getCachedPost(postId);
 
-    console.log("post", post);
-
     // 게시글이 없는 경우
     if (!post) {
       notFound();
@@ -127,11 +126,9 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     // 현재 로그인한 사용자가 게시글 작성자인지 확인
     const isCurrentUserAuthor = post.githubId ? await isPostAuthor(post.githubId) : false;
 
-    console.log(isCurrentUserAuthor);
-
     return (
-      <main className="mx-16 my-16 max-w-full overflow-hidden">
-        <article className="max-w-full border-b border-[#D5D9E3] py-8">
+      <div className="layout-stable mx-auto flex flex-col gap-6 md:gap-12">
+        <article className="max-w-full border-b border-[#D5D9E3] px-4 py-6 md:px-8 md:py-8">
           <PostHeader post={post} postId={postId} isCurrentUserAuthor={isCurrentUserAuthor} />
           <DynamicMarkdownViewer content={post.content || ""} />
           {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
@@ -142,8 +139,10 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
           />
         </article>
 
-        <DynamicPostCommentsSection postId={postId} />
-      </main>
+        <div className="px-4 md:px-8">
+          <DynamicPostCommentsSection postId={postId} />
+        </div>
+      </div>
     );
   } catch (error) {
     console.error("Error fetching post:", error);

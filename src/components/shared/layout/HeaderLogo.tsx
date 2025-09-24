@@ -14,7 +14,7 @@ export const HeaderLogo: React.FC<HeaderLogoProps> = ({ className = "" }) => {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo.svg" alt="감자 기술 블로그 로고" width={23} height={23} />
-      <h1 className="ml-2">
+      <h1 className="ml-2 hidden md:block">
         <span className="font-bold">감자 </span>
         <span className="font-light">Tech Blog</span>
       </h1>

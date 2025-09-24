@@ -97,7 +97,7 @@ export default function InteractivePostList({
       {/* 게시글 목록 */}
       {!isLoading && (
         <div
-          className={`mt-8 flex flex-col gap-8 transition-opacity duration-200 ${isFetching ? "opacity-70" : "opacity-100"}`}
+          className={`mt-6 flex flex-col gap-6 transition-opacity duration-200 md:mt-8 md:gap-8 ${isFetching ? "opacity-70" : "opacity-100"}`}
         >
           {posts.length > 0 ? (
             posts.map((post) => <PostCard key={post.postId} post={post} />)

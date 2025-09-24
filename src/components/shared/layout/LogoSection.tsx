@@ -16,20 +16,20 @@ export default function LogoSection() {
   return (
     <Link
       href={{ pathname: "/" }}
-      className="layout-stable mt-5 block cursor-pointer text-center transition-opacity hover:opacity-80"
+      className="layout-stable mt-3 block cursor-pointer text-center transition-opacity hover:opacity-80 md:mt-5"
     >
-      <div className="mx-auto" style={{ width: "255px", height: "230px" }}>
+      {/* 모바일: 작은 로고, 데스크톱: 원래 크기 */}
+      <div className="mx-auto h-[162px] w-[180px] md:h-[230px] md:w-[255px]">
         <Image
           src="/logo2.svg"
           alt="메인페이지 로고 (클릭하면 홈으로 이동)"
           width={255}
           height={230}
-          className="mx-auto"
           priority
-          style={{ width: "255px", height: "230px" }}
         />
       </div>
-      <p className="mt-2 flex min-h-[2.5rem] items-center justify-center text-2xl font-light">
+      {/* 모바일: 작은 폰트, 데스크톱: 원래 크기 */}
+      <p className="mt-2 flex min-h-[2rem] items-center justify-center text-lg font-light md:min-h-[2.5rem] md:text-2xl">
         {description}
       </p>
     </Link>

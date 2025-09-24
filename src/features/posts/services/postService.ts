@@ -27,6 +27,7 @@ export const postService = {
    */
   async getPopularPosts(options?: RequestInit): Promise<PostPopularResponse[]> {
     const response = await apiClient.getWeeklyPopularPosts(options);
+    console.log("Fetched popular posts:", response.data);
     return response.data as PostPopularResponse[];
   },
 

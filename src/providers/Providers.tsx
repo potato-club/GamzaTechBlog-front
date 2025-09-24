@@ -22,8 +22,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initialAccessToken = getCookie("authorization");
 
-    console.log("Initial access token on app load:", initialAccessToken);
-
     if (typeof initialAccessToken === "string" && initialAccessToken) {
       // 1. 만료 시간 추적을 우선 설정합니다.
       updateTokenExpiration(initialAccessToken);

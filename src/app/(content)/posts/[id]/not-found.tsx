@@ -8,7 +8,7 @@ import Link from "next/link";
  */
 export default function NotFound() {
   return (
-    <main className="mx-16 my-16">
+    <section className="mx-16 my-16">
       <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
         <div className="mb-8">
           <h1 className="mb-4 text-6xl font-bold text-gray-300">404</h1>
@@ -35,6 +35,6 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-    </main>
+    </section>
   );
 }

@@ -14,7 +14,7 @@ interface SidebarSectionProps {
 
 export default function SidebarSection({ popularPosts, tags }: SidebarSectionProps) {
   return (
-    <aside className="ml-10 flex-1 border-l border-[#F2F4F6] pl-10">
+    <aside className="mt-8 flex-1 border-t border-[#F2F4F6] pt-6 md:mt-0 md:ml-10 md:border-t-0 md:border-l md:pt-0 md:pl-10">
       {/* 인기 게시글 섹션 */}
       <PopularPostsSection popularPosts={popularPosts} />
 

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useLoadingDots } from "@/hooks/useLoadingDots";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,24 +26,9 @@ export const HeaderNavigation = () => {
   const pathname = usePathname(); // 현재 경로 가져오기
 
   const [isAttemptingLogin, setIsAttemptingLogin] = useState(false);
-  const [loginDots, setLoginDots] = useState("");
+  const loginDots = useLoadingDots(isAttemptingLogin);
   const [forceUpdateKey, setForceUpdateKey] = useState(0); // 강제 리렌더링용 상태
   const [searchKeyword, setSearchKeyword] = useState("");
-
-  // 검색 처리 함수
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchKeyword.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchKeyword.trim())}`);
-    }
-  };
-
-  // Enter 키 처리
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch(e);
-    }
-  };
 
   // PRE_REGISTER 역할인 경우 /signup 페이지로 리디렉션
   useEffect(() => {
@@ -71,25 +57,27 @@ export const HeaderNavigation = () => {
   //   );
   // }
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isAttemptingLogin) {
-      interval = setInterval(() => {
-        setLoginDots((prevDots) => {
-          if (prevDots.length >= 3) return ".";
-          return prevDots + ".";
-        });
-      }, 500); // 0.5초마다 점 변경
-    }
-    return () => clearInterval(interval);
-  }, [isAttemptingLogin]);
-
   const handleLoginClick = () => {
     setIsAttemptingLogin(true);
     // 실제 로그인 로직은 Link href를 통해 GitHub으로 리디렉션되므로,
     // 여기서는 상태 변경만 처리합니다. 페이지 이동 후에는 이 컴포넌트가 언마운트되거나
     // isAttemptingLogin 상태가 초기화될 수 있습니다.
     // 만약 SPA 내에서 직접 API 호출로 로그인한다면, 성공/실패 시 isAttemptingLogin을 false로 설정해야 합니다.
+  };
+
+  // 검색 처리 함수
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchKeyword.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchKeyword.trim())}`);
+    }
+  };
+
+  // Enter 키 처리
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch(e);
+    }
   };
 
   const handleLogout = async () => {
@@ -170,7 +158,7 @@ export const HeaderNavigation = () => {
   return (
     <nav className="flex h-8 items-center gap-4" key={forceUpdateKey}>
       {/* 검색창 */}
-      <form onSubmit={handleSearch} className="relative">
+      <form onSubmit={handleSearch} className="relative mx-auto md:mx-0">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <svg
             className="h-4 w-4 text-gray-400"
@@ -194,7 +182,7 @@ export const HeaderNavigation = () => {
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="w-48 rounded-full border border-gray-300 bg-gray-50 py-2 pr-4 pl-10 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-[#FAA631]"
+          className="w-40 rounded-full border border-gray-300 bg-gray-50 py-2 pr-4 pl-10 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-[#FAA631] md:w-48"
         />
       </form>
 
@@ -203,10 +191,7 @@ export const HeaderNavigation = () => {
           // 로그인된 상태: 프로필 이미지 표시
           <>
             <Link href="/posts/new">
-              <Button
-                variant="default" // 기본 variant 사용 또는 커스텀 스타일 유지
-                className={`flex items-center gap-2 rounded-full bg-[#20242B] px-4 py-2 text-xs text-white transition-colors duration-150 sm:text-sm`}
-              >
+              <Button variant="primary" size="rounded">
                 글쓰기
               </Button>
             </Link>
@@ -221,19 +206,16 @@ export const HeaderNavigation = () => {
             passHref
           >
             <Button
-              variant="default" // 기본 variant 사용 또는 커스텀 스타일 유지
-              className={`flex items-center gap-2 rounded-full bg-[#20242B] px-4 py-2 text-xs text-white transition-colors duration-150 sm:text-sm ${
-                isAttemptingLogin
-                  ? "cursor-not-allowed opacity-70"
-                  : "hover:cursor-pointer hover:bg-[#33373E]"
-              }`}
+              variant={isAttemptingLogin ? "primary-loading" : "primary"}
+              size="rounded"
               disabled={isAttemptingLogin}
             >
               {isAttemptingLogin ? (
                 `Logging in${loginDots}`
               ) : (
                 <>
-                  Login with <Image src="/githubIcon.svg" alt="GitHub" width={22} height={22} />
+                  <span className="hidden md:inline">Login with </span>
+                  <Image src="/githubIcon.svg" alt="GitHub" width={22} height={22} />
                 </>
               )}
             </Button>
