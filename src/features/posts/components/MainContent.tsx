@@ -2,10 +2,9 @@
 
 import TabMenu from "@/components/shared/navigation/TabMenu";
 import { WelcomeBoardSection } from "@/features/posts";
-import { useTab } from "@/hooks/useTab"; // Import the generic useTab hook
+import { useTab } from "@/hooks/useTab";
 import { ReactNode } from "react";
 
-// Define MainTab type locally or import if it's defined elsewhere
 type MainTab = "posts" | "welcome";
 const VALID_MAIN_TABS: MainTab[] = ["posts", "welcome"];
 
@@ -18,6 +17,8 @@ export default function MainContent({ postsTabContent }: { postsTabContent: Reac
   const { currentTab, handleTabChange } = useTab<MainTab>({
     defaultTab: "posts",
     validTabs: VALID_MAIN_TABS,
+    queryParamName: "tab",
+    preserveParams: ["tag"], // tag는 유지, page는 초기화됨
   });
 
   const renderTabContent = () => {
