@@ -1,8 +1,12 @@
 /**
- * 마이페이지 댓글 탭 컴포넌트
+ * 댓글 탭 컴포넌트
  *
  * 사용자가 작성한 댓글 목록을 표시하며,
  * 로딩, 에러, 빈 상태를 독립적으로 관리합니다.
+ * 마이페이지와 공개 프로필 페이지에서 공유하여 사용됩니다.
+ *
+ * @param isOwner - 현재 사용자가 프로필 소유자인지 여부
+ * @param username - 조회할 사용자명 (공개 프로필용)
  */
 
 import EmptyState from "@/components/shared/EmptyState";
@@ -14,7 +18,15 @@ import { CommentResponse } from "@/generated/api";
 import { usePagination } from "@/hooks/usePagination";
 import ErrorDisplay from "../shared/ErrorDisplay";
 
-export default function CommentsTab() {
+interface CommentsTabProps {
+  isOwner?: boolean;
+  username?: string;
+}
+
+export default function CommentsTab({
+  isOwner = true,
+  username: _username, // eslint-disable-line @typescript-eslint/no-unused-vars
+}: CommentsTabProps = {}) {
   const { currentPage, currentPageForAPI, setPage } = usePagination();
   const pageSize = 5;
 
@@ -40,7 +52,12 @@ export default function CommentsTab() {
   }
   // 에러 상태
   if (error) {
-    return <ErrorDisplay title="댓글을 불러올 수 없습니다" error={error} />;
+    return (
+      <ErrorDisplay
+        title={isOwner ? "댓글을 불러올 수 없습니다" : "프로필 댓글을 불러올 수 없습니다"}
+        error={error}
+      />
+    );
   }
   // 데이터 표시
   if (!commentsData || !commentsData.content || commentsData.content.length === 0) {
@@ -56,8 +73,10 @@ export default function CommentsTab() {
             />
           </svg>
         }
-        title="작성한 댓글이 없습니다"
-        description="다른 사용자의 게시글에 댓글을 달아보세요!"
+        title={isOwner ? "작성한 댓글이 없습니다" : "공개된 댓글이 없습니다"}
+        description={
+          isOwner ? "다른 사용자의 게시글에 댓글을 달아보세요!" : "아직 공개된 댓글이 없습니다."
+        }
       />
     );
   }
@@ -68,7 +87,7 @@ export default function CommentsTab() {
       <CommentList
         comments={commentsData.content as CommentResponse[]}
         variant="my"
-        className="mt-6"
+        className="mt-4 md:mt-6"
       />
       {/* 페이지네이션 */}
       {totalPages > 1 && (
@@ -76,7 +95,7 @@ export default function CommentsTab() {
           currentPage={currentPage} // 이미 1부터 시작하는 값
           totalPages={totalPages}
           onPageChange={handlePageChange}
-          className="mt-12"
+          className="mt-8 md:mt-12"
         />
       )}
     </>

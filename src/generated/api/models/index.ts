@@ -2,6 +2,8 @@
 /* eslint-disable */
 export * from './AccessTokenResponse';
 export * from './AdmissionResultResponse';
+export * from './ChatMessageRequest';
+export * from './ChatMessageResponse';
 export * from './CommentListResponse';
 export * from './CommentRequest';
 export * from './CommentResponse';
@@ -52,9 +54,12 @@ export * from './ResponseDtoProjectListResponse';
 export * from './ResponseDtoString';
 export * from './ResponseDtoUserActivityResponse';
 export * from './ResponseDtoUserProfileResponse';
+export * from './ResponseDtoUserPublicProfileResponse';
 export * from './ResponseDtoVoid';
 export * from './UpdateAdmissionResultRequest';
 export * from './UpdateProfileRequest';
 export * from './UserActivityResponse';
+export * from './UserMiniProfileResponse';
 export * from './UserProfileRequest';
 export * from './UserProfileResponse';
+export * from './UserPublicProfileResponse';

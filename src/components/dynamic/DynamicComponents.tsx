@@ -10,7 +10,6 @@
 import dynamic from "next/dynamic";
 import CommentsSkeleton from "../../features/comments/components/skeletons/CommentsSkeleton";
 import MarkdownViewerSkeleton from "../../features/posts/components/skeletons/MarkdownViewerSkeleton";
-import ToastEditorSkeleton from "../../features/posts/components/skeletons/ToastEditorSkeleton";
 import { ProfileEditDialogSkeleton } from "../../features/user";
 
 /**
@@ -28,12 +27,38 @@ export const DynamicMarkdownViewer = dynamic(
 );
 
 /**
- * ToastEditor 동적 로딩 (이미 PostForm에서 사용 중이지만 재사용을 위해 정의)
+ * ToastEditor 동적 로딩 - 개선된 버전
+ *
+ * 에디터는 무거운 라이브러리이므로 실제 사용할 때만 로딩하고
+ * 더 나은 로딩 경험을 위해 개선된 스켈레톤을 사용합니다.
  */
 export const DynamicToastEditor = dynamic(
   () => import("../../features/posts/components/ToastEditor"),
   {
-    loading: () => <ToastEditorSkeleton />,
+    loading: () => (
+      <div className="border-t border-gray-200">
+        <div className="animate-pulse">
+          {/* 툴바 스켈레톤 */}
+          <div className="border-b border-gray-200 p-2">
+            <div className="flex gap-2">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-8 w-8 rounded bg-gray-200" />
+              ))}
+            </div>
+          </div>
+
+          {/* 에디터 영역 스켈레톤 */}
+          <div className="min-h-[400px] p-4">
+            <div className="space-y-3">
+              <div className="h-4 w-3/4 rounded bg-gray-200" />
+              <div className="h-4 w-full rounded bg-gray-200" />
+              <div className="h-4 w-5/6 rounded bg-gray-200" />
+              <div className="h-4 w-2/3 rounded bg-gray-200" />
+            </div>
+          </div>
+        </div>
+      </div>
+    ),
     ssr: false, // 에디터는 클라이언트에서만 동작
   }
 );

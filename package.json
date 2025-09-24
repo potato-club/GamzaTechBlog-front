@@ -10,7 +10,7 @@
     "build:analyze": "set ANALYZE=true && next build",
     "start": "next start",
     "lint": "next lint",
-    "gen:api": "openapi-generator-cli generate -i https://gamzatech.site/v3/api-docs/all -g typescript-fetch -o src/generated/api --additional-properties=typescriptThreePlus=true,useInterfaces=true"
+    "gen:api": "openapi-generator-cli generate -i https://gamzatech.site/v3/api-docs/all -g typescript-fetch -o src/generated/api --additional-properties=typescriptThreePlus=true,useInterfaces=true,disableESLint=true"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

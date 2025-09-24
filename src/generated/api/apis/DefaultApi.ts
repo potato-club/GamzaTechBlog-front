@@ -15,6 +15,8 @@
 
 import * as runtime from '../runtime';
 import type {
+  ChatMessageRequest,
+  ChatMessageResponse,
   CommentRequest,
   CreateAdmissionResultRequest,
   IntroCreateRequest,
@@ -47,12 +49,17 @@ import type {
   ResponseDtoString,
   ResponseDtoUserActivityResponse,
   ResponseDtoUserProfileResponse,
+  ResponseDtoUserPublicProfileResponse,
   ResponseDtoVoid,
   UpdateAdmissionResultRequest,
   UpdateProfileRequest,
   UserProfileRequest,
 } from '../models/index';
 import {
+    ChatMessageRequestFromJSON,
+    ChatMessageRequestToJSON,
+    ChatMessageResponseFromJSON,
+    ChatMessageResponseToJSON,
     CommentRequestFromJSON,
     CommentRequestToJSON,
     CreateAdmissionResultRequestFromJSON,
@@ -117,6 +124,8 @@ import {
     ResponseDtoUserActivityResponseToJSON,
     ResponseDtoUserProfileResponseFromJSON,
     ResponseDtoUserProfileResponseToJSON,
+    ResponseDtoUserPublicProfileResponseFromJSON,
+    ResponseDtoUserPublicProfileResponseToJSON,
     ResponseDtoVoidFromJSON,
     ResponseDtoVoidToJSON,
     UpdateAdmissionResultRequestFromJSON,
@@ -138,6 +147,10 @@ export interface AddCommentRequest {
 
 export interface ApproveUserProfileRequest {
     id: number;
+}
+
+export interface ChatRequest {
+    chatMessageRequest: ChatMessageRequest;
 }
 
 export interface CompleteProfileRequest {
@@ -225,6 +238,13 @@ export interface GetPostsRequest {
 
 export interface GetPostsByTagRequest {
     tagName: string;
+    page?: number;
+    size?: number;
+    sort?: Array<string>;
+}
+
+export interface GetPublicProfileByNicknameRequest {
+    nickname: string;
     page?: number;
     size?: number;
     sort?: Array<string>;
@@ -438,6 +458,53 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async approveUserProfile(requestParameters: ApproveUserProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoVoid> {
         const response = await this.approveUserProfileRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 챗봇
+     */
+    async chatRaw(requestParameters: ChatRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ChatMessageResponse>> {
+        if (requestParameters['chatMessageRequest'] == null) {
+            throw new runtime.RequiredError(
+                'chatMessageRequest',
+                'Required parameter "chatMessageRequest" was null or undefined when calling chat().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/ai/chat`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ChatMessageRequestToJSON(requestParameters['chatMessageRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ChatMessageResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 챗봇
+     */
+    async chat(requestParameters: ChatRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ChatMessageResponse> {
+        const response = await this.chatRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -704,7 +771,7 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * 자기소개 삭제(본인만)
+     * 자기소개 삭제
      */
     async deleteIntroRaw(requestParameters: DeleteIntroRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoVoid>> {
         if (requestParameters['introId'] == null) {
@@ -741,7 +808,7 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * 자기소개 삭제(본인만)
+     * 자기소개 삭제
      */
     async deleteIntro(requestParameters: DeleteIntroRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoVoid> {
         const response = await this.deleteIntroRaw(requestParameters, initOverrides);
@@ -1209,7 +1276,7 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * 자기소개 목록 조회(페이지네이션)
+     * 자기소개 목록 조회
      */
     async getIntroListRaw(requestParameters: GetIntroListRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoPagedResponseIntroResponse>> {
         const queryParameters: any = {};
@@ -1250,7 +1317,7 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * 자기소개 목록 조회(페이지네이션)
+     * 자기소개 목록 조회
      */
     async getIntroList(requestParameters: GetIntroListRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoPagedResponseIntroResponse> {
         const response = await this.getIntroListRaw(requestParameters, initOverrides);
@@ -1630,6 +1697,63 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async getProfileImage(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoProfileImageResponse> {
         const response = await this.getProfileImageRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 상대방 공개 프로필 조회
+     */
+    async getPublicProfileByNicknameRaw(requestParameters: GetPublicProfileByNicknameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseDtoUserPublicProfileResponse>> {
+        if (requestParameters['nickname'] == null) {
+            throw new runtime.RequiredError(
+                'nickname',
+                'Required parameter "nickname" was null or undefined when calling getPublicProfileByNickname().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['page'] != null) {
+            queryParameters['page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
+
+        if (requestParameters['sort'] != null) {
+            queryParameters['sort'] = requestParameters['sort'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/api/v1/users/public/profile/{nickname}`;
+        urlPath = urlPath.replace(`{${"nickname"}}`, encodeURIComponent(String(requestParameters['nickname'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResponseDtoUserPublicProfileResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * 상대방 공개 프로필 조회
+     */
+    async getPublicProfileByNickname(requestParameters: GetPublicProfileByNicknameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseDtoUserPublicProfileResponse> {
+        const response = await this.getPublicProfileByNicknameRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

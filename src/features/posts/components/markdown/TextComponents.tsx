@@ -3,19 +3,25 @@ import type { ComponentProps } from "react";
 // 텍스트 관련 컴포넌트들
 
 export const MarkdownH1 = ({ children, ...props }: ComponentProps<"h1">) => (
-  <h1 className="mt-6 mb-4 border-b border-[#d0d7de] pb-2 text-[2em] font-semibold" {...props}>
+  <h1
+    className="mt-6 mb-4 border-b border-[#d0d7de] pb-2 text-[1.6em] font-semibold sm:text-[1.8em] md:text-[2em]"
+    {...props}
+  >
     {children}
   </h1>
 );
 
 export const MarkdownH2 = ({ children, ...props }: ComponentProps<"h2">) => (
-  <h2 className="mt-6 mb-4 border-b border-[#d0d7de] pb-2 text-[1.5em] font-semibold" {...props}>
+  <h2
+    className="mt-6 mb-4 border-b border-[#d0d7de] pb-2 text-[1.2em] font-semibold sm:text-[1.35em] md:text-[1.5em]"
+    {...props}
+  >
     {children}
   </h2>
 );
 
 export const MarkdownH3 = ({ children, ...props }: ComponentProps<"h3">) => (
-  <h3 className="mt-6 mb-4 text-[1.25em] font-semibold" {...props}>
+  <h3 className="mt-6 mb-4 text-[1.1em] font-semibold sm:text-[1.18em] md:text-[1.25em]" {...props}>
     {children}
   </h3>
 );

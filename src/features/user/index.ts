@@ -34,13 +34,4 @@ export {
 export { getCurrentUser, userService } from "./services";
 
 // Types
-export type {
-  MyPageState,
-  MyPageTab,
-  MyPageTabsProps,
-  ProfileEditDialogProps,
-  ProfileEditFormState,
-  UserActivityStatItemProps,
-  UserProfileProps,
-  UserStats,
-} from "./types";
+export type { MyPageTab, ProfileEditDialogProps, UserActivityStatItemProps } from "./types";

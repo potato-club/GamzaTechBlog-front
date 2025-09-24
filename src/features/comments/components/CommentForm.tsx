@@ -9,12 +9,12 @@
  */
 
 import { Button } from "@/components/ui/button";
+import { UI_CONSTANTS } from "@/constants/ui";
 import { useCreateComment } from "@/features/comments";
 import { CommentResponse, UserProfileResponse } from "@/generated/api";
-// Zustand import 제거됨 - import { useAuth, User } from "@/store/authStore";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 
 interface CommentFormProps {
   postId: number;
@@ -35,17 +35,15 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
   // const currentUserProfile = userProfile ?? user;
   const currentUserProfile = userProfile ?? null; // 임시로 null로 설정
 
-  // 이미지 URL 가져오기 함수
-  const getUserImageUrl = () => {
+  // 이미지 URL 가져오기 함수 - 메모이제이션 적용
+  const getUserImageUrl = useCallback(() => {
     if (!currentUserProfile) return "/profileSVG.svg";
     // UserProfileResponse 타입인 경우
     if ("profileImageUrl" in currentUserProfile) {
       return currentUserProfile.profileImageUrl || "/profileSVG.svg";
     }
-    // User 타입인 경우 (image 필드 사용) - User 타입 제거됨
-    // return (currentUserProfile as User).image || "/profileSVG.svg";
     return "/profileSVG.svg";
-  };
+  }, [currentUserProfile]);
 
   /**
    * TanStack Query 뮤테이션을 사용한 댓글 등록
@@ -63,12 +61,12 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
 
     // 인증되지 않은 사용자 체크
     if (!isLoggedIn) {
-      alert("로그인이 필요합니다.");
+      alert(UI_CONSTANTS.FORMS.VALIDATION_MESSAGES.REQUIRED_LOGIN);
       return;
     }
 
     if (!newComment.trim()) {
-      alert("댓글 내용을 입력해주세요.");
+      alert(UI_CONSTANTS.FORMS.VALIDATION_MESSAGES.REQUIRED_COMMENT);
       return;
     }
 
@@ -105,19 +103,24 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
 
   return (
     <form className="mt-4 flex flex-col gap-3" onSubmit={handleSubmit} aria-label="댓글 작성">
-      <div className="flex items-start gap-3">
-        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
-          <Image
-            src={getUserImageUrl()}
-            alt="현재 사용자의 프로필 이미지"
-            width={36}
-            height={36}
-            className="h-full w-full object-cover"
-          />
+      <div className="flex flex-col items-start gap-3 md:flex-row">
+        <div className="flex w-full items-center gap-3 md:w-auto">
+          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
+            <Image
+              src={getUserImageUrl()}
+              alt={UI_CONSTANTS.ACCESSIBILITY.CURRENT_USER_PROFILE_ALT}
+              width={36}
+              height={36}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <span className="text-[14px] font-medium text-[#1C222E] md:hidden">
+            {currentUserProfile?.nickname || "사용자"}
+          </span>
         </div>
         <textarea
           id="comment-input"
-          placeholder="댓글을 남겨주세요."
+          placeholder={UI_CONSTANTS.FORMS.PLACEHOLDERS.COMMENT}
           className="min-h-[80px] w-full resize-none rounded-xl border border-[#E7EEFE] px-5 py-3.5 text-sm text-gray-800 transition focus:ring-2 focus:ring-[#FAA631]/50 focus:outline-none"
           aria-required="true"
           value={newComment}
@@ -125,13 +128,15 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
           disabled={createCommentMutation.isPending} // TanStack Query 로딩 상태 사용
         />
       </div>
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end">
         <Button
           type="submit"
-          className="rounded-[63px] bg-[#20242B] px-3 py-1.5 text-[12px] text-white hover:bg-[#1C222E]"
+          className="w-full rounded-[63px] bg-[#20242B] px-3 py-1.5 text-[12px] text-white hover:bg-[#1C222E] md:w-auto"
           disabled={createCommentMutation.isPending || !newComment.trim()}
         >
-          {createCommentMutation.isPending ? "등록 중..." : "등록"}
+          {createCommentMutation.isPending
+            ? UI_CONSTANTS.FORMS.BUTTONS.COMMENT_LOADING
+            : UI_CONSTANTS.FORMS.BUTTONS.COMMENT_SUBMIT}
         </Button>
       </div>
     </form>

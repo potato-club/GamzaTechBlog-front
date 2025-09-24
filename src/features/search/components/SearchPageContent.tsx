@@ -45,31 +45,40 @@ export default function SearchPageContent() {
   // 로딩 중일 때 스켈레톤 UI 표시
   if (isLoadingPosts) {
     return (
-      <div className="mx-auto flex flex-col gap-30">
+      <div className="mx-auto flex flex-col gap-3">
         {/* 메인 페이지 로고 영역만큼의 간격 추가 */}
-        <section className="text-center" style={{ height: "262px" }}>
-          {/* 로고 이미지(230px) + 텍스트 간격(mt-2) + 텍스트 높이 ≈ 262px */}
+        <section className="flex h-[120px] items-center text-[24px] md:h-[262px] md:text-[34px]">
+          {/* 모바일: 축소된 높이와 폰트, 데스크톱: 기존 유지 */}
+          {keyword && (
+            <p className="mt-2 text-[#20242B]">
+              <span className="text-[#ABB5BD]">Results for</span>{" "}
+              <span className="font-semibold">{keyword}</span>
+            </p>
+          )}
         </section>
-        <div className="flex pb-10">
-          <main className="flex-3">
-            <h2 className="text-2xl font-semibold">검색 결과</h2>
+
+        <div className="flex flex-col pb-6 md:flex-row md:pb-10">
+          <section className="w-full md:flex-3">
+            <h2 className="text-xl font-semibold md:text-2xl">검색 결과</h2>
             {keyword && (
-              <p className="mt-2 mb-6 text-gray-600">&quot;{keyword}&quot;에 대한 검색 결과</p>
+              <p className="mt-2 mb-4 text-sm text-gray-600 md:mb-6 md:text-base">
+                &quot;{keyword}&quot;에 대한 검색 결과
+              </p>
             )}
             {/* 게시글 로딩 스켈레톤 */}
-            <div className="mt-8 flex flex-col gap-8">
+            <div className="mt-6 flex flex-col gap-6 md:mt-8 md:gap-8">
               {[...Array(3)].map((_, index) => (
                 <div key={index} className="animate-pulse">
-                  <div className="mb-2 h-6 w-3/4 rounded bg-gray-200"></div>
-                  <div className="mb-2 h-4 w-1/2 rounded bg-gray-200"></div>
-                  <div className="h-4 w-full rounded bg-gray-200"></div>
+                  <div className="mb-2 h-5 w-3/4 rounded bg-gray-200 md:h-6"></div>
+                  <div className="mb-2 h-3 w-1/2 rounded bg-gray-200 md:h-4"></div>
+                  <div className="h-3 w-full rounded bg-gray-200 md:h-4"></div>
                 </div>
               ))}
             </div>
-          </main>
+          </section>
 
-          {/* 사이드바 로딩 스켈레톤 */}
-          <aside className="ml-8 flex-1">
+          {/* 사이드바 로딩 스켈레톤 - 모바일에서는 숨김, 데스크톱에서만 표시 */}
+          <aside className="ml-10 hidden flex-1 border-l border-[#D5D9E3] pl-10 md:block">
             <div className="animate-pulse">
               <div className="mb-4 h-6 w-1/2 rounded bg-gray-200"></div>
               <div className="space-y-2">
@@ -87,15 +96,22 @@ export default function SearchPageContent() {
   // 에러 발생 시 에러 메시지 표시
   if (postsError) {
     return (
-      <div className="mx-auto flex flex-col gap-30">
+      <div className="mx-auto flex flex-col gap-3">
         {/* 메인 페이지 로고 영역만큼의 간격 추가 */}
-        <section className="text-center" style={{ height: "262px" }}>
-          {/* 로고 이미지(230px) + 텍스트 간격(mt-2) + 텍스트 높이 ≈ 262px */}
+        <section className="flex h-[120px] items-center text-[24px] md:h-[262px] md:text-[34px]">
+          {/* 모바일: 축소된 높이와 폰트, 데스크톱: 기존 유지 */}
+          {keyword && (
+            <p className="mt-2 text-[#20242B]">
+              <span className="text-[#ABB5BD]">Results for</span>{" "}
+              <span className="font-semibold">{keyword}</span>
+            </p>
+          )}
         </section>
-        <div className="flex justify-center pb-10">
+
+        <div className="flex justify-center pb-6 md:pb-10">
           <div className="text-center text-red-500">
-            <p>검색 중 오류가 발생했습니다.</p>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="text-base md:text-lg">검색 중 오류가 발생했습니다.</p>
+            <p className="mt-2 text-sm text-gray-500 md:text-base">
               {postsError?.message || "알 수 없는 오류가 발생했습니다."}
             </p>
           </div>
@@ -107,8 +123,8 @@ export default function SearchPageContent() {
   return (
     <div className="mx-auto flex flex-col gap-3">
       {/* 메인 페이지 로고 영역만큼의 간격 추가 */}
-      <section className="flex items-center text-[34px]" style={{ height: "262px" }}>
-        {/* 로고 이미지(230px) + 텍스트 간격(mt-2) + 텍스트 높이 ≈ 262px */}
+      <section className="flex h-[120px] items-center text-[24px] md:h-[262px] md:text-[34px]">
+        {/* 모바일: 축소된 높이와 폰트, 데스크톱: 기존 유지 */}
         {keyword && (
           <p className="mt-2 text-[#20242B]">
             <span className="text-[#ABB5BD]">Results for</span>{" "}
@@ -116,11 +132,11 @@ export default function SearchPageContent() {
           </p>
         )}
       </section>
-      <div className="flex pb-10">
-        <main className="flex-3">
-          <div className="mb-6 flex items-center justify-between">
+      <div className="flex flex-col pb-6 md:flex-row md:pb-10">
+        <section className="w-full md:flex-3">
+          <div className="mb-4 flex items-center justify-between md:mb-6">
             <div>
-              <h2 className="text-2xl font-semibold">Posts</h2>
+              <h2 className="text-xl font-semibold md:text-2xl">Posts</h2>
             </div>
           </div>
 
@@ -141,10 +157,11 @@ export default function SearchPageContent() {
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
-              className="mt-12"
+              className="mt-8 md:mt-12"
             />
           )}
-        </main>
+        </section>
+
         <SearchPageSidebar />
       </div>
     </div>
