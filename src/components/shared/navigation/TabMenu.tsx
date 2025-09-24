@@ -42,7 +42,7 @@ export default function TabMenu<T extends string>({
               key={value}
               value={value}
               id={`${value}-tab`}
-              className="text-lg md:border-none md:text-xl"
+              className="text-lg hover:cursor-pointer md:border-none md:text-xl"
             >
               {label}
             </TabsTrigger>
