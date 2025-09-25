@@ -1,5 +1,6 @@
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { logger } from "@/lib/logger";
 
 /**
  * 서버 컴포넌트에서 JWT 토큰을 검증하여 사용자 정보를 가져오는 유틸리티
@@ -49,7 +50,7 @@ export async function getCurrentUser(): Promise<UserJWTPayload | null> {
 
     const jwtSecret = process.env.JWT_SECRET_KEY;
     if (!jwtSecret) {
-      console.error("JWT_SECRET_KEY is not defined in environment variables");
+      logger.error("JWT_SECRET_KEY is not defined in environment variables");
       return null;
     }
 
@@ -62,7 +63,7 @@ export async function getCurrentUser(): Promise<UserJWTPayload | null> {
 
     return payload as unknown as UserJWTPayload;
   } catch (error) {
-    console.error("Error processing JWT:", error);
+    logger.secureError("JWT authentication failed", error);
     return null;
   }
 }
