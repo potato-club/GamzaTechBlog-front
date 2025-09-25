@@ -190,7 +190,7 @@ export const HeaderNavigation = () => {
         {isLoggedIn && userProfile ? (
           // 로그인된 상태: 프로필 이미지 표시
           <>
-            <Link href="/posts/new">
+            <Link href="/posts/new" className="hidden md:inline-flex">
               <Button variant="primary" size="rounded">
                 글쓰기
               </Button>
