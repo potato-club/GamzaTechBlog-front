@@ -5,6 +5,26 @@ import { cookies } from "next/headers";
  * 서버 컴포넌트에서 JWT 토큰을 검증하여 사용자 정보를 가져오는 유틸리티
  */
 
+/**
+ * JWT 시크릿 키를 Uint8Array로 변환합니다
+ * @param jwtSecret 환경변수에서 가져온 JWT 시크릿 키
+ * @returns 변환된 Uint8Array
+ */
+function createJWTSecret(jwtSecret: string): Uint8Array {
+  try {
+    // Secret key가 base64로 인코딩되어 있는지 확인하고 처리
+    if (jwtSecret.endsWith("=") || /^[A-Za-z0-9+/]*={0,2}$/.test(jwtSecret)) {
+      // Base64로 디코딩
+      return new Uint8Array(Buffer.from(jwtSecret, "base64"));
+    } else {
+      // 일반 문자열로 처리
+      return new TextEncoder().encode(jwtSecret);
+    }
+  } catch (error) {
+    throw new Error(`Failed to process JWT secret: ${error}`);
+  }
+}
+
 interface UserJWTPayload {
   sub: string;
   githubId: string;
@@ -34,16 +54,7 @@ export async function getCurrentUser(): Promise<UserJWTPayload | null> {
     }
 
     // JWT 토큰을 안전하게 검증
-    let secret: Uint8Array;
-
-    // Secret key가 base64로 인코딩되어 있는지 확인하고 처리
-    if (jwtSecret.endsWith("=") || /^[A-Za-z0-9+/]*={0,2}$/.test(jwtSecret)) {
-      // Base64로 디코딩
-      secret = new Uint8Array(Buffer.from(jwtSecret, "base64"));
-    } else {
-      // 일반 문자열로 처리
-      secret = new TextEncoder().encode(jwtSecret);
-    }
+    const secret = createJWTSecret(jwtSecret);
 
     const { payload } = await jwtVerify(token, secret, {
       algorithms: ["HS256"], // 보안을 위해 단일 알고리즘만 허용
