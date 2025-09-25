@@ -1,0 +1,23 @@
+name: Claude Code Review (Mention)
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  claude:
+    # 댓글에 '@claude'가 포함된 경우에만 실행
+    if: contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # prompt는 반드시 비워두어야 합니다.
