@@ -17,7 +17,7 @@ import {
   useQueryClient,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { deleteCookie } from "cookies-next";
+import { handleTokenExpiration, isRefreshTokenInvalidError } from "@/lib/tokenManager";
 import { userService } from "../services";
 
 // 뮤테이션 컨텍스트 타입 정의
@@ -52,16 +52,9 @@ export function useUserProfile(
     gcTime: 1000 * 60 * 10,
     retry: (failureCount, error) => {
       // RefreshTokenInvalidError는 재시도하지 않음
-      if (
-        error &&
-        typeof error === "object" &&
-        "name" in error &&
-        error.name === "RefreshTokenInvalidError"
-      ) {
+      if (isRefreshTokenInvalidError(error)) {
         // 토큰이 만료된 경우 로그아웃 처리
-        queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.profile() });
-        queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.role() });
-        deleteCookie("authorization", { path: "/" });
+        handleTokenExpiration(queryClient);
         return false;
       }
       return failureCount < 2;
@@ -103,16 +96,9 @@ export function useUserRole(
     gcTime: 1000 * 60 * 30,
     retry: (failureCount, error) => {
       // RefreshTokenInvalidError는 재시도하지 않음
-      if (
-        error &&
-        typeof error === "object" &&
-        "name" in error &&
-        error.name === "RefreshTokenInvalidError"
-      ) {
+      if (isRefreshTokenInvalidError(error)) {
         // 토큰이 만료된 경우 로그아웃 처리
-        queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.profile() });
-        queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.role() });
-        deleteCookie("authorization", { path: "/" });
+        handleTokenExpiration(queryClient);
         return false;
       }
       return failureCount < 2;
@@ -154,9 +140,7 @@ export function useWithdrawAccount(options?: UseMutationOptions<void, Error, voi
   return useMutation({
     mutationFn: () => userService.withdrawAccount(),
     onSuccess: (data, variables, context) => {
-      queryClient.clear();
-      deleteCookie("authorization", { path: "/", domain: ".gamzatech.site" });
-      window.location.href = "/";
+      handleTokenExpiration(queryClient, "/");
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {

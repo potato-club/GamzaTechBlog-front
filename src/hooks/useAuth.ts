@@ -7,8 +7,8 @@
 
 import { USER_QUERY_KEYS, userService, useUserProfile, useUserRole } from "@/features/user";
 import type { UserProfileResponse } from "@/generated/api/models";
+import { performLogout } from "@/lib/tokenManager";
 import { useQueryClient } from "@tanstack/react-query";
-import { deleteCookie } from "cookies-next";
 
 export function useAuth() {
   const queryClient = useQueryClient();
@@ -29,15 +29,7 @@ export function useAuth() {
   };
 
   const logout = async () => {
-    try {
-      await userService.logout();
-    } catch (logoutError) {
-      console.error("백엔드 로그아웃 API 호출 실패:", logoutError);
-    } finally {
-      queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.profile() });
-      queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.role() });
-      deleteCookie("authorization", { path: "/", domain: ".gamzatech.site" });
-    }
+    await performLogout(userService.logout, queryClient);
   };
 
   const refetchAuthStatus = async () => {
