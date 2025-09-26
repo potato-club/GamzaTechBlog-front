@@ -1,6 +1,11 @@
-import { deleteCookie, getCookie } from "cookies-next";
 import { decodeJwt } from "jose";
 import { Configuration, DefaultApi, ResponseDtoAccessTokenResponse } from "../generated/api";
+import {
+  getAuthCookie,
+  isTokenNearExpiration,
+  removeAuthCookie,
+  setTokenExpiration,
+} from "./tokenManager";
 
 // --- 타입 정의 ---
 interface ApiErrorResponse {
@@ -29,9 +34,6 @@ let failedRequestsQueue: Array<{
   options: RequestInit;
 }> = [];
 
-// --- 사전 예방적 재발급을 위한 상태 ---
-let tokenExpirationTime: number | null = null;
-
 /**
  * 새로운 AccessToken의 만료 시간을 디코딩하여 저장합니다.
  * 로그인 성공 직후 또는 토큰을 새로 발급받았을 때 호출되어야 합니다.
@@ -40,13 +42,16 @@ let tokenExpirationTime: number | null = null;
 export function updateTokenExpiration(accessToken: string) {
   try {
     const payload = decodeJwt(accessToken);
-    tokenExpirationTime = payload.exp ? payload.exp * 1000 : null; // exp는 초 단위이므로 ms로 변환
-    console.log(
-      `Proactive refresh tracking: token expiration set to ${tokenExpirationTime ? new Date(tokenExpirationTime).toLocaleString() : "N/A"}`
-    );
+    const expirationTime = payload.exp ? payload.exp * 1000 : null; // exp는 초 단위이므로 ms로 변환
+
+    if (expirationTime) {
+      setTokenExpiration(expirationTime);
+      console.log(
+        `Proactive refresh tracking: token expiration set to ${new Date(expirationTime).toLocaleString()}`
+      );
+    }
   } catch (e) {
     console.error("Failed to decode token for expiration tracking:", e);
-    tokenExpirationTime = null;
   }
 }
 
@@ -142,7 +147,7 @@ async function handleRefreshTokenError(response: Response): Promise<void> {
   const REFRESH_FAILED_STATUSES = [400, 401, 403];
 
   if (REFRESH_FAILED_STATUSES.includes(response.status)) {
-    deleteCookie("authorization");
+    removeAuthCookie();
     console.warn("리프레시 토큰이 만료되었거나 유효하지 않습니다. 강제 로그아웃이 필요합니다.");
     throw new RefreshTokenInvalidError("Refresh token invalid or expired.");
   }
@@ -157,14 +162,14 @@ async function fetchWithAuth(
   const EXPIRE_BUFFER_MS = 60 * 1000; // 1분 버퍼
 
   // --- 1. 사전 예방적 재발급 로직 ---
-  if (!isRetry && tokenExpirationTime && tokenExpirationTime < Date.now() + EXPIRE_BUFFER_MS) {
+  if (!isRetry && isTokenNearExpiration(EXPIRE_BUFFER_MS)) {
     console.warn("Token is about to expire, refreshing proactively...");
     // handleTokenRefresh는 재발급 및 요청 재시도를 모두 처리하므로, 호출하고 바로 반환합니다.
     return handleTokenRefresh(url, options);
   }
 
   // --- 2. 실제 API 요청 로직 ---
-  const accessToken = getCookie("authorization");
+  const accessToken = getAuthCookie();
   const headers = new Headers(options.headers);
 
   if (accessToken) {
@@ -197,7 +202,7 @@ async function fetchWithAuth(
 async function checkTokenExpiration(response: Response): Promise<boolean> {
   if (response.status !== 401 && response.status !== 403) return false;
 
-  const accessToken = getCookie("authorization");
+  const accessToken = getAuthCookie();
   if (!accessToken) return false;
 
   try {
