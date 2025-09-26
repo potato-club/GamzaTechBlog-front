@@ -6,6 +6,7 @@
  */
 
 import { deleteCookie, getCookie } from "cookies-next";
+import { USER_QUERY_KEYS } from "@/features/user";
 
 // --- 상수 정의 ---
 export const TOKEN_COOKIE_NAME = "authorization" as const;
@@ -78,8 +79,8 @@ export function handleTokenExpiration(
       queryClient.clear();
     } else {
       // 개별 쿼리 정리
-      queryClient.removeQueries({ queryKey: ["user", "profile"] });
-      queryClient.removeQueries({ queryKey: ["user", "role"] });
+      queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.profile() });
+      queryClient.removeQueries({ queryKey: USER_QUERY_KEYS.role() });
     }
   }
 
