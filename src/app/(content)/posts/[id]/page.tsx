@@ -3,10 +3,11 @@ import {
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
 import { PostHeader, PostStats, postService } from "@/features/posts";
+import { createServerApiClient } from "@/lib/apiClient";
+import { canEditPost } from "@/lib/auth";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { isPostAuthor } from "../../../../lib/auth";
 
 /**
  * 게시글 데이터 캐싱 함수
@@ -123,8 +124,26 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
       notFound();
     }
 
-    // 현재 로그인한 사용자가 게시글 작성자인지 확인
-    const isCurrentUserAuthor = post.githubId ? await isPostAuthor(post.githubId) : false;
+    // 현재 로그인한 사용자가 게시글을 수정할 수 있는지 확인
+    let isCurrentUserAuthor = false;
+    try {
+      const serverApiClient = createServerApiClient();
+      const userProfile = await serverApiClient.getCurrentUserProfile();
+      const profileData = userProfile?.data;
+
+      if (profileData) {
+        isCurrentUserAuthor = canEditPost(profileData, post.writer || "");
+      } else {
+        isCurrentUserAuthor = false;
+      }
+    } catch (error) {
+      // 로그인되지 않은 사용자나 API 에러의 경우 false로 처리
+      console.warn(
+        "User profile fetch failed:",
+        error instanceof Error ? `${error.name}: ${error.message}` : String(error)
+      );
+      isCurrentUserAuthor = false;
+    }
 
     return (
       <div className="layout-stable mx-auto flex flex-col gap-6 md:gap-12">
