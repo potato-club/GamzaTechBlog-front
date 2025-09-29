@@ -3,8 +3,8 @@ import {
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
 import { PostHeader, PostStats, postService } from "@/features/posts";
-import { canEditPost } from "@/lib/auth";
 import { createServerApiClient } from "@/lib/apiClient";
+import { canEditPost } from "@/lib/auth";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -129,10 +129,19 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     try {
       const serverApiClient = createServerApiClient();
       const userProfile = await serverApiClient.getCurrentUserProfile();
-      isCurrentUserAuthor = canEditPost(userProfile.data, post.writer || "");
+      const profileData = userProfile?.data;
+
+      if (profileData) {
+        isCurrentUserAuthor = canEditPost(profileData, post.writer || "");
+      } else {
+        isCurrentUserAuthor = false;
+      }
     } catch (error) {
       // 로그인되지 않은 사용자나 API 에러의 경우 false로 처리
-      console.warn("User profile fetch failed:", error);
+      console.warn(
+        "User profile fetch failed:",
+        error instanceof Error ? `${error.name}: ${error.message}` : String(error)
+      );
       isCurrentUserAuthor = false;
     }
 
