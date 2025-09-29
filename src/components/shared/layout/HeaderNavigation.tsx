@@ -4,16 +4,17 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useLoadingDots } from "@/hooks/useLoadingDots";
 import { DropdownActionItem } from "@/types/dropdown";
+import { isAdmin, canCreatePost } from "@/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation"; // usePathname import
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DropdownMenuList } from "../navigation/DropdownMenuList";
 
 export const HeaderNavigation = () => {
-  const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github"; // 환경 변수 또는 기본값  // useAuth 훅 호출. React Query가 데이터 관리
+  const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github";
   const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion, refetchAuthStatus } =
-    useAuth(); // refetchAuthStatus 추가
+    useAuth();
 
   console.log("HeaderNavigation state:", {
     isLoggedIn,
@@ -107,8 +108,8 @@ export const HeaderNavigation = () => {
       href: "/mypage",
       isLink: true,
     },
-    // ADMIN 역할일 때만 관리자 페이지 표시
-    ...(userProfile?.role === "ADMIN"
+    // 관리자일 때만 관리자 페이지 표시
+    ...(isAdmin(userProfile)
       ? [
           {
             label: "관리자 페이지",
@@ -190,11 +191,13 @@ export const HeaderNavigation = () => {
         {isLoggedIn && userProfile ? (
           // 로그인된 상태: 프로필 이미지 표시
           <>
-            <Link href="/posts/new" className="hidden md:inline-flex">
-              <Button variant="primary" size="rounded">
-                글쓰기
-              </Button>
-            </Link>
+            {canCreatePost(userProfile) && (
+              <Link href="/posts/new" className="hidden md:inline-flex">
+                <Button variant="primary" size="rounded">
+                  글쓰기
+                </Button>
+              </Link>
+            )}
             <DropdownMenuList triggerElement={headerTriggerElement} items={headerDropdownItems} />
           </>
         ) : (
