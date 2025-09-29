@@ -9,6 +9,7 @@
 import { PostForm, usePost, useUpdatePost, type PostFormData } from "@/features/posts";
 // Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import { useAuth } from "@/hooks/useAuth";
+import { canEditPost } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 
@@ -73,6 +74,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     );
   }
 
+
   // 게시글 로딩 에러 또는 존재하지 않는 경우
   if (error || !post) {
     return (
@@ -88,9 +90,8 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     );
   }
 
-  const isAuthor = userProfile.nickname === post.writer;
-
-  if (!isAuthor) {
+  // 게시글 수정 권한 체크
+  if (!canEditPost(userProfile, post.writer)) {
     return (
       <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
         <div className="text-lg text-red-600">이 게시글을 수정할 권한이 없습니다.</div>
