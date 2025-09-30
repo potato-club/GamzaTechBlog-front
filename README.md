@@ -94,13 +94,27 @@ cp .env.local.example .env.local
 
 `.env.local` 파일에 다음 환경 변수를 설정하세요:
 
-```env
-# API 서버 주소
-NEXT_PUBLIC_API_BASE_URL=https://gamzatech.site
+| 변수명 | 설명 | 필수 여부 | 기본값 | 예시 |
+|--------|------|-----------|--------|------|
+| `NEXT_PUBLIC_API_BASE_URL` | 백엔드 API 서버 주소 | 필수 | - | `https://gamzatech.site` |
+| `JWT_SECRET_KEY` | JWT 토큰 검증용 시크릿 키 (백엔드와 동일한 값 사용) | 필수 | - | `your-secret-key-here` |
 
-# JWT 시크릿 키 (백엔드와 동일한 키 사용)
+**환경별 설정:**
+
+**개발 환경 (`.env.local`)**
+```env
+NEXT_PUBLIC_API_BASE_URL=https://gamzatech.site
 JWT_SECRET_KEY=your-secret-key
 ```
+
+**프로덕션 환경**
+- 배포 플랫폼의 환경 변수 설정에서 동일한 값 설정
+- `JWT_SECRET_KEY`는 백엔드 서버와 반드시 동일한 값 사용
+
+**⚠️ 보안 주의사항:**
+- `JWT_SECRET_KEY`는 절대 GitHub에 커밋하지 마세요
+- `.env.local` 파일은 `.gitignore`에 포함되어 있습니다
+- 프로덕션 환경에서는 강력한 시크릿 키를 사용하세요
 
 ### 개발 서버 실행
 
