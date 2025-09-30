@@ -61,9 +61,9 @@ export function useAddLike(postId: number) {
       return { previousPostDetail, previousLikeStatus };
     },
 
-    onSuccess: async () => {
+    onSuccess: () => {
       // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
-      revalidatePostAction(postId).catch((error) => {
+      void revalidatePostAction(postId).catch((error) => {
         console.error("Failed to revalidate post:", error);
       });
     },
@@ -73,10 +73,8 @@ export function useAddLike(postId: number) {
       console.error("좋아요 추가 실패:", error);
 
       // 백업된 데이터로 롤백
-      if (context?.previousPostDetail !== undefined) {
+      if (context) {
         queryClient.setQueryData(POST_QUERY_KEYS.detail(postId), context.previousPostDetail);
-      }
-      if (context?.previousLikeStatus !== undefined) {
         queryClient.setQueryData(LIKE_QUERY_KEYS.status(postId), context.previousLikeStatus);
       }
     },
@@ -126,9 +124,9 @@ export function useRemoveLike(postId: number) {
       return { previousPostDetail, previousLikeStatus };
     },
 
-    onSuccess: async () => {
+    onSuccess: () => {
       // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
-      revalidatePostAction(postId).catch((error) => {
+      void revalidatePostAction(postId).catch((error) => {
         console.error("Failed to revalidate post:", error);
       });
     },
@@ -138,10 +136,8 @@ export function useRemoveLike(postId: number) {
       console.error("좋아요 취소 실패:", error);
 
       // 백업된 데이터로 롤백
-      if (context?.previousPostDetail !== undefined) {
+      if (context) {
         queryClient.setQueryData(POST_QUERY_KEYS.detail(postId), context.previousPostDetail);
-      }
-      if (context?.previousLikeStatus !== undefined) {
         queryClient.setQueryData(LIKE_QUERY_KEYS.status(postId), context.previousLikeStatus);
       }
     },

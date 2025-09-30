@@ -64,6 +64,7 @@ export function useCreateComment(postId: number) {
             comments: Array.isArray(old.comments)
               ? [optimisticComment, ...old.comments] // 최신 댓글을 맨 앞에 추가 (내림차순)
               : [optimisticComment],
+            commentsCount: (old.commentsCount || 0) + 1,
           };
         }
       );
@@ -71,9 +72,9 @@ export function useCreateComment(postId: number) {
       return { previousPost };
     },
 
-    onSuccess: async () => {
+    onSuccess: () => {
       // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
-      revalidatePostAction(postId).catch((error) => {
+      void revalidatePostAction(postId).catch((error) => {
         console.error("Failed to revalidate post:", error);
       });
 
@@ -121,6 +122,7 @@ export function useDeleteComment(postId: number) {
           return {
             ...old,
             comments: old.comments?.filter((comment) => comment.commentId !== commentId),
+            commentsCount: Math.max((old.commentsCount || 0) - 1, 0),
           };
         }
       );
@@ -128,9 +130,9 @@ export function useDeleteComment(postId: number) {
       return { previousPost };
     },
 
-    onSuccess: async (_, commentId) => {
+    onSuccess: (_, commentId) => {
       // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
-      revalidatePostAction(postId).catch((error) => {
+      void revalidatePostAction(postId).catch((error) => {
         console.error("Failed to revalidate post:", error);
       });
 
