@@ -64,7 +64,6 @@ export function useCreateComment(postId: number) {
             comments: Array.isArray(old.comments)
               ? [optimisticComment, ...old.comments] // 최신 댓글을 맨 앞에 추가 (내림차순)
               : [optimisticComment],
-            commentsCount: (old.commentsCount || 0) + 1,
           };
         }
       );
@@ -122,7 +121,6 @@ export function useDeleteComment(postId: number) {
           return {
             ...old,
             comments: old.comments?.filter((comment) => comment.commentId !== commentId),
-            commentsCount: Math.max((old.commentsCount || 0) - 1, 0),
           };
         }
       );
