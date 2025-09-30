@@ -5,6 +5,7 @@
  * 효율적인 상태 관리와 UI 업데이트를 제공합니다.
  */
 
+import { revalidatePostAction } from "@/app/actions/revalidate";
 import {
   CommentRequest,
   CommentResponse,
@@ -63,6 +64,7 @@ export function useCreateComment(postId: number) {
             comments: Array.isArray(old.comments)
               ? [optimisticComment, ...old.comments] // 최신 댓글을 맨 앞에 추가 (내림차순)
               : [optimisticComment],
+            commentsCount: (old.commentsCount || 0) + 1,
           };
         }
       );
@@ -71,6 +73,11 @@ export function useCreateComment(postId: number) {
     },
 
     onSuccess: () => {
+      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
+      void revalidatePostAction(postId).catch((error) => {
+        console.error("Failed to revalidate post:", error);
+      });
+
       // 성공 시에는 서버로부터 받은 실제 데이터로 캐시를 무효화하여 갱신
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
     },
@@ -115,6 +122,7 @@ export function useDeleteComment(postId: number) {
           return {
             ...old,
             comments: old.comments?.filter((comment) => comment.commentId !== commentId),
+            commentsCount: Math.max((old.commentsCount || 0) - 1, 0),
           };
         }
       );
@@ -123,6 +131,11 @@ export function useDeleteComment(postId: number) {
     },
 
     onSuccess: (_, commentId) => {
+      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
+      void revalidatePostAction(postId).catch((error) => {
+        console.error("Failed to revalidate post:", error);
+      });
+
       console.log("댓글 삭제 성공:", commentId);
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
     },
