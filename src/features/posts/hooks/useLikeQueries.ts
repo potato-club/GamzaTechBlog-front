@@ -1,3 +1,4 @@
+import { revalidatePostAction } from "@/app/actions/revalidate";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PostDetailResponse } from "../../../generated/api";
 import { likeService } from "../services/likeService";
@@ -61,7 +62,10 @@ export function useAddLike(postId: number) {
     },
 
     onSuccess: () => {
-      // 성공 시 추가 작업 없음 (이미 낙관적으로 업데이트됨)
+      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
+      void revalidatePostAction(postId).catch((error) => {
+        console.error("Failed to revalidate post:", error);
+      });
     },
 
     // 실패 시: 이전 상태로 롤백
@@ -69,10 +73,8 @@ export function useAddLike(postId: number) {
       console.error("좋아요 추가 실패:", error);
 
       // 백업된 데이터로 롤백
-      if (context?.previousPostDetail !== undefined) {
+      if (context) {
         queryClient.setQueryData(POST_QUERY_KEYS.detail(postId), context.previousPostDetail);
-      }
-      if (context?.previousLikeStatus !== undefined) {
         queryClient.setQueryData(LIKE_QUERY_KEYS.status(postId), context.previousLikeStatus);
       }
     },
@@ -123,7 +125,10 @@ export function useRemoveLike(postId: number) {
     },
 
     onSuccess: () => {
-      // 성공 시 추가 작업 없음 (이미 낙관적으로 업데이트됨)
+      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
+      void revalidatePostAction(postId).catch((error) => {
+        console.error("Failed to revalidate post:", error);
+      });
     },
 
     // 실패 시: 이전 상태로 롤백
@@ -131,10 +136,8 @@ export function useRemoveLike(postId: number) {
       console.error("좋아요 취소 실패:", error);
 
       // 백업된 데이터로 롤백
-      if (context?.previousPostDetail !== undefined) {
+      if (context) {
         queryClient.setQueryData(POST_QUERY_KEYS.detail(postId), context.previousPostDetail);
-      }
-      if (context?.previousLikeStatus !== undefined) {
         queryClient.setQueryData(LIKE_QUERY_KEYS.status(postId), context.previousLikeStatus);
       }
     },
