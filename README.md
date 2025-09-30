@@ -1,5 +1,11 @@
 # GamzaTechBlog Frontend
 
+<div align="center">
+  <img src="docs/images/hero.png" alt="GamzaTechBlog" width="100%" />
+</div>
+
+<br />
+
 > Next.js 15 기반의 감자 테크 블로그 프론트엔드
 
 한세대학교 IT학부 코딩 웹 동아리 "감자" 부원들을 위한 기술 블로그 플랫폼입니다. 마크다운 에디터, 실시간 댓글, 태그 기반 검색 등의 기능을 제공하며, 동아리 부원들이 기술 지식을 공유하고 소통할 수 있는 공간을 제공합니다.
