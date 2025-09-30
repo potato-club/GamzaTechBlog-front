@@ -1,3 +1,4 @@
+import { revalidatePostAction } from "@/app/actions/revalidate";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PostDetailResponse } from "../../../generated/api";
 import { likeService } from "../services/likeService";
@@ -60,8 +61,11 @@ export function useAddLike(postId: number) {
       return { previousPostDetail, previousLikeStatus };
     },
 
-    onSuccess: () => {
-      // 성공 시 추가 작업 없음 (이미 낙관적으로 업데이트됨)
+    onSuccess: async () => {
+      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
+      revalidatePostAction(postId).catch((error) => {
+        console.error("Failed to revalidate post:", error);
+      });
     },
 
     // 실패 시: 이전 상태로 롤백
@@ -122,8 +126,11 @@ export function useRemoveLike(postId: number) {
       return { previousPostDetail, previousLikeStatus };
     },
 
-    onSuccess: () => {
-      // 성공 시 추가 작업 없음 (이미 낙관적으로 업데이트됨)
+    onSuccess: async () => {
+      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
+      revalidatePostAction(postId).catch((error) => {
+        console.error("Failed to revalidate post:", error);
+      });
     },
 
     // 실패 시: 이전 상태로 롤백
