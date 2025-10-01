@@ -7,6 +7,7 @@ import {
   Pageable,
   PagedResponsePostListResponse,
   PostDetailResponse,
+  PostListResponse,
   PostPopularResponse,
   PostRequest,
   PostResponse,
@@ -21,16 +22,8 @@ import {
 } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { postService } from "../services";
-
-// 뮤테이션 컨텍스트 타입 정의
-interface CreatePostContext {
-  previousPosts: Array<[readonly unknown[], unknown]>;
-  tempPostId: number;
-}
-
-interface DeletePostContext {
-  previousPosts: Array<[readonly unknown[], unknown]>;
-}
+import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
+import { useAuth } from "@/hooks/useAuth";
 
 // 게시글 관련 Query Key 팩토리
 export const POST_QUERY_KEYS = {
@@ -107,88 +100,45 @@ export function useTags(options?: Omit<UseQueryOptions<string[], Error>, "queryK
  * 새 게시글을 생성하는 뮤테이션 훅 (낙관적 업데이트 포함)
  */
 export function useCreatePost(
-  options?: UseMutationOptions<PostResponse, Error, PostRequest, CreatePostContext>
+  options?: UseMutationOptions<PostResponse, Error, PostRequest>
 ) {
   const queryClient = useQueryClient();
+  const { userProfile } = useAuth();
 
   return useMutation({
-    mutationFn: (postData: PostRequest) => postService.createPost(postData),
+    mutationFn: postService.createPost,
 
-    // 낙관적 업데이트: 서버 응답 전에 UI 즉시 업데이트
-    onMutate: async (postData: PostRequest): Promise<CreatePostContext> => {
-      // 진행 중인 쿼리들을 취소하여 낙관적 업데이트와 충돌 방지
-      await queryClient.cancelQueries({ queryKey: POST_QUERY_KEYS.lists() });
+    ...withOptimisticUpdate<PostRequest, PagedResponsePostListResponse>({
+      queryClient,
+      queryKey: POST_QUERY_KEYS.lists(),
+      updateCache: (oldData, postData) => {
+        // 임시 게시글 생성
+        const tempPost: PostListResponse = {
+          postId: Date.now(),
+          title: postData.title,
+          contentSnippet: postData.content?.substring(0, 100),
+          writer: userProfile?.nickname || POST_TEXTS.STATUS_WRITING,
+          writerProfileImageUrl: userProfile?.profileImageUrl,
+          tags: postData.tags || [],
+          createdAt: new Date(),
+          thumbnailImageUrl: undefined,
+        };
 
-      // 현재 캐시된 데이터를 백업 (롤백용)
-      const previousPosts = queryClient.getQueriesData({ queryKey: POST_QUERY_KEYS.lists() });
-
-      // 임시 게시글 객체 생성
-      const tempPostId = Date.now();
-      const tempPost = {
-        postId: tempPostId,
-        title: postData.title,
-        content: postData.content,
-        tags: postData.tags || [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        nickname: POST_TEXTS.STATUS_WRITING, // 실제 사용자 정보는 서버에서 설정
-        profileImageUrl: undefined,
-        likeCount: 0,
-        commentCount: 0,
-      };
-
-      // 모든 게시글 목록 쿼리에 대해 낙관적 업데이트 적용
-      queryClient.setQueriesData(
-        { queryKey: POST_QUERY_KEYS.lists() },
-        (oldData: PagedResponsePostListResponse | undefined) => {
-          if (!oldData) return oldData;
-
-          return {
-            ...oldData,
-            content: [tempPost, ...(oldData.content || [])],
-            totalElements: (oldData.totalElements || 0) + 1,
-          };
-        }
-      );
-
-      return { previousPosts, tempPostId };
-    },
+        return {
+          ...oldData,
+          content: [tempPost, ...(oldData.content || [])],
+          totalElements: (oldData.totalElements || 0) + 1,
+        };
+      },
+      invalidateKeys: [["my-posts"]],
+    }),
 
     onSuccess: (newPost, variables, context) => {
-      // 서버에서 받은 실제 데이터로 캐시 업데이트
-      if (context?.tempPostId) {
-        queryClient.setQueriesData(
-          { queryKey: POST_QUERY_KEYS.lists() },
-          (oldData: PagedResponsePostListResponse | undefined) => {
-            if (!oldData) return oldData;
-
-            return {
-              ...oldData,
-              content: oldData.content?.map((post) =>
-                post.postId === context.tempPostId ? newPost : post
-              ) || [newPost],
-            };
-          }
-        );
-      }
-
-      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
       options?.onSuccess?.(newPost, variables, context);
     },
 
-    // 실패 시: 이전 상태로 롤백
     onError: (error, variables, context) => {
-      if (context?.previousPosts) {
-        context.previousPosts.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
       options?.onError?.(error, variables, context);
-    },
-
-    // 완료 시: 관련 쿼리 다시 가져오기
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
     },
 
     ...options,
@@ -198,58 +148,31 @@ export function useCreatePost(
 /**
  * 게시글 삭제 뮤테이션 (낙관적 업데이트 포함)
  */
-export function useDeletePost(
-  options?: UseMutationOptions<void, Error, number, DeletePostContext>
-) {
+export function useDeletePost(options?: UseMutationOptions<void, Error, number>) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (postId: number) => postService.deletePost(postId),
+    mutationFn: postService.deletePost,
 
-    // 낙관적 업데이트: 서버 응답 전에 UI에서 즉시 제거
-    onMutate: async (postId: number): Promise<DeletePostContext> => {
-      // 진행 중인 쿼리들을 취소하여 낙관적 업데이트와 충돌 방지
-      await queryClient.cancelQueries({ queryKey: POST_QUERY_KEYS.lists() });
-
-      // 현재 캐시된 데이터를 백업 (롤백용)
-      const previousPosts = queryClient.getQueriesData({ queryKey: POST_QUERY_KEYS.lists() });
-
-      // 모든 게시글 목록 쿼리에서 해당 항목 제거
-      queryClient.setQueriesData(
-        { queryKey: POST_QUERY_KEYS.lists() },
-        (oldData: PagedResponsePostListResponse | undefined) => {
-          if (!oldData) return oldData;
-
-          return {
-            ...oldData,
-            content: oldData.content?.filter((post) => post.postId !== postId) || [],
-            totalElements: Math.max((oldData.totalElements || 0) - 1, 0),
-          };
-        }
-      );
-
-      return { previousPosts };
-    },
+    ...withOptimisticUpdate<number, PagedResponsePostListResponse>({
+      queryClient,
+      queryKey: POST_QUERY_KEYS.lists(),
+      updateCache: (oldData, postId) => ({
+        ...oldData,
+        content: oldData.content?.filter((post) => post.postId !== postId) || [],
+        totalElements: Math.max((oldData.totalElements || 0) - 1, 0),
+      }),
+      invalidateKeys: [["my-posts"]],
+    }),
 
     onSuccess: (data, postId, context) => {
+      // 삭제된 게시글의 상세 정보도 무효화
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
       options?.onSuccess?.(data, postId, context);
     },
 
-    // 실패 시: 이전 상태로 롤백
     onError: (error, postId, context) => {
-      if (context?.previousPosts) {
-        context.previousPosts.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
       options?.onError?.(error, postId, context);
-    },
-
-    // 완료 시: 관련 쿼리 다시 가져오기
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
     },
 
     ...options,

@@ -12,86 +12,69 @@ import {
   PostDetailResponse,
   UserProfileResponse,
 } from "@/generated/api";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, UseMutationOptions } from "@tanstack/react-query";
 import { POST_QUERY_KEYS } from "../../posts/hooks/usePostQueries";
 import { USER_QUERY_KEYS } from "../../user/hooks/useUserQueries";
 import { commentService } from "../services";
+import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
 
 /**
  * 댓글을 등록하는 뮤테이션 훅
  *
  * @param postId - 댓글을 작성할 게시글의 ID
  */
-export function useCreateComment(postId: number) {
+export function useCreateComment(
+  postId: number,
+  options?: UseMutationOptions<CommentResponse, Error, CommentRequest>
+) {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    CommentResponse,
-    Error,
-    CommentRequest,
-    { previousPost: PostDetailResponse | undefined }
-  >({
+  return useMutation({
     mutationFn: (commentRequest: CommentRequest) =>
       commentService.registerComment(postId, commentRequest),
 
-    onMutate: async (newComment) => {
-      await queryClient.cancelQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
+    ...withOptimisticUpdate<CommentRequest, PostDetailResponse>({
+      queryClient,
+      queryKey: POST_QUERY_KEYS.detail(postId),
+      updateCache: (oldData, newComment) => {
+        // 현재 사용자 프로필 정보 가져오기
+        const userProfile = queryClient.getQueryData<UserProfileResponse>(
+          USER_QUERY_KEYS.profile()
+        );
 
-      const previousPost = queryClient.getQueryData<PostDetailResponse>(
-        POST_QUERY_KEYS.detail(postId)
-      );
+        // 임시 댓글 생성
+        const optimisticComment: CommentResponse = {
+          commentId: Date.now(), // 임시 ID
+          writer: userProfile?.nickname ?? "Me",
+          writerProfileImageUrl: userProfile?.profileImageUrl ?? "/profileSVG.svg",
+          content: newComment.content,
+          createdAt: new Date(),
+        };
 
-      // 현재 사용자 프로필 정보 가져오기
-      const userProfile = queryClient.getQueryData<UserProfileResponse>(USER_QUERY_KEYS.profile());
+        return {
+          ...oldData,
+          comments: Array.isArray(oldData.comments)
+            ? [optimisticComment, ...oldData.comments]
+            : [optimisticComment],
+        };
+      },
+    }),
 
-      queryClient.setQueryData<PostDetailResponse | undefined>(
-        POST_QUERY_KEYS.detail(postId),
-        (old) => {
-          if (!old) return old;
-
-          // Optimistic Update를 위한 임시 댓글 객체 생성
-          const optimisticComment: CommentResponse = {
-            commentId: Date.now(), // 임시 ID
-            writer: userProfile?.nickname ?? "Me", // 실제 사용자 닉네임
-            writerProfileImageUrl: userProfile?.profileImageUrl ?? "/profileSVG.svg", // 실제 프로필 이미지
-            content: newComment.content,
-            createdAt: new Date(), // 현재 시간으로 설정
-            // replies: [],
-          };
-
-          return {
-            ...old,
-            comments: Array.isArray(old.comments)
-              ? [optimisticComment, ...old.comments] // 최신 댓글을 맨 앞에 추가 (내림차순)
-              : [optimisticComment],
-          };
-        }
-      );
-
-      return { previousPost };
-    },
-
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
       void revalidatePostAction(postId).catch((error) => {
         console.error("Failed to revalidate post:", error);
       });
 
-      // 성공 시에는 서버로부터 받은 실제 데이터로 캐시를 무효화하여 갱신
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
+      options?.onSuccess?.(data, variables, context);
     },
 
     onError: (error, variables, context) => {
-      if (context?.previousPost) {
-        queryClient.setQueryData(POST_QUERY_KEYS.detail(postId), context.previousPost);
-      }
       console.error("댓글 등록 실패:", error);
+      options?.onError?.(error, variables, context);
     },
 
-    onSettled: () => {
-      // 최종적으로 서버 데이터와 동기화
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-    },
+    ...options,
   });
 }
 
@@ -100,54 +83,40 @@ export function useCreateComment(postId: number) {
  *
  * @param postId - 댓글이 속한 게시글의 ID
  */
-export function useDeleteComment(postId: number) {
+export function useDeleteComment(
+  postId: number,
+  options?: UseMutationOptions<void, Error, number>
+) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, number, { previousPost: PostDetailResponse | undefined }>({
-    mutationFn: (commentId: number) => commentService.deleteComment(commentId),
+  return useMutation({
+    mutationFn: commentService.deleteComment,
 
-    onMutate: async (commentId) => {
-      await queryClient.cancelQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
+    ...withOptimisticUpdate<number, PostDetailResponse>({
+      queryClient,
+      queryKey: POST_QUERY_KEYS.detail(postId),
+      updateCache: (oldData, commentId) => ({
+        ...oldData,
+        comments: oldData.comments?.filter((comment) => comment.commentId !== commentId),
+      }),
+    }),
 
-      const previousPost = queryClient.getQueryData<PostDetailResponse>(
-        POST_QUERY_KEYS.detail(postId)
-      );
-
-      queryClient.setQueryData<PostDetailResponse | undefined>(
-        POST_QUERY_KEYS.detail(postId),
-        (old) => {
-          if (!old) return old;
-
-          return {
-            ...old,
-            comments: old.comments?.filter((comment) => comment.commentId !== commentId),
-          };
-        }
-      );
-
-      return { previousPost };
-    },
-
-    onSuccess: (_, commentId) => {
+    onSuccess: (data, commentId, context) => {
       // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
       void revalidatePostAction(postId).catch((error) => {
         console.error("Failed to revalidate post:", error);
       });
 
       console.log("댓글 삭제 성공:", commentId);
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
+      options?.onSuccess?.(data, commentId, context);
     },
 
     onError: (error, commentId, context) => {
-      if (context?.previousPost) {
-        queryClient.setQueryData(POST_QUERY_KEYS.detail(postId), context.previousPost);
-      }
       console.error("댓글 삭제 실패:", error);
+      options?.onError?.(error, commentId, context);
     },
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-    },
+    ...options,
   });
 }
 
