@@ -4,16 +4,23 @@
  * 복잡한 Generic 대신 단순한 구조로 중복 코드 제거
  */
 
-import type { QueryClient } from '@tanstack/react-query';
+import type { QueryClient, QueryKey } from "@tanstack/react-query";
+
+/**
+ * 낙관적 업데이트 컨텍스트
+ */
+interface OptimisticContext<TQueryData> {
+  previousData: Array<[QueryKey, TQueryData]>;
+}
 
 /**
  * 낙관적 업데이트 헬퍼 설정
  */
 interface OptimisticConfig<TData, TQueryData> {
   queryClient: QueryClient;
-  queryKey: readonly unknown[];
+  queryKey: QueryKey;
   updateCache: (oldData: TQueryData, mutationData: TData) => TQueryData;
-  invalidateKeys?: readonly (readonly unknown[])[];
+  invalidateKeys?: readonly QueryKey[];
 }
 
 /**
@@ -62,11 +69,11 @@ export function withOptimisticUpdate<TData, TQueryData>({
       return { previousData };
     },
 
-    onError: (_error: Error, _data: TData, context?: { previousData: Array<[unknown[], TQueryData]> }) => {
+    onError: (_error: Error, _data: TData, context?: OptimisticContext<TQueryData>) => {
       // 롤백
       if (context?.previousData) {
         context.previousData.forEach(([key, data]) => {
-          queryClient.setQueryData(key, data);
+          queryClient.setQueryData<TQueryData>(key, data);
         });
       }
     },

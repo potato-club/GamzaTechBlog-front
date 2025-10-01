@@ -4,6 +4,7 @@
 
 import { IntroResponse, Pageable, PagedResponseIntroResponse } from "@/generated/api/models";
 import { useAuth } from "@/hooks/useAuth";
+import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
 import {
   keepPreviousData,
   useMutation,
@@ -13,7 +14,6 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 import { introService } from "../services/introService";
-import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
 
 // 자기소개 관련 Query Key 팩토리
 export const INTRO_QUERY_KEYS = {
@@ -44,9 +44,7 @@ export function useIntros(
 /**
  * 새 자기소개를 작성하는 뮤테이션 훅 (낙관적 업데이트 포함)
  */
-export function useCreateIntro(
-  options?: UseMutationOptions<IntroResponse, Error, string>
-) {
+export function useCreateIntro(options?: UseMutationOptions<IntroResponse, Error, string>) {
   const queryClient = useQueryClient();
   const { userProfile } = useAuth();
 

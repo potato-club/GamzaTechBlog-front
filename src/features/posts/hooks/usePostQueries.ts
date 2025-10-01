@@ -12,6 +12,8 @@ import {
   PostRequest,
   PostResponse,
 } from "@/generated/api/models";
+import { useAuth } from "@/hooks/useAuth";
+import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
 import {
   keepPreviousData,
   useMutation,
@@ -22,8 +24,6 @@ import {
 } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { postService } from "../services";
-import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
-import { useAuth } from "@/hooks/useAuth";
 
 // 게시글 관련 Query Key 팩토리
 export const POST_QUERY_KEYS = {
@@ -99,9 +99,7 @@ export function useTags(options?: Omit<UseQueryOptions<string[], Error>, "queryK
 /**
  * 새 게시글을 생성하는 뮤테이션 훅 (낙관적 업데이트 포함)
  */
-export function useCreatePost(
-  options?: UseMutationOptions<PostResponse, Error, PostRequest>
-) {
+export function useCreatePost(options?: UseMutationOptions<PostResponse, Error, PostRequest>) {
   const queryClient = useQueryClient();
   const { userProfile } = useAuth();
 
