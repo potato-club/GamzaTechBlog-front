@@ -8,6 +8,7 @@
  */
 
 import CustomPagination from "@/components/shared/navigation/CustomPagination";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PostList, useSearchPosts } from "@/features/posts";
 import { PostListResponse } from "@/generated/api/models";
 import { usePagination } from "@/hooks/usePagination";
@@ -67,11 +68,11 @@ export default function SearchPageContent() {
             )}
             {/* 게시글 로딩 스켈레톤 */}
             <div className="mt-6 flex flex-col gap-6 md:mt-8 md:gap-8">
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="mb-2 h-5 w-3/4 rounded bg-gray-200 md:h-6"></div>
-                  <div className="mb-2 h-3 w-1/2 rounded bg-gray-200 md:h-4"></div>
-                  <div className="h-3 w-full rounded bg-gray-200 md:h-4"></div>
+              {Array.from({ length: 3 }, (_, index) => (
+                <div key={index} className="space-y-2">
+                  <Skeleton className="h-5 w-3/4 md:h-6" />
+                  <Skeleton className="h-3 w-1/2 md:h-4" />
+                  <Skeleton className="h-3 w-full md:h-4" />
                 </div>
               ))}
             </div>
@@ -79,11 +80,11 @@ export default function SearchPageContent() {
 
           {/* 사이드바 로딩 스켈레톤 - 모바일에서는 숨김, 데스크톱에서만 표시 */}
           <aside className="ml-10 hidden flex-1 border-l border-[#D5D9E3] pl-10 md:block">
-            <div className="animate-pulse">
-              <div className="mb-4 h-6 w-1/2 rounded bg-gray-200"></div>
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-1/2" />
               <div className="space-y-2">
-                {[...Array(5)].map((_, index) => (
-                  <div key={index} className="h-4 rounded bg-gray-200"></div>
+                {Array.from({ length: 5 }, (_, index) => (
+                  <Skeleton key={index} className="h-4 w-full" />
                 ))}
               </div>
             </div>
