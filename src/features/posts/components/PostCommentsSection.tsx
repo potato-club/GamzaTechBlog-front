@@ -11,6 +11,7 @@
 import { CommentForm, CommentList } from "@/features/comments";
 import { useAuth } from "@/hooks/useAuth";
 import { usePost } from "../hooks";
+import PostCommentsSectionSkeleton from "./skeletons/PostCommentsSectionSkeleton";
 
 interface PostCommentsSectionProps {
   postId: number;
@@ -34,24 +35,7 @@ export default function PostCommentsSection({ postId }: PostCommentsSectionProps
 
   // 로딩 중일 때 스켈레톤 UI 표시
   if (isLoading) {
-    return (
-      <section className="my-12 text-[17px] text-[#353841]" aria-label="댓글 섹션">
-        <div className="animate-pulse">
-          <div className="mb-4 h-6 w-32 rounded bg-gray-200"></div>
-          <div className="space-y-4">
-            {[...Array(3)].map((_, index) => (
-              <div key={index} className="rounded-xl bg-gray-100 px-6 py-5">
-                <div className="mb-2 flex items-center gap-2">
-                  <div className="h-9 w-9 rounded-full bg-gray-200"></div>
-                  <div className="h-4 w-20 rounded bg-gray-200"></div>
-                </div>
-                <div className="h-4 w-full rounded bg-gray-200"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+    return <PostCommentsSectionSkeleton />;
   }
 
   // 에러 발생 시 에러 메시지 표시

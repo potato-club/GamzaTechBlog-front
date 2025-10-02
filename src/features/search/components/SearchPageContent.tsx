@@ -13,6 +13,8 @@ import { PostListResponse } from "@/generated/api/models";
 import { usePagination } from "@/hooks/usePagination";
 import { useSearchParams } from "next/navigation";
 import SearchPageSidebar from "./SearchPageSidebar";
+import SearchResultsSkeleton from "./skeletons/SearchResultsSkeleton";
+import SearchSidebarSkeleton from "./skeletons/SearchSidebarSkeleton";
 
 export default function SearchPageContent() {
   const searchParams = useSearchParams();
@@ -66,27 +68,12 @@ export default function SearchPageContent() {
               </p>
             )}
             {/* 게시글 로딩 스켈레톤 */}
-            <div className="mt-6 flex flex-col gap-6 md:mt-8 md:gap-8">
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="mb-2 h-5 w-3/4 rounded bg-gray-200 md:h-6"></div>
-                  <div className="mb-2 h-3 w-1/2 rounded bg-gray-200 md:h-4"></div>
-                  <div className="h-3 w-full rounded bg-gray-200 md:h-4"></div>
-                </div>
-              ))}
-            </div>
+            <SearchResultsSkeleton />
           </section>
 
           {/* 사이드바 로딩 스켈레톤 - 모바일에서는 숨김, 데스크톱에서만 표시 */}
           <aside className="ml-10 hidden flex-1 border-l border-[#D5D9E3] pl-10 md:block">
-            <div className="animate-pulse">
-              <div className="mb-4 h-6 w-1/2 rounded bg-gray-200"></div>
-              <div className="space-y-2">
-                {[...Array(5)].map((_, index) => (
-                  <div key={index} className="h-4 rounded bg-gray-200"></div>
-                ))}
-              </div>
-            </div>
+            <SearchSidebarSkeleton />
           </aside>
         </div>
       </div>

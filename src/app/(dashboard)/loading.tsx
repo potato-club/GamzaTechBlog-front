@@ -8,6 +8,7 @@
  * (dashboard) 그룹 내의 모든 페이지에서 사용됩니다.
  */
 
+import { Skeleton } from "@/components/ui/skeleton";
 import MyPageSidebarSkeleton from "../../components/shared/skeletons/MyPageSidebarSkeleton";
 
 export default function DashboardLoading() {
@@ -21,21 +22,21 @@ export default function DashboardLoading() {
 
           {/* 탭 영역 스켈레톤 */}
           <div className="flex-1">
-            <div className="animate-pulse">
+            <div className="space-y-6">
               {/* 탭 메뉴 스켈레톤 */}
-              <div className="mb-6 flex gap-4">
-                <div className="h-8 w-16 rounded !bg-gray-200"></div>
-                <div className="h-8 w-16 rounded !bg-gray-200"></div>
-                <div className="h-8 w-16 rounded !bg-gray-200"></div>
+              <div className="flex gap-4">
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-8 w-16" />
               </div>
 
               {/* 탭 콘텐츠 스켈레톤 */}
               <div className="space-y-6">
                 {Array.from({ length: 3 }, (_, i) => (
-                  <div key={i} className="rounded-lg border p-4">
-                    <div className="mb-2 h-6 w-3/4 rounded !bg-gray-200"></div>
-                    <div className="mb-2 h-4 w-1/2 rounded !bg-gray-200"></div>
-                    <div className="h-4 w-full rounded !bg-gray-200"></div>
+                  <div key={i} className="space-y-2 rounded-lg border p-4">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-full" />
                   </div>
                 ))}
               </div>

@@ -201,6 +201,71 @@ git push origin feat/add-comment-system
   - Services should handle one domain of logic
   - Keep functions small and focused (ideally under 20 lines)
 
+### Loading State & Skeleton Components
+
+#### shadcn Skeleton 사용 원칙
+- **항상 shadcn Skeleton 사용**: 커스텀 `animate-pulse` + `bg-gray-200` 사용 금지
+  - ❌ Bad: `<div className="animate-pulse"><div className="h-4 w-full bg-gray-200 rounded"></div></div>`
+  - ✅ Good: `<Skeleton className="h-4 w-full" />`
+- **컴포넌트 분리**: 로딩 상태는 별도 `*Skeleton.tsx` 컴포넌트로 분리
+  - ❌ Bad: 인라인으로 skeleton 작성
+  - ✅ Good: `<PostListSkeleton count={5} />`
+- **일관성**: 기존 skeleton 패턴 따르기
+  - `count` prop으로 반복 개수 제어
+  - `Array.from({ length: count })` 패턴 사용 (not `[...Array(count)]`)
+- **테마 토큰**: 하드코딩된 색상 대신 테마 토큰 사용
+  - ❌ Bad: `bg-gray-200`, `bg-gray-300`
+  - ✅ Good: shadcn Skeleton (자동으로 `bg-accent` 사용)
+
+#### Skeleton 컴포넌트 구조
+- **위치**:
+  - 기능별: `src/features/[feature]/components/skeletons/`
+  - 공통: `src/components/shared/skeletons/`
+- **명명**: `[ComponentName]Skeleton.tsx`
+- **Props**: `count`, `showAvatar`, `showImage` 등으로 유연성 제공
+- **JSDoc**: 모든 skeleton 컴포넌트에 사용 예시 포함
+
+#### 공통 Skeleton 패턴
+프로젝트에서 제공하는 재사용 가능한 skeleton 컴포넌트:
+
+- **CardSkeleton**: 카드 레이아웃 로딩 (게시글 카드, 프로필 카드 등)
+  ```tsx
+  import { CardSkeleton } from "@/components/shared/skeletons";
+  <CardSkeleton count={5} showImage={true} showMeta={true} />
+  ```
+
+- **ListSkeleton**: 리스트 레이아웃 로딩 (댓글 목록, 사용자 목록 등)
+  ```tsx
+  import { ListSkeleton } from "@/components/shared/skeletons";
+  <ListSkeleton items={5} showAvatar={true} avatarSize="md" />
+  ```
+
+- **FormSkeleton**: 폼 레이아웃 로딩 (수정, 작성 페이지 등)
+  ```tsx
+  import { FormSkeleton } from "@/components/shared/skeletons";
+  <FormSkeleton fields={4} showButtons={true} showTitle={true} />
+  ```
+
+#### 사용 예시
+```tsx
+// ❌ 나쁜 예: 인라인 커스텀 skeleton
+{isLoading && (
+  <div className="animate-pulse">
+    <div className="h-4 w-full bg-gray-200 rounded"></div>
+  </div>
+)}
+
+// ✅ 좋은 예: 분리된 shadcn Skeleton 컴포넌트
+import PostListSkeleton from "./skeletons/PostListSkeleton";
+
+{isLoading && <PostListSkeleton count={5} />}
+
+// ✅ 더 좋은 예: 공통 패턴 재사용
+import { CardSkeleton } from "@/components/shared/skeletons";
+
+{isLoading && <CardSkeleton count={5} />}
+```
+
 ## Claude Code Instructions
 
 When working on this project and completing tasks:
