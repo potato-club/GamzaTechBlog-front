@@ -1,7 +1,13 @@
 /**
  * 사이드바 스켈레톤 컴포넌트
  *
- * 메인 페이지와 검색 페이지의 사이드바 로딩 상태를 표시합니다.
+ * @description 메인 페이지와 검색 페이지의 사이드바 로딩 상태를 표시합니다.
+ * @returns {JSX.Element} Sidebar Skeleton UI
+ *
+ * @example
+ * ```tsx
+ * <SidebarSkeleton />
+ * ```
  */
 
 import { Skeleton } from "@/components/ui/skeleton";

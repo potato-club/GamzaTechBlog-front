@@ -1,7 +1,14 @@
 /**
  * 자기소개 목록 스켈레톤 컴포넌트
  *
- * IntroList 컴포넌트의 로딩 상태를 표시합니다.
+ * @description IntroList 컴포넌트의 로딩 상태를 표시합니다.
+ * @param {number} [count=3] - 표시할 자기소개 skeleton 개수
+ * @returns {JSX.Element} IntroList Skeleton UI
+ *
+ * @example
+ * ```tsx
+ * <IntroListSkeleton count={5} />
+ * ```
  */
 
 import { Skeleton } from "@/components/ui/skeleton";

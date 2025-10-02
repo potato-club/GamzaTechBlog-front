@@ -1,7 +1,14 @@
 /**
  * 태그 섹션 스켈레톤 컴포넌트
  *
- * TagsSection의 로딩 상태를 표시합니다.
+ * @description TagsSection의 로딩 상태를 표시합니다.
+ * @param {number} [count=6] - 표시할 태그 skeleton 개수
+ * @returns {JSX.Element} Tags Skeleton UI
+ *
+ * @example
+ * ```tsx
+ * <TagsSkeleton count={10} />
+ * ```
  */
 
 import { Skeleton } from "@/components/ui/skeleton";

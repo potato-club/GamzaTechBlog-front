@@ -1,7 +1,14 @@
 /**
  * 게시글 목록 스켈레톤 컴포넌트
  *
- * PostList 컴포넌트의 로딩 상태를 표시합니다.
+ * @description PostList 컴포넌트의 로딩 상태를 표시합니다.
+ * @param {number} [count=3] - 표시할 게시글 skeleton 개수
+ * @returns {JSX.Element} PostList Skeleton UI
+ *
+ * @example
+ * ```tsx
+ * <PostListSkeleton count={5} />
+ * ```
  */
 
 import { Skeleton } from "@/components/ui/skeleton";

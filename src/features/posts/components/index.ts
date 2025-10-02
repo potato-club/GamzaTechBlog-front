@@ -28,7 +28,6 @@ export { default as ToastEditor } from "./ToastEditor";
 // Skeletons
 export { default as MarkdownViewerSkeleton } from "./skeletons/MarkdownViewerSkeleton";
 export { default as PopularPostListSkeleton } from "./skeletons/PopularPostListSkeleton";
-export { default as PopularPostsSkeleton } from "./skeletons/PopularPostsSkeleton";
 export { default as PostDetailSkeleton } from "./skeletons/PostDetailSkeleton";
 export { default as PostListSkeleton } from "./skeletons/PostListSkeleton";
 export { default as ToastEditorSkeleton } from "./skeletons/ToastEditorSkeleton";

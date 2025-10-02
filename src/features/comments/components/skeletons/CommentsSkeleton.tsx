@@ -1,7 +1,14 @@
 /**
  * 댓글 섹션 스켈레톤 컴포넌트
  *
- * PostCommentsSection 컴포넌트의 로딩 상태를 표시합니다.
+ * @description PostCommentsSection 컴포넌트의 로딩 상태를 표시합니다.
+ * @param {number} [count=2] - 표시할 댓글 skeleton 개수
+ * @returns {JSX.Element} Comments Skeleton UI
+ *
+ * @example
+ * ```tsx
+ * <CommentsSkeleton count={3} />
+ * ```
  */
 
 import { Skeleton } from "@/components/ui/skeleton";

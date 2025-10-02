@@ -1,7 +1,14 @@
 /**
  * 검색 결과 스켈레톤 컴포넌트
  *
- * SearchPageContent 컴포넌트의 로딩 상태를 표시합니다.
+ * @description SearchPageContent 컴포넌트의 검색 결과 로딩 상태를 표시합니다.
+ * @param {number} [count=3] - 표시할 검색 결과 skeleton 개수
+ * @returns {JSX.Element} SearchResults Skeleton UI
+ *
+ * @example
+ * ```tsx
+ * <SearchResultsSkeleton count={5} />
+ * ```
  */
 
 import { Skeleton } from "@/components/ui/skeleton";
