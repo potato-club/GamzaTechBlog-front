@@ -4,6 +4,8 @@
  * TagsSection의 로딩 상태를 표시합니다.
  */
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 interface TagsSkeletonProps {
   count?: number;
 }
@@ -11,12 +13,10 @@ interface TagsSkeletonProps {
 export default function TagsSkeleton({ count = 6 }: TagsSkeletonProps) {
   return (
     <section className="mt-10">
-      <div className="mb-7 h-6 w-16 animate-pulse rounded bg-gray-200"></div>
+      <Skeleton className="mb-7 h-6 w-16" />
       <nav className="flex flex-wrap gap-2">
-        {[...Array(count)].map((_, index) => (
-          <div key={index} className="animate-pulse">
-            <div className="h-7 w-20 rounded-full bg-gray-200"></div>
-          </div>
+        {Array.from({ length: count }, (_, index) => (
+          <Skeleton key={index} className="h-7 w-20 rounded-full" />
         ))}
       </nav>
     </section>
