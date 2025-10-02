@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { usePendingUsers, UserApprovalTable } from "@/features/admin";
 
 export default function AdminPage() {
@@ -16,7 +17,14 @@ export default function AdminPage() {
           <CardDescription>가입 승인 대기중인 사용자 목록입니다.</CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading && <p>로딩 중...</p>}
+          {isLoading && (
+            <div className="space-y-3">
+              <Skeleton className="h-12 w-full" />
+              {Array.from({ length: 5 }, (_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          )}
           {isError && <p>에러: {error.message}</p>}
           {users &&
             (users.length > 0 ? (
