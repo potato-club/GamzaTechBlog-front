@@ -57,7 +57,7 @@ export default function PostCommentsSection({ postId }: PostCommentsSectionProps
   // 에러 발생 시 에러 메시지 표시
   if (error) {
     return (
-      <section className="mt-12 text-[17px] text-[#353841]" aria-label="댓글 섹션">
+      <section className="my-12 text-[17px] text-[#353841]" aria-label="댓글 섹션">
         <h2 className="mt-7 text-lg font-semibold">댓글</h2>
         <div className="mt-4 text-center text-red-500">
           <p>댓글을 불러오는 중 오류가 발생했습니다.</p>
