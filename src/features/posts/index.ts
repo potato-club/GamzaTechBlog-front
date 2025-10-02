@@ -29,7 +29,6 @@ export {
   PopularPostList,
   PopularPostListSkeleton,
   PopularPostsSection,
-  PopularPostsSkeleton,
   PostCard,
   PostCommentsSection,
   PostDetailSkeleton,
