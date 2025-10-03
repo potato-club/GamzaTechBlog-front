@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 export interface UsePaginationOptions {
   /** 기본 페이지 (기본값: 1) */
@@ -52,6 +52,9 @@ export function usePagination(options: UsePaginationOptions = {}) {
   // API 호출용 페이지 (0부터 시작)
   const currentPageForAPI = currentPage - 1;
 
+  // extraParams를 안정적인 키로 변환 (불필요한 리렌더링 방지)
+  const extraParamsKey = useMemo(() => JSON.stringify(extraParams), [extraParams]);
+
   // 페이지 변경 함수
   const setPage = useCallback(
     (page: number) => {
@@ -64,8 +67,9 @@ export function usePagination(options: UsePaginationOptions = {}) {
         params.set("page", page.toString());
       }
 
-      // 추가 파라미터 처리
-      Object.entries(extraParams).forEach(([key, value]) => {
+      // extraParamsKey에서 다시 파싱하여 추가 파라미터 처리
+      const parsedExtraParams = JSON.parse(extraParamsKey) as Record<string, string | undefined>;
+      Object.entries(parsedExtraParams).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
           params.set(key, value);
         } else {
@@ -85,7 +89,7 @@ export function usePagination(options: UsePaginationOptions = {}) {
 
       router.push(newUrl, { scroll: scrollToTop });
     },
-    [router, pathname, searchParams, scrollToTop, scrollBehavior, extraParams]
+    [router, pathname, searchParams, scrollToTop, scrollBehavior, extraParamsKey]
   );
 
   return {
