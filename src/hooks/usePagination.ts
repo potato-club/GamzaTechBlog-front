@@ -87,7 +87,8 @@ export function usePagination(options: UsePaginationOptions = {}) {
         });
       }
 
-      router.push(newUrl, { scroll: scrollToTop });
+      // router.push는 항상 scroll: false (window.scrollTo로 이미 제어함)
+      router.push(newUrl, { scroll: false });
     },
     [router, pathname, searchParams, scrollToTop, scrollBehavior, extraParamsKey]
   );
