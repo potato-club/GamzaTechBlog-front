@@ -10,8 +10,8 @@ export interface UsePaginationOptions {
   scrollToTop?: boolean;
   /** 스크롤 애니메이션 방식 (기본값: "smooth") */
   scrollBehavior?: ScrollBehavior;
-  /** 추가로 유지할 쿼리 파라미터 (예: { tag: "react" }) */
-  extraParams?: Record<string, string | undefined>;
+  /** 추가로 유지할 쿼리 파라미터 (빈 문자열은 제외됨) */
+  extraParams?: Record<string, string | null | undefined>;
 }
 
 /**
@@ -68,7 +68,10 @@ export function usePagination(options: UsePaginationOptions = {}) {
       }
 
       // extraParamsKey에서 다시 파싱하여 추가 파라미터 처리
-      const parsedExtraParams = JSON.parse(extraParamsKey) as Record<string, string | undefined>;
+      const parsedExtraParams = JSON.parse(extraParamsKey) as Record<
+        string,
+        string | null | undefined
+      >;
       Object.entries(parsedExtraParams).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
           params.set(key, value);
