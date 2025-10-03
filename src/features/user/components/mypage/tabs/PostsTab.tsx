@@ -25,7 +25,10 @@ interface PostsTabProps {
 }
 
 export default function PostsTab({ isOwner = true, username }: PostsTabProps = {}) {
-  const { currentPage, currentPageForAPI, setPage } = usePagination();
+  // 스크롤 위치 유지 (탭 UX 최적화)
+  const { currentPage, currentPageForAPI, setPage } = usePagination({
+    scrollToTop: false,
+  });
   const pageSize = 5;
 
   // 통합 프로필 데이터 훅 사용
