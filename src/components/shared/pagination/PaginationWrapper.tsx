@@ -17,8 +17,8 @@ interface PaginationWrapperProps {
   scrollToTop?: boolean;
   /** 스크롤 애니메이션 방식 (기본값: "smooth") */
   scrollBehavior?: ScrollBehavior;
-  /** 추가로 유지할 쿼리 파라미터 (예: { tag: "react" }) */
-  extraParams?: Record<string, string | undefined>;
+  /** 추가로 유지할 쿼리 파라미터 (빈 문자열은 제외됨) */
+  extraParams?: Record<string, string | null | undefined>;
   /** 추가 CSS 클래스 */
   className?: string;
 }
