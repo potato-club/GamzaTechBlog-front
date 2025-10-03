@@ -20,7 +20,10 @@ export default function SearchPageContent() {
   const searchParams = useSearchParams();
   const keyword = searchParams?.get("q") || "";
 
-  const { currentPage, currentPageForAPI, setPage } = usePagination();
+  // 스크롤 위치 유지 (검색 결과 UX 최적화)
+  const { currentPage, currentPageForAPI, setPage } = usePagination({
+    scrollToTop: false,
+  });
   const pageSize = 10;
 
   /**

@@ -1,4 +1,4 @@
-import InteractivePagination from "@/components/shared/interactive/InteractivePagination";
+import PaginationWrapper from "@/components/shared/pagination/PaginationWrapper";
 import { PagedResponsePostListResponse } from "@/generated/api";
 import InteractivePostList from "./InteractivePostList";
 
@@ -45,13 +45,14 @@ export default function PostListSection({
         initialPage={initialPage}
       />
 
-      {/* 페이지네이션 */}
+      {/* 페이지네이션 - 스크롤 상단 이동 */}
       {initialData.totalPages && initialData.totalPages > 1 && (
         <div className="mt-8 flex justify-center md:mt-12">
-          <InteractivePagination
-            currentPage={initialPage}
+          <PaginationWrapper
             totalPages={initialData.totalPages}
-            tag={initialTag}
+            scrollToTop={true}
+            scrollBehavior="smooth"
+            extraParams={{ tag: initialTag }}
           />
         </div>
       )}
