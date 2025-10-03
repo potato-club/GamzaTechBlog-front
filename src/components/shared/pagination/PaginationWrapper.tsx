@@ -36,7 +36,7 @@ export default function PaginationWrapper({
     extraParams,
   });
 
-  if (totalPages <= 1) {
+  if (!totalPages || totalPages <= 1) {
     return null;
   }
 
