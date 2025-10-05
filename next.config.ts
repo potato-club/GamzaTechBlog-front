@@ -31,9 +31,6 @@ const nextConfig: NextConfig = {
   // 정적 최적화
   trailingSlash: false,
 
-  // 성능 최적화
-  swcMinify: true,
-
   // 파워풀한 압축
   poweredByHeader: false,
   images: {
