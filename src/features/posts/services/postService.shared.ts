@@ -27,8 +27,8 @@ import type {
  * // 서버 환경
  * const postService = createPostService(createServerApiClient());
  */
-export const createPostService = (api: DefaultApi) =>
-  ({
+export const createPostService = (api: DefaultApi) => {
+  return {
     /**
      * 최신순 게시물 목록을 조회합니다.
      *
@@ -200,7 +200,8 @@ export const createPostService = (api: DefaultApi) =>
         allTags: tags,
       };
     },
-  }) as const;
+  };
+};
 
 /**
  * Post Service 타입
