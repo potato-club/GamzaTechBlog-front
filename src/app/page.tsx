@@ -1,6 +1,6 @@
 import { DynamicWelcomeModal } from "@/components/dynamic/DynamicComponents";
 import ContentLayout from "@/components/shared/layout/ContentLayout";
-import { MainContent, PostListSection, postService } from "@/features/posts";
+import { createPostServiceServer, MainContent, PostListSection } from "@/features/posts";
 import { Metadata } from "next";
 
 export async function generateMetadata({
@@ -68,6 +68,9 @@ export default async function Home({
   const { tag, page } = await searchParams;
   const currentPage = Number(page) || 1;
   const pageSize = 10;
+
+  // 서버용 Post Service 사용
+  const postService = createPostServiceServer();
 
   // 홈 피드 데이터를 한 번에 가져오기 (ISR 적용: 10분 주기)
   const homeFeedData = await postService.getHomeFeed(
