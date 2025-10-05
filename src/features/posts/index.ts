@@ -48,8 +48,9 @@ export {
 } from "./components";
 
 // Services
-export { postService } from "./services";
-export type { LikedPostResponse } from "./services";
+export { postService } from "./services/postService";
+export { createPostServiceServer } from "./services/postService.server";
+export type { LikedPostResponse } from "./services/postService";
 
 // Types
 export type {
