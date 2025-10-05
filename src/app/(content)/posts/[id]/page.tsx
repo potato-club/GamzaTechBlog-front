@@ -2,7 +2,7 @@ import {
   DynamicMarkdownViewer,
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
-import { PostHeader, PostStats, postService } from "@/features/posts";
+import { createPostServiceServer, PostHeader, PostStats } from "@/features/posts";
 import { createServerApiClient } from "@/lib/apiClient";
 import { canEditPost } from "@/lib/auth";
 import { Metadata } from "next";
@@ -16,7 +16,9 @@ import { cache } from "react";
  * generateMetadata와 PostPage 컴포넌트에서 동일한 데이터를 사용할 때 최적화됩니다.
  */
 const getCachedPost = cache(async (postId: number) => {
-  // ISR 적용: 3600초(1시간) 주기로 페이지를 재생성합니다.
+  // 서버용 Post Service 사용
+  const postService = createPostServiceServer();
+  // ISR 적용: 86400초(24시간) 주기로 페이지를 재생성합니다.
   return await postService.getPostById(postId, { next: { revalidate: 86400 } });
 });
 
