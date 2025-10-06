@@ -277,10 +277,100 @@ When working on this project and completing tasks:
 5. **Keep branch names concise** but descriptive enough to understand the purpose
 6. **Enforce type safety**: Avoid using `any` type unless absolutely necessary
 7. **Follow Single Responsibility Principle**: Design code with clear, focused purposes
+8. **Always run build test after completing a task**: Run `yarn build` to verify no breaking changes
+9. **Provide appropriate complexity solutions**: Consider user context (4th year university student, graduation pending)
+
+### Build Testing Protocol
+
+**IMPORTANT**: Always run build test after completing any task to ensure no breaking changes.
+
+```bash
+# Clean build test
+rm -rf .next && yarn build
+
+# If build succeeds, proceed with commit
+# If build fails, fix errors before committing
+```
+
+**When to run build test**:
+- ✅ After completing any feature implementation
+- ✅ After refactoring code
+- ✅ Before creating a commit
+- ✅ Before creating a pull request
+- ✅ After resolving merge conflicts
+
+### Solution Complexity Guidelines
+
+**User Context**: 4th year university student, graduation pending
+
+**Approach Strategy**:
+1. **Prefer Simple Solutions First**: Start with straightforward approaches
+   - Direct implementation over complex patterns
+   - Built-in features over custom abstractions
+   - Clear code over clever code
+
+2. **Offer Multiple Complexity Levels**: Provide options from simple to advanced
+   ```
+   Option 1 (Simple): Inline solution with clear logic
+   Option 2 (Moderate): Extracted function with better organization
+   Option 3 (Advanced): Pattern-based approach with scalability
+   ```
+
+3. **Explain Trade-offs Clearly**: Help understand pros/cons
+   - Time to implement vs. long-term maintainability
+   - Complexity vs. flexibility
+   - Current needs vs. future scalability
+
+4. **Recommend Advanced Patterns When Justified**:
+   - **DO recommend** complex patterns for:
+     - Core business logic requiring scalability
+     - Repeated patterns across multiple features
+     - Performance-critical operations
+     - Security-sensitive implementations
+   - **DON'T over-engineer** for:
+     - One-off features
+     - Prototype/experimental code
+     - Simple CRUD operations
+     - UI components with limited scope
+
+**Example Recommendations**:
+
+```typescript
+// ✅ Good: Simple solution for one-time use
+// User asks: "How do I format this date?"
+const formattedDate = new Date(post.createdAt).toLocaleDateString('ko-KR');
+
+// ✅ Good: Moderate solution when used in 3+ places
+// User asks: "I need this date format in multiple components"
+export const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString('ko-KR');
+};
+
+// ✅ Good: Advanced solution when justified
+// User asks: "I need flexible date formatting across the app with i18n"
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
+
+export const formatDate = (date: string, formatString: string = 'PPP') => {
+  return format(new Date(date), formatString, { locale: ko });
+};
+
+// ❌ Bad: Over-engineering for simple case
+// User asks: "How do I format this date?"
+// DON'T immediately suggest: date-fns library, custom date service layer,
+// date formatting factory pattern, etc.
+```
+
+**Decision Framework**:
+- **Simple**: Will this be used once or twice? → Direct implementation
+- **Moderate**: Used 3-5 times? → Extract to utility function
+- **Advanced**: Core feature used everywhere? → Consider pattern/abstraction
 
 ### Example Task Completion Message
 ```
 작업이 완료되었습니다.
+
+✅ 빌드 테스트 완료: yarn build 성공
 
 브랜치명: feat/add-search-filter
 커밋 메시지:
