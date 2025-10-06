@@ -31,7 +31,8 @@ export {
 } from "./components";
 
 // Services
-export { getCurrentUser, userService } from "./services";
+export { getCurrentUser, getPublicUser, userService } from "./services/userService";
+export { createUserServiceServer } from "./services/userService.server";
 
 // Types
 export type { MyPageTab, ProfileEditDialogProps, UserActivityStatItemProps } from "./types";
