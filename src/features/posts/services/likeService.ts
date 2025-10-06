@@ -1,5 +1,12 @@
 import { apiClient } from "@/lib/apiClient";
 
+/**
+ * 클라이언트 환경에서 사용하는 Like Service
+ * 브라우저에서 좋아요 관련 작업을 수행합니다.
+ *
+ * Note: apiClient를 모듈 레벨에서 import하지만,
+ * 실제 사용은 함수 내부에서만 이루어지므로 순환 참조가 발생하지 않습니다.
+ */
 export const likeService = {
   /**
    * 게시글에 좋아요를 추가합니다.
