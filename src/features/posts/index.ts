@@ -51,6 +51,8 @@ export {
 export { postService } from "./services/postService";
 export { createPostServiceServer } from "./services/postService.server";
 export type { LikedPostResponse } from "./services/postService";
+export { likeService } from "./services/likeService";
+export { createLikeServiceServer } from "./services/likeService.server";
 
 // Types
 export type {
