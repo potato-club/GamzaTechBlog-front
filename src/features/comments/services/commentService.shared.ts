@@ -30,21 +30,13 @@ export const createCommentService = (api: DefaultApi) => {
      *
      * @param postId - 게시글 ID
      * @param content - 댓글 내용
-     * @param options - fetch 옵션 (캐싱, revalidate 등)
      * @returns 생성된 댓글 정보
      */
-    async registerComment(
-      postId: number,
-      content: CommentRequest,
-      options?: RequestInit
-    ): Promise<CommentResponse> {
-      const response = await api.addComment(
-        {
-          postId,
-          commentRequest: content,
-        },
-        options
-      );
+    async registerComment(postId: number, content: CommentRequest): Promise<CommentResponse> {
+      const response = await api.addComment({
+        postId,
+        commentRequest: content,
+      });
       return response.data as CommentResponse;
     },
 
@@ -52,10 +44,9 @@ export const createCommentService = (api: DefaultApi) => {
      * 댓글을 삭제합니다.
      *
      * @param commentId - 댓글 ID
-     * @param options - fetch 옵션 (캐싱, revalidate 등)
      */
-    async deleteComment(commentId: number, options?: RequestInit): Promise<void> {
-      await api.deleteComment({ commentId }, options);
+    async deleteComment(commentId: number): Promise<void> {
+      await api.deleteComment({ commentId });
     },
 
     /**

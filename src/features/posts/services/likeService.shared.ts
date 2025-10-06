@@ -23,20 +23,18 @@ export const createLikeService = (api: DefaultApi) => {
      * 게시글에 좋아요를 추가합니다.
      *
      * @param postId - 게시글 ID
-     * @param options - fetch 옵션 (캐싱, revalidate 등)
      */
-    async addLike(postId: number, options?: RequestInit): Promise<void> {
-      await api.likePost({ postId }, options);
+    async addLike(postId: number): Promise<void> {
+      await api.likePost({ postId });
     },
 
     /**
      * 게시글의 좋아요를 취소합니다.
      *
      * @param postId - 게시글 ID
-     * @param options - fetch 옵션 (캐싱, revalidate 등)
      */
-    async removeLike(postId: number, options?: RequestInit): Promise<void> {
-      await api.unlikePost({ postId }, options);
+    async removeLike(postId: number): Promise<void> {
+      await api.unlikePost({ postId });
     },
 
     /**

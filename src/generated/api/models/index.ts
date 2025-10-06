@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 export * from './AccessTokenResponse';
 export * from './AdmissionResultResponse';
 export * from './ChatMessageRequest';
