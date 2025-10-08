@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { UI_CONSTANTS } from "@/constants/ui";
 import Image from "next/image";
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 
 interface PostTagManagerProps {
   tags: string[];
@@ -18,6 +18,9 @@ export default function PostTagManager({
   currentTag,
   onCurrentTagChange,
 }: PostTagManagerProps) {
+  // 한글 등 IME 입력 조합 중인지 추적
+  const isComposingRef = useRef(false);
+
   const handleAddTag = useCallback(() => {
     const tagWithoutHash = currentTag.startsWith("#") ? currentTag.slice(1) : currentTag;
     const trimmedTag = tagWithoutHash.trim();
@@ -49,10 +52,24 @@ export default function PostTagManager({
     [onCurrentTagChange]
   );
 
+  const handleCompositionStart = useCallback(() => {
+    isComposingRef.current = true;
+  }, []);
+
+  const handleCompositionEnd = useCallback(() => {
+    isComposingRef.current = false;
+  }, []);
+
   const handleTagInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
         e.preventDefault();
+
+        // 한글 조합 중이면 무시 (macOS IME 이슈 방지)
+        if (isComposingRef.current) {
+          return;
+        }
+
         handleAddTag();
       }
     },
@@ -83,6 +100,8 @@ export default function PostTagManager({
         value={currentTag}
         onChange={handleTagInputChange}
         onKeyDown={handleTagInputKeyDown}
+        onCompositionStart={handleCompositionStart}
+        onCompositionEnd={handleCompositionEnd}
         disabled={tags.length >= UI_CONSTANTS.BLOG.MAX_TAGS}
         className="h-auto w-auto flex-grow border-0 bg-transparent p-1.5 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
       />
