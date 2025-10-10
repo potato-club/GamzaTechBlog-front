@@ -282,9 +282,18 @@ export const usePostQueries = () => {
 
 ### JWT 토큰 관리
 
-- 토큰은 HTTP-only 쿠키에 저장
-- 미들웨어에서 서버 레벨 검증
-- 클라이언트에서 자동 갱신
+- **AccessToken**: 짧은 만료 시간으로 API 요청 인증
+- **RefreshToken**: HTTP-only 쿠키에 저장하여 XSS 공격 방어
+  - `Secure` 플래그: HTTPS 환경에서만 전송
+  - `SameSite` 속성: CSRF 공격 방어
+  - JavaScript 접근 불가능으로 보안 강화
+- 클라이언트에서 자동 토큰 갱신
+
+### 보안 특징
+
+- **XSS 방어**: RefreshToken을 HttpOnly 쿠키로 저장하여 JavaScript 접근 차단
+- **CSRF 방어**: SameSite 쿠키 속성 적용
+- **토큰 자동 갱신**: AccessToken 만료 시 RefreshToken으로 자동 갱신
 
 ### 보호된 라우트
 
