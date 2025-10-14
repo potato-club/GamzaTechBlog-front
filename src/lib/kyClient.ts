@@ -138,7 +138,7 @@ const invalidateRelatedQueries = (url: string) => {
 
 // --- Ky 인스턴스 생성 ---
 export const kyClient: KyInstance = ky.create({
-  prefixUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "",
+  // prefixUrl 제거: OpenAPI Generator가 이미 전체 URL을 생성함
   credentials: "include",
   timeout: 30000,
   retry: {
