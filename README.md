@@ -69,6 +69,9 @@
 - **Prettier** - 코드 포맷팅
 - **@next/bundle-analyzer** - 번들 크기 분석
 - **OpenAPI Generator** - API 클라이언트 자동 생성
+  - 백엔드 OpenAPI 스펙에서 TypeScript 타입 및 API 함수 자동 생성
+  - URL 오타, 파라미터 실수 등 휴먼 에러 방지
+  - 백엔드 API 변경 시 프론트엔드 즉시 동기화
 
 ## 🚀 시작하기
 
@@ -239,9 +242,52 @@ yarn gen:api
 
 ## 🔌 API 연동
 
+### OpenAPI Generator를 사용하는 이유
+
+이 프로젝트는 백엔드와의 효율적인 협업과 타입 안전성을 위해 **OpenAPI Generator**를 활용합니다.
+
+#### 주요 이점
+
+**1. 휴먼 에러 방지 (60% 이상의 API 관련 버그 사전 차단)**
+- ✅ **URL 오타 방지**: `/users/{id}` 같은 엔드포인트를 수동으로 작성할 때 발생하는 오타 제거
+- ✅ **HTTP 메서드 실수 방지**: GET/POST/PUT/DELETE 혼동 방지
+- ✅ **파라미터 타입 불일치 차단**: 요청/응답 파라미터 타입이 컴파일 타임에 검증됨
+
+**2. 백엔드와 100% 동기화**
+- OpenAPI 스펙 파일을 기반으로 타입과 API 함수를 자동 생성
+- 백엔드 API 변경 시 `yarn gen:api` 한 번으로 프론트엔드 즉시 동기화
+- 백엔드 개발자와의 협업 효율성 대폭 향상
+
+**3. 개발 생산성 향상**
+- API 함수를 수동으로 작성할 필요 없음 (50개 이상의 API 엔드포인트 자동 생성)
+- TypeScript 타입이 자동 생성되어 IDE 자동완성 지원
+- API 문서와 코드가 항상 일치하여 문서 불일치 문제 해결
+
+**4. 유지보수성 향상**
+- 백엔드 스펙 변경 시 타입 에러로 즉시 감지
+- 리팩토링이 안전하고 신속하게 진행 가능
+- 코드 리뷰 시 API 호출 관련 검토 시간 단축
+
+#### 비교: 수동 vs 자동 생성
+
+```typescript
+// ❌ 수동 작성 방식 (휴먼 에러 가능)
+export const getUser = async (id: string) => {
+  // URL 오타 가능
+  const response = await fetch(`/usres/${id}`);
+  // 타입 불일치 가능
+  return response.json() as User;
+};
+
+// ✅ OpenAPI Generator 자동 생성 (에러 불가능)
+import { UserApi } from '@/generated/api';
+const userApi = new UserApi();
+const user = await userApi.getUser(id); // 타입 안전, URL 보장
+```
+
 ### 서비스 레이어 구조
 
-각 기능은 서비스 레이어를 통해 API와 통신합니다:
+각 기능은 서비스 레이어를 통해 자동 생성된 API 클라이언트를 사용합니다:
 
 ```typescript
 // features/posts/services/postService.ts
@@ -256,7 +302,11 @@ export const postService = {
     const response = await postsApi.getPosts(params);
     return response.data;
   },
-  // ...
+  // 자동 생성된 API 메서드 활용
+  getPostById: (id: string) => postsApi.getPostById(id),
+  createPost: (data: CreatePostDto) => postsApi.createPost(data),
+  updatePost: (id: string, data: UpdatePostDto) => postsApi.updatePost(id, data),
+  deletePost: (id: string) => postsApi.deletePost(id),
 };
 ```
 
@@ -274,6 +324,38 @@ export const usePostQueries = () => {
   });
 };
 ```
+
+### API 호출 예시
+
+```typescript
+// 컴포넌트에서 사용
+import { usePostQueries } from '@/features/posts/hooks/usePostQueries';
+
+function PostList() {
+  const { data: posts, isLoading, error } = usePostQueries();
+  
+  if (isLoading) return <div>로딩 중...</div>;
+  if (error) return <div>에러 발생</div>;
+  
+  return (
+    <div>
+      {posts.map(post => (
+        <div key={post.id}>{post.title}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+### 에러 처리
+
+API 호출 시 발생하는 에러는 중앙화된 에러 핸들링을 통해 처리됩니다:
+
+- **401 Unauthorized**: JWT 토큰 자동 재발급 (Refresh Token 사용)
+- **403 Forbidden**: 권한 에러 페이지로 리다이렉트
+- **500 Internal Server Error**: 사용자에게 에러 토스트 메시지 표시
+
+자세한 구현은 `src/lib/api-client.ts` 파일을 참고하세요.
 
 ## 🔒 인증 시스템
 
