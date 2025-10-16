@@ -7,7 +7,7 @@
  * @see docs/ky-migration-plan.md
  */
 
-import ky, { type KyInstance, type Options } from "ky";
+import ky, { HTTPError, type KyInstance, type Options } from "ky";
 import { decodeJwt } from "jose";
 import { Configuration, DefaultApi } from "@/generated/api";
 import {
@@ -35,6 +35,26 @@ export class RefreshTokenInvalidError extends Error {
 }
 
 // --- 토큰 재발급 ---
+/**
+ * 토큰 재발급 Promise
+ *
+ * 동시에 여러 요청이 401 에러를 받았을 때 중복 재발급을 방지하기 위한 전역 Promise입니다.
+ *
+ * **동작 원리**:
+ * 1. 첫 번째 요청이 401을 받으면 토큰 재발급 Promise를 생성하고 저장
+ * 2. 같은 시점에 다른 요청들도 401을 받으면 저장된 같은 Promise를 재사용
+ * 3. 재발급이 완료되면 Promise를 null로 초기화하여 다음 재발급을 준비
+ *
+ * @example
+ * // 토큰 재발급 시작
+ * if (!tokenRefreshPromise) {
+ *   tokenRefreshPromise = refreshAccessToken().finally(() => {
+ *     tokenRefreshPromise = null;
+ *   });
+ * }
+ * // 모든 요청이 같은 Promise를 기다림
+ * await tokenRefreshPromise;
+ */
 let tokenRefreshPromise: Promise<string | null> | null = null;
 
 /**
@@ -62,7 +82,7 @@ async function refreshAccessToken(): Promise<string | null> {
   try {
     const endpoint = "/api/auth/reissue";
     const refreshUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${endpoint}`;
-
+    
     const data = await ky
       .post(refreshUrl, {
         credentials: "include",
@@ -80,9 +100,8 @@ async function refreshAccessToken(): Promise<string | null> {
     return null;
   } catch (error) {
     // Ky의 HTTPError 처리
-    if (error instanceof Error && "response" in error) {
-      const httpError = error as { response: Response };
-      const status = httpError.response.status;
+    if (error instanceof HTTPError) {
+      const status = error.response.status;
 
       // 리프레시 토큰 만료 시 쿠키 제거 및 에러 전파
       if ([400, 401, 403].includes(status)) {
@@ -150,9 +169,6 @@ export const kyClient: KyInstance = ky.create({
 
     afterResponse: [
       async (request, _options, response) => {
-        // 쿼리 무효화
-        invalidateRelatedQueries(request.url);
-
         // 401 에러 시 토큰 재발급 및 재시도
         if (response.status === 401) {
           // 토큰 재발급 (중복 방지)
@@ -169,6 +185,11 @@ export const kyClient: KyInstance = ky.create({
             request.headers.set("Authorization", `Bearer ${newToken}`);
             return ky(request);
           }
+        }
+
+        // 성공한 요청에만 쿼리 무효화
+        if (response.ok) {
+          invalidateRelatedQueries(request.url);
         }
 
         return response;
