@@ -18,22 +18,11 @@ import {
 } from "./tokenManager";
 
 // --- 타입 정의 ---
-interface ApiErrorResponse {
-  data?: string;
-  code?: string;
-  message?: string;
-}
-
 interface ResponseDtoAccessTokenResponse {
   data?: {
     authorization?: string;
   };
 }
-
-const TOKEN_ERROR_CODES = {
-  ACCESS_TOKEN_EXPIRED: "J004",
-  REFRESH_TOKEN_EXPIRED: "C005",
-} as const;
 
 /**
  * 커스텀 에러 - 리프레시 토큰 무효
@@ -60,12 +49,9 @@ export function updateTokenExpiration(accessToken: string) {
 
     if (expirationTime) {
       setTokenExpiration(expirationTime);
-      console.log(
-        `Proactive refresh tracking: token expiration set to ${new Date(expirationTime).toLocaleString()}`
-      );
     }
   } catch (e) {
-    console.error("Failed to decode token for expiration tracking:", e);
+    console.error("Failed to decode token expiration:", e);
   }
 }
 
@@ -77,44 +63,34 @@ async function refreshAccessToken(): Promise<string | null> {
     const endpoint = "/api/auth/reissue";
     const refreshUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${endpoint}`;
 
-    const response = await fetch(refreshUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    });
+    const data = await ky
+      .post(refreshUrl, {
+        credentials: "include",
+        retry: 0, // 토큰 재발급은 재시도하지 않음
+      })
+      .json<ResponseDtoAccessTokenResponse>();
 
-    if (!response.ok) {
-      const errorData: ApiErrorResponse = await response
-        .json()
-        .catch(() => ({ message: "Failed to parse refresh error" }));
-
-      console.error("토큰 재발급 API 실패:", response.status, errorData);
-
-      // 리프레시 토큰 자체가 만료되었거나 유효하지 않은 경우
-      if ([400, 401, 403].includes(response.status)) {
-        removeAuthCookie();
-        console.warn("리프레시 토큰이 만료되었거나 유효하지 않습니다. 강제 로그아웃이 필요합니다.");
-        throw new RefreshTokenInvalidError("Refresh token invalid or expired.");
-      }
-
-      return null;
-    }
-
-    const data: ResponseDtoAccessTokenResponse = await response.json();
     const newAccessToken = data.data?.authorization;
 
     if (newAccessToken) {
       updateTokenExpiration(newAccessToken);
-      console.log("✅ 새 액세스 토큰 발급 성공");
       return newAccessToken;
     }
 
     return null;
   } catch (error) {
-    if (error instanceof RefreshTokenInvalidError) {
-      throw error;
+    // Ky의 HTTPError 처리
+    if (error instanceof Error && "response" in error) {
+      const httpError = error as { response: Response };
+      const status = httpError.response.status;
+
+      // 리프레시 토큰 만료 시 쿠키 제거 및 에러 전파
+      if ([400, 401, 403].includes(status)) {
+        removeAuthCookie();
+        throw new RefreshTokenInvalidError("Refresh token invalid or expired.");
+      }
     }
-    console.error("토큰 재발급 중 에러:", error);
+
     return null;
   }
 }
@@ -154,12 +130,8 @@ export const kyClient: KyInstance = ky.create({
   hooks: {
     beforeRequest: [
       async (request) => {
-        console.log(`🚀 [Ky] ${request.method} ${request.url}`);
-
         // 1. 사전 예방적 토큰 갱신 (만료 1분 전)
         if (isTokenNearExpiration(60000)) {
-          console.warn("⚠️ 토큰 만료 임박, 사전 갱신 시작...");
-
           if (!tokenRefreshPromise) {
             tokenRefreshPromise = refreshAccessToken().finally(() => {
               tokenRefreshPromise = null;
@@ -178,53 +150,24 @@ export const kyClient: KyInstance = ky.create({
 
     afterResponse: [
       async (request, _options, response) => {
-        console.log(`✅ [Ky] ${response.status} ${request.url}`);
-
         // 쿼리 무효화
         invalidateRelatedQueries(request.url);
 
-        // 401 에러 처리 (사후 대응적 재발급)
+        // 401 에러 시 토큰 재발급 및 재시도
         if (response.status === 401) {
-          try {
-            const errorData: ApiErrorResponse = await response.clone().json();
+          // 토큰 재발급 (중복 방지)
+          if (!tokenRefreshPromise) {
+            tokenRefreshPromise = refreshAccessToken().finally(() => {
+              tokenRefreshPromise = null;
+            });
+          }
 
-            // 액세스 토큰 만료 확인
-            const isTokenExpired =
-              errorData.code === TOKEN_ERROR_CODES.ACCESS_TOKEN_EXPIRED ||
-              errorData.message?.includes("JWT 토큰을 찾을 수 없습니다") ||
-              errorData.message?.includes("토큰이 만료되었습니다") ||
-              errorData.message?.includes("액세스 토큰이 만료되었습니다");
+          const newToken = await tokenRefreshPromise;
 
-            if (isTokenExpired) {
-              console.warn("🔄 401 에러, 토큰 재발급 시도...");
-
-              // 토큰 재발급 (중복 방지)
-              if (!tokenRefreshPromise) {
-                tokenRefreshPromise = refreshAccessToken().finally(() => {
-                  tokenRefreshPromise = null;
-                });
-              }
-
-              const newToken = await tokenRefreshPromise;
-
-              if (newToken) {
-                // 새 토큰으로 재시도
-                request.headers.set("Authorization", `Bearer ${newToken}`);
-                console.log("🔄 새 토큰으로 재시도");
-                return ky(request);
-              } else {
-                console.error("❌ 토큰 재발급 실패, 로그아웃 필요");
-                removeAuthCookie();
-                throw new Error("토큰 재발급 실패로 인한 요청 중단");
-              }
-            }
-          } catch (e) {
-            if (e instanceof RefreshTokenInvalidError) {
-              console.error("RefreshTokenInvalidError caught, propagating for logout:", e);
-              throw e;
-            }
-            console.error("401 에러 처리 중 실패:", e);
-            throw e;
+          if (newToken) {
+            // 새 토큰으로 재시도
+            request.headers.set("Authorization", `Bearer ${newToken}`);
+            return ky(request);
           }
         }
 
@@ -234,8 +177,7 @@ export const kyClient: KyInstance = ky.create({
 
     beforeError: [
       (error) => {
-        console.error(`❌ [Ky Error] ${error.request.method} ${error.request.url}`);
-        console.error("Error:", error.message);
+        console.error(`[Ky Error] ${error.request.method} ${error.request.url}:`, error.message);
         return error;
       },
     ],
