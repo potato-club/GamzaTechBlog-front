@@ -2,18 +2,14 @@
  * TanStack Query를 사용한 게시글 관련 API 훅들
  */
 
-import { POST_TEXTS } from "@/constants/uiTexts";
 import {
   Pageable,
   PagedResponsePostListResponse,
   PostDetailResponse,
-  PostListResponse,
   PostPopularResponse,
   PostRequest,
   PostResponse,
 } from "@/generated/api/models";
-import { useAuth } from "@/hooks/useAuth";
-import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
 import {
   keepPreviousData,
   useMutation,
@@ -97,41 +93,22 @@ export function useTags(options?: Omit<UseQueryOptions<string[], Error>, "queryK
 }
 
 /**
- * 새 게시글을 생성하는 뮤테이션 훅 (낙관적 업데이트 포함)
+ * 새 게시글을 생성하는 뮤테이션 훅
+ *
+ * 작성 후 상세 페이지로 이동하므로 낙관적 업데이트 대신
+ * 서버 응답 후 캐시 무효화 방식 사용
  */
 export function useCreatePost(options?: UseMutationOptions<PostResponse, Error, PostRequest>) {
   const queryClient = useQueryClient();
-  const { userProfile } = useAuth();
 
   return useMutation({
     mutationFn: postService.createPost,
 
-    ...withOptimisticUpdate<PostRequest, PagedResponsePostListResponse>({
-      queryClient,
-      queryKey: POST_QUERY_KEYS.lists(),
-      updateCache: (oldData, postData) => {
-        // 임시 게시글 생성
-        const tempPost: PostListResponse = {
-          postId: Date.now(),
-          title: postData.title,
-          contentSnippet: postData.content?.substring(0, 100),
-          writer: userProfile?.nickname || POST_TEXTS.STATUS_WRITING,
-          writerProfileImageUrl: userProfile?.profileImageUrl,
-          tags: postData.tags || [],
-          createdAt: new Date(),
-          thumbnailImageUrl: undefined,
-        };
-
-        return {
-          ...oldData,
-          content: [tempPost, ...(oldData.content || [])],
-          totalElements: (oldData.totalElements || 0) + 1,
-        };
-      },
-      invalidateKeys: [["my-posts"]],
-    }),
-
     onSuccess: (newPost, variables, context) => {
+      // 게시글 목록들 무효화 → 서버에서 새로 가져오기
+      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
+
       options?.onSuccess?.(newPost, variables, context);
     },
 
@@ -144,7 +121,9 @@ export function useCreatePost(options?: UseMutationOptions<PostResponse, Error, 
 }
 
 /**
- * 게시글 삭제 뮤테이션 (낙관적 업데이트 포함)
+ * 게시글 삭제 뮤테이션
+ *
+ * 삭제 후 서버 상태와 동기화
  */
 export function useDeletePost(options?: UseMutationOptions<void, Error, number>) {
   const queryClient = useQueryClient();
@@ -152,20 +131,14 @@ export function useDeletePost(options?: UseMutationOptions<void, Error, number>)
   return useMutation({
     mutationFn: postService.deletePost,
 
-    ...withOptimisticUpdate<number, PagedResponsePostListResponse>({
-      queryClient,
-      queryKey: POST_QUERY_KEYS.lists(),
-      updateCache: (oldData, postId) => ({
-        ...oldData,
-        content: oldData.content?.filter((post) => post.postId !== postId) || [],
-        totalElements: Math.max((oldData.totalElements || 0) - 1, 0),
-      }),
-      invalidateKeys: [["my-posts"]],
-    }),
-
     onSuccess: (data, postId, context) => {
+      // 게시글 목록들 무효화
+      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
+
       // 삭제된 게시글의 상세 정보도 무효화
       queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
+
       options?.onSuccess?.(data, postId, context);
     },
 
