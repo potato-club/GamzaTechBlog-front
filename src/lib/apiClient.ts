@@ -7,14 +7,14 @@
  * @see docs/ky-migration-plan.md
  */
 
-import ky, { HTTPError, type KyInstance, type Options } from "ky";
-import { decodeJwt } from "jose";
 import { Configuration, DefaultApi } from "@/generated/api";
+import { decodeJwt } from "jose";
+import ky, { HTTPError, type KyInstance, type Options } from "ky";
 import {
   getAuthCookie,
   isTokenNearExpiration,
-  setTokenExpiration,
   removeAuthCookie,
+  setTokenExpiration,
 } from "./tokenManager";
 
 // --- 타입 정의 ---
@@ -82,7 +82,7 @@ async function refreshAccessToken(): Promise<string | null> {
   try {
     const endpoint = "/api/auth/reissue";
     const refreshUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${endpoint}`;
-    
+
     const data = await ky
       .post(refreshUrl, {
         credentials: "include",
