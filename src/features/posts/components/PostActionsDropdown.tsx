@@ -23,10 +23,15 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   // 게시글 정보 가져오기
   const { data: post } = usePost(postId);
 
-  const handleDeletePost = useCallback(() => {
+  const handleDeletePost = useCallback(async () => {
     if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-      deletePostMutation.mutate(postId);
-      router.push("/");
+      try {
+        await deletePostMutation.mutateAsync(postId);
+        router.push("/");
+      } catch (error) {
+        // 에러 처리 (토스트 메시지 등)
+        console.error("게시글 삭제 실패:", error);
+      }
     }
   }, [deletePostMutation, postId, router]);
 
