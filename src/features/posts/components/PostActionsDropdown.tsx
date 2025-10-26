@@ -22,7 +22,9 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   const deletePostMutation = useDeletePost({
     onSuccess: (result) => {
       if (result.success) {
-        window.location.href = "/";
+        // SPA 네비게이션 + 서버 데이터 재조회
+        router.push("/");
+        router.refresh();
       } else {
         alert(result.error);
       }

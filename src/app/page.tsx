@@ -62,9 +62,6 @@ export async function generateMetadata({
   };
 }
 
-// 동적 렌더링 강제 (캐시 완전 비활성화 - 테스트용)
-export const dynamic = "force-dynamic";
-
 export default async function Home({
   searchParams,
 }: {
