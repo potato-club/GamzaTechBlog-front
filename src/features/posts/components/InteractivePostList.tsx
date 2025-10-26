@@ -1,35 +1,15 @@
 "use client";
 
 import { PostCard, usePosts, usePostsByTag } from "@/features/posts";
-import { PagedResponsePostListResponse } from "@/generated/api";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
+import { PaginationWrapper } from "../../../components/shared";
 
-/**
- * 인터랙티브 게시글 목록 클라이언트 컴포넌트
- *
- * 초기 데이터는 서버에서 받고, 이후 상호작용은 TanStack Query 사용
- */
-
-interface InteractivePostListProps {
-  initialData: PagedResponsePostListResponse;
-  initialTag?: string;
-  initialPage: number;
-}
-
-export default function InteractivePostList({
-  initialData,
-  initialTag,
-  initialPage,
-}: InteractivePostListProps) {
+export default function InteractivePostList() {
   const searchParams = useSearchParams();
   const currentTag = searchParams.get("tag") || undefined;
   const currentPage = Number(searchParams.get("page")) || 1;
 
-  // 초기 로딩인지 확인 (URL 파라미터가 초기값과 같은지)
-  const isInitialLoad = currentTag === initialTag && currentPage === initialPage;
-
-  // 쿼리 파라미터
   const queryParams = useMemo(
     () => ({
       page: currentPage - 1,
@@ -39,25 +19,19 @@ export default function InteractivePostList({
     [currentPage]
   );
 
-  // TanStack Query 훅들
   const postsQuery = usePosts(queryParams, {
-    enabled: !currentTag && !isInitialLoad,
-    initialData: !currentTag && isInitialLoad ? initialData : undefined,
+    enabled: !currentTag,
   });
 
   const postsByTagQuery = usePostsByTag(currentTag!, queryParams, {
-    enabled: !!currentTag && !isInitialLoad,
-    initialData: currentTag === initialTag && isInitialLoad ? initialData : undefined,
+    enabled: !!currentTag,
   });
 
-  // 현재 사용할 데이터 결정
   const activeQuery = currentTag ? postsByTagQuery : postsQuery;
-  const data = isInitialLoad ? initialData : activeQuery.data;
-  const isLoading = !isInitialLoad && activeQuery.isLoading;
-  const isFetching = activeQuery.isFetching;
-  const error = activeQuery.error;
+  const { data, isLoading, isFetching, error } = activeQuery;
 
   const posts = data?.content || [];
+  const totalPages = data?.totalPages || 0;
 
   if (error) {
     return (
@@ -76,7 +50,6 @@ export default function InteractivePostList({
 
   return (
     <>
-      {/* 백그라운드 페칭 표시 */}
       {isFetching && !isLoading && (
         <div className="mb-4 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-600">
@@ -94,24 +67,36 @@ export default function InteractivePostList({
         </div>
       )}
 
-      {/* 게시글 목록 */}
       {!isLoading && (
-        <div
-          className={`mt-6 flex flex-col gap-6 transition-opacity duration-200 md:mt-8 md:gap-8 ${isFetching ? "opacity-70" : "opacity-100"}`}
-        >
-          {posts.length > 0 ? (
-            posts.map((post) => <PostCard key={post.postId} post={post} />)
-          ) : (
-            <div className="py-16 text-center text-gray-500">
-              <p className="mb-2 text-lg">
-                {currentTag ? `#${currentTag} 태그의 게시글이 없습니다` : "게시글이 없습니다"}
-              </p>
-              <p className="text-sm">
-                {currentTag ? "다른 태그를 선택해보세요!" : "첫 번째 게시글을 작성해보세요!"}
-              </p>
+        <>
+          <div
+            className={`mt-6 flex flex-col gap-6 transition-opacity duration-200 md:mt-8 md:gap-8 ${isFetching ? "opacity-70" : "opacity-100"}`}
+          >
+            {posts.length > 0 ? (
+              posts.map((post) => <PostCard key={post.postId} post={post} />)
+            ) : (
+              <div className="py-16 text-center text-gray-500">
+                <p className="mb-2 text-lg">
+                  {currentTag ? `#${currentTag} 태그의 게시글이 없습니다` : "게시글이 없습니다"}
+                </p>
+                <p className="text-sm">
+                  {currentTag ? "다른 태그를 선택해보세요!" : "첫 번째 게시글을 작성해보세요!"}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-8 flex justify-center md:mt-12">
+              <PaginationWrapper
+                totalPages={totalPages}
+                scrollToTop={true}
+                scrollBehavior="smooth"
+                extraParams={{ tag: currentTag }}
+              />
             </div>
           )}
-        </div>
+        </>
       )}
     </>
   );
