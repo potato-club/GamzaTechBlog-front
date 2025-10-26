@@ -1,22 +1,21 @@
 /**
- * TanStack Query를 사용한 게시글 관련 API 훅들
+ * TanStack Query를 사용한 게시글 관련 읽기 전용 훅들
+ *
+ * 책임: 게시글 데이터 조회 (읽기 전용)
+ * 변경 작업(생성/수정/삭제)은 usePostMutations.ts 참조
  */
 
-import {
+import type {
   Pageable,
   PagedResponsePostListResponse,
   PostDetailResponse,
   PostPopularResponse,
-  PostRequest,
-  PostResponse,
 } from "@/generated/api/models";
 import {
   keepPreviousData,
-  useMutation,
-  UseMutationOptions,
   useQuery,
   useQueryClient,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { postService } from "../services";
@@ -88,87 +87,6 @@ export function useTags(options?: Omit<UseQueryOptions<string[], Error>, "queryK
     queryKey: POST_QUERY_KEYS.tags(),
     queryFn: () => postService.getTags(),
     staleTime: 1000 * 60 * 30, // 태그는 자주 변하지 않으므로 길게 캐싱
-    ...options,
-  });
-}
-
-/**
- * 새 게시글을 생성하는 뮤테이션 훅
- *
- * 작성 후 상세 페이지로 이동하므로 낙관적 업데이트 대신
- * 서버 응답 후 캐시 무효화 방식 사용
- */
-export function useCreatePost(options?: UseMutationOptions<PostResponse, Error, PostRequest>) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: postService.createPost,
-
-    onSuccess: (newPost, variables, context) => {
-      // 게시글 목록들 무효화 → 서버에서 새로 가져오기
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
-
-      options?.onSuccess?.(newPost, variables, context);
-    },
-
-    onError: (error, variables, context) => {
-      options?.onError?.(error, variables, context);
-    },
-
-    ...options,
-  });
-}
-
-/**
- * 게시글 삭제 뮤테이션
- *
- * 삭제 후 서버 상태와 동기화
- */
-export function useDeletePost(options?: UseMutationOptions<void, Error, number>) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: postService.deletePost,
-
-    onSuccess: (data, postId, context) => {
-      // 게시글 목록들 무효화
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
-
-      // 삭제된 게시글의 상세 정보도 무효화
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-
-      options?.onSuccess?.(data, postId, context);
-    },
-
-    onError: (error, postId, context) => {
-      options?.onError?.(error, postId, context);
-    },
-
-    ...options,
-  });
-}
-
-/**
- * 게시글 수정 뮤테이션
- */
-export function useUpdatePost(
-  options?: UseMutationOptions<PostResponse, Error, { postId: number; data: PostRequest }>
-) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ postId, data }) => postService.updatePost(postId, data),
-    onSuccess: (updatedPost, variables, context) => {
-      queryClient.setQueryData<PostDetailResponse | undefined>(
-        POST_QUERY_KEYS.detail(variables.postId),
-        (old) => (old ? { ...old, ...updatedPost } : undefined)
-      );
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: ["my-posts"] });
-      options?.onSuccess?.(updatedPost, variables, context);
-    },
     ...options,
   });
 }

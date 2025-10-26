@@ -1,7 +1,9 @@
 import { DynamicWelcomeModal } from "@/components/dynamic/DynamicComponents";
 import ContentLayout from "@/components/shared/layout/ContentLayout";
 import { createPostServiceServer, MainContent, PostListSection } from "@/features/posts";
+import { HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
+import { prefetchHomeFeed } from "../features/posts/services/hydration.server";
 
 export async function generateMetadata({
   searchParams,
@@ -60,6 +62,9 @@ export async function generateMetadata({
   };
 }
 
+// 동적 렌더링 강제 (캐시 완전 비활성화 - 테스트용)
+export const dynamic = "force-dynamic";
+
 export default async function Home({
   searchParams,
 }: {
@@ -69,35 +74,21 @@ export default async function Home({
   const currentPage = Number(page) || 1;
   const pageSize = 10;
 
-  // 서버용 Post Service 사용
-  const postService = createPostServiceServer();
-
-  // 홈 피드 데이터를 한 번에 가져오기 (ISR 적용: 10분 주기)
-  const homeFeedData = await postService.getHomeFeed(
-    {
-      page: currentPage - 1,
-      size: pageSize,
-      sort: ["createdAt,desc"],
-      tags: tag ? [tag] : undefined,
-    },
-    { next: { revalidate: 600 } }
-  );
+  const [dehydratedState, sidebarData] = await Promise.all([
+    prefetchHomeFeed({ tag, page: currentPage, size: pageSize }),
+    createPostServiceServer().getSidebarData(),
+  ]);
 
   return (
     <>
       <DynamicWelcomeModal />
-
-      <ContentLayout popularPosts={homeFeedData.weeklyPopular} tags={homeFeedData.allTags}>
-        <MainContent
-          postsTabContent={
-            <PostListSection
-              initialData={homeFeedData.latest}
-              initialTag={tag}
-              initialPage={currentPage}
-            />
-          }
-        />
-      </ContentLayout>
+      <HydrationBoundary state={dehydratedState}>
+        <ContentLayout popularPosts={sidebarData.weeklyPopular} tags={sidebarData.allTags}>
+          <MainContent
+            postsTabContent={<PostListSection initialTag={tag} initialPage={currentPage} />}
+          />
+        </ContentLayout>
+      </HydrationBoundary>
     </>
   );
 }

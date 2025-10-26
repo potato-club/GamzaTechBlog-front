@@ -1,27 +1,32 @@
 /**
- * TanStack Query를 사용한 댓글 관련 API 훅들
+ * 댓글 관련 변경 작업 훅들 (Mutations)
  *
- * 댓글 등록, 수정, 삭제 등의 기능을 TanStack Query로 구현하여
+ * 책임: 댓글 데이터 변경 (쓰기 전용)
+ * 댓글 등록, 삭제 등의 기능을 TanStack Query로 구현하여
  * 효율적인 상태 관리와 UI 업데이트를 제공합니다.
  */
 
 import { revalidatePostAction } from "@/app/actions/revalidate";
-import {
+import type {
   CommentRequest,
   CommentResponse,
   PostDetailResponse,
   UserProfileResponse,
 } from "@/generated/api";
-import { useMutation, useQueryClient, UseMutationOptions } from "@tanstack/react-query";
+import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
+import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { POST_QUERY_KEYS } from "../../posts/hooks/usePostQueries";
 import { USER_QUERY_KEYS } from "../../user/hooks/useUserQueries";
 import { commentService } from "../services";
-import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
 
 /**
  * 댓글을 등록하는 뮤테이션 훅
  *
+ * 낙관적 업데이트를 통해 즉각적인 UI 반응을 제공하고,
+ * 서버 ISR 캐시도 무효화하여 최신 상태를 유지합니다.
+ *
  * @param postId - 댓글을 작성할 게시글의 ID
+ * @param options - React Query mutation 옵션
  */
 export function useCreateComment(
   postId: number,
@@ -81,7 +86,11 @@ export function useCreateComment(
 /**
  * 댓글을 삭제하는 뮤테이션 훅
  *
+ * 낙관적 업데이트를 통해 즉각적인 UI 반응을 제공하고,
+ * 서버 ISR 캐시도 무효화하여 최신 상태를 유지합니다.
+ *
  * @param postId - 댓글이 속한 게시글의 ID
+ * @param options - React Query mutation 옵션
  */
 export function useDeleteComment(
   postId: number,
@@ -122,6 +131,8 @@ export function useDeleteComment(
 
 /**
  * 댓글 관련 캐시를 수동으로 관리하는 유틸리티 훅
+ *
+ * 특수한 경우에 캐시를 직접 조작해야 할 때 사용합니다.
  */
 export function useCommentUtils(postId: number) {
   const queryClient = useQueryClient();

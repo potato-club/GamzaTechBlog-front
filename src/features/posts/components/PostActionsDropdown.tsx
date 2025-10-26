@@ -16,24 +16,30 @@ interface PostActionsDropdownProps {
 
 export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   const router = useRouter();
-  const deletePostMutation = useDeletePost();
-
   const { userProfile, isLoggedIn } = useAuth();
-
-  // 게시글 정보 가져오기
   const { data: post } = usePost(postId);
 
-  const handleDeletePost = useCallback(async () => {
-    if (confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-      try {
-        await deletePostMutation.mutateAsync(postId);
-        router.push("/");
-      } catch (error) {
-        // 에러 처리 (토스트 메시지 등)
-        console.error("게시글 삭제 실패:", error);
+  const deletePostMutation = useDeletePost({
+    onSuccess: (result) => {
+      if (result.success) {
+        window.location.href = "/";
+      } else {
+        alert(result.error);
       }
+    },
+    onError: (error) => {
+      console.error("게시글 삭제 실패:", error);
+      alert("게시글 삭제 중 오류가 발생했습니다.");
+    },
+  });
+
+  const handleDeletePost = useCallback(async () => {
+    if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+      return;
     }
-  }, [deletePostMutation, postId, router]);
+
+    await deletePostMutation.mutateAsync({ postId });
+  }, [deletePostMutation, postId]);
 
   const handleEditPost = useCallback(() => {
     // 로그인 상태 확인
