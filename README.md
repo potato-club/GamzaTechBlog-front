@@ -1,4 +1,4 @@
-# GamzaTechBlog Frontend
+# 🥔 감자 기술 블로그 (Gamza Tech Blog) - Frontend
 
 <div align="center">
   <img src="docs/images/hero.png" alt="GamzaTechBlog" width="100%" />
@@ -6,72 +6,34 @@
 
 <br />
 
-> Next.js 15 기반의 감자 테크 블로그 프론트엔드
+> 한세대학교 IT학부 코딩 웹 동아리 "감자" 부원들을 위한 기술 블로그 플랫폼입니다.
 
-한세대학교 IT학부 코딩 웹 동아리 "감자" 부원들을 위한 기술 블로그 플랫폼입니다. 마크다운 에디터, 실시간 댓글, 태그 기반 검색 등의 기능을 제공하며, 동아리 부원들이 기술 지식을 공유하고 소통할 수 있는 공간을 제공합니다.
+이 프로젝트의 핵심은, 앱에서 작성한 모든 기술 문서를 사용자의 **개인 GitHub 저장소에 자동으로 동기화(Commit)**하여, 모든 기여를 **포트폴리오 자산으로 축적**해 주는 것입니다.
 
-## 📚 목차
+## 🔗 링크 (Links)
 
-- [주요 기능](#주요-기능)
-- [기술 스택](#기술-스택)
-- [시작하기](#시작하기)
-- [프로젝트 구조](#프로젝트-구조)
-- [개발 가이드](#개발-가이드)
-- [API 연동](#api-연동)
-- [배포](#배포)
+* **배포 주소:** <https://app.gamzatech.site/>
+* **GitHub (Frontend):** <https://github.com/potato-club/GamzaTechBlog-front>
+* **GitHub (Backend):** <https://github.com/potato-club/GamzaTechBlog-back>
+* **Figma (Design):** <https://www.figma.com/design/tAaM7sfEPIKtYA1GFfthjk/%EA%B0%90%EC%9E%90-%EA%B8%B0%EC%88%A0-%EB%B8%94%EB%A1%9C%EA%B7%B8?node-id=716-1029&t=yQ5Cnu74UDqrRU7d-1>
 
-## ✨ 주요 기능
+## 🛠️ 기술 스택 (Tech Stack)
 
-### 📝 콘텐츠 관리
-- **게시글 작성/수정**: Toast UI Editor를 활용한 마크다운 편집
-- **이미지 업로드**: S3 기반 이미지 저장 및 최적화
-- **좋아요 기능**: 게시글 좋아요 및 북마크
+이 프로젝트는 다음과 같은 기술로 구성되어 있습니다.
 
-### 🔍 검색 및 탐색
-- **전체 검색**: 게시글 전문 검색
-- **태그 필터링**: 태그 기반 콘텐츠 탐색
-- **사용자 프로필**: 작성자별 게시글 모음
+| 구분 | 기술 |
+| --- | --- |
+| **Frontend** | Next.js (App Router), TypeScript, Tanstack-Query, Tailwind CSS, Shadcn/UI, Toast UI Editor |
+| **Backend** | Java 21, Spring Boot 3.x, Spring Data JPA, MySQL, Redis |
+| **Tools & CI/CD**| OpenAPI-Generator, Vercel, GitHub Actions |
 
-### 🔐 인증 및 권한
-- **JWT 인증**: 쿠키 기반 토큰 관리
-- **권한 제어**: 미들웨어 기반 라우트 보호
-- **관리자 시스템**: 사용자 승인 및 관리
+## ✨ 주요 기능 (Key Features)
 
-### 🎨 사용자 경험
-- **다크 모드**: 시스템 설정 연동 테마 지원
-- **반응형 디자인**: 모바일/데스크톱 최적화
-- **한글 타이포그래피**: Pretendard 폰트 적용
-- **AI 챗봇**: 실시간 채팅 지원
-
-## 🛠 기술 스택
-
-### Core
-- **Next.js**
-- **React**
-- **TypeScript**
-
-### 상태 관리
-- **TanStack Query (React Query)** - 서버 상태 관리
-- **React Hook Form** - 폼 관리
-
-### UI/UX
-- **Tailwind CSS** - 유틸리티 우선 스타일링
-- **shadcn/ui** - Radix UI 기반 컴포넌트
-- **Toast UI Editor** - 마크다운 에디터
-- **Lucide React** - 아이콘
-
-### 데이터 검증
-- **Zod** - 스키마 검증
-- **@hookform/resolvers** - React Hook Form 통합
-
-### 개발 도구
-- **ESLint** - 코드 린팅 (Naver 설정)
-- **Prettier** - 코드 포맷팅
-- **@next/bundle-analyzer** - 번들 크기 분석
-- **OpenAPI Generator** - API 클라이언트 자동 생성
-  - 백엔드 OpenAPI 스펙에서 TypeScript 타입 및 API 함수 자동 생성
-  - URL 오타, 파라미터 실수 등 휴먼 에러 방지
-  - 백엔드 API 변경 시 프론트엔드 즉시 동기화
+* **콘텐츠:** `Toast UI Editor`를 활용한 마크다운 기반 포스트 작성 (CRUD)
+* **GitHub 동기화:** 앱에서 작성/수정 시, 개인 GitHub 레포지토리로 자동 커밋
+* **인증:** HttpOnly 쿠키 기반 JWT 인증/인가
+* **데이터:** `Tanstack-Query`를 활용한 서버 상태 관리 및 페이지네이션
+* **소통:** 포스트별 댓글 기능 (낙관적 업데이트 적용)
 
 ## 🚀 시작하기
 
@@ -81,7 +43,7 @@
 - Yarn (권장) 또는 npm
 - 백엔드 API 서버 실행 중 (선택사항)
 
-### 설치
+### 설치 및 실행
 
 ```bash
 # 저장소 클론
@@ -90,6 +52,12 @@ cd GamzaTechBlog-front
 
 # 의존성 설치
 yarn install
+
+# HTTP 개발 서버
+yarn dev
+
+# HTTPS 개발 서버 (로컬)
+yarn dev:https:local
 
 # 환경 변수 설정
 cp .env.local.example .env.local
@@ -105,37 +73,6 @@ cp .env.local.example .env.local
 | `NEXT_PUBLIC_API_BASE_URL` | 백엔드 API 서버 주소 | 필수 | - | `https://gamzatech.site` |
 | `JWT_SECRET_KEY` | JWT 토큰 검증용 시크릿 키 (백엔드와 동일한 값 사용) | 필수 | - | `your-secret-key-here` |
 
-**환경별 설정:**
-
-**개발 환경 (`.env.local`)**
-```env
-NEXT_PUBLIC_API_BASE_URL=https://gamzatech.site
-JWT_SECRET_KEY=your-secret-key
-```
-
-**프로덕션 환경**
-- 배포 플랫폼의 환경 변수 설정에서 동일한 값 설정
-- `JWT_SECRET_KEY`는 백엔드 서버와 반드시 동일한 값 사용
-
-**⚠️ 보안 주의사항:**
-- `JWT_SECRET_KEY`는 절대 GitHub에 커밋하지 마세요
-- `.env.local` 파일은 `.gitignore`에 포함되어 있습니다
-- 프로덕션 환경에서는 강력한 시크릿 키를 사용하세요
-
-### 개발 서버 실행
-
-```bash
-# HTTP 개발 서버
-yarn dev
-
-# HTTPS 개발 서버 (로컬)
-yarn dev:https:local
-
-# HTTPS 개발 서버 (프로덕션 도메인)
-yarn dev:https
-```
-
-개발 서버는 [http://localhost:3000](http://localhost:3000)에서 실행됩니다.
 
 ## 📁 프로젝트 구조
 
@@ -179,183 +116,49 @@ GamzaTechBlog-front/
 ├── tsconfig.json             # TypeScript 설정
 └── components.json           # shadcn/ui 설정
 ```
+## 💡 주요 문제 해결 (Problem Solving)
 
-### Feature 기반 아키텍처
+이 프로젝트를 진행하며 겪었던 주요 기술적 문제와 결정 사항입니다.
 
-각 기능(`features/`)은 독립적으로 구성됩니다:
+### 1. [HttpOnly 쿠키] 로컬(http) 환경에서의 인증 문제
 
-```
-features/[feature-name]/
-├── components/        # 기능별 컴포넌트
-├── hooks/            # 기능별 커스텀 훅
-├── services/         # API 서비스 레이어
-├── types/            # 기능별 타입
-└── index.ts          # 공개 API
-```
+* **[문제]**
+    백엔드에서 보안 강화를 위해 JWT를 `HttpOnly`, `Secure` 플래그가 적용된 쿠키로 전송하기로 했습니다. 하지만 `Secure` 플래그는 HTTPS 환경에서만 쿠키를 전송하므로, 로컬 개발 환경(`http://localhost`)에서는 API 요청 시 인증 쿠키가 담기지 않는 문제가 발생했습니다.
 
-## 💻 개발 가이드
+* **[해결]**
+    로컬에서도 `https` 환경을 구축하고, 백엔드와 협의하여 '부모 도메인' 쿠키 설정을 통해 로컬과 배포 환경 모두에서 인증 쿠키가 정상적으로 전송되도록 문제를 해결했습니다.
 
-### 스크립트
+### 2. [OpenAPI-Generator] 백엔드 협업 효율성 및 타입 안정성
 
-```bash
-# 개발
-yarn dev              # 개발 서버 시작
-yarn dev:https:local  # HTTPS 개발 서버 (로컬)
-yarn dev:https        # HTTPS 개발 서버 (프로덕션)
+* **[문제]**
+    백엔드 API 명세가 변경될 때마다 프론트엔드의 `interface` 타입을 수동으로 수정하며 오타나 누락으로 인한 **휴먼 에러(Human Error)**가 발생했습니다.
 
-# 빌드
-yarn build            # 프로덕션 빌드
-yarn build:analyze    # 번들 크기 분석
-yarn start            # 프로덕션 서버 시작
+* **[해결]**
+    `openapi-generator`를 도입하여, 백엔드 API 명세 파일(`swagger.json`)만 업데이트하면 모든 API 요청 함수와 타입을 자동으로 생성하도록 워크플로우를 구축했습니다.
 
-# 코드 품질
-yarn lint             # ESLint 실행
+* **[결과]**
+    개발 효율성을 향상시키고, API 관련 휴먼 에러를 0에 가깝게 줄여 **타입-세이프(Type-Safe)한 코드**를 완성할 수 있었습니다.
 
-# API
-yarn gen:api          # OpenAPI 스펙에서 API 클라이언트 생성
-```
+### 3. [UX 개선] 낙관적 업데이트(Optimistic Update) 적용
 
-### API 클라이언트 생성
+* **[문제]**
+    사용자가 댓글을 작성하면, 서버 응답이 올 때까지 UI에 아무런 변화가 없어 서비스가 느리게 느껴지는 문제가 있었습니다.
 
-백엔드 API 스펙이 업데이트되면 클라이언트를 재생성하세요:
+* **[해결]**
+    `Tanstack-Query`의 `onMutate` 옵션을 활용하여 **낙관적 업데이트**를 구현했습니다. 사용자가 '등록' 버튼을 누르는 즉시 서버 응답을 기다리지 않고, UI에 먼저 댓글이 등록된 것처럼 보여주었습니다.
 
-```bash
-yarn gen:api
-```
+* **[결과]**
+    사용자에게는 서버 딜레이 없는 즉각적인 피드백을 제공하여 UX를 크게 개선했습니다.
 
-이 명령은 `https://gamzatech.site/v3/api-docs/all`에서 OpenAPI 스펙을 가져와 TypeScript 클라이언트를 `src/generated/api/`에 생성합니다.
+### 4. [시스템 설계] GitHub 동기화 실패 시 데이터 안정성
 
-### 코딩 컨벤션
+* **[문제]**
+    이 프로젝트의 핵심 기능은 'GitHub 자동 동기화'입니다. 하지만 사용자가 글을 작성한 순간 GitHub API가 불안정하거나 오류를 반환하면, 사용자의 소중한 글 데이터가 유실될 수 있는 치명적인 위험이 있었습니다.
 
-- **ESLint**: Naver ESLint 설정 준수
-- **Prettier**: 자동 포맷팅 적용
-- **TypeScript**: Strict 모드 사용
-- **컴포넌트**: 함수형 컴포넌트 사용
-- **스타일**: Tailwind CSS 유틸리티 우선
+* **[해결]**
+    백엔드와 협의하여, 먼저 앱 내부 DB에 데이터를 **안전하게 저장(Commit)하는 것을 100% 보장**하고, GitHub 동기화 작업은 '비동기'로 분리하여 처리하도록 설계했습니다. 동기화가 실패하더라도, **재시도/보상 플로우**를 통해 데이터 정합성을 보장합니다.
 
-### 브랜치 전략
 
-- `main`: 프로덕션 배포 브랜치
-- `develop`: 개발 통합 브랜치
-- `feature/*`: 기능 개발 브랜치
-- `fix/*`: 버그 수정 브랜치
-
-## 🔌 API 연동
-
-### OpenAPI Generator를 사용하는 이유
-
-이 프로젝트는 백엔드와의 효율적인 협업과 타입 안전성을 위해 **OpenAPI Generator**를 활용합니다.
-
-#### 주요 이점
-
-**1. 휴먼 에러 방지 (60% 이상의 API 관련 버그 사전 차단)**
-- ✅ **URL 오타 방지**: `/users/{id}` 같은 엔드포인트를 수동으로 작성할 때 발생하는 오타 제거
-- ✅ **HTTP 메서드 실수 방지**: GET/POST/PUT/DELETE 혼동 방지
-- ✅ **파라미터 타입 불일치 차단**: 요청/응답 파라미터 타입이 컴파일 타임에 검증됨
-
-**2. 백엔드와 100% 동기화**
-- OpenAPI 스펙 파일을 기반으로 타입과 API 함수를 자동 생성
-- 백엔드 API 변경 시 `yarn gen:api` 한 번으로 프론트엔드 즉시 동기화
-- 백엔드 개발자와의 협업 효율성 대폭 향상
-
-**3. 개발 생산성 향상**
-- API 함수를 수동으로 작성할 필요 없음 (50개 이상의 API 엔드포인트 자동 생성)
-- TypeScript 타입이 자동 생성되어 IDE 자동완성 지원
-- API 문서와 코드가 항상 일치하여 문서 불일치 문제 해결
-
-**4. 유지보수성 향상**
-- 백엔드 스펙 변경 시 타입 에러로 즉시 감지
-- 리팩토링이 안전하고 신속하게 진행 가능
-- 코드 리뷰 시 API 호출 관련 검토 시간 단축
-
-#### 비교: 수동 vs 자동 생성
-
-```typescript
-// ❌ 수동 작성 방식 (휴먼 에러 가능)
-export const getUser = async (id: string) => {
-  // URL 오타 가능
-  const response = await fetch(`/usres/${id}`);
-  // 타입 불일치 가능
-  return response.json() as User;
-};
-
-// ✅ OpenAPI Generator 자동 생성 (에러 불가능)
-import { UserApi } from '@/generated/api';
-const userApi = new UserApi();
-const user = await userApi.getUser(id); // 타입 안전, URL 보장
-```
-
-### 서비스 레이어 구조
-
-각 기능은 서비스 레이어를 통해 자동 생성된 API 클라이언트를 사용합니다:
-
-```typescript
-// features/posts/services/postService.ts
-import { PostsApi, Configuration } from '@/generated/api';
-
-const postsApi = new PostsApi(new Configuration({
-  basePath: process.env.NEXT_PUBLIC_API_BASE_URL,
-}));
-
-export const postService = {
-  getPosts: async (params) => {
-    const response = await postsApi.getPosts(params);
-    return response.data;
-  },
-  // 자동 생성된 API 메서드 활용
-  getPostById: (id: string) => postsApi.getPostById(id),
-  createPost: (data: CreatePostDto) => postsApi.createPost(data),
-  updatePost: (id: string, data: UpdatePostDto) => postsApi.updatePost(id, data),
-  deletePost: (id: string) => postsApi.deletePost(id),
-};
-```
-
-### TanStack Query 사용
-
-```typescript
-// features/posts/hooks/usePostQueries.ts
-import { useQuery } from '@tanstack/react-query';
-import { postService } from '../services/postService';
-
-export const usePostQueries = () => {
-  return useQuery({
-    queryKey: ['posts'],
-    queryFn: () => postService.getPosts(),
-  });
-};
-```
-
-### API 호출 예시
-
-```typescript
-// 컴포넌트에서 사용
-import { usePostQueries } from '@/features/posts/hooks/usePostQueries';
-
-function PostList() {
-  const { data: posts, isLoading, error } = usePostQueries();
-  
-  if (isLoading) return <div>로딩 중...</div>;
-  if (error) return <div>에러 발생</div>;
-  
-  return (
-    <div>
-      {posts.map(post => (
-        <div key={post.id}>{post.title}</div>
-      ))}
-    </div>
-  );
-}
-```
-
-### 에러 처리
-
-API 호출 시 발생하는 에러는 중앙화된 에러 핸들링을 통해 처리됩니다:
-
-- **401 Unauthorized**: JWT 토큰 자동 재발급 (Refresh Token 사용)
-- **403 Forbidden**: 권한 에러 페이지로 리다이렉트
-- **500 Internal Server Error**: 사용자에게 에러 토스트 메시지 표시
-
-자세한 구현은 `src/lib/api-client.ts` 파일을 참고하세요.
 
 ## 🔒 인증 시스템
 
@@ -374,75 +177,6 @@ API 호출 시 발생하는 에러는 중앙화된 에러 핸들링을 통해 �
 - **CSRF 방어**: SameSite 쿠키 속성 적용
 - **토큰 자동 갱신**: AccessToken 만료 시 RefreshToken으로 자동 갱신
 
-### 보호된 라우트
-
-`middleware.ts`에서 정의된 보호된 경로:
-
-- **일반 사용자**: `/dashboard`, `/mypage`, `/posts/create`, `/posts/*/edit`
-- **관리자**: `/admin`
-
-## 🎨 스타일링
-
-### Tailwind CSS
-
-- 유틸리티 우선 접근
-- 커스텀 테마 확장 가능
-- 다크 모드 자동 지원
-
-### shadcn/ui 컴포넌트 추가
-
-```bash
-npx shadcn@latest add [component-name]
-```
-
-## 📦 배포
-
-### 프로덕션 빌드
-
-```bash
-yarn build
-yarn start
-```
-
-### 환경별 설정
-
-- **개발**: `.env.local`
-- **프로덕션**: 배포 플랫폼의 환경 변수 설정
-
-### 성능 최적화
-
-- **이미지 최적화**: Next.js Image 컴포넌트 사용
-- **코드 분할**: 동적 import 활용
-- **캐싱**: 정적 에셋에 공격적인 캐싱 헤더
-- **번들 최적화**: `optimizePackageImports` 활성화
-
-## 🤝 기여하기
-
-1. 이 저장소를 포크합니다
-2. 기능 브랜치를 생성합니다 (`git checkout -b feature/amazing-feature`)
-3. 변경사항을 커밋합니다 (`git commit -m 'Add amazing feature'`)
-4. 브랜치에 푸시합니다 (`git push origin feature/amazing-feature`)
-5. Pull Request를 생성합니다
-
-## 📝 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다.
-
-## 🔗 관련 링크
-
-- [백엔드 저장소](https://github.com/potato-club/GamzaTechBlog-back)
-- [프로덕션 사이트](https://gamzatech.site)
-- [API 문서](https://gamzatech.site/v3/api-docs)
-
-## 💬 문의
-
-프로젝트에 대한 질문이나 제안사항이 있으시면 이슈를 등록해주세요.
-
-## 🥔 About Potato Club
-
-**감자(Potato Club)** 는 한세대학교 IT학부의 코딩 웹 동아리입니다. 동아리 부원들이 함께 성장하고 기술을 공유하며, 실무 경험을 쌓을 수 있는 프로젝트를 진행하고 있습니다.
-
-이 기술 블로그는 동아리 활동의 일환으로 개발되었으며, 부원들의 학습 내용과 프로젝트 경험을 기록하고 공유하기 위한 플랫폼입니다.
 
 ---
 
