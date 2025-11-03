@@ -5,7 +5,7 @@
  * 변경 작업(추가, 취소)은 useLikeMutations.ts 참조
  */
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { likeService } from "../services/likeService";
 
 // 좋아요 관련 Query Key

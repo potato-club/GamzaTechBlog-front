@@ -13,6 +13,15 @@ import { LIKE_QUERY_KEYS } from "./useLikeQueries";
 import { POST_QUERY_KEYS } from "./usePostQueries";
 
 /**
+ * 좋아요 뮤테이션 Context 타입
+ * 낙관적 업데이트 롤백을 위한 이전 상태 저장
+ */
+type LikeMutationContext = {
+  previousPostDetail: PostDetailResponse | undefined;
+  previousLikeStatus: boolean | undefined;
+};
+
+/**
  * 좋아요 추가 뮤테이션 훅
  *
  * 낙관적 업데이트를 통해 즉각적인 UI 반응을 제공하고,
@@ -21,7 +30,10 @@ import { POST_QUERY_KEYS } from "./usePostQueries";
  * @param postId - 좋아요를 추가할 게시글 ID
  * @param options - React Query mutation 옵션
  */
-export function useAddLike(postId: number, options?: UseMutationOptions<void, Error, void>) {
+export function useAddLike(
+  postId: number,
+  options?: UseMutationOptions<void, Error, void, LikeMutationContext>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -34,8 +46,10 @@ export function useAddLike(postId: number, options?: UseMutationOptions<void, Er
       await queryClient.cancelQueries({ queryKey: LIKE_QUERY_KEYS.status(postId) });
 
       // 현재 캐시된 데이터를 백업 (롤백용)
-      const previousPostDetail = queryClient.getQueryData(POST_QUERY_KEYS.detail(postId));
-      const previousLikeStatus = queryClient.getQueryData(LIKE_QUERY_KEYS.status(postId));
+      const previousPostDetail = queryClient.getQueryData<PostDetailResponse>(
+        POST_QUERY_KEYS.detail(postId)
+      );
+      const previousLikeStatus = queryClient.getQueryData<boolean>(LIKE_QUERY_KEYS.status(postId));
 
       // 게시글 상세 정보의 좋아요 수 증가
       queryClient.setQueryData(
@@ -96,7 +110,10 @@ export function useAddLike(postId: number, options?: UseMutationOptions<void, Er
  * @param postId - 좋아요를 취소할 게시글 ID
  * @param options - React Query mutation 옵션
  */
-export function useRemoveLike(postId: number, options?: UseMutationOptions<void, Error, void>) {
+export function useRemoveLike(
+  postId: number,
+  options?: UseMutationOptions<void, Error, void, LikeMutationContext>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -109,8 +126,10 @@ export function useRemoveLike(postId: number, options?: UseMutationOptions<void,
       await queryClient.cancelQueries({ queryKey: LIKE_QUERY_KEYS.status(postId) });
 
       // 현재 캐시된 데이터를 백업 (롤백용)
-      const previousPostDetail = queryClient.getQueryData(POST_QUERY_KEYS.detail(postId));
-      const previousLikeStatus = queryClient.getQueryData(LIKE_QUERY_KEYS.status(postId));
+      const previousPostDetail = queryClient.getQueryData<PostDetailResponse>(
+        POST_QUERY_KEYS.detail(postId)
+      );
+      const previousLikeStatus = queryClient.getQueryData<boolean>(LIKE_QUERY_KEYS.status(postId));
 
       // 게시글 상세 정보의 좋아요 수 감소
       queryClient.setQueryData(

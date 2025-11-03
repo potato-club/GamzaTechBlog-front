@@ -5,7 +5,13 @@
  * 읽기 작업은 useUserQueries.ts 참조
  */
 
-import type { ProfileImageResponse, UserProfileResponse } from "@/generated/api";
+import type {
+  ProfileImageResponse,
+  UpdateProfileRequest,
+  UserProfileRequest,
+  UserProfileResponse,
+} from "@/generated/api";
+import { handleTokenExpiration } from "@/lib/tokenManager";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { userService } from "../services/userService";
 import { USER_QUERY_KEYS } from "./useUserQueries";
