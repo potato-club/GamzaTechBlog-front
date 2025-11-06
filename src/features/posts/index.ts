@@ -34,8 +34,11 @@ export type {
 export {
   InteractivePostList,
   MainContent,
-  MarkdownViewer,
-  MarkdownViewerSkeleton,
+  // ⚠️ MarkdownViewer, ToastEditor는 무거워서 여기서 export하지 않습니다
+  // 이유: 번들 크기 최적화 (각각 200-300KB)
+  // 사용 방법:
+  //   import { DynamicMarkdownViewer } from "@/components/dynamic/DynamicComponents";
+  //   import { DynamicToastEditor } from "@/components/dynamic/DynamicComponents";
   PopularPost,
   PopularPostList,
   PopularPostListSkeleton,
@@ -53,8 +56,6 @@ export {
   PostStats,
   PostTagManager,
   PostTitleInput,
-  ToastEditor,
-  ToastEditorSkeleton,
   WelcomeBoardSection,
 } from "./components";
 

@@ -21,16 +21,17 @@ export { default as PostListSection } from "./PostListSection.server";
 // Comments & Actions
 export { default as PostCommentsSection } from "./PostCommentsSection";
 
-// Editor & Viewer
-export { default as MarkdownViewer } from "./MarkdownViewer";
-export { default as ToastEditor } from "./ToastEditor";
+// ⚠️ Editor & Viewer는 무거워서 여기서 export하지 않습니다 (각각 200-300KB)
+// 사용: import { DynamicMarkdownViewer } from "@/components/dynamic/DynamicComponents";
+// export { default as MarkdownViewer } from "./MarkdownViewer";
+// export { default as ToastEditor } from "./ToastEditor";
 
 // Skeletons
-export { default as MarkdownViewerSkeleton } from "./skeletons/MarkdownViewerSkeleton";
+// export { default as MarkdownViewerSkeleton } from "./skeletons/MarkdownViewerSkeleton";
 export { default as PopularPostListSkeleton } from "./skeletons/PopularPostListSkeleton";
 export { default as PostDetailSkeleton } from "./skeletons/PostDetailSkeleton";
 export { default as PostListSkeleton } from "./skeletons/PostListSkeleton";
-export { default as ToastEditorSkeleton } from "./skeletons/ToastEditorSkeleton";
+// export { default as ToastEditorSkeleton } from "./skeletons/ToastEditorSkeleton";
 
 export { default as MainContent } from "./MainContent";
 export { default as WelcomeBoardSection } from "./WelcomeBoardSection";
