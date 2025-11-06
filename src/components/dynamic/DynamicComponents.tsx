@@ -36,10 +36,9 @@ export const DynamicMarkdownViewer = dynamic(
  */
 export const DynamicToastEditor = dynamic(
   async () => {
-    // CSS 먼저 동적 로드 (타입 에러 방지를 위해 require 사용)
+    // CSS를 동적으로 import (완전한 코드 스플리팅 보장)
     if (typeof window !== "undefined") {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("@toast-ui/editor/dist/toastui-editor.css");
+      await import("@toast-ui/editor/dist/toastui-editor.css");
     }
 
     // Toast UI React Editor 로드
