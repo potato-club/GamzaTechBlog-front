@@ -2,6 +2,11 @@
   "name": "gamza-tech-blog-front",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": [
+    "*.css",
+    "*.scss",
+    "src/app/globals.css"
+  ],
   "scripts": {
     "dev": "next dev",
     "dev:https:local": "next dev -H dev.gamzatech.site -p 3000 --experimental-https",
@@ -89,6 +94,7 @@
     "msw": "^2.11.5",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
+    "source-map-explorer": "^2.5.3",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.0",
     "typescript": "^5",
