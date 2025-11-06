@@ -2,10 +2,22 @@
 
 import { apiClient, updateTokenExpiration } from "@/lib/apiClient";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getCookie } from "cookies-next";
 import { decodeJwt } from "jose";
+import dynamic from "next/dynamic";
 import { useEffect } from "react";
+
+// 🎯 개발 환경에서만 Devtools 로드
+const ReactQueryDevtools =
+  process.env.NODE_ENV === "development"
+    ? dynamic(
+        () =>
+          import("@tanstack/react-query-devtools").then((mod) => ({
+            default: mod.ReactQueryDevtools,
+          })),
+        { ssr: false }
+      )
+    : () => null;
 
 // QueryClient 인스턴스를 모듈 레벨에서 생성하여 다른 곳에서 임포트할 수 있도록 export 합니다.
 export const queryClient = new QueryClient({
