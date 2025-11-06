@@ -27,7 +27,10 @@ export default function CommentsTab({
   isOwner = true,
   username: _username, // eslint-disable-line @typescript-eslint/no-unused-vars
 }: CommentsTabProps = {}) {
-  const { currentPage, currentPageForAPI, setPage } = usePagination();
+  // 스크롤 위치 유지 (탭 UX 최적화)
+  const { currentPage, currentPageForAPI, setPage } = usePagination({
+    scrollToTop: false,
+  });
   const pageSize = 5;
 
   const {

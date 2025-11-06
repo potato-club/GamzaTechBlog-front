@@ -1,21 +1,50 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+
+export interface UsePaginationOptions {
+  /** 기본 페이지 (기본값: 1) */
+  defaultPage?: number;
+  /** 페이지 변경 시 스크롤을 상단으로 이동할지 여부 (기본값: false) */
+  scrollToTop?: boolean;
+  /** 스크롤 애니메이션 방식 (기본값: "smooth") */
+  scrollBehavior?: ScrollBehavior;
+  /** 추가로 유지할 쿼리 파라미터 (빈 문자열은 제외됨) */
+  extraParams?: Record<string, string | null | undefined>;
+}
 
 /**
- * URL 쿼리 파라미터 기반 페이지네이션 훅
+ * 통합 페이지네이션 훅
  *
- * URL의 ?page= 파라미터를 읽고 업데이트하여
- * 북마크, 뒤로가기, 새로고침 등을 지원합니다.
+ * URL 쿼리 파라미터 기반으로 페이지 상태를 관리하고 페이지 이동을 처리합니다.
+ * 북마크, 뒤로가기, 새로고침을 지원하며 스크롤 제어 및 추가 파라미터 처리가 가능합니다.
+ *
+ * @example
+ * // 스크롤 위치 유지 (검색, 마이페이지)
+ * const { currentPage, setPage } = usePagination({ scrollToTop: false });
+ *
+ * @example
+ * // 스크롤 상단 이동 (메인 페이지)
+ * const { currentPage, setPage } = usePagination({
+ *   scrollToTop: true,
+ *   scrollBehavior: "smooth",
+ *   extraParams: { tag: "react" }
+ * });
  */
-export function usePagination(defaultPage = 1) {
+export function usePagination(options: UsePaginationOptions = {}) {
+  const {
+    defaultPage = 1,
+    scrollToTop = false,
+    scrollBehavior = "smooth",
+    extraParams = {},
+  } = options;
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // URL에서 현재 페이지 읽기 (1부터 시작)
-  // URL의 page 파라미터가 유효하지 않은 경우 defaultPage를 사용합니다.
   const pageFromUrl = searchParams?.get("page");
   const parsedPage = parseInt(pageFromUrl || "", 10);
   const currentPage = !isNaN(parsedPage) && parsedPage > 0 ? parsedPage : defaultPage;
@@ -23,24 +52,48 @@ export function usePagination(defaultPage = 1) {
   // API 호출용 페이지 (0부터 시작)
   const currentPageForAPI = currentPage - 1;
 
+  // extraParams를 안정적인 키로 변환 (불필요한 리렌더링 방지)
+  const extraParamsKey = useMemo(() => JSON.stringify(extraParams), [extraParams]);
+
   // 페이지 변경 함수
   const setPage = useCallback(
     (page: number) => {
       const params = new URLSearchParams(searchParams?.toString() || "");
 
+      // 페이지 파라미터 처리
       if (page <= 1) {
-        // 1페이지거나 그보다 작으면 page 파라미터 제거 (깔끔한 URL)
         params.delete("page");
       } else {
         params.set("page", page.toString());
       }
 
-      // pathname과 쿼리 파라미터를 조합한 완전한 URL 생성
-      const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+      // extraParamsKey에서 다시 파싱하여 추가 파라미터 처리
+      const parsedExtraParams = JSON.parse(extraParamsKey) as Record<
+        string,
+        string | null | undefined
+      >;
+      Object.entries(parsedExtraParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          params.set(key, value);
+        } else {
+          params.delete(key);
+        }
+      });
 
-      router.push(newUrl || "/", { scroll: false }); // 스크롤 위치 유지
+      const newUrl = params.toString() ? `${pathname}?${params}` : pathname;
+
+      // 스크롤 제어
+      if (scrollToTop) {
+        window.scrollTo({
+          top: 0,
+          behavior: scrollBehavior,
+        });
+      }
+
+      // router.push는 항상 scroll: false (window.scrollTo로 이미 제어함)
+      router.push(newUrl, { scroll: false });
     },
-    [router, pathname, searchParams]
+    [router, pathname, searchParams, scrollToTop, scrollBehavior, extraParamsKey]
   );
 
   return {

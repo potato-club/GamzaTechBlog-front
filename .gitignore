@@ -47,5 +47,6 @@ certificates
 # kiro
 .kiro
 
-# markdown
-*.md
+docs/*.md
+
+claudedocs

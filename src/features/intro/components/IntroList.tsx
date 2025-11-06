@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useIntros } from "../hooks";
 import IntroCard from "./IntroCard";
+import IntroListSkeleton from "./skeletons/IntroListSkeleton";
 
 export default function IntroList() {
   const [page, setPage] = useState(0);
@@ -26,23 +27,7 @@ export default function IntroList() {
   const hasPrevPage = page > 0;
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="animate-pulse rounded-xl bg-[#FAFBFF] px-6 py-5">
-            <div className="mt-1 flex items-center gap-2">
-              <div className="mr-2 h-9 w-9 rounded-full bg-gray-300"></div>
-              <div className="h-4 w-20 rounded bg-gray-300"></div>
-            </div>
-            <div className="mt-2 space-y-2">
-              <div className="h-4 w-full rounded bg-gray-300"></div>
-              <div className="h-4 w-3/4 rounded bg-gray-300"></div>
-            </div>
-            <div className="mt-2 h-3 w-32 rounded bg-gray-300"></div>
-          </div>
-        ))}
-      </div>
-    );
+    return <IntroListSkeleton />;
   }
 
   if (isError) {

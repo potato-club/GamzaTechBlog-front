@@ -1,29 +1,19 @@
 /**
- * TanStack Query를 사용한 사용자 관련 API 훅들
+ * TanStack Query를 사용한 사용자 관련 읽기 전용 훅들
+ *
+ * 책임: 사용자 데이터 조회 (읽기 전용)
+ * 변경 작업(프로필 수정, 계정 탈퇴 등)은 useUserMutations.ts 참조
  */
 
 import type {
   Pageable,
-  UpdateProfileRequest,
   UserActivityResponse,
-  UserProfileRequest,
   UserProfileResponse,
   UserPublicProfileResponse,
 } from "@/generated/api/models";
-import {
-  useMutation,
-  UseMutationOptions,
-  useQuery,
-  useQueryClient,
-  UseQueryOptions,
-} from "@tanstack/react-query";
 import { handleTokenExpiration, isRefreshTokenInvalidError } from "@/lib/tokenManager";
+import { useQuery, useQueryClient, type UseQueryOptions } from "@tanstack/react-query";
 import { userService } from "../services";
-
-// 뮤테이션 컨텍스트 타입 정의
-interface UpdateProfileContext {
-  previousProfile: UserProfileResponse | undefined;
-}
 
 // Query Key 상수들
 export const USER_QUERY_KEYS = {
@@ -104,115 +94,6 @@ export function useUserRole(
       return failureCount < 2;
     },
     refetchOnWindowFocus: false,
-    ...options,
-  });
-}
-
-/**
- * 회원가입 시 프로필을 업데이트하는 뮤테이션 훅
- */
-export function useUpdateProfileInSignup(
-  options?: UseMutationOptions<UserProfileResponse, Error, UserProfileRequest>
-) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (profileData: UserProfileRequest) => userService.updateProfileInSignup(profileData),
-    onSuccess: (updatedProfile, variables, context) => {
-      queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
-      options?.onSuccess?.(updatedProfile, variables, context);
-    },
-    onError: (error, variables, context) => {
-      console.error("프로필 업데이트 실패:", error);
-      options?.onError?.(error, variables, context);
-    },
-    ...options,
-  });
-}
-
-/**
- * 계정 탈퇴 뮤테이션 훅
- */
-export function useWithdrawAccount(options?: UseMutationOptions<void, Error, void>) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: () => userService.withdrawAccount(),
-    onSuccess: (data, variables, context) => {
-      handleTokenExpiration(queryClient, "/");
-      options?.onSuccess?.(data, variables, context);
-    },
-    onError: (error, variables, context) => {
-      console.error("계정 탈퇴 실패:", error);
-      options?.onError?.(error, variables, context);
-    },
-    ...options,
-  });
-}
-
-/**
- * 사용자 프로필을 업데이트하는 뮤테이션 훅 (낙관적 업데이트 포함)
- */
-export function useUpdateProfile(
-  options?: UseMutationOptions<
-    UserProfileResponse,
-    Error,
-    UpdateProfileRequest,
-    UpdateProfileContext
-  >
-) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (profileData: UpdateProfileRequest) => userService.updateProfile(profileData),
-
-    // 낙관적 업데이트: 서버 응답 전에 UI 즉시 업데이트
-    onMutate: async (profileData: UpdateProfileRequest): Promise<UpdateProfileContext> => {
-      // 진행 중인 쿼리들을 취소하여 낙관적 업데이트와 충돌 방지
-      await queryClient.cancelQueries({ queryKey: USER_QUERY_KEYS.profile() });
-
-      // 현재 캐시된 데이터를 백업 (롤백용)
-      const previousProfile = queryClient.getQueryData<UserProfileResponse>(
-        USER_QUERY_KEYS.profile()
-      );
-
-      // 낙관적으로 프로필 데이터 업데이트
-      if (previousProfile) {
-        const optimisticProfile: UserProfileResponse = {
-          ...previousProfile,
-          ...profileData,
-        };
-        queryClient.setQueryData(USER_QUERY_KEYS.profile(), optimisticProfile);
-      }
-
-      return { previousProfile };
-    },
-
-    onSuccess: (updatedProfile, variables, context) => {
-      // 서버에서 받은 실제 데이터로 캐시 업데이트
-      queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
-      options?.onSuccess?.(updatedProfile, variables, context);
-    },
-
-    // 실패 시: 이전 상태로 롤백
-    onError: (error, variables, context) => {
-      console.error("프로필 업데이트 실패:", error);
-
-      // 백업된 데이터로 롤백
-      if (context?.previousProfile) {
-        queryClient.setQueryData(USER_QUERY_KEYS.profile(), context.previousProfile);
-      }
-
-      options?.onError?.(error, variables, context);
-    },
-
-    // 완료 시: 관련 쿼리 다시 가져오기
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.profile() });
-    },
-
     ...options,
   });
 }

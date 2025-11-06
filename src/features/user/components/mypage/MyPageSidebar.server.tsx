@@ -1,12 +1,11 @@
 import UserIcon from "@/components/ui/UserIcon";
 import { Button } from "@/components/ui/button";
 import { createMyPageStats } from "@/constants/mypageConstants";
-import { UserActivityStatItem } from "@/features/user";
+import { createUserServiceServer, UserActivityStatItem } from "@/features/user";
 import ProfileEditDialog from "@/features/user/components/ProfileEditDialog";
 import type { UserActivityResponse, UserProfileResponse } from "@/generated/api";
 import Image from "next/image";
 import Link from "next/link";
-import { createServerApiClient } from "../../../../lib/apiClient";
 
 interface MyPageSidebarServerProps {
   isOwner?: boolean;
@@ -31,23 +30,21 @@ export default async function MyPageSidebarServer({
   let activityStats: UserActivityResponse | null = null;
 
   try {
-    const api = createServerApiClient();
+    const userService = createUserServiceServer();
 
     if (isOwner) {
-      // 내 프로필 조회 - 서버 API 클라이언트 사용
-      userProfile = (await api.getCurrentUserProfile()).data || null;
-      activityStats = (await api.getActivitySummary()).data || null;
+      // 내 프로필 조회 - 서버 User Service 사용
+      userProfile = await userService.getProfile();
+      activityStats = await userService.getActivityCounts();
     } else {
       // 공개 프로필 조회
       if (!username) {
         throw new Error("Username is required for public profile");
       }
-      const publicProfileResponse = await api.getPublicProfileByNickname({
-        nickname: username,
+      const publicData = await userService.getPublicProfile(username, {
         page: 0,
         size: 10,
       });
-      const publicData = publicProfileResponse.data;
       // UserMiniProfileResponse를 UserProfileResponse 형태로 변환
       userProfile = publicData?.profile
         ? ({

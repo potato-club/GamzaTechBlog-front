@@ -9,15 +9,15 @@
  */
 
 import { ProfileLayout } from "@/components/shared";
-import { createServerApiClient } from "@/lib/apiClient";
+import { createUserServiceServer } from "@/features/user";
 
 export default async function MyPage() {
   console.log("Rendering MyPage Server Component");
 
-  // 인증 상태 확인 - 서버 API 클라이언트 사용
+  // 인증 상태 확인 - User Service 사용
   try {
-    const api = createServerApiClient();
-    await api.getCurrentUserProfile();
+    const userService = createUserServiceServer();
+    await userService.getProfile();
   } catch (error) {
     console.error("Authentication failed:", error);
   }

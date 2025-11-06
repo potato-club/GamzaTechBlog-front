@@ -37,6 +37,7 @@
     "form": "^0.2.5",
     "highlight.js": "^11.11.1",
     "jose": "^6.1.0",
+    "ky": "^1.11.0",
     "lucide-react": "^0.511.0",
     "marked": "^16.0.0",
     "next": "15.3.3",
@@ -85,10 +86,17 @@
     "eslint-plugin-react": "^7.37.5",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
+    "msw": "^2.11.5",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "undici": "^7.16.0"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

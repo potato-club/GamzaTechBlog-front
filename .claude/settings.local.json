@@ -3,7 +3,8 @@
     "allow": [
       "Bash(yarn build)",
       "Bash(yarn prettier:*)",
-      "Bash(yarn prettier:write:*)"
+      "Bash(yarn prettier:write:*)",
+      "Bash(yarn lint)"
     ],
     "deny": [],
     "ask": []

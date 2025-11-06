@@ -2,8 +2,8 @@ import {
   DynamicMarkdownViewer,
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
-import { PostHeader, PostStats, postService } from "@/features/posts";
-import { createServerApiClient } from "@/lib/apiClient";
+import { createPostServiceServer, PostHeader, PostStats } from "@/features/posts";
+import { createUserServiceServer } from "@/features/user";
 import { canEditPost } from "@/lib/auth";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -16,7 +16,9 @@ import { cache } from "react";
  * generateMetadata와 PostPage 컴포넌트에서 동일한 데이터를 사용할 때 최적화됩니다.
  */
 const getCachedPost = cache(async (postId: number) => {
-  // ISR 적용: 3600초(1시간) 주기로 페이지를 재생성합니다.
+  // 서버용 Post Service 사용
+  const postService = createPostServiceServer();
+  // ISR 적용: 86400초(24시간) 주기로 페이지를 재생성합니다.
   return await postService.getPostById(postId, { next: { revalidate: 86400 } });
 });
 
@@ -127,14 +129,11 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     // 현재 로그인한 사용자가 게시글을 수정할 수 있는지 확인
     let isCurrentUserAuthor = false;
     try {
-      const serverApiClient = createServerApiClient();
-      const userProfile = await serverApiClient.getCurrentUserProfile();
-      const profileData = userProfile?.data;
+      const userService = createUserServiceServer();
+      const profileData = await userService.getProfile();
 
       if (profileData) {
         isCurrentUserAuthor = canEditPost(profileData, post.writer || "");
-      } else {
-        isCurrentUserAuthor = false;
       }
     } catch (error) {
       // 로그인되지 않은 사용자나 API 에러의 경우 false로 처리

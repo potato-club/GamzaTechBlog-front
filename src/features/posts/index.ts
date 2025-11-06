@@ -19,6 +19,17 @@ export {
   useUpdatePost,
 } from "./hooks";
 
+// Server Actions (app/actions에서 import)
+export { createPostAction, deletePostAction, updatePostAction } from "@/app/actions/postActions";
+
+// Action Types
+export type {
+  ActionResult,
+  CreatePostInput,
+  DeletePostInput,
+  UpdatePostInput,
+} from "./actions/types";
+
 // Components
 export {
   InteractivePostList,
@@ -29,7 +40,6 @@ export {
   PopularPostList,
   PopularPostListSkeleton,
   PopularPostsSection,
-  PopularPostsSkeleton,
   PostCard,
   PostCommentsSection,
   PostDetailSkeleton,
@@ -49,8 +59,11 @@ export {
 } from "./components";
 
 // Services
-export { postService } from "./services";
-export type { LikedPostResponse } from "./services";
+export { likeService } from "./services/likeService";
+export { createLikeServiceServer } from "./services/likeService.server";
+export { postService } from "./services/postService";
+export type { LikedPostResponse } from "./services/postService";
+export { createPostServiceServer } from "./services/postService.server";
 
 // Types
 export type {

@@ -13,6 +13,7 @@ if (isClient) {
 }
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { uploadImageForEditor } from "../hooks/useImageQueries";
 
 export type ToastEditorHandle = {
@@ -85,7 +86,7 @@ const TuiEditor = forwardRef<ToastEditorHandle, ToastEditorProps>(({ initialValu
   return (
     <>
       {!isMounted ? (
-        <div className="h-[600px] animate-pulse rounded bg-gray-200" />
+        <Skeleton className="h-[600px]" />
       ) : (
         <Editor
           ref={editorRef}

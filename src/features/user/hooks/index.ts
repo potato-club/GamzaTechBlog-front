@@ -1,16 +1,20 @@
+// 읽기 전용 쿼리 훅
 export {
-  usePublicProfile,
   USER_QUERY_KEYS,
-  useUpdateProfile,
-  useUpdateProfileInSignup,
+  usePublicProfile,
   useUserActivityStats,
   useUserProfile,
   useUserRole,
-  useWithdrawAccount,
 } from "./useUserQueries";
+
+// 변경 작업 훅 (Mutations)
+export {
+  useUpdateProfile,
+  useUpdateProfileImage,
+  useUpdateProfileInSignup,
+  useWithdrawAccount,
+} from "./useUserMutations";
 
 export { useMyComments, useMyLikes, useMyPosts } from "./useMyPageQueries";
 
 export { useMyPageTab } from "./useMyPageTab";
-
-export { useUpdateProfileImage } from "./useUserMutations";
