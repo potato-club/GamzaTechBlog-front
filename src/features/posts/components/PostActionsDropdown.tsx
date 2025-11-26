@@ -19,21 +19,7 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   const { userProfile, isLoggedIn } = useAuth();
   const { data: post } = usePost(postId);
 
-  const deletePostMutation = useDeletePost({
-    onSuccess: (result) => {
-      if (result.success) {
-        // SPA 네비게이션 + 서버 데이터 재조회
-        router.push("/");
-        router.refresh();
-      } else {
-        alert(result.error);
-      }
-    },
-    onError: (error) => {
-      console.error("게시글 삭제 실패:", error);
-      alert("게시글 삭제 중 오류가 발생했습니다.");
-    },
-  });
+  const deletePostMutation = useDeletePost();
 
   const handleDeletePost = useCallback(async () => {
     if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
