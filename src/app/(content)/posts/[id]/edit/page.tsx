@@ -31,20 +31,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   // 기존 게시글 데이터 조회
   const { data: post, isLoading: isLoadingPost, error } = usePost(postId);
 
-  const updatePostMutation = useUpdatePost({
-    onSuccess: (result) => {
-      if (result.success) {
-        // 성공 시 게시글 상세 페이지로 이동
-        router.push(`/posts/${postId}`);
-      } else {
-        alert(result.error);
-      }
-    },
-    onError: (error) => {
-      console.error("게시글 수정 실패:", error);
-      alert("게시글 수정 중 오류가 발생했습니다.");
-    },
-  });
+  const updatePostMutation = useUpdatePost();
 
   const handleSubmit = async (data: PostFormData) => {
     await updatePostMutation.mutateAsync({
