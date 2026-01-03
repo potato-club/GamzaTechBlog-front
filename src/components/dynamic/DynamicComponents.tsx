@@ -29,18 +29,16 @@ export const DynamicMarkdownViewer = dynamic(
 /**
  * ToastEditor 동적 로딩 - 완전한 코드 스플리팅
  *
- * Toast UI Editor와 CSS를 모두 동적으로 로드하여
+ * Toast UI Editor를 동적으로 로드하여
  * 메인 번들에서 완전히 분리합니다 (~1.2MB 절감)
+ *
+ * CSS는 ToastEditor 컴포넌트에서 정적으로 import됩니다.
+ * (Next.js 16 + Turbopack에서 동적 CSS import 미지원)
  *
  * 글 작성/수정 페이지에서만 로드되도록 최적화
  */
 export const DynamicToastEditor = dynamic(
   async () => {
-    // CSS를 동적으로 import (완전한 코드 스플리팅 보장)
-    if (typeof window !== "undefined") {
-      await import("@toast-ui/editor/dist/toastui-editor.css");
-    }
-
     // Toast UI React Editor 로드
     const { Editor } = await import("@toast-ui/react-editor");
 
