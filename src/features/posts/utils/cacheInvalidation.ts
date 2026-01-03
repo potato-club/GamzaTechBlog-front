@@ -6,12 +6,17 @@ import { revalidatePath, revalidateTag } from "next/cache";
  * 단일 책임: 캐시 무효화 로직만 담당
  * 재사용성: 여러 액션에서 공통 사용
  * 테스트 용이성: 독립적인 유틸 함수
+ *
+ * Next.js 16 변경사항:
+ * - revalidateTag는 두 번째 인자 필요 (profile)
+ * - "max" 프로필 사용: stale-while-revalidate (SWR) 방식
+ *   → 이전 콘텐츠를 즉시 제공하고 백그라운드에서 새 데이터 fetch
  */
 export const postCacheInvalidation = {
   invalidateList() {
     revalidatePath("/");
     revalidatePath("/posts");
-    revalidateTag("posts-list");
+    revalidateTag("posts-list", "max");
   },
 
   /**
@@ -21,7 +26,7 @@ export const postCacheInvalidation = {
    */
   invalidateDetail(postId: number) {
     revalidatePath(`/posts/${postId}`);
-    revalidateTag(`post-${postId}`);
+    revalidateTag(`post-${postId}`, "max");
   },
 
   /**
@@ -31,7 +36,7 @@ export const postCacheInvalidation = {
    */
   invalidateAll() {
     this.invalidateList();
-    revalidateTag("posts");
+    revalidateTag("posts", "max");
   },
 
   /**
