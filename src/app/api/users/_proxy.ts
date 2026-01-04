@@ -20,7 +20,7 @@ export async function forwardUserRequest(request: Request, path: string): Promis
   const accessToken = cookieStore.get("authorization")?.value;
 
   if (accessToken) {
-    headers.set("Authorization", `Bearer ${accessToken}`);
+    headers.set("authorization", `Bearer ${accessToken}`);
   }
 
   const body =
