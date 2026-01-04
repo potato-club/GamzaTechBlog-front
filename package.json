@@ -9,8 +9,9 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "dev:https:local": "next dev -H dev.gamzatech.site -p 3000 --experimental-https",
-    "dev:https": "next dev -H app.gamzatech.site",
+    "dev:https": "next dev --experimental-https",
+    "dev:https:local": "scripts\\dev-https.bat",
+    "dev:https:domain": "next dev -H app.gamzatech.site --experimental-https",
     "build": "next build",
     "build:analyze": "set ANALYZE=true && next build",
     "start": "next start",
