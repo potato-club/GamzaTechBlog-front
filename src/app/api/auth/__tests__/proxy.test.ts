@@ -38,8 +38,8 @@ describe("forwardAuthRequest", () => {
     // 동적 임포트로 새로운 모듈 인스턴스 로드
     const { forwardAuthRequest } = await import("@/app/api/auth/_proxy");
 
-    const request = new Request("http://localhost/api/auth/login", { method: "POST" });
-    const response = await forwardAuthRequest(request, "/api/auth/login");
+    const request = new Request("http://localhost/api/auth/reissue", { method: "POST" });
+    const response = await forwardAuthRequest(request, "/api/auth/reissue");
 
     expect(response.status).toBe(500);
   });
@@ -64,7 +64,7 @@ describe("forwardAuthRequest", () => {
       .mockResolvedValue(new Response(null, { status: 200 }));
 
     const payload = JSON.stringify({ username: "demo" });
-    const request = new Request("http://localhost/api/auth/login", {
+    const request = new Request("http://localhost/api/auth/reissue", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -74,11 +74,11 @@ describe("forwardAuthRequest", () => {
       body: payload,
     });
 
-    await forwardAuthRequest(request, "/api/auth/login");
+    await forwardAuthRequest(request, "/api/auth/reissue");
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe("https://example.com/api/auth/login");
+    expect(url).toBe("https://example.com/api/auth/reissue");
     expect(init?.method).toBe("POST");
     expect(init?.body).toBe(payload);
 
@@ -140,9 +140,9 @@ describe("forwardAuthRequest", () => {
       .spyOn(global, "fetch")
       .mockResolvedValue(new Response(null, { status: 200 }));
 
-    const request = new Request("http://localhost/api/auth/login", { method: "GET" });
+    const request = new Request("http://localhost/api/auth/reissue", { method: "GET" });
 
-    await forwardAuthRequest(request, "/api/auth/login");
+    await forwardAuthRequest(request, "/api/auth/reissue");
 
     const [, init] = fetchMock.mock.calls[0];
     expect(init?.body).toBeUndefined();
