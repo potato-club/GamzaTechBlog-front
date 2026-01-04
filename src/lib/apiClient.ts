@@ -78,10 +78,10 @@ export function updateTokenExpiration(accessToken: string) {
 /**
  * 액세스 토큰 재발급
  */
-async function refreshAccessToken(): Promise<string | null> {
-  try {
-    const endpoint = "/api/auth/reissue";
-    const refreshUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${endpoint}`;
+  async function refreshAccessToken(): Promise<string | null> {
+    try {
+      const endpoint = "/api/auth/reissue";
+      const refreshUrl = endpoint;
 
     const data = await ky
       .post(refreshUrl, {

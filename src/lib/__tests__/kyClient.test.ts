@@ -8,10 +8,10 @@
  * - 동시 요청 시 토큰 재발급 중복 방지
  */
 
-import { apiClient } from "../apiClient";
-import { server } from "./mocks/server";
 import { http, HttpResponse } from "msw";
+import { apiClient } from "../apiClient";
 import { setTokenExpiration } from "../tokenManager";
+import { server } from "./mocks/server";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
@@ -55,7 +55,7 @@ describe("Ky Client POC", () => {
 
       // 첫 요청은 401, 재발급 후 재시도는 성공
       server.use(
-        http.get(`${BASE_URL}/api/users/me`, () => {
+        http.get(`${BASE_URL}/api/v1/users/me/get/profile`, () => {
           callCount++;
           if (callCount === 1) {
             return HttpResponse.json(
@@ -87,7 +87,7 @@ describe("Ky Client POC", () => {
       let callCount = 0;
 
       server.use(
-        http.get(`${BASE_URL}/api/users/me`, () => {
+        http.get(`${BASE_URL}/api/v1/users/me/get/profile`, () => {
           callCount++;
           if (callCount === 1) {
             return HttpResponse.json(
@@ -113,7 +113,7 @@ describe("Ky Client POC", () => {
       let callCount = 0;
 
       server.use(
-        http.get(`${BASE_URL}/api/users/me`, () => {
+        http.get(`${BASE_URL}/api/v1/users/me/get/profile`, () => {
           callCount++;
           if (callCount === 1) {
             return HttpResponse.json(
@@ -141,7 +141,7 @@ describe("Ky Client POC", () => {
       let attemptCount = 0;
 
       server.use(
-        http.get(`${BASE_URL}/api/flaky-endpoint`, () => {
+        http.get(`${BASE_URL}/api/v1/flaky-endpoint`, () => {
           attemptCount++;
           if (attemptCount < 3) {
             return HttpResponse.json({ message: "Service Unavailable" }, { status: 503 });
@@ -162,7 +162,7 @@ describe("Ky Client POC", () => {
       let attemptCount = 0;
 
       server.use(
-        http.get(`${BASE_URL}/api/server-error`, () => {
+        http.get(`${BASE_URL}/api/v1/server-error`, () => {
           attemptCount++;
           if (attemptCount < 2) {
             return HttpResponse.json({ message: "Internal Server Error" }, { status: 500 });
@@ -192,7 +192,7 @@ describe("Ky Client POC", () => {
 
       // 토큰 재발급 카운트
       server.use(
-        http.post(`${BASE_URL}/api/auth/reissue`, () => {
+        http.post(`${BASE_URL}/api/v1/auth/reissue`, () => {
           refreshCallCount++;
           return HttpResponse.json({
             data: { authorization: "new.token" },
@@ -202,7 +202,7 @@ describe("Ky Client POC", () => {
 
       // 모든 API는 첫 요청 시 401 반환
       server.use(
-        http.get(`${BASE_URL}/api/users/me`, () => {
+        http.get(`${BASE_URL}/api/v1/users/me/get/profile`, () => {
           profileCallCount++;
           if (profileCallCount === 1) {
             return HttpResponse.json({ message: "토큰이 만료되었습니다" }, { status: 401 });
@@ -210,7 +210,7 @@ describe("Ky Client POC", () => {
           return HttpResponse.json({ data: { id: 1, username: "testuser" } });
         }),
 
-        http.get(`${BASE_URL}/api/posts`, () => {
+        http.get(`${BASE_URL}/api/v1/posts`, () => {
           postsCallCount++;
           if (postsCallCount === 1) {
             return HttpResponse.json({ message: "토큰이 만료되었습니다" }, { status: 401 });
@@ -218,7 +218,7 @@ describe("Ky Client POC", () => {
           return HttpResponse.json({ data: { content: [] } });
         }),
 
-        http.get(`${BASE_URL}/api/tags`, () => {
+        http.get(`${BASE_URL}/api/v1/tags`, () => {
           tagsCallCount++;
           if (tagsCallCount === 1) {
             return HttpResponse.json({ message: "토큰이 만료되었습니다" }, { status: 401 });
@@ -253,7 +253,7 @@ describe("Ky Client POC", () => {
       let refreshCalled = false;
 
       server.use(
-        http.post(`${BASE_URL}/api/auth/reissue`, () => {
+        http.post(`${BASE_URL}/api/v1/auth/reissue`, () => {
           refreshCalled = true;
           return HttpResponse.json({
             data: { authorization: "new.proactive.token" },
@@ -275,7 +275,7 @@ describe("Ky Client POC", () => {
       let refreshCalled = false;
 
       server.use(
-        http.post(`${BASE_URL}/api/auth/reissue`, () => {
+        http.post(`${BASE_URL}/api/v1/auth/reissue`, () => {
           refreshCalled = true;
           return HttpResponse.json({
             data: { authorization: "new.token" },
