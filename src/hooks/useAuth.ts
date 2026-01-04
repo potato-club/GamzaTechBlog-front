@@ -5,7 +5,8 @@
  * shared hooks 영역에서 관리됩니다.
  */
 
-import { USER_QUERY_KEYS, userService, useUserProfile, useUserRole } from "@/features/user";
+import { authService } from "@/features/auth";
+import { USER_QUERY_KEYS, useUserProfile, useUserRole } from "@/features/user";
 import type { UserProfileResponse } from "@/generated/api/models";
 import { performLogout } from "@/lib/tokenManager";
 import { useQueryClient } from "@tanstack/react-query";
@@ -29,7 +30,7 @@ export function useAuth() {
   };
 
   const logout = async () => {
-    await performLogout(userService.logout, queryClient);
+    await performLogout(authService.logout, queryClient);
   };
 
   const refetchAuthStatus = async () => {
