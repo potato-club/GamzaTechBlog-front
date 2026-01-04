@@ -1,3 +1,7 @@
+import "server-only";
+
+import { cookies } from "next/headers";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 export async function forwardAuthRequest(request: Request, path: string): Promise<Response> {
@@ -11,8 +15,17 @@ export async function forwardAuthRequest(request: Request, path: string): Promis
   const contentType = request.headers.get("content-type");
 
   if (cookie) headers.set("cookie", cookie);
-  if (authorization) headers.set("authorization", authorization);
   if (contentType) headers.set("content-type", contentType);
+
+  if (authorization) {
+    headers.set("authorization", authorization);
+  } else {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("authorization")?.value;
+    if (accessToken) {
+      headers.set("authorization", `Bearer ${accessToken}`);
+    }
+  }
 
   const body =
     request.method === "GET" || request.method === "HEAD" ? undefined : await request.text();
