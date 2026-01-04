@@ -3,10 +3,10 @@
 전환 단계별로 아래 항목을 최소 한 번 이상 점검합니다.
 
 ## P0 (인증/세션)
-- [ ] 로그인 성공/실패 처리
-- [ ] 로그아웃 후 세션 정리(쿠키 제거/캐시 초기화)
-- [ ] 토큰 만료 후 재발급 성공/실패 처리
-- [ ] 인증 BFF 라우트 단위 테스트 실행 (예: `set JEST_SKIP_MSW=true && yarn test src/app/api/auth/__tests__/routes.test.ts src/app/api/auth/__tests__/proxy.test.ts`)
+- [x] 로그인 성공/실패 처리
+- [x] 로그아웃 후 세션 정리(쿠키 제거/캐시 초기화)
+- [x] 토큰 만료 후 재발급 성공/실패 처리
+- [x] 인증 BFF 라우트 단위 테스트 실행 (예: `set JEST_SKIP_MSW=true && yarn test src/app/api/auth/__tests__/routes.test.ts src/app/api/auth/__tests__/proxy.test.ts`)
 
 ## P1 (쓰기/변경)
 - [ ] 게시글 생성/수정/삭제
