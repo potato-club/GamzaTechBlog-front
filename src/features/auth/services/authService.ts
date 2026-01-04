@@ -1,7 +1,9 @@
+import { apiFetch } from "@/lib/apiFetch";
+
 export const authService = {
   // 토큰 재발급 로직 추가
   async login(username: string, password: string): Promise<void> {
-    const response = await fetch("/api/auth/login", {
+    const response = await apiFetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -15,7 +17,7 @@ export const authService = {
   },
 
   async logout(): Promise<void> {
-    const response = await fetch("/api/auth/logout", {
+    const response = await apiFetch("/api/auth/logout", {
       method: "POST",
     });
 

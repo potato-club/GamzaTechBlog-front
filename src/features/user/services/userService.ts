@@ -10,15 +10,14 @@ import {
   UserPublicProfileResponse,
 } from "@/generated/api";
 import { apiClient } from "@/lib/apiClient";
+import { apiFetch } from "@/lib/apiFetch";
 
 export const userService = {
   /**
    * 사용자 프로필 정보를 가져옵니다.
    */
   async getProfile(): Promise<UserProfileResponse> {
-    const response = await fetch("/api/users/me/profile", {
-      credentials: "include",
-    });
+    const response = await apiFetch("/api/users/me/profile");
 
     if (!response.ok) {
       throw new Error("Failed to fetch user profile.");
@@ -65,9 +64,7 @@ export const userService = {
    */
   async getUserRole(): Promise<string | null> {
     try {
-      const response = await fetch("/api/users/me/role", {
-        credentials: "include",
-      });
+      const response = await apiFetch("/api/users/me/role");
 
       if (!response.ok) {
         throw new Error("Failed to fetch user role.");
