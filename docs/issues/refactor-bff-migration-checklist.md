@@ -25,48 +25,48 @@
 
 ### 0.1 경계 규칙 결정
 
-- [ ] RSC vs BFF vs direct 기준을 문서화 (`docs/bff-boundary-rules.md`)
-- [ ] "인증/쓰기/개인화는 BFF" 규칙 확정
-- [ ] "공개 읽기 경로(RSC/direct) 판단 기준" 확정
-- [ ] 경계 규칙 요약을 체크리스트/문서에 반영
+- [x] RSC vs BFF vs direct 기준을 문서화 (`docs/bff-boundary-rules.md`)
+- [x] "인증/쓰기/개인화는 BFF" 규칙 확정
+- [x] "공개 읽기 경로(RSC/direct) 판단 기준" 확정
+- [x] 경계 규칙 요약을 체크리스트/문서에 반영
 
 ### 0.2 BFF 경로 구조 확정
 
-- [ ] BFF 라우트 루트 결정 (`src/app/api/**` 또는 `src/app/api/bff/**`)
-- [ ] 리소스별 라우트 네이밍 규칙 정의
+- [x] BFF 라우트 루트 결정 (`src/app/api/**` 또는 `src/app/api/bff/**`)
+- [x] 리소스별 라우트 네이밍 규칙 정의
   - 예: `/api/posts/[id]`, `/api/posts/[id]/likes`, `/api/me/profile`
-- [ ] 엔드포인트별 요청/응답 형태 통일 기준 정의
+- [x] 엔드포인트별 요청/응답 형태 통일 기준 정의
 
 ### 0.3 서버 전용 클라이언트 스켈레톤
 
-- [ ] 신규 모듈 이름 확정 (예: `src/lib/serverApiClient.ts`)
-- [ ] `cookies()` 기반 쿠키 주입 방식 결정
-- [ ] 공통 fetch wrapper 설계
+- [x] 신규 모듈 이름 확정 (예: `src/lib/serverApiClient.ts`)
+- [x] `cookies()` 기반 쿠키 주입 방식 결정
+- [x] 공통 fetch wrapper 설계
   - 타임아웃, 에러 변환, JSON 파싱 실패 처리
-- [ ] 서버 전용 모듈임을 명확히 표시
+- [x] 서버 전용 모듈임을 명확히 표시
   - 예: `import "server-only"` 사용 여부 결정
 
 ### 0.4 에러/응답 표준화
 
-- [ ] 공통 응답 포맷 결정 (예: `{ success, data, error }`)
-- [ ] 공통 에러 타입/매핑 규칙 정의
-- [ ] BFF에서 반환할 HTTP 상태 코드 규칙 정의
+- [x] 공통 응답 포맷 결정 (예: `{ success, data, error }`)
+- [x] 공통 에러 타입/매핑 규칙 정의
+- [x] BFF에서 반환할 HTTP 상태 코드 규칙 정의
 
 ### 0.5 인벤토리/맵핑
 
-- [ ] 현재 API 호출 경로 인벤토리 작성 (`docs/issues/bff-migration-inventory.md`)
+- [x] 현재 API 호출 경로 인벤토리 작성 (`docs/issues/bff-migration-inventory.md`)
   - `src/features/**/services/*`
   - `src/features/**/hooks/*`
   - `src/app/actions/*`
-- [ ] P0/P1/P2/P4 매핑 테이블 작성
+- [x] P0/P1/P2/P4 매핑 테이블 작성
   - 인증/쓰기/개인화/공개 읽기 분류
-- [ ] 기존 `apiClient` 사용처 목록화
+- [x] 기존 `apiClient` 사용처 목록화
 
 ### 0.6 롤백/검증 계획
 
-- [ ] fallback 전략 결정 (기존 경로 유지/제거 기준) (`docs/bff-fallback-plan.md`)
-- [ ] 롤백 기준 정의 (실패 조건/복구 절차)
-- [ ] 기본 회귀 시나리오 체크리스트 작성 (`docs/bff-regression-checklist.md`)
+- [x] fallback 전략 결정 (기존 경로 유지/제거 기준) (`docs/bff-fallback-plan.md`)
+- [x] 롤백 기준 정의 (실패 조건/복구 절차)
+- [x] 기본 회귀 시나리오 체크리스트 작성 (`docs/bff-regression-checklist.md`)
 
 ## 1주차 (P0: 인증/세션 파일럿)
 
@@ -74,33 +74,33 @@
 
 ### 1.1 BFF 인증 라우트 구축
 
-- [ ] `src/app/api/auth/login/route.ts` 구현
-- [ ] `src/app/api/auth/logout/route.ts` 구현
-- [ ] `src/app/api/auth/reissue/route.ts` 구현
-- [ ] 백엔드 인증 API 호출과 쿠키 전달 확인
+- [x] 로그인은 OAuth 링크 리다이렉트로 유지 (BFF 라우트 없음)
+- [x] `src/app/api/auth/logout/route.ts` 구현
+- [x] `src/app/api/auth/reissue/route.ts` 구현
+- [x] 백엔드 인증 API 호출과 쿠키 전달 확인
 
 ### 1.2 프론트 인증 호출 전환
 
-- [ ] `src/features/auth/services/authService.ts`를 BFF 경로로 전환
-- [ ] `src/lib/apiClient.ts`의 재발급 경로가 BFF를 사용하도록 정리
-- [ ] 기존 인증 호출 경로 fallback 여부 확정
+- [x] `src/features/auth/services/authService.ts`를 BFF 경로로 전환
+- [x] `src/lib/apiClient.ts`의 재발급 경로가 BFF를 사용하도록 정리
+- [x] 기존 인증 호출 경로 fallback 여부 확정
 
 ### 1.3 클라이언트 토큰 접근 정리
 
-- [ ] `src/providers/Providers.tsx`에서 쿠키 직접 접근 점검
-- [ ] HttpOnly 쿠키 접근 로직 제거/대체 여부 결정
-- [ ] `src/lib/tokenManager.ts`의 삭제/만료 처리 정책 재확인
+- [x] `src/providers/Providers.tsx`에서 쿠키 직접 접근 점검
+- [x] HttpOnly 쿠키 접근 로직 제거/대체 여부 결정
+- [x] `src/lib/tokenManager.ts`의 삭제/만료 처리 정책 재확인
 
 ### 1.4 인증 예외 처리 규칙
 
-- [ ] 401/403 표준 처리 규칙 확정
-- [ ] 인증 실패 시 UI 정책 합의 (리다이렉트/토스트 등)
+- [x] 401/403 표준 처리 규칙 확정
+- [x] 인증 실패 시 UI 정책 합의 (리다이렉트/토스트 등)
 
 ### 1.5 회귀 테스트
 
-- [ ] 로그인 성공/실패
-- [ ] 만료 시 재발급 성공/실패
-- [ ] 로그아웃 후 세션 정리
+- [x] 로그인 성공/실패
+- [x] 만료 시 재발급 성공/실패
+- [x] 로그아웃 후 세션 정리
 
 ## 2주차 (P1: 쓰기/변경 전환)
 

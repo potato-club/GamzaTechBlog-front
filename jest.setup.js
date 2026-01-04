@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-require-imports, no-undef */
 // TextEncoder/TextDecoder polyfill (Node.js 환경에서 필요)
 // ⚠️ Jest 설정 파일은 CommonJS 형식이므로 require 사용
 const { TextEncoder: NodeTextEncoder, TextDecoder: NodeTextDecoder } = require("util");

@@ -1,6 +1,8 @@
 import {
   Pageable,
   ProfileImageResponse,
+  ResponseDtoString,
+  ResponseDtoUserProfileResponse,
   UpdateProfileRequest,
   UserActivityResponse,
   UserProfileRequest,
@@ -8,14 +10,21 @@ import {
   UserPublicProfileResponse,
 } from "@/generated/api";
 import { apiClient } from "@/lib/apiClient";
+import { apiFetch } from "@/lib/apiFetch";
 
 export const userService = {
   /**
    * 사용자 프로필 정보를 가져옵니다.
    */
   async getProfile(): Promise<UserProfileResponse> {
-    const response = await apiClient.getCurrentUserProfile();
-    return response.data as UserProfileResponse;
+    const response = await apiFetch("/api/users/me/profile");
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch user profile.");
+    }
+
+    const data = (await response.json()) as ResponseDtoUserProfileResponse;
+    return data.data as UserProfileResponse;
   },
 
   /**
@@ -55,12 +64,16 @@ export const userService = {
    */
   async getUserRole(): Promise<string | null> {
     try {
-      const response = await apiClient.getCurrentUserRole();
-      return response.data as string;
+      const response = await apiFetch("/api/users/me/role");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user role.");
+      }
+
+      const data = (await response.json()) as ResponseDtoString;
+      return data.data as string;
     } catch (error) {
-      // apiClient는 401/403에서 ResponseError를 throw합니다.
-      // 에러 객체를 확인하여 상태 코드를 검사할 수 있습니다.
-      // 여기서는 간단히 null을 반환하여 로그아웃 상태로 처리합니다.
+      // 401/403 등 인증 실패는 null로 처리하여 로그아웃 상태로 간주합니다.
       console.error("Error fetching user role:", error);
       return null;
     }

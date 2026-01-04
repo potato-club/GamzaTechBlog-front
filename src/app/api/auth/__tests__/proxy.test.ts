@@ -5,6 +5,11 @@
  * 각 테스트마다 jest.resetModules()로 모듈을 리셋하고 동적 임포트합니다.
  */
 
+jest.mock("server-only", () => ({}), { virtual: true });
+jest.mock("next/headers", () => ({
+  cookies: jest.fn(),
+}));
+
 describe("forwardAuthRequest", () => {
   const originalBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -33,8 +38,8 @@ describe("forwardAuthRequest", () => {
     // 동적 임포트로 새로운 모듈 인스턴스 로드
     const { forwardAuthRequest } = await import("@/app/api/auth/_proxy");
 
-    const request = new Request("http://localhost/api/auth/login", { method: "POST" });
-    const response = await forwardAuthRequest(request, "/api/auth/login");
+    const request = new Request("http://localhost/api/auth/reissue", { method: "POST" });
+    const response = await forwardAuthRequest(request, "/api/auth/reissue");
 
     expect(response.status).toBe(500);
   });
@@ -45,6 +50,13 @@ describe("forwardAuthRequest", () => {
   it("메서드/헤더/바디를 그대로 전달해야 함", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://example.com";
 
+    const { cookies } = await import("next/headers");
+    const cookiesMock = cookies as jest.MockedFunction<typeof cookies>;
+    const mockCookies = {
+      get: jest.fn().mockReturnValue({ name: "authorization", value: "server-token" }),
+    } as unknown as Awaited<ReturnType<typeof cookies>>;
+    cookiesMock.mockResolvedValue(mockCookies);
+
     const { forwardAuthRequest } = await import("@/app/api/auth/_proxy");
 
     const fetchMock = jest
@@ -52,7 +64,7 @@ describe("forwardAuthRequest", () => {
       .mockResolvedValue(new Response(null, { status: 200 }));
 
     const payload = JSON.stringify({ username: "demo" });
-    const request = new Request("http://localhost/api/auth/login", {
+    const request = new Request("http://localhost/api/auth/reissue", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -62,11 +74,11 @@ describe("forwardAuthRequest", () => {
       body: payload,
     });
 
-    await forwardAuthRequest(request, "/api/auth/login");
+    await forwardAuthRequest(request, "/api/auth/reissue");
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe("https://example.com/api/auth/login");
+    expect(url).toBe("https://example.com/api/auth/reissue");
     expect(init?.method).toBe("POST");
     expect(init?.body).toBe(payload);
 
@@ -76,11 +88,18 @@ describe("forwardAuthRequest", () => {
     expect(headers.get("content-type")).toBe("application/json");
   });
 
-  // Given: GET 요청
+  // Given: 인증 헤더 없이 쿠키에 토큰만 있는 요청
   // When: 프록시 요청 수행
-  // Then: 바디를 전달하지 않음
-  it("GET 요청은 바디를 전달하지 않아야 함", async () => {
+  // Then: 서버 쿠키 토큰이 Authorization 헤더로 전달
+  it("Authorization 헤더가 없으면 서버 쿠키 토큰을 주입해야 함", async () => {
     process.env.NEXT_PUBLIC_API_BASE_URL = "https://example.com";
+
+    const { cookies } = await import("next/headers");
+    const cookiesMock = cookies as jest.MockedFunction<typeof cookies>;
+    const mockCookies = {
+      get: jest.fn().mockReturnValue({ name: "authorization", value: "server-token" }),
+    } as unknown as Awaited<ReturnType<typeof cookies>>;
+    cookiesMock.mockResolvedValue(mockCookies);
 
     const { forwardAuthRequest } = await import("@/app/api/auth/_proxy");
 
@@ -88,9 +107,42 @@ describe("forwardAuthRequest", () => {
       .spyOn(global, "fetch")
       .mockResolvedValue(new Response(null, { status: 200 }));
 
-    const request = new Request("http://localhost/api/auth/login", { method: "GET" });
+    const request = new Request("http://localhost/api/auth/logout", {
+      method: "POST",
+      headers: {
+        cookie: "authorization=token",
+      },
+    });
 
-    await forwardAuthRequest(request, "/api/auth/login");
+    await forwardAuthRequest(request, "/api/auth/me/logout");
+
+    const [, init] = fetchMock.mock.calls[0];
+    const headers = init?.headers as Headers;
+    expect(headers.get("authorization")).toBe("Bearer server-token");
+  });
+
+  // Given: GET 요청
+  // When: 프록시 요청 수행
+  // Then: 바디를 전달하지 않음
+  it("GET 요청은 바디를 전달하지 않아야 함", async () => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://example.com";
+
+    const { cookies } = await import("next/headers");
+    const cookiesMock = cookies as jest.MockedFunction<typeof cookies>;
+    const mockCookies = {
+      get: jest.fn().mockReturnValue(undefined),
+    } as unknown as Awaited<ReturnType<typeof cookies>>;
+    cookiesMock.mockResolvedValue(mockCookies);
+
+    const { forwardAuthRequest } = await import("@/app/api/auth/_proxy");
+
+    const fetchMock = jest
+      .spyOn(global, "fetch")
+      .mockResolvedValue(new Response(null, { status: 200 }));
+
+    const request = new Request("http://localhost/api/auth/reissue", { method: "GET" });
+
+    await forwardAuthRequest(request, "/api/auth/reissue");
 
     const [, init] = fetchMock.mock.calls[0];
     expect(init?.body).toBeUndefined();

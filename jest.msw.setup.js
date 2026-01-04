@@ -1,13 +1,14 @@
-const shouldSkipMsw = ['true', '1', 'yes'].includes(
-  String(process.env.JEST_SKIP_MSW || '').toLowerCase(),
+/* eslint-disable @typescript-eslint/no-require-imports, no-undef */
+const shouldSkipMsw = ["true", "1", "yes"].includes(
+  String(process.env.JEST_SKIP_MSW || "").toLowerCase()
 );
 
 if (!shouldSkipMsw) {
-  const { server } = require('./src/lib/__tests__/mocks/server');
+  const { server } = require("./src/lib/__tests__/mocks/server");
 
   beforeAll(() => {
     server.listen({
-      onUnhandledRequest: 'warn',
+      onUnhandledRequest: "warn",
     });
   });
 

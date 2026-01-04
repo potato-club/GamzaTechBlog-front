@@ -5,31 +5,28 @@
  * shared hooks 영역에서 관리됩니다.
  */
 
-import { USER_QUERY_KEYS, userService, useUserProfile, useUserRole } from "@/features/user";
-import type { UserProfileResponse } from "@/generated/api/models";
+import { authService } from "@/features/auth";
+import { useUserProfile, useUserRole } from "@/features/user";
 import { performLogout } from "@/lib/tokenManager";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function useAuth() {
   const queryClient = useQueryClient();
 
-  const profileQuery = useUserProfile();
   const roleQuery = useUserRole();
 
   const isLoggedIn = roleQuery.data !== null && roleQuery.data !== undefined;
   const needsProfileCompletion = roleQuery.data === "PRE_REGISTER";
+  const profileQuery = useUserProfile({
+    enabled: isLoggedIn && !needsProfileCompletion,
+  });
   const userProfile = needsProfileCompletion ? null : profileQuery.data;
 
   const isLoading =
     roleQuery.isLoading || (isLoggedIn && !needsProfileCompletion && profileQuery.isLoading);
 
-  const login = (userData: UserProfileResponse, userRole: string) => {
-    queryClient.setQueryData(USER_QUERY_KEYS.profile(), userData);
-    queryClient.setQueryData(USER_QUERY_KEYS.role(), userRole);
-  };
-
   const logout = async () => {
-    await performLogout(userService.logout, queryClient);
+    await performLogout(authService.logout, queryClient);
   };
 
   const refetchAuthStatus = async () => {
@@ -44,13 +41,7 @@ export function useAuth() {
     isLoading,
     error: roleQuery.error || profileQuery.error,
     isError: roleQuery.isError || profileQuery.isError,
-    login,
     logout,
     refetchAuthStatus,
-    // 추가적인 세부 정보가 필요한 경우를 위해 개별 쿼리도 노출
-    queries: {
-      profile: profileQuery,
-      role: roleQuery,
-    },
   };
 }
