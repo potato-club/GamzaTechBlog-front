@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:https": "next dev --experimental-https",
-    "dev:https:local": "scripts\\dev-https.bat",
+    "dev:https:local": "node scripts/dev-https.js",
     "dev:https:domain": "next dev -H app.gamzatech.site --experimental-https",
     "build": "next build",
     "build:analyze": "set ANALYZE=true && next build",
