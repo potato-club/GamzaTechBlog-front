@@ -5,7 +5,7 @@
  * 읽기 작업은 useLikeQueries.ts 참조
  */
 
-import { revalidatePostAction } from "@/app/actions/revalidate";
+import { revalidatePostAction } from "@/features/posts/actions/revalidate";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import type { PostDetailResponse } from "../../../generated/api";
 import { likeService } from "../services/likeService";

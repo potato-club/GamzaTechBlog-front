@@ -12,9 +12,9 @@
 ## P1 (쓰기/변경)
 
 ### 게시글
-- 생성: `src/app/actions/postActions.ts` → `createPostAction` (Server Action)
-- 수정: `src/app/actions/postActions.ts` → `updatePostAction` (Server Action)
-- 삭제: `src/app/actions/postActions.ts` → `deletePostAction` (Server Action)
+- 생성: `src/features/posts/actions/postActions.ts` → `createPostAction` (Server Action)
+- 수정: `src/features/posts/actions/postActions.ts` → `updatePostAction` (Server Action)
+- 삭제: `src/features/posts/actions/postActions.ts` → `deletePostAction` (Server Action)
 
 ### 댓글
 - 생성: `src/features/comments/services/commentService.ts` → `apiClient.addComment`

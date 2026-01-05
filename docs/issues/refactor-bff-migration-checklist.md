@@ -57,7 +57,7 @@
 - [x] 현재 API 호출 경로 인벤토리 작성 (`docs/issues/bff-migration-inventory.md`)
   - `src/features/**/services/*`
   - `src/features/**/hooks/*`
-  - `src/app/actions/*`
+  - `src/features/**/actions/*`
 - [x] P0/P1/P2/P4 매핑 테이블 작성
   - 인증/쓰기/개인화/공개 읽기 분류
 - [x] 기존 `apiClient` 사용처 목록화
@@ -108,7 +108,7 @@
 
 ### 2.1 게시글 쓰기 정리
 
-- [x] `src/app/actions/postActions.ts` 기준 BFF/Server Action 방식 통일
+- [x] `src/features/posts/actions/postActions.ts` 기준 BFF/Server Action 방식 통일
 - [x] 게시글 생성/수정/삭제 요청을 Server Action으로 통합
 - [ ] `revalidate` 규칙(경로/태그) 정리
 

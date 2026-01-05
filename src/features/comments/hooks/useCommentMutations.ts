@@ -6,7 +6,7 @@
  * 효율적인 상태 관리와 UI 업데이트를 제공합니다.
  */
 
-import { revalidatePostAction } from "@/app/actions/revalidate";
+import { revalidatePostAction } from "@/features/posts/actions/revalidate";
 import type {
   CommentRequest,
   CommentResponse,
