@@ -17,6 +17,12 @@
 - 개인화 읽기(마이페이지, 내 활동 등)는 서버 전용 모듈(RSC/Server)을 우선하고, 필요할 때만 BFF를 사용합니다.
 - 공개 읽기는 RSC를 우선하며, 직접 호출은 명확한 근거가 있을 때만 허용합니다.
 
+## 캐시 무효화 최소 규칙 (CUD 공통)
+- CUD Server Action은 **반드시 서버에서 캐시 무효화를 처리**합니다.
+- 게시글 관련 CUD는 `postCacheInvalidation`만 사용합니다. (직접 `revalidatePath` 호출 금지)
+- 클라이언트에서 `revalidatePostAction`을 호출하지 않습니다. (필요 시 제거)
+- 태그/경로 기준은 `posts-list`, `post-{id}`를 고정 사용합니다.
+
 ## 응답 포맷
 - 표준 응답 형태는 `{ success, data, error }` 입니다.
 - 에러 객체는 안정적인 `code`와 사용자용 `message`를 포함합니다.
