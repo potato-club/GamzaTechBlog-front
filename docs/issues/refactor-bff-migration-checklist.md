@@ -132,9 +132,9 @@
 
 ### 2.5 소개글/관리자 쓰기 전환
 
-- [ ] `src/features/intro/services/introService.ts` → Server Action 전환
-- [ ] `src/features/admin/services/adminService.ts` → Server Action 전환
-- [ ] 관련 훅(`useIntroMutations`, `useAdminQueries`) 경로 교체
+- [x] `src/features/intro/services/introService.ts` → Server Action 전환
+- [x] `src/features/admin/services/adminService.ts` → Server Action 전환
+- [x] 관련 훅(`useIntroMutations`, `useAdminQueries`) 경로 교체
 
 ### 2.6 React Query 간소화(쓰기 영역)
 

@@ -28,8 +28,8 @@
 - 업로드: `src/features/posts/services/imageService.ts` → `/api/posts/images` (BFF)
 
 ### 소개글
-- 생성: `src/features/intro/services/introService.ts` → `apiClient.createIntro`
-- 삭제: `src/features/intro/services/introService.ts` → `apiClient.deleteIntro`
+- 생성: `src/features/intro/actions/introActions.ts` → `createIntroAction` (Server Action)
+- 삭제: `src/features/intro/actions/introActions.ts` → `deleteIntroAction` (Server Action)
 
 ### 사용자
 - 프로필 수정: `src/features/user/services/userService.ts` → `apiClient.updateProfile`
@@ -38,7 +38,7 @@
 - 계정 탈퇴: `src/features/user/services/userService.ts` → `apiClient.withdraw`
 
 ### 관리자
-- 승인/관리: `src/features/admin/services/adminService.ts` → `apiClient.approveUserProfile`
+- 승인/관리: `src/features/admin/actions/adminActions.ts` → `approveUserAction` (Server Action)
 
 ## P2 (개인화 읽기)
 

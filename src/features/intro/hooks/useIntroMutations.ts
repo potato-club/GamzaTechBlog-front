@@ -9,7 +9,7 @@ import type { IntroResponse, PagedResponseIntroResponse } from "@/generated/api/
 import { useAuth } from "@/hooks/useAuth";
 import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
-import { introService } from "../services/introService";
+import { createIntroAction, deleteIntroAction } from "../actions/introActions";
 import { INTRO_QUERY_KEYS } from "./useIntroQueries";
 
 /**
@@ -24,7 +24,7 @@ export function useCreateIntro(options?: UseMutationOptions<IntroResponse, Error
   const { userProfile } = useAuth();
 
   return useMutation({
-    mutationFn: introService.createIntro,
+    mutationFn: createIntroAction,
 
     ...withOptimisticUpdate<string, PagedResponseIntroResponse>({
       queryClient,
@@ -72,7 +72,7 @@ export function useDeleteIntro(options?: UseMutationOptions<void, Error, number>
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: introService.deleteIntro,
+    mutationFn: deleteIntroAction,
 
     ...withOptimisticUpdate<number, PagedResponseIntroResponse>({
       queryClient,
