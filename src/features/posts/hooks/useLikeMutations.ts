@@ -5,10 +5,9 @@
  * 읽기 작업은 useLikeQueries.ts 참조
  */
 
-import { revalidatePostAction } from "@/features/posts/actions/revalidate";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import type { PostDetailResponse } from "../../../generated/api";
-import { likeService } from "../services/likeService";
+import { addLikeAction, removeLikeAction } from "../actions/likeActions";
 import { LIKE_QUERY_KEYS } from "./useLikeQueries";
 import { POST_QUERY_KEYS } from "./usePostQueries";
 
@@ -37,7 +36,7 @@ export function useAddLike(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => likeService.addLike(postId),
+    mutationFn: () => addLikeAction(postId),
 
     // 낙관적 업데이트: 서버 응답 전에 UI 즉시 업데이트
     onMutate: async () => {
@@ -70,11 +69,6 @@ export function useAddLike(
     },
 
     onSuccess: (data, variables, context) => {
-      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
-      void revalidatePostAction(postId).catch((error) => {
-        console.error("Failed to revalidate post:", error);
-      });
-
       options?.onSuccess?.(data, variables, context);
     },
 
@@ -117,7 +111,7 @@ export function useRemoveLike(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => likeService.removeLike(postId),
+    mutationFn: () => removeLikeAction(postId),
 
     // 낙관적 업데이트: 서버 응답 전에 UI 즉시 업데이트
     onMutate: async () => {
@@ -150,11 +144,6 @@ export function useRemoveLike(
     },
 
     onSuccess: (data, variables, context) => {
-      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
-      void revalidatePostAction(postId).catch((error) => {
-        console.error("Failed to revalidate post:", error);
-      });
-
       options?.onSuccess?.(data, variables, context);
     },
 

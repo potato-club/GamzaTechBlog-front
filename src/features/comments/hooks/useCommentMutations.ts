@@ -6,7 +6,6 @@
  * 효율적인 상태 관리와 UI 업데이트를 제공합니다.
  */
 
-import { revalidatePostAction } from "@/features/posts/actions/revalidate";
 import type {
   CommentRequest,
   CommentResponse,
@@ -15,9 +14,9 @@ import type {
 } from "@/generated/api";
 import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
+import { createCommentAction, deleteCommentAction } from "../actions/commentActions";
 import { POST_QUERY_KEYS } from "../../posts/hooks/usePostQueries";
 import { USER_QUERY_KEYS } from "../../user/hooks/useUserQueries";
-import { commentService } from "../services";
 
 /**
  * 댓글을 등록하는 뮤테이션 훅
@@ -36,7 +35,7 @@ export function useCreateComment(
 
   return useMutation({
     mutationFn: (commentRequest: CommentRequest) =>
-      commentService.registerComment(postId, commentRequest),
+      createCommentAction(postId, commentRequest),
 
     ...withOptimisticUpdate<CommentRequest, PostDetailResponse>({
       queryClient,
@@ -66,11 +65,6 @@ export function useCreateComment(
     }),
 
     onSuccess: (data, variables, context) => {
-      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
-      void revalidatePostAction(postId).catch((error) => {
-        console.error("Failed to revalidate post:", error);
-      });
-
       options?.onSuccess?.(data, variables, context);
     },
 
@@ -99,7 +93,7 @@ export function useDeleteComment(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: commentService.deleteComment,
+    mutationFn: (commentId: number) => deleteCommentAction(postId, commentId),
 
     ...withOptimisticUpdate<number, PostDetailResponse>({
       queryClient,
@@ -111,11 +105,6 @@ export function useDeleteComment(
     }),
 
     onSuccess: (data, commentId, context) => {
-      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
-      void revalidatePostAction(postId).catch((error) => {
-        console.error("Failed to revalidate post:", error);
-      });
-
       console.log("댓글 삭제 성공:", commentId);
       options?.onSuccess?.(data, commentId, context);
     },

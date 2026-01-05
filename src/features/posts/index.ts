@@ -20,6 +20,7 @@ export {
 } from "./hooks";
 
 // Server Actions
+export { addLikeAction, removeLikeAction } from "./actions/likeActions";
 export { createPostAction, deletePostAction, updatePostAction } from "./actions/postActions";
 
 // Action Types

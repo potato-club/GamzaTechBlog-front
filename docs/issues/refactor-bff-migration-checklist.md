@@ -114,15 +114,15 @@
 
 ### 2.2 좋아요 쓰기 전환
 
-- [ ] 좋아요 CUD를 Server Action으로 전환
-- [ ] `src/features/posts/services/likeService.ts` 쓰기 경로 정리
-- [ ] `src/features/posts/hooks/useLikeMutations.ts` 연결 경로 교체
+- [x] 좋아요 CUD를 Server Action으로 전환
+- [x] `src/features/posts/services/likeService.ts` 쓰기 경로 정리
+- [x] `src/features/posts/hooks/useLikeMutations.ts` 연결 경로 교체
 
 ### 2.3 댓글 쓰기 전환
 
-- [ ] 댓글 CUD를 Server Action으로 전환
-- [ ] `src/features/comments/services/commentService.ts` 쓰기 경로 정리
-- [ ] `src/features/comments/hooks/useCommentMutations.ts` 연결 경로 교체
+- [x] 댓글 CUD를 Server Action으로 전환
+- [x] `src/features/comments/services/commentService.ts` 쓰기 경로 정리
+- [x] `src/features/comments/hooks/useCommentMutations.ts` 연결 경로 교체
 
 ### 2.4 이미지 업로드 전환
 
