@@ -75,7 +75,7 @@
 ### 1.1 BFF 인증 라우트 구축
 
 - [x] 로그인은 OAuth 링크 리다이렉트로 유지 (BFF 라우트 없음)
-- [x] `src/app/api/auth/logout/route.ts` 구현
+- [x] 로그아웃을 Server Action으로 전환 (`src/features/auth/actions/logoutAction.ts`)
 - [x] `src/app/api/auth/reissue/route.ts` 구현
 - [x] 백엔드 인증 API 호출과 쿠키 전달 확인
 
@@ -108,8 +108,8 @@
 
 ### 2.1 게시글 쓰기 정리
 
-- [ ] `src/app/actions/postActions.ts` 기준 BFF/Server Action 방식 통일
-- [ ] 게시글 생성/수정/삭제 요청을 BFF 경로로 통합
+- [x] `src/app/actions/postActions.ts` 기준 BFF/Server Action 방식 통일
+- [x] 게시글 생성/수정/삭제 요청을 Server Action으로 통합
 - [ ] `revalidate` 규칙(경로/태그) 정리
 
 ### 2.2 좋아요 쓰기 전환

@@ -6,15 +6,15 @@
 ## P0 (인증/세션)
 
 - 로그인: `src/components/shared/layout/HeaderNavigation.tsx` → `NEXT_PUBLIC_OAUTH_LOGIN_URL` (OAuth 링크 리다이렉트)
-- 로그아웃: `src/features/auth/services/authService.ts` → `fetch("/api/auth/logout")`
+- 로그아웃: `src/features/auth/actions/logoutAction.ts` → `logoutAction` (Server Action)
 - 토큰 재발급: `src/lib/apiClient.ts` → `refreshAccessToken()` (`/api/auth/reissue`)
 
 ## P1 (쓰기/변경)
 
 ### 게시글
-- 생성: `src/features/posts/services/postService.ts` → `apiClient.publishPost`
-- 수정: `src/features/posts/services/postService.ts` → `apiClient.revisePost`
-- 삭제: `src/features/posts/services/postService.ts` → `apiClient.removePost`
+- 생성: `src/app/actions/postActions.ts` → `createPostAction` (Server Action)
+- 수정: `src/app/actions/postActions.ts` → `updatePostAction` (Server Action)
+- 삭제: `src/app/actions/postActions.ts` → `deletePostAction` (Server Action)
 
 ### 댓글
 - 생성: `src/features/comments/services/commentService.ts` → `apiClient.addComment`

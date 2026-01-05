@@ -107,14 +107,14 @@ describe("forwardAuthRequest", () => {
       .spyOn(global, "fetch")
       .mockResolvedValue(new Response(null, { status: 200 }));
 
-    const request = new Request("http://localhost/api/auth/logout", {
+    const request = new Request("http://localhost/api/auth/reissue", {
       method: "POST",
       headers: {
         cookie: "authorization=token",
       },
     });
 
-    await forwardAuthRequest(request, "/api/auth/me/logout");
+    await forwardAuthRequest(request, "/api/auth/reissue");
 
     const [, init] = fetchMock.mock.calls[0];
     const headers = init?.headers as Headers;
