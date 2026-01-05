@@ -128,7 +128,7 @@
 
 - [x] 업로드 경로를 Server Action으로 처리할지 `/api` 유지할지 결정
 - [x] `src/features/posts/services/imageService.ts` 처리 방식 정리
-- [ ] 업로드 실패 시 에러 메시지 규칙 확정
+- [x] 업로드 실패 시 에러 메시지 규칙 확정
 
 ### 2.5 소개글/관리자 쓰기 전환
 
