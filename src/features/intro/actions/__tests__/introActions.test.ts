@@ -19,9 +19,7 @@ describe("introAction", () => {
     // Given
     const intro: IntroResponse = { introId: 1, content: "소개" };
     const createIntro = jest.fn().mockResolvedValue({ data: intro });
-    createBackendApiClientMock.mockReturnValue({ createIntro } as unknown as ReturnType<
-      typeof createBackendApiClient
-    >);
+    createBackendApiClientMock.mockReturnValue({ createIntro } as any);
 
     // When
     const result = await createIntroAction("소개");
@@ -34,9 +32,7 @@ describe("introAction", () => {
   it("백엔드 클라이언트로 소개를 삭제해야 함", async () => {
     // Given
     const deleteIntro = jest.fn().mockResolvedValue(undefined);
-    createBackendApiClientMock.mockReturnValue({ deleteIntro } as unknown as ReturnType<
-      typeof createBackendApiClient
-    >);
+    createBackendApiClientMock.mockReturnValue({ deleteIntro } as any);
 
     // When
     await deleteIntroAction(123);

@@ -17,9 +17,7 @@ describe("adminActions", () => {
   it("백엔드 클라이언트로 사용자를 승인해야 함", async () => {
     // Given
     const approveUserProfile = jest.fn().mockResolvedValue(undefined);
-    createBackendApiClientMock.mockReturnValue({ approveUserProfile } as ReturnType<
-      typeof createBackendApiClient
-    >);
+    createBackendApiClientMock.mockReturnValue({ approveUserProfile } as any);
 
     // When
     await approveUserAction(55);

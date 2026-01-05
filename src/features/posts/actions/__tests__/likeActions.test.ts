@@ -27,9 +27,7 @@ describe("likeActions", () => {
   it("좋아요 추가 시 캐시를 무효화해야 함", async () => {
     // Given
     const addLike = jest.fn().mockResolvedValue(undefined);
-    createLikeServiceServerMock.mockReturnValue({ addLike } as ReturnType<
-      typeof createLikeServiceServer
-    >);
+    createLikeServiceServerMock.mockReturnValue({ addLike } as any);
 
     // When
     await addLikeAction(101);
@@ -42,9 +40,7 @@ describe("likeActions", () => {
   it("좋아요 취소 시 캐시를 무효화해야 함", async () => {
     // Given
     const removeLike = jest.fn().mockResolvedValue(undefined);
-    createLikeServiceServerMock.mockReturnValue({ removeLike } as ReturnType<
-      typeof createLikeServiceServer
-    >);
+    createLikeServiceServerMock.mockReturnValue({ removeLike } as any);
 
     // When
     await removeLikeAction(202);

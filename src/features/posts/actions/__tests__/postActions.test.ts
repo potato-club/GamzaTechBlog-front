@@ -35,9 +35,7 @@ describe("postActions", () => {
     const postData = { title: "t", content: "c" } as PostRequest;
     const createdPost = { postId: 1 } as PostResponse;
     const createPost = jest.fn().mockResolvedValue(createdPost);
-    createPostServiceServerMock.mockReturnValue({ createPost } as ReturnType<
-      typeof createPostServiceServer
-    >);
+    createPostServiceServerMock.mockReturnValue({ createPost } as any);
 
     // When
     const result = await createPostAction({ postData });
@@ -52,9 +50,7 @@ describe("postActions", () => {
     // Given
     const postData = { title: "t", content: "c" } as PostRequest;
     const createPost = jest.fn().mockRejectedValue(new Error("생성 실패"));
-    createPostServiceServerMock.mockReturnValue({ createPost } as ReturnType<
-      typeof createPostServiceServer
-    >);
+    createPostServiceServerMock.mockReturnValue({ createPost } as any);
 
     // When
     const result = await createPostAction({ postData });
@@ -68,9 +64,7 @@ describe("postActions", () => {
   it("게시글 삭제 시 상세/목록 캐시를 무효화해야 함", async () => {
     // Given
     const deletePost = jest.fn().mockResolvedValue(undefined);
-    createPostServiceServerMock.mockReturnValue({ deletePost } as ReturnType<
-      typeof createPostServiceServer
-    >);
+    createPostServiceServerMock.mockReturnValue({ deletePost } as any);
 
     // When
     const result = await deletePostAction({ postId: 99 });
@@ -86,9 +80,7 @@ describe("postActions", () => {
     const postData = { title: "t", content: "c" } as PostRequest;
     const updatedPost = { postId: 9 } as PostResponse;
     const updatePost = jest.fn().mockResolvedValue(updatedPost);
-    createPostServiceServerMock.mockReturnValue({ updatePost } as ReturnType<
-      typeof createPostServiceServer
-    >);
+    createPostServiceServerMock.mockReturnValue({ updatePost } as any);
 
     // When
     const result = await updatePostAction({ postId: 9, postData });

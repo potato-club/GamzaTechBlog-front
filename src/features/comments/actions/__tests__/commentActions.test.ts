@@ -34,9 +34,7 @@ describe("commentActions", () => {
     const request: CommentRequest = { content: "안녕" };
     const created: CommentResponse = { commentId: 1, content: "안녕" };
     const registerComment = jest.fn().mockResolvedValue(created);
-    createCommentServiceServerMock.mockReturnValue({ registerComment } as ReturnType<
-      typeof createCommentServiceServer
-    >);
+    createCommentServiceServerMock.mockReturnValue({ registerComment } as any);
 
     // When
     const result = await createCommentAction(postId, request);
@@ -52,9 +50,7 @@ describe("commentActions", () => {
     const postId = 20;
     const commentId = 999;
     const deleteComment = jest.fn().mockResolvedValue(undefined);
-    createCommentServiceServerMock.mockReturnValue({ deleteComment } as ReturnType<
-      typeof createCommentServiceServer
-    >);
+    createCommentServiceServerMock.mockReturnValue({ deleteComment } as any);
 
     // When
     await deleteCommentAction(postId, commentId);
