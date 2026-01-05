@@ -110,7 +110,7 @@
 
 - [x] `src/features/posts/actions/postActions.ts` 기준 BFF/Server Action 방식 통일
 - [x] 게시글 생성/수정/삭제 요청을 Server Action으로 통합
-- [ ] `revalidate` 규칙(경로/태그) 정리
+- [x] `revalidate` 규칙(경로/태그) 정리
 
 ### 2.2 좋아요 쓰기 전환
 
@@ -126,8 +126,8 @@
 
 ### 2.4 이미지 업로드 전환
 
-- [ ] 업로드 경로를 Server Action으로 처리할지 `/api` 유지할지 결정
-- [ ] `src/features/posts/services/imageService.ts` 처리 방식 정리
+- [x] 업로드 경로를 Server Action으로 처리할지 `/api` 유지할지 결정
+- [x] `src/features/posts/services/imageService.ts` 처리 방식 정리
 - [ ] 업로드 실패 시 에러 메시지 규칙 확정
 
 ### 2.5 소개글/관리자 쓰기 전환

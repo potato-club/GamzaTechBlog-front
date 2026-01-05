@@ -17,15 +17,15 @@
 - 삭제: `src/features/posts/actions/postActions.ts` → `deletePostAction` (Server Action)
 
 ### 댓글
-- 생성: `src/features/comments/services/commentService.ts` → `apiClient.addComment`
-- 삭제: `src/features/comments/services/commentService.ts` → `apiClient.deleteComment`
+- 생성: `src/features/comments/actions/commentActions.ts` → `createCommentAction` (Server Action)
+- 삭제: `src/features/comments/actions/commentActions.ts` → `deleteCommentAction` (Server Action)
 
 ### 좋아요
-- 추가: `src/features/posts/services/likeService.ts` → `apiClient.likePost`
-- 취소: `src/features/posts/services/likeService.ts` → `apiClient.unlikePost`
+- 추가: `src/features/posts/actions/likeActions.ts` → `addLikeAction` (Server Action)
+- 취소: `src/features/posts/actions/likeActions.ts` → `removeLikeAction` (Server Action)
 
 ### 이미지 업로드
-- 업로드: `src/features/posts/services/imageService.ts` → `apiClient.uploadImage`
+- 업로드: `src/features/posts/services/imageService.ts` → `/api/posts/images` (BFF)
 
 ### 소개글
 - 생성: `src/features/intro/services/introService.ts` → `apiClient.createIntro`
