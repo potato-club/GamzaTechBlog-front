@@ -26,7 +26,7 @@ describe("introAction", () => {
 
     // Then
     expect(createIntro).toHaveBeenCalledWith({ introCreateRequest: { content: "소개" } });
-    expect(result).toEqual(intro);
+    expect(result).toEqual({ success: true, data: intro });
   });
 
   it("백엔드 클라이언트로 소개를 삭제해야 함", async () => {
@@ -35,9 +35,10 @@ describe("introAction", () => {
     createBackendApiClientMock.mockReturnValue({ deleteIntro } as any);
 
     // When
-    await deleteIntroAction(123);
+    const result = await deleteIntroAction(123);
 
     // Then
     expect(deleteIntro).toHaveBeenCalledWith({ introId: 123 });
+    expect(result).toEqual({ success: true, data: undefined });
   });
 });

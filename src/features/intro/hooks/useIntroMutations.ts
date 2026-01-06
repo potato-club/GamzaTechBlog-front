@@ -9,6 +9,7 @@ import type { IntroResponse } from "@/generated/api/models";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { createIntroAction, deleteIntroAction } from "../actions/introActions";
 import { INTRO_QUERY_KEYS } from "./useIntroQueries";
+import type { ActionResult } from "@/lib/actionResult";
 
 /**
  * 새 자기소개를 작성하는 뮤테이션 훅
@@ -17,16 +18,20 @@ import { INTRO_QUERY_KEYS } from "./useIntroQueries";
  *
  * @param options - React Query mutation 옵션
  */
-export function useCreateIntro(options?: UseMutationOptions<IntroResponse, Error, string>) {
+export function useCreateIntro(
+  options?: UseMutationOptions<ActionResult<IntroResponse>, Error, string>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
     mutationFn: createIntroAction,
 
-    onSuccess: (newIntro, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: INTRO_QUERY_KEYS.lists() });
-      options?.onSuccess?.(newIntro, variables, context);
+    onSuccess: (result, variables, context) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: INTRO_QUERY_KEYS.lists() });
+      }
+      options?.onSuccess?.(result, variables, context);
     },
 
     onError: (error, variables, context) => {
@@ -43,16 +48,20 @@ export function useCreateIntro(options?: UseMutationOptions<IntroResponse, Error
  *
  * @param options - React Query mutation 옵션
  */
-export function useDeleteIntro(options?: UseMutationOptions<void, Error, number>) {
+export function useDeleteIntro(
+  options?: UseMutationOptions<ActionResult<void>, Error, number>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
     mutationFn: deleteIntroAction,
 
-    onSuccess: (data, introId, context) => {
-      queryClient.invalidateQueries({ queryKey: INTRO_QUERY_KEYS.lists() });
-      options?.onSuccess?.(data, introId, context);
+    onSuccess: (result, introId, context) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: INTRO_QUERY_KEYS.lists() });
+      }
+      options?.onSuccess?.(result, introId, context);
     },
 
     onError: (error, introId, context) => {

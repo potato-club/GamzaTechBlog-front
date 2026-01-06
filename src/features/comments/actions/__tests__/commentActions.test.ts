@@ -42,7 +42,7 @@ describe("commentActions", () => {
     // Then
     expect(registerComment).toHaveBeenCalledWith(postId, request);
     expect(postCacheInvalidationMock.invalidateDetail).toHaveBeenCalledWith(postId);
-    expect(result).toEqual(created);
+    expect(result).toEqual({ success: true, data: created });
   });
 
   it("댓글 삭제 시 캐시를 무효화해야 함", async () => {
@@ -53,10 +53,11 @@ describe("commentActions", () => {
     createCommentServiceServerMock.mockReturnValue({ deleteComment } as any);
 
     // When
-    await deleteCommentAction(postId, commentId);
+    const result = await deleteCommentAction(postId, commentId);
 
     // Then
     expect(deleteComment).toHaveBeenCalledWith(commentId);
     expect(postCacheInvalidationMock.invalidateDetail).toHaveBeenCalledWith(postId);
+    expect(result).toEqual({ success: true, data: undefined });
   });
 });

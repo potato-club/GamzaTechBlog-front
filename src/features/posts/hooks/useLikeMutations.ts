@@ -9,6 +9,7 @@ import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/
 import { addLikeAction, removeLikeAction } from "../actions/likeActions";
 import { LIKE_QUERY_KEYS } from "./useLikeQueries";
 import { POST_QUERY_KEYS } from "./usePostQueries";
+import type { ActionResult } from "@/lib/actionResult";
 
 /**
  * 좋아요 추가 뮤테이션 훅
@@ -18,17 +19,22 @@ import { POST_QUERY_KEYS } from "./usePostQueries";
  * @param postId - 좋아요를 추가할 게시글 ID
  * @param options - React Query mutation 옵션
  */
-export function useAddLike(postId: number, options?: UseMutationOptions<void, Error, void>) {
+export function useAddLike(
+  postId: number,
+  options?: UseMutationOptions<ActionResult<void>, Error, void>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
     mutationFn: () => addLikeAction(postId),
 
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      queryClient.invalidateQueries({ queryKey: LIKE_QUERY_KEYS.status(postId) });
-      options?.onSuccess?.(data, variables, context);
+    onSuccess: (result, variables, context) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
+        queryClient.invalidateQueries({ queryKey: LIKE_QUERY_KEYS.status(postId) });
+      }
+      options?.onSuccess?.(result, variables, context);
     },
 
     onError: (error, variables, context) => {
@@ -46,17 +52,22 @@ export function useAddLike(postId: number, options?: UseMutationOptions<void, Er
  * @param postId - 좋아요를 취소할 게시글 ID
  * @param options - React Query mutation 옵션
  */
-export function useRemoveLike(postId: number, options?: UseMutationOptions<void, Error, void>) {
+export function useRemoveLike(
+  postId: number,
+  options?: UseMutationOptions<ActionResult<void>, Error, void>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
     mutationFn: () => removeLikeAction(postId),
 
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      queryClient.invalidateQueries({ queryKey: LIKE_QUERY_KEYS.status(postId) });
-      options?.onSuccess?.(data, variables, context);
+    onSuccess: (result, variables, context) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
+        queryClient.invalidateQueries({ queryKey: LIKE_QUERY_KEYS.status(postId) });
+      }
+      options?.onSuccess?.(result, variables, context);
     },
 
     onError: (error, variables, context) => {

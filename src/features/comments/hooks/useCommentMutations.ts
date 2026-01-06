@@ -7,6 +7,7 @@
  */
 
 import type { CommentRequest, CommentResponse, PostDetailResponse } from "@/generated/api";
+import type { ActionResult } from "@/lib/actionResult";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { createCommentAction, deleteCommentAction } from "../actions/commentActions";
 import { POST_QUERY_KEYS } from "../../posts/hooks/usePostQueries";
@@ -21,7 +22,7 @@ import { POST_QUERY_KEYS } from "../../posts/hooks/usePostQueries";
  */
 export function useCreateComment(
   postId: number,
-  options?: UseMutationOptions<CommentResponse, Error, CommentRequest>
+  options?: UseMutationOptions<ActionResult<CommentResponse>, Error, CommentRequest>
 ) {
   const queryClient = useQueryClient();
 
@@ -30,9 +31,11 @@ export function useCreateComment(
     mutationFn: (commentRequest: CommentRequest) =>
       createCommentAction(postId, commentRequest),
 
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      options?.onSuccess?.(data, variables, context);
+    onSuccess: (result, variables, context) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
+      }
+      options?.onSuccess?.(result, variables, context);
     },
 
     onError: (error, variables, context) => {
@@ -52,7 +55,7 @@ export function useCreateComment(
  */
 export function useDeleteComment(
   postId: number,
-  options?: UseMutationOptions<void, Error, number>
+  options?: UseMutationOptions<ActionResult<void>, Error, number>
 ) {
   const queryClient = useQueryClient();
 
@@ -60,9 +63,11 @@ export function useDeleteComment(
     ...options,
     mutationFn: (commentId: number) => deleteCommentAction(postId, commentId),
 
-    onSuccess: (data, commentId, context) => {
-      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      options?.onSuccess?.(data, commentId, context);
+    onSuccess: (result, commentId, context) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
+      }
+      options?.onSuccess?.(result, commentId, context);
     },
 
     onError: (error, commentId, context) => {

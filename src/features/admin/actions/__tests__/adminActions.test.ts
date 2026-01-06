@@ -20,9 +20,10 @@ describe("adminActions", () => {
     createBackendApiClientMock.mockReturnValue({ approveUserProfile } as any);
 
     // When
-    await approveUserAction(55);
+    const result = await approveUserAction(55);
 
     // Then
     expect(approveUserProfile).toHaveBeenCalledWith({ id: 55 });
+    expect(result).toEqual({ success: true, data: undefined });
   });
 });

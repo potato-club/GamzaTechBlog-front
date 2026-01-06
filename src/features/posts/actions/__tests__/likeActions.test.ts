@@ -30,11 +30,12 @@ describe("likeActions", () => {
     createLikeServiceServerMock.mockReturnValue({ addLike } as any);
 
     // When
-    await addLikeAction(101);
+    const result = await addLikeAction(101);
 
     // Then
     expect(addLike).toHaveBeenCalledWith(101);
     expect(postCacheInvalidationMock.invalidateDetail).toHaveBeenCalledWith(101);
+    expect(result).toEqual({ success: true, data: undefined });
   });
 
   it("좋아요 취소 시 캐시를 무효화해야 함", async () => {
@@ -43,10 +44,11 @@ describe("likeActions", () => {
     createLikeServiceServerMock.mockReturnValue({ removeLike } as any);
 
     // When
-    await removeLikeAction(202);
+    const result = await removeLikeAction(202);
 
     // Then
     expect(removeLike).toHaveBeenCalledWith(202);
     expect(postCacheInvalidationMock.invalidateDetail).toHaveBeenCalledWith(202);
+    expect(result).toEqual({ success: true, data: undefined });
   });
 });
