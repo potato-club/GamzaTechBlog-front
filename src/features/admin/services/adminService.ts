@@ -6,4 +6,8 @@ export const adminService = {
     const response = await apiClient.getPendingUsers();
     return (response.data as PendingUserResponse[]) || [];
   },
+
+  async approveUser(userId: number): Promise<void> {
+    await apiClient.approveUserProfile({ id: userId });
+  },
 };

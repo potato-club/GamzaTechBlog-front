@@ -1,4 +1,4 @@
-import type { ResponseDtoString } from "@/generated/api/models";
+import { apiClient } from "@/lib/apiClient";
 
 export const imageService = {
   /**
@@ -7,26 +7,7 @@ export const imageService = {
    * @returns 업로드된 이미지 URL
    */
   async uploadImage(file: File): Promise<string> {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await fetch("/api/posts/images", {
-      method: "POST",
-      body: formData,
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      const errorBody = (await response.json().catch(() => null)) as ResponseDtoString | null;
-      const message = errorBody?.message || "이미지 업로드에 실패했습니다.";
-      throw new Error(message);
-    }
-
-    const data = (await response.json()) as ResponseDtoString;
-    if (!data?.data) {
-      throw new Error("이미지 업로드 응답이 올바르지 않습니다.");
-    }
-
-    return data.data;
+    const response = await apiClient.uploadImage({ file });
+    return response.data as string;
   },
 } as const;

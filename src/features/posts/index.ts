@@ -19,9 +19,8 @@ export {
   useUpdatePost,
 } from "./hooks";
 
-// Server Actions
-export { addLikeAction, removeLikeAction } from "./actions/likeActions";
-export { createPostAction, deletePostAction, updatePostAction } from "./actions/postActions";
+// Server Actions (app/actions에서 import)
+export { createPostAction, deletePostAction, updatePostAction } from "@/app/actions/postActions";
 
 // Action Types
 export type {

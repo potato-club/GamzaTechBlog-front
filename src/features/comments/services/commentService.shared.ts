@@ -21,7 +21,7 @@ import type {
  *
  * @example
  * // 서버 환경
- * const commentService = createCommentService(createBackendApiClient());
+ * const commentService = createCommentService(createServerApiClient());
  */
 export const createCommentService = (api: DefaultApi) => {
   return {

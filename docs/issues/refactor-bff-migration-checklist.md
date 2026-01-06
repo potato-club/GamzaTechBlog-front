@@ -26,13 +26,13 @@
 ### 0.1 경계 규칙 결정
 
 - [x] RSC vs BFF vs direct 기준을 문서화 (`docs/bff-boundary-rules.md`)
-- [x] "인증/쓰기=Server Action 우선, 개인화=서버 전용 모듈 우선" 규칙 확정
+- [x] "인증/쓰기/개인화는 BFF" 규칙 확정
 - [x] "공개 읽기 경로(RSC/direct) 판단 기준" 확정
 - [x] 경계 규칙 요약을 체크리스트/문서에 반영
 
-### 0.2 BFF 경로 구조 확정(필요 시)
+### 0.2 BFF 경로 구조 확정
 
-- [x] BFF 라우트 루트 결정 (필요 시 `src/app/api/**` 사용)
+- [x] BFF 라우트 루트 결정 (`src/app/api/**` 또는 `src/app/api/bff/**`)
 - [x] 리소스별 라우트 네이밍 규칙 정의
   - 예: `/api/posts/[id]`, `/api/posts/[id]/likes`, `/api/me/profile`
 - [x] 엔드포인트별 요청/응답 형태 통일 기준 정의
@@ -57,7 +57,7 @@
 - [x] 현재 API 호출 경로 인벤토리 작성 (`docs/issues/bff-migration-inventory.md`)
   - `src/features/**/services/*`
   - `src/features/**/hooks/*`
-  - `src/features/**/actions/*`
+  - `src/app/actions/*`
 - [x] P0/P1/P2/P4 매핑 테이블 작성
   - 인증/쓰기/개인화/공개 읽기 분류
 - [x] 기존 `apiClient` 사용처 목록화
@@ -70,18 +70,18 @@
 
 ## 1주차 (P0: 인증/세션 파일럿)
 
-**목표:** 인증/세션 흐름을 Server Action + 필요한 라우트로 정리하고 안정화
+**목표:** 인증/세션 흐름을 BFF로 전환하고 안정화
 
-### 1.1 인증 라우트/액션 구축
+### 1.1 BFF 인증 라우트 구축
 
 - [x] 로그인은 OAuth 링크 리다이렉트로 유지 (BFF 라우트 없음)
-- [x] 로그아웃을 Server Action으로 전환 (`src/features/auth/actions/logoutAction.ts`)
+- [x] `src/app/api/auth/logout/route.ts` 구현
 - [x] `src/app/api/auth/reissue/route.ts` 구현
 - [x] 백엔드 인증 API 호출과 쿠키 전달 확인
 
 ### 1.2 프론트 인증 호출 전환
 
-- [x] `src/features/auth/services/authService.ts`를 Server Action 경로로 전환
+- [x] `src/features/auth/services/authService.ts`를 BFF 경로로 전환
 - [x] `src/lib/apiClient.ts`의 재발급 경로가 BFF를 사용하도록 정리
 - [x] 기존 인증 호출 경로 fallback 여부 확정
 
@@ -104,63 +104,62 @@
 
 ## 2주차 (P1: 쓰기/변경 전환)
 
-**목표:** 쓰기/변경 요청을 Server Action으로 통일하고 클라이언트 직접 호출 축소
+**목표:** 쓰기/변경 요청을 BFF로 통일하고 클라이언트 직접 호출 축소
 
 ### 2.1 게시글 쓰기 정리
 
-- [x] `src/features/posts/actions/postActions.ts` 기준 BFF/Server Action 방식 통일
-- [x] 게시글 생성/수정/삭제 요청을 Server Action으로 통합
-- [x] `revalidate` 규칙(경로/태그) 정리
+- [ ] `src/app/actions/postActions.ts` 기준 BFF/Server Action 방식 통일
+- [ ] 게시글 생성/수정/삭제 요청을 BFF 경로로 통합
+- [ ] `revalidate` 규칙(경로/태그) 정리
 
 ### 2.2 좋아요 쓰기 전환
 
-- [x] 좋아요 CUD를 Server Action으로 전환
-- [x] `src/features/posts/services/likeService.ts` 쓰기 경로 정리
-- [x] `src/features/posts/hooks/useLikeMutations.ts` 연결 경로 교체
+- [ ] BFF 라우트 구현 (예: `/api/posts/[id]/likes`)
+- [ ] `src/features/posts/services/likeService.ts`를 BFF 호출로 전환
+- [ ] `src/features/posts/hooks/useLikeMutations.ts` 연결 경로 교체
 
 ### 2.3 댓글 쓰기 전환
 
-- [x] 댓글 CUD를 Server Action으로 전환
-- [x] `src/features/comments/services/commentService.ts` 쓰기 경로 정리
-- [x] `src/features/comments/hooks/useCommentMutations.ts` 연결 경로 교체
+- [ ] BFF 라우트 구현 (예: `/api/posts/[id]/comments`)
+- [ ] `src/features/comments/services/commentService.ts`를 BFF 호출로 전환
+- [ ] `src/features/comments/hooks/useCommentMutations.ts` 연결 경로 교체
 
 ### 2.4 이미지 업로드 전환
 
-- [x] 업로드 경로를 Server Action으로 처리할지 `/api` 유지할지 결정
-- [x] `src/features/posts/services/imageService.ts` 처리 방식 정리
-- [x] 업로드 실패 시 에러 메시지 규칙 확정
+- [ ] 업로드 경로를 BFF로 전환 여부 결정
+- [ ] `src/features/posts/services/imageService.ts` 처리 방식 정리
+- [ ] 업로드 실패 시 에러 메시지 규칙 확정
 
 ### 2.5 소개글/관리자 쓰기 전환
 
-- [x] `src/features/intro/services/introService.ts` → Server Action 전환
-- [x] `src/features/admin/services/adminService.ts` → Server Action 전환
-- [x] 관련 훅(`useIntroMutations`, `useAdminQueries`) 경로 교체
+- [ ] `src/features/intro/services/introService.ts` → BFF 전환
+- [ ] `src/features/admin/services/adminService.ts` → BFF 전환
+- [ ] 관련 훅(`useIntroMutations`, `useAdminQueries`) 경로 교체
 
 ### 2.6 React Query 간소화(쓰기 영역)
 
-- [x] 낙관적 업데이트 제거 여부 결정
-- [x] `onSuccess` 기반 invalidate/refetch로 단순화
-- [x] `withOptimisticUpdate` 사용처 제거 계획 확정
+- [ ] 낙관적 업데이트 제거 여부 결정
+- [ ] `onSuccess` 기반 invalidate/refetch로 단순화
+- [ ] `withOptimisticUpdate` 사용처 제거 계획 확정
 
 ### 2.7 회귀 테스트
 
-- [x] 게시글/댓글/좋아요 CRUD
-- [x] 업로드 성공/실패
-- [x] 권한 없는 사용자 처리
+- [ ] 게시글/댓글/좋아요 CRUD
+- [ ] 업로드 성공/실패
+- [ ] 권한 없는 사용자 처리
 
 ## 3주차 (P2: 개인화 읽기 전환)
 
 **목표:** 개인화 데이터는 서버 경유로 통일하고 캐시 누수 방지
 
-### 3.1 개인화 읽기 경로 정리
+### 3.1 개인화 읽기 라우트 구축
 
-- [ ] 프로필/역할/활동 통계는 서버 전용 모듈(RSC) 우선
-- [ ] 내 글/내 댓글/내 좋아요는 서버 전용 모듈(RSC) 우선
-- [ ] 관리자 승인 대기 목록(`/admin`) 조회는 read 전환 단계에서 서버 전용 경로로 정리
+- [ ] 프로필/역할/활동 통계 BFF 라우트 구현
+- [ ] 내 글/내 댓글/내 좋아요 BFF 라우트 구현
 
 ### 3.2 훅/서비스 전환
 
-- [ ] `src/features/user/services/userService.ts`를 서버 전용 경로 우선으로 정리
+- [ ] `src/features/user/services/userService.ts`를 BFF 경로로 전환
 - [ ] `src/features/user/hooks/useUserQueries.ts` 경로 교체
 - [ ] `src/features/user/hooks/useMyPageQueries.ts` 경로 교체
 
@@ -216,7 +215,3 @@
 - [ ] 남아있는 React Query 훅 최소화(필수 인터랙션만 유지)
 - [ ] 문서 업데이트(경계 규칙, 호출 방식, 에러 규칙)
 - [ ] 전체 회귀 테스트 체크리스트 업데이트 및 수행
-- [ ] 좋아요/댓글 폴더 구조 통일 여부 결정 (likes 위치 정리)
-- [ ] RSC 전환 완료 후 클라이언트 read 서비스 제거 여부 점검
-- [ ] server/shared 서비스도 직접 fetch로 대체할지 최종 결정
-- [ ] BFF 공통 프록시 통합 여부 결정 (cleanup 단계로 이월)

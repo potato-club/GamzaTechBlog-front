@@ -1,4 +1,4 @@
-import { createBackendApiClient } from "@/lib/serverApiClient";
+import { createServerApiClient } from "@/lib/apiClient";
 import { createLikeService } from "./likeService.shared";
 
 /**
@@ -15,5 +15,5 @@ import { createLikeService } from "./likeService.shared";
  * const isLiked = await likeService.checkLikeStatus(postId);
  */
 export const createLikeServiceServer = () => {
-  return createLikeService(createBackendApiClient());
+  return createLikeService(createServerApiClient());
 };

@@ -25,7 +25,7 @@ import type {
  *
  * @example
  * // 서버 환경
- * const postService = createPostService(createBackendApiClient());
+ * const postService = createPostService(createServerApiClient());
  */
 export const createPostService = (api: DefaultApi) => {
   return {

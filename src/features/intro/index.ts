@@ -1,9 +1,6 @@
 // Services
 export { introService } from "./services/introService";
 
-// Server Actions
-export { createIntroAction, deleteIntroAction } from "./actions/introActions";
-
 // Hooks
 export * from "./hooks";
 

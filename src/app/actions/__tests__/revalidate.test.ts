@@ -7,7 +7,7 @@
  */
 
 import { revalidatePath } from "next/cache";
-import { revalidatePostAction } from "@/features/posts/actions/revalidate";
+import { revalidatePostAction } from "../revalidate";
 
 // next/cache의 revalidatePath를 mock 함수로 대체
 jest.mock("next/cache", () => ({

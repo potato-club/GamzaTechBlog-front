@@ -6,30 +6,30 @@
 ## P0 (인증/세션)
 
 - 로그인: `src/components/shared/layout/HeaderNavigation.tsx` → `NEXT_PUBLIC_OAUTH_LOGIN_URL` (OAuth 링크 리다이렉트)
-- 로그아웃: `src/features/auth/actions/logoutAction.ts` → `logoutAction` (Server Action)
+- 로그아웃: `src/features/auth/services/authService.ts` → `fetch("/api/auth/logout")`
 - 토큰 재발급: `src/lib/apiClient.ts` → `refreshAccessToken()` (`/api/auth/reissue`)
 
 ## P1 (쓰기/변경)
 
 ### 게시글
-- 생성: `src/features/posts/actions/postActions.ts` → `createPostAction` (Server Action)
-- 수정: `src/features/posts/actions/postActions.ts` → `updatePostAction` (Server Action)
-- 삭제: `src/features/posts/actions/postActions.ts` → `deletePostAction` (Server Action)
+- 생성: `src/features/posts/services/postService.ts` → `apiClient.publishPost`
+- 수정: `src/features/posts/services/postService.ts` → `apiClient.revisePost`
+- 삭제: `src/features/posts/services/postService.ts` → `apiClient.removePost`
 
 ### 댓글
-- 생성: `src/features/comments/actions/commentActions.ts` → `createCommentAction` (Server Action)
-- 삭제: `src/features/comments/actions/commentActions.ts` → `deleteCommentAction` (Server Action)
+- 생성: `src/features/comments/services/commentService.ts` → `apiClient.addComment`
+- 삭제: `src/features/comments/services/commentService.ts` → `apiClient.deleteComment`
 
 ### 좋아요
-- 추가: `src/features/posts/actions/likeActions.ts` → `addLikeAction` (Server Action)
-- 취소: `src/features/posts/actions/likeActions.ts` → `removeLikeAction` (Server Action)
+- 추가: `src/features/posts/services/likeService.ts` → `apiClient.likePost`
+- 취소: `src/features/posts/services/likeService.ts` → `apiClient.unlikePost`
 
 ### 이미지 업로드
-- 업로드: `src/features/posts/services/imageService.ts` → `/api/posts/images` (BFF)
+- 업로드: `src/features/posts/services/imageService.ts` → `apiClient.uploadImage`
 
 ### 소개글
-- 생성: `src/features/intro/actions/introActions.ts` → `createIntroAction` (Server Action)
-- 삭제: `src/features/intro/actions/introActions.ts` → `deleteIntroAction` (Server Action)
+- 생성: `src/features/intro/services/introService.ts` → `apiClient.createIntro`
+- 삭제: `src/features/intro/services/introService.ts` → `apiClient.deleteIntro`
 
 ### 사용자
 - 프로필 수정: `src/features/user/services/userService.ts` → `apiClient.updateProfile`
@@ -38,7 +38,7 @@
 - 계정 탈퇴: `src/features/user/services/userService.ts` → `apiClient.withdraw`
 
 ### 관리자
-- 승인/관리: `src/features/admin/actions/adminActions.ts` → `approveUserAction` (Server Action)
+- 승인/관리: `src/features/admin/services/adminService.ts` → `apiClient.approveUserProfile`
 
 ## P2 (개인화 읽기)
 

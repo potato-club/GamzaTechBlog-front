@@ -1,7 +1,13 @@
-import { logoutAction } from "@/features/auth/actions/logoutAction";
+import { apiFetch } from "@/lib/apiFetch";
 
 export const authService = {
   async logout(): Promise<void> {
-    await logoutAction();
+    const response = await apiFetch("/api/auth/logout", {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error("Logout failed");
+    }
   },
 };

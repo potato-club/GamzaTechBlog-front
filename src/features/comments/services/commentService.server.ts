@@ -1,4 +1,4 @@
-import { createBackendApiClient } from "@/lib/serverApiClient";
+import { createServerApiClient } from "@/lib/apiClient";
 import { createCommentService } from "./commentService.shared";
 
 /**
@@ -15,5 +15,5 @@ import { createCommentService } from "./commentService.shared";
  * const comments = await commentService.getUserComments();
  */
 export const createCommentServiceServer = () => {
-  return createCommentService(createBackendApiClient());
+  return createCommentService(createServerApiClient());
 };

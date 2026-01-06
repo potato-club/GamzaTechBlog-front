@@ -1,13 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { imageService } from "../services/imageService";
 
-const getImageUploadErrorMessage = (error: unknown) => {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-  return "이미지 업로드에 실패했습니다.";
-};
-
 /**
  * 이미지 업로드 뮤테이션 훅
  * Toast Editor의 addImageBlobHook에서 사용하기 위한 훅
@@ -16,8 +9,7 @@ export function useImageUpload() {
   return useMutation({
     mutationFn: (file: File) => imageService.uploadImage(file),
     onError: (error) => {
-      const message = getImageUploadErrorMessage(error);
-      console.error("이미지 업로드 실패:", message);
+      console.error("이미지 업로드 실패:", error);
     },
   });
 }
@@ -40,8 +32,7 @@ export async function uploadImageForEditor(
     // Toast Editor 콜백 함수 호출
     callback(imageUrl, "Uploaded Image");
   } catch (error) {
-    const message = getImageUploadErrorMessage(error);
-    console.error("이미지 업로드 실패:", message);
-    alert(message);
+    console.error("이미지 업로드 실패:", error);
+    alert("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
   }
 }
