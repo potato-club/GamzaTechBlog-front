@@ -6,23 +6,15 @@
  * 효율적인 상태 관리와 UI 업데이트를 제공합니다.
  */
 
-import type {
-  CommentRequest,
-  CommentResponse,
-  PostDetailResponse,
-  UserProfileResponse,
-} from "@/generated/api";
-import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
+import type { CommentRequest, CommentResponse, PostDetailResponse } from "@/generated/api";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { createCommentAction, deleteCommentAction } from "../actions/commentActions";
 import { POST_QUERY_KEYS } from "../../posts/hooks/usePostQueries";
-import { USER_QUERY_KEYS } from "../../user/hooks/useUserQueries";
 
 /**
  * 댓글을 등록하는 뮤테이션 훅
  *
- * 낙관적 업데이트를 통해 즉각적인 UI 반응을 제공하고,
- * 서버 ISR 캐시도 무효화하여 최신 상태를 유지합니다.
+ * 서버 액션 완료 후 캐시를 무효화하여 최신 상태를 유지합니다.
  *
  * @param postId - 댓글을 작성할 게시글의 ID
  * @param options - React Query mutation 옵션
@@ -34,37 +26,12 @@ export function useCreateComment(
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...options,
     mutationFn: (commentRequest: CommentRequest) =>
       createCommentAction(postId, commentRequest),
 
-    ...withOptimisticUpdate<CommentRequest, PostDetailResponse>({
-      queryClient,
-      queryKey: POST_QUERY_KEYS.detail(postId),
-      updateCache: (oldData, newComment) => {
-        // 현재 사용자 프로필 정보 가져오기
-        const userProfile = queryClient.getQueryData<UserProfileResponse>(
-          USER_QUERY_KEYS.profile()
-        );
-
-        // 임시 댓글 생성
-        const optimisticComment: CommentResponse = {
-          commentId: Date.now(), // 임시 ID
-          writer: userProfile?.nickname ?? "Me",
-          writerProfileImageUrl: userProfile?.profileImageUrl ?? "/profileSVG.svg",
-          content: newComment.content,
-          createdAt: new Date(),
-        };
-
-        return {
-          ...oldData,
-          comments: Array.isArray(oldData.comments)
-            ? [optimisticComment, ...oldData.comments]
-            : [optimisticComment],
-        };
-      },
-    }),
-
     onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
       options?.onSuccess?.(data, variables, context);
     },
 
@@ -72,16 +39,13 @@ export function useCreateComment(
       console.error("댓글 등록 실패:", error);
       options?.onError?.(error, variables, context);
     },
-
-    ...options,
   });
 }
 
 /**
  * 댓글을 삭제하는 뮤테이션 훅
  *
- * 낙관적 업데이트를 통해 즉각적인 UI 반응을 제공하고,
- * 서버 ISR 캐시도 무효화하여 최신 상태를 유지합니다.
+ * 서버 액션 완료 후 캐시를 무효화하여 최신 상태를 유지합니다.
  *
  * @param postId - 댓글이 속한 게시글의 ID
  * @param options - React Query mutation 옵션
@@ -93,19 +57,11 @@ export function useDeleteComment(
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...options,
     mutationFn: (commentId: number) => deleteCommentAction(postId, commentId),
 
-    ...withOptimisticUpdate<number, PostDetailResponse>({
-      queryClient,
-      queryKey: POST_QUERY_KEYS.detail(postId),
-      updateCache: (oldData, commentId) => ({
-        ...oldData,
-        comments: oldData.comments?.filter((comment) => comment.commentId !== commentId),
-      }),
-    }),
-
     onSuccess: (data, commentId, context) => {
-      console.log("댓글 삭제 성공:", commentId);
+      queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
       options?.onSuccess?.(data, commentId, context);
     },
 
@@ -113,8 +69,6 @@ export function useDeleteComment(
       console.error("댓글 삭제 실패:", error);
       options?.onError?.(error, commentId, context);
     },
-
-    ...options,
   });
 }
 

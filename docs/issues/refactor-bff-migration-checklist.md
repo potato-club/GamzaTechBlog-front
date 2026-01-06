@@ -138,9 +138,9 @@
 
 ### 2.6 React Query 간소화(쓰기 영역)
 
-- [ ] 낙관적 업데이트 제거 여부 결정
-- [ ] `onSuccess` 기반 invalidate/refetch로 단순화
-- [ ] `withOptimisticUpdate` 사용처 제거 계획 확정
+- [x] 낙관적 업데이트 제거 여부 결정
+- [x] `onSuccess` 기반 invalidate/refetch로 단순화
+- [x] `withOptimisticUpdate` 사용처 제거 계획 확정
 
 ### 2.7 회귀 테스트
 
