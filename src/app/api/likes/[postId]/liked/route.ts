@@ -7,12 +7,9 @@ export async function GET(
   context: { params: { postId: string } }
 ): Promise<Response> {
   const { postId: postIdParam } = await Promise.resolve(context.params);
-  const url = new URL(request.url);
-  const fallbackPostId = url.pathname.split("/").filter(Boolean).at(-2);
-  const rawPostId = postIdParam ?? fallbackPostId;
-  const postId = Number(rawPostId);
+  const postId = Number(postIdParam);
 
-  if (!rawPostId || !Number.isFinite(postId) || postId <= 0) {
+  if (!postIdParam || !Number.isFinite(postId) || postId <= 0) {
     return new Response("Invalid postId.", { status: 400 });
   }
 
