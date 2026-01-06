@@ -1,4 +1,5 @@
-import { apiClient } from "@/lib/apiClient";
+import { apiFetch } from "@/lib/apiFetch";
+import type { ResponseDtoBoolean } from "@/generated/api";
 
 /**
  * 클라이언트 환경에서 사용하는 Like Service
@@ -16,7 +17,12 @@ export const likeService = {
    * @returns 좋아요 상태 (true: 좋아요 누름, false: 좋아요 안누름)
    */
   async checkLikeStatus(postId: number, options?: RequestInit): Promise<boolean> {
-    const response = await apiClient.isPostLiked({ postId }, options);
-    return response.data as boolean;
+    const response = await apiFetch(`/api/likes/${postId}/liked`, options);
+    if (!response.ok) {
+      throw new Error("Failed to fetch like status.");
+    }
+
+    const data = (await response.json()) as ResponseDtoBoolean;
+    return data.data ?? false;
   },
 } as const;
