@@ -6,8 +6,14 @@
  * 효율적인 상태 관리와 UI 업데이트를 제공합니다.
  */
 
-import type { CommentRequest, CommentResponse, PostDetailResponse } from "@/generated/api";
-import type { ActionResult } from "@/lib/actionResult";
+import { revalidatePostAction } from "@/app/actions/revalidate";
+import type {
+  CommentRequest,
+  CommentResponse,
+  PostDetailResponse,
+  UserProfileResponse,
+} from "@/generated/api";
+import { withOptimisticUpdate } from "@/lib/query-utils/optimisticHelpers";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { createCommentAction, deleteCommentAction } from "../actions/commentActions";
 import { POST_QUERY_KEYS } from "../../posts/hooks/usePostQueries";
@@ -29,13 +35,42 @@ export function useCreateComment(
   return useMutation({
     ...options,
     mutationFn: (commentRequest: CommentRequest) =>
-      createCommentAction(postId, commentRequest),
+      commentService.registerComment(postId, commentRequest),
 
-    onSuccess: (result, variables, context) => {
-      if (result.success) {
-        queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      }
-      options?.onSuccess?.(result, variables, context);
+    ...withOptimisticUpdate<CommentRequest, PostDetailResponse>({
+      queryClient,
+      queryKey: POST_QUERY_KEYS.detail(postId),
+      updateCache: (oldData, newComment) => {
+        // 현재 사용자 프로필 정보 가져오기
+        const userProfile = queryClient.getQueryData<UserProfileResponse>(
+          USER_QUERY_KEYS.profile()
+        );
+
+        // 임시 댓글 생성
+        const optimisticComment: CommentResponse = {
+          commentId: Date.now(), // 임시 ID
+          writer: userProfile?.nickname ?? "Me",
+          writerProfileImageUrl: userProfile?.profileImageUrl ?? "/profileSVG.svg",
+          content: newComment.content,
+          createdAt: new Date(),
+        };
+
+        return {
+          ...oldData,
+          comments: Array.isArray(oldData.comments)
+            ? [optimisticComment, ...oldData.comments]
+            : [optimisticComment],
+        };
+      },
+    }),
+
+    onSuccess: (data, variables, context) => {
+      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
+      void revalidatePostAction(postId).catch((error) => {
+        console.error("Failed to revalidate post:", error);
+      });
+
+      options?.onSuccess?.(data, variables, context);
     },
 
     onError: (error, variables, context) => {
@@ -60,14 +95,25 @@ export function useDeleteComment(
   const queryClient = useQueryClient();
 
   return useMutation({
-    ...options,
-    mutationFn: (commentId: number) => deleteCommentAction(postId, commentId),
+    mutationFn: commentService.deleteComment,
 
-    onSuccess: (result, commentId, context) => {
-      if (result.success) {
-        queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-      }
-      options?.onSuccess?.(result, commentId, context);
+    ...withOptimisticUpdate<number, PostDetailResponse>({
+      queryClient,
+      queryKey: POST_QUERY_KEYS.detail(postId),
+      updateCache: (oldData, commentId) => ({
+        ...oldData,
+        comments: oldData.comments?.filter((comment) => comment.commentId !== commentId),
+      }),
+    }),
+
+    onSuccess: (data, commentId, context) => {
+      // 서버 ISR 캐시 무효화 (백그라운드에서 실행)
+      void revalidatePostAction(postId).catch((error) => {
+        console.error("Failed to revalidate post:", error);
+      });
+
+      console.log("댓글 삭제 성공:", commentId);
+      options?.onSuccess?.(data, commentId, context);
     },
 
     onError: (error, commentId, context) => {

@@ -6,10 +6,10 @@
  */
 
 import type { IntroResponse } from "@/generated/api/models";
+import type { ActionResult } from "@/lib/actionResult";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { createIntroAction, deleteIntroAction } from "../actions/introActions";
 import { INTRO_QUERY_KEYS } from "./useIntroQueries";
-import type { ActionResult } from "@/lib/actionResult";
 
 /**
  * 새 자기소개를 작성하는 뮤테이션 훅
@@ -48,9 +48,7 @@ export function useCreateIntro(
  *
  * @param options - React Query mutation 옵션
  */
-export function useDeleteIntro(
-  options?: UseMutationOptions<ActionResult<void>, Error, number>
-) {
+export function useDeleteIntro(options?: UseMutationOptions<ActionResult<void>, Error, number>) {
   const queryClient = useQueryClient();
 
   return useMutation({
