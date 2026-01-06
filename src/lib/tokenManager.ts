@@ -5,7 +5,7 @@
  * 토큰 설정은 백엔드에서 자동으로 처리되므로 여기서는 삭제 및 만료 처리에 집중합니다.
  */
 
-import { USER_QUERY_KEYS } from "@/features/user";
+import { USER_QUERY_KEYS } from "@/features/user/queryKeys";
 
 // --- 쿠키 관리 함수 ---
 

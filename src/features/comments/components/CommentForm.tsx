@@ -77,12 +77,17 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
         parentCommentId: undefined, // 현재는 최상위 댓글만 지원
       });
 
+      if (!result.success) {
+        alert(result.error);
+        return;
+      }
+
       // 성공 시 폼 초기화
       setNewComment("");
 
       // 기존 prop 콜백이 있다면 호출 (하위 호환성)
       if (onCommentSubmitted) {
-        onCommentSubmitted(result);
+        onCommentSubmitted(result.data);
       }
     } catch (error) {
       // 에러는 TanStack Query의 onError에서 이미 처리됨

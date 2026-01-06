@@ -14,7 +14,7 @@ import type {
 import { handleTokenExpiration } from "@/lib/tokenManager";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { userService } from "../services/userService";
-import { USER_QUERY_KEYS } from "./useUserQueries";
+import { USER_QUERY_KEYS } from "../queryKeys";
 
 // 뮤테이션 컨텍스트 타입 정의
 interface UpdateProfileImageContext {

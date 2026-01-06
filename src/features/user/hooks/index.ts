@@ -1,11 +1,6 @@
 // 읽기 전용 쿼리 훅
-export {
-  USER_QUERY_KEYS,
-  usePublicProfile,
-  useUserActivityStats,
-  useUserProfile,
-  useUserRole,
-} from "./useUserQueries";
+export { USER_QUERY_KEYS } from "../queryKeys";
+export { usePublicProfile, useUserActivityStats, useUserProfile, useUserRole } from "./useUserQueries";
 
 // 변경 작업 훅 (Mutations)
 export {

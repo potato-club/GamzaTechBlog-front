@@ -13,19 +13,8 @@ import type {
 } from "@/generated/api/models";
 import { handleTokenExpiration, isRefreshTokenInvalidError } from "@/lib/tokenManager";
 import { useQuery, useQueryClient, type UseQueryOptions } from "@tanstack/react-query";
+import { USER_QUERY_KEYS } from "../queryKeys";
 import { userService } from "../services";
-
-// Query Key 상수들
-export const USER_QUERY_KEYS = {
-  all: ["user"] as const,
-  profile: () => [...USER_QUERY_KEYS.all, "profile"] as const,
-  activityStats: () => [...USER_QUERY_KEYS.all, "activityStats"] as const,
-  role: () => [...USER_QUERY_KEYS.all, "role"] as const,
-  publicProfile: (username: string) => [...USER_QUERY_KEYS.all, "publicProfile", username] as const,
-  publicActivityStats: (username: string) =>
-    [...USER_QUERY_KEYS.all, "publicActivityStats", username] as const,
-  publicPosts: (username: string) => [...USER_QUERY_KEYS.all, "publicPosts", username] as const,
-} as const;
 
 /**
  * 사용자 프로필 정보를 조회하는 훅
