@@ -6,13 +6,13 @@
 - [x] 로그인 성공/실패 처리
 - [x] 로그아웃 후 세션 정리(쿠키 제거/캐시 초기화)
 - [x] 토큰 만료 후 재발급 성공/실패 처리
-- [x] 인증 BFF 라우트 단위 테스트 실행 (예: `set JEST_SKIP_MSW=true && yarn test src/app/api/auth/__tests__/routes.test.ts src/app/api/auth/__tests__/proxy.test.ts`)
+- [x] 인증 라우트 단위 테스트 실행 (예: `set JEST_SKIP_MSW=true && yarn test src/app/api/auth/__tests__/routes.test.ts src/app/api/auth/__tests__/proxy.test.ts`)
 
 ## P1 (쓰기/변경)
 - [ ] 게시글 생성/수정/삭제
-- [ ] 댓글 생성/삭제
-- [ ] 좋아요 추가/취소
-- [ ] 이미지 업로드 성공/실패 처리
+- [x] 댓글 생성/삭제
+- [x] 좋아요 추가/취소
+- [x] 이미지 업로드 성공/실패 처리
 
 ## P2 (개인화 읽기)
 - [ ] 내 프로필 조회

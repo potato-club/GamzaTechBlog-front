@@ -1,6 +1,10 @@
 "use client";
 
-import { createPostAction, deletePostAction, updatePostAction } from "@/app/actions/postActions";
+import {
+  createPostAction,
+  deletePostAction,
+  updatePostAction,
+} from "@/features/posts/actions/postActions";
 import type { PostResponse } from "@/generated/api";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import type {

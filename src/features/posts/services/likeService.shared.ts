@@ -15,7 +15,7 @@ import type { DefaultApi } from "@/generated/api";
  *
  * @example
  * // 서버 환경
- * const likeService = createLikeService(createServerApiClient());
+ * const likeService = createLikeService(createBackendApiClient());
  */
 export const createLikeService = (api: DefaultApi) => {
   return {

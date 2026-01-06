@@ -1,5 +1,6 @@
 import { PendingUserResponse } from "@/generated/api/models";
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
+import { approveUserAction } from "../actions/adminActions";
 import { adminService } from "../services/adminService";
 
 export const ADMIN_QUERY_KEYS = {
@@ -21,7 +22,7 @@ export function useApproveUser() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, number>({
-    mutationFn: (userId: number) => adminService.approveUser(userId),
+    mutationFn: (userId: number) => approveUserAction(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ADMIN_QUERY_KEYS.pendingUsers() });
     },
