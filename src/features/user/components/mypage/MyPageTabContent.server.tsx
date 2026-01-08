@@ -1,8 +1,9 @@
 import EmptyState from "@/components/shared/EmptyState";
 import { CommentList } from "@/features/comments";
-import { createCommentServiceServer } from "@/features/comments/services/commentService.server";
 import { PostCard } from "@/features/posts";
+import { createCommentServiceServer } from "@/features/comments/services/commentService.server";
 import { createPostServiceServer } from "@/features/posts/services/postService.server";
+import { getPublicUser } from "@/features/user/services/userService.server";
 import MyPagePagination from "./MyPagePagination.client";
 import MyPageTabMenu from "./MyPageTabMenu.client";
 import type {
@@ -20,6 +21,8 @@ const DEFAULT_PAGE_SIZE = 5;
 const DEFAULT_SORT = ["createdAt,desc"];
 
 interface MyPageTabContentServerProps {
+  mode?: "mypage" | "public";
+  username?: string;
   searchParams?:
     | Record<string, string | string[] | undefined>
     | URLSearchParams
@@ -58,10 +61,15 @@ const resolvePage = (value?: string | string[]) => {
 };
 
 export default async function MyPageTabContentServer({
+  mode = "mypage",
+  username,
   searchParams,
 }: MyPageTabContentServerProps) {
   const resolvedSearchParams = await Promise.resolve(searchParams);
-  const currentTab = resolveTab(getSearchParam(resolvedSearchParams, "tab"));
+  const isOwner = mode === "mypage";
+  const currentTab = isOwner
+    ? resolveTab(getSearchParam(resolvedSearchParams, "tab"))
+    : "posts";
   const currentPage = resolvePage(getSearchParam(resolvedSearchParams, "page"));
   const pageParams: Pageable = {
     page: currentPage - 1,
@@ -69,21 +77,30 @@ export default async function MyPageTabContentServer({
     sort: DEFAULT_SORT,
   };
 
-  const postService = createPostServiceServer();
-  const commentService = createCommentServiceServer();
-
   let postsData: PagedResponsePostListResponse | null = null;
   let commentsData: PagedResponseCommentListResponse | null = null;
   let likesData: PagedResponseLikeResponse | null = null;
   let errorMessage: string | null = null;
 
   try {
-    if (currentTab === "posts") {
-      postsData = await postService.getUserPosts(pageParams);
-    } else if (currentTab === "comments") {
-      commentsData = await commentService.getUserComments(pageParams);
+    if (!isOwner) {
+      if (!username) {
+        throw new Error("사용자를 찾을 수 없습니다.");
+      }
+
+      const publicProfile = await getPublicUser(username, pageParams);
+      postsData = publicProfile?.posts ?? null;
     } else {
-      likesData = await postService.getUserLikes(pageParams);
+      const postService = createPostServiceServer();
+      const commentService = createCommentServiceServer();
+
+      if (currentTab === "posts") {
+        postsData = await postService.getUserPosts(pageParams);
+      } else if (currentTab === "comments") {
+        commentsData = await commentService.getUserComments(pageParams);
+      } else {
+        likesData = await postService.getUserLikes(pageParams);
+      }
     }
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
@@ -193,8 +210,8 @@ export default async function MyPageTabContentServer({
   };
 
   return (
-    <section className="flex-1" aria-label="마이페이지 콘텐츠">
-      <MyPageTabMenu />
+    <section className="flex-1" aria-label={isOwner ? "마이페이지 콘텐츠" : "프로필 콘텐츠"}>
+      {isOwner ? <MyPageTabMenu /> : null}
       <div role="tabpanel" aria-labelledby={`${currentTab}-tab`} className="mt-4 md:mt-6">
         <div className="px-0 md:px-10">
           <div className="mx-auto w-full md:min-w-[700px]">{renderContent()}</div>

@@ -10,20 +10,13 @@ export {
   useUpdateProfile,
   useUpdateProfileImage,
   useUpdateProfileInSignup,
-  useUserActivityStats,
-  useUserProfile,
-  useUserRole,
   useWithdrawAccount,
 } from "./hooks";
 
 // Components
 export {
-  CommentsTab,
   ErrorDisplay,
-  LikesTab,
   MyPageSidebarServer,
-  MyPageTabContent,
-  PostsTab,
   ProfileEditDialog,
   ProfileEditDialogSkeleton,
   UserActivityStatItem,
@@ -31,8 +24,7 @@ export {
 } from "./components";
 
 // Services
-export { getCurrentUser, getPublicUser, userService } from "./services/userService";
-export { createUserServiceServer } from "./services/userService.server";
+export { userService } from "./services/userService";
 
 // Types
 export type { MyPageTab, ProfileEditDialogProps, UserActivityStatItemProps } from "./types";

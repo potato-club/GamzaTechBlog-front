@@ -4,6 +4,8 @@ import Link from "next/link";
 import BlogHeader from "@/components/shared/layout/BlogHeader";
 import Footer from "@/components/shared/layout/Footer";
 import { Toaster } from "@/components/ui";
+import { createUserServiceServer } from "@/features/user/services/userService.server";
+import type { UserProfileResponse } from "@/generated/api/models";
 import Providers from "@/providers/Providers";
 import { ChatBot } from "../features/chatbot";
 import { pretendard } from "./fonts";
@@ -76,11 +78,25 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  let initialUserRole: string | null = null;
+  let initialUserProfile: UserProfileResponse | null = null;
+
+  try {
+    const userService = createUserServiceServer();
+    initialUserRole = await userService.getUserRole();
+
+    if (initialUserRole && initialUserRole !== "PRE_REGISTER") {
+      initialUserProfile = await userService.getProfile();
+    }
+  } catch (error) {
+    console.warn("Failed to fetch auth state for layout:", error);
+  }
+
   return (
     <html lang="ko" className={pretendard.variable}>
       <body className={`bg-white antialiased ${pretendard.className}`}>
-        <Providers>
+        <Providers initialUserRole={initialUserRole} initialUserProfile={initialUserProfile}>
           <Link
             href="#main-content"
             className="sr-only z-50 rounded bg-[#20242B] px-4 py-2 text-white transition-all focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:ring-2 focus:ring-white focus:outline-none"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useAddLike, useLikeStatus, useRemoveLike } from "@/features/posts";
+import { useAddLike, useRemoveLike } from "@/features/posts";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -20,20 +20,15 @@ export default function PostStats({
 }: PostStatsProps) {
   const { isLoggedIn } = useAuth();
   const [likesCount, setLikesCount] = useState(initialLikesCount);
-
-  // 실제 좋아요 상태를 API에서 가져오기
-  const { data: actualLikeStatus, isLoading: isLikeStatusLoading } = useLikeStatus(
-    postId,
-    isLoggedIn
-  );
   const [isLiked, setIsLiked] = useState(initialIsLiked);
 
-  // 실제 좋아요 상태가 로드되면 상태 업데이트
   useEffect(() => {
-    if (actualLikeStatus !== undefined) {
-      setIsLiked(actualLikeStatus);
-    }
-  }, [actualLikeStatus]);
+    setIsLiked(initialIsLiked);
+  }, [initialIsLiked]);
+
+  useEffect(() => {
+    setLikesCount(initialLikesCount);
+  }, [initialLikesCount]);
 
   const addLikeMutation = useAddLike(postId);
   const removeLikeMutation = useRemoveLike(postId);
@@ -68,8 +63,7 @@ export default function PostStats({
     }
   };
 
-  const isLoading =
-    addLikeMutation.isPending || removeLikeMutation.isPending || isLikeStatusLoading;
+  const isLoading = addLikeMutation.isPending || removeLikeMutation.isPending;
 
   return (
     <div className="mt-4 flex items-center gap-6">

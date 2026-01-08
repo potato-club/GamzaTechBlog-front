@@ -6,6 +6,7 @@
 ## 브랜치/커밋 운영 규칙
 
 ### 브랜치 명 규칙 (권장)
+
 - 0주차: `refactor/bff-00-foundation`
 - P0: `refactor/bff-p0-auth`
 - P1: `refactor/bff-p1-write`
@@ -15,6 +16,7 @@
 - 마무리: `refactor/bff-cleanup`
 
 ### 커밋 단위 규칙 (권장)
+
 - 체크리스트 **1~2개 항목 = 1 커밋** 기준으로 쪼갠다.
 - "라우트 1개 추가/변경" 또는 "서비스 1개 전환" 단위로 커밋한다.
 - 작은 기능 단위로 커밋하여 롤백 가능성을 높인다.
@@ -160,9 +162,20 @@
 
 ### 3.2 훅/서비스 전환
 
-- [ ] `src/features/user/services/userService.ts`를 서버 전용 경로 우선으로 정리
-- [ ] `src/features/user/hooks/useUserQueries.ts` 경로 교체
-- [ ] `src/features/user/hooks/useMyPageQueries.ts` 경로 교체
+- [x] `src/features/user/services/userService.ts` 읽기 제거 (개인화/공개 읽기는 서버 전용)
+  - [x] `src/features/user/hooks/useUserQueries.ts` 제거
+- [x] `src/features/user/hooks/useMyPageQueries.ts` 제거 (마이페이지 탭은 RSC에서 처리)
+- [x] 공개 프로필 탭도 서버 컴포넌트로 통일 (`MyPageTabContent.server.tsx`로 처리)
+- [x] 클라이언트 읽기 훅 제거/대체 대상 정리 (RSC로 이동)
+  - `src/features/user/hooks/useUserQueries.ts` (프로필/역할/활동 통계) → 제거됨
+    - `src/features/user/hooks/useMyPageQueries.ts` (내 글/내 댓글/내 좋아요) → 제거됨
+  - `src/features/admin/hooks/useAdminQueries.ts` (관리자 대기 목록) → 제거됨
+  - [x] `src/features/posts/hooks/useLikeQueries.ts` 제거 (좋아요 상태는 상세 페이지 RSC에서만 조회)
+  - [x] 클라이언트 호출 예외(유지) 목록 확정
+    - BFF: `/api/auth/reissue` (클라이언트 토큰 재발급)
+    - BFF: `/api/posts/images` (파일 업로드)
+    - [x] BFF: `/api/likes/[postId]/liked` 제거 (좋아요 상태를 RSC로 전환 완료)
+  - direct: 공개 읽기 direct 유지 여부는 4주차에서 결정
 
 ### 3.3 캐시/동적 렌더링 정책
 

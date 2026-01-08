@@ -2,12 +2,11 @@
  * 좋아요 관련 변경 작업 훅들 (Mutations)
  *
  * 책임: 좋아요 데이터 변경 (쓰기 전용)
- * 읽기 작업은 useLikeQueries.ts 참조
+ * 읽기 작업은 RSC에서 초기 상태를 전달합니다.
  */
 
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { addLikeAction, removeLikeAction } from "../actions/likeActions";
-import { LIKE_QUERY_KEYS } from "./useLikeQueries";
 import { POST_QUERY_KEYS } from "./usePostQueries";
 import type { ActionResult } from "@/lib/actionResult";
 
@@ -32,7 +31,6 @@ export function useAddLike(
     onSuccess: (result, variables, context) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-        queryClient.invalidateQueries({ queryKey: LIKE_QUERY_KEYS.status(postId) });
       }
       options?.onSuccess?.(result, variables, context);
     },
@@ -65,7 +63,6 @@ export function useRemoveLike(
     onSuccess: (result, variables, context) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: POST_QUERY_KEYS.detail(postId) });
-        queryClient.invalidateQueries({ queryKey: LIKE_QUERY_KEYS.status(postId) });
       }
       options?.onSuccess?.(result, variables, context);
     },

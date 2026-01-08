@@ -1,1 +1,1 @@
-export * from "./useAdminQueries";
+export * from "./useAdminMutations";

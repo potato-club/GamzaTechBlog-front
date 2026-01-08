@@ -2,7 +2,7 @@
  * 사용자 관련 변경 작업 훅들 (Mutations)
  *
  * 책임: 사용자 데이터 변경 (쓰기 전용)
- * 읽기 작업은 useUserQueries.ts 참조
+ * 읽기 작업은 서버 컴포넌트에서 처리
  */
 
 import type {

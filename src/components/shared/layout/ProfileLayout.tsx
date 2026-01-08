@@ -1,4 +1,3 @@
-import MyPageTabContent from "@/features/user/components/mypage/MyPageTabContent";
 import MyPageTabContentServer from "@/features/user/components/mypage/MyPageTabContent.server";
 import MyPageSidebarServer from "@/features/user/components/mypage/MyPageSidebar.server";
 import { ProfileActions } from "../ProfileActions";
@@ -8,7 +7,10 @@ interface ProfileLayoutProps {
   mode: "mypage" | "public";
   username?: string; // public 모드일 때 필요
   children?: React.ReactNode;
-  searchParams?: Record<string, string | string[] | undefined> | URLSearchParams;
+  searchParams?:
+    | Record<string, string | string[] | undefined>
+    | URLSearchParams
+    | Promise<Record<string, string | string[] | undefined> | URLSearchParams>;
 }
 
 /**
@@ -40,11 +42,11 @@ export default function ProfileLayout({
 
         {/* 탭 콘텐츠 - 통합 데이터 관리 */}
         <div className="flex-1">
-          {isOwner ? (
-            <MyPageTabContentServer searchParams={searchParams} />
-          ) : (
-            <MyPageTabContent isOwner={isOwner} username={username} />
-          )}
+          <MyPageTabContentServer
+            mode={mode}
+            username={username}
+            searchParams={searchParams}
+          />
 
           {/* 추가 프로필 액션 버튼들 */}
           <ProfileActions targetUsername={username || ""} mode={mode} />

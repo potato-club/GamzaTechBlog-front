@@ -1,7 +1,8 @@
 import UserIcon from "@/components/ui/UserIcon";
 import { Button } from "@/components/ui/button";
 import { createMyPageStats } from "@/constants/mypageConstants";
-import { createUserServiceServer, UserActivityStatItem } from "@/features/user";
+import { UserActivityStatItem } from "@/features/user";
+import { createUserServiceServer } from "@/features/user/services/userService.server";
 import ProfileEditDialog from "@/features/user/components/ProfileEditDialog";
 import type { UserActivityResponse, UserProfileResponse } from "@/generated/api";
 import Image from "next/image";

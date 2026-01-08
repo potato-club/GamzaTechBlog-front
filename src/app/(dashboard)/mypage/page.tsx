@@ -9,7 +9,7 @@
  */
 
 import { ProfileLayout } from "@/components/shared";
-import { createUserServiceServer } from "@/features/user";
+import { createUserServiceServer } from "@/features/user/services/userService.server";
 
 export const dynamic = "force-dynamic";
 

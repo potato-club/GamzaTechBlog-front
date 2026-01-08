@@ -1,4 +1,4 @@
-import { createUserServiceServer } from "@/features/user";
+import { createUserServiceServer } from "@/features/user/services/userService.server";
 import { isAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
