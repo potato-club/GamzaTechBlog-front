@@ -1,11 +1,9 @@
 import EmptyState from "@/components/shared/EmptyState";
 import { CommentList } from "@/features/comments";
-import { PostCard } from "@/features/posts";
 import { createCommentServiceServer } from "@/features/comments/services/commentService.server";
+import { PostCard } from "@/features/posts";
 import { createPostServiceServer } from "@/features/posts/services/postService.server";
 import { getPublicUser } from "@/features/user/services/userService.server";
-import MyPagePagination from "./MyPagePagination.client";
-import MyPageTabMenu from "./MyPageTabMenu.client";
 import type {
   CommentResponse,
   LikeResponse,
@@ -16,6 +14,8 @@ import type {
   PostListResponse,
 } from "@/generated/api/models";
 import { VALID_TABS, type TabType } from "@/types/mypage";
+import MyPagePagination from "./MyPagePagination.client";
+import MyPageTabMenu from "./MyPageTabMenu.client";
 
 const DEFAULT_PAGE_SIZE = 5;
 const DEFAULT_SORT = ["createdAt,desc"];
@@ -39,11 +39,12 @@ const getSearchParam = (
     return undefined;
   }
 
-  if (typeof (source as URLSearchParams).get === "function") {
-    return (source as URLSearchParams).get(key) ?? undefined;
+  if (source instanceof URLSearchParams) {
+    return source.get(key) ?? undefined;
   }
 
-  return resolveParam(source[key]);
+  const record = source as Record<string, string | string[] | undefined>;
+  return resolveParam(record[key]);
 };
 
 const resolveTab = (value?: string | string[]): TabType => {
@@ -67,9 +68,7 @@ export default async function MyPageTabContentServer({
 }: MyPageTabContentServerProps) {
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const isOwner = mode === "mypage";
-  const currentTab = isOwner
-    ? resolveTab(getSearchParam(resolvedSearchParams, "tab"))
-    : "posts";
+  const currentTab = isOwner ? resolveTab(getSearchParam(resolvedSearchParams, "tab")) : "posts";
   const currentPage = resolvePage(getSearchParam(resolvedSearchParams, "page"));
   const pageParams: Pageable = {
     page: currentPage - 1,
@@ -125,7 +124,12 @@ export default async function MyPageTabContentServer({
         return (
           <EmptyState
             icon={
-              <svg className="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="mx-auto h-16 w-16"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -145,7 +149,11 @@ export default async function MyPageTabContentServer({
           {posts.map((post) => (
             <PostCard key={post.postId} post={post} />
           ))}
-          <MyPagePagination currentTab={currentTab} totalPages={totalPages} className="mt-8 md:mt-12" />
+          <MyPagePagination
+            currentTab={currentTab}
+            totalPages={totalPages}
+            className="mt-8 md:mt-12"
+          />
         </div>
       );
     }
@@ -156,7 +164,12 @@ export default async function MyPageTabContentServer({
         return (
           <EmptyState
             icon={
-              <svg className="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="mx-auto h-16 w-16"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -174,7 +187,11 @@ export default async function MyPageTabContentServer({
       return (
         <>
           <CommentList comments={comments} variant="my" className="mt-4 md:mt-6" />
-          <MyPagePagination currentTab={currentTab} totalPages={totalPages} className="mt-8 md:mt-12" />
+          <MyPagePagination
+            currentTab={currentTab}
+            totalPages={totalPages}
+            className="mt-8 md:mt-12"
+          />
         </>
       );
     }
@@ -184,7 +201,12 @@ export default async function MyPageTabContentServer({
       return (
         <EmptyState
           icon={
-            <svg className="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="mx-auto h-16 w-16"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -204,7 +226,11 @@ export default async function MyPageTabContentServer({
         {likes.map((like) => (
           <PostCard key={like.likeId ?? like.postId} post={like as PostListResponse} />
         ))}
-        <MyPagePagination currentTab={currentTab} totalPages={totalPages} className="mt-8 md:mt-12" />
+        <MyPagePagination
+          currentTab={currentTab}
+          totalPages={totalPages}
+          className="mt-8 md:mt-12"
+        />
       </div>
     );
   };

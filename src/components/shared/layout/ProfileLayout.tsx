@@ -1,5 +1,5 @@
-import MyPageTabContentServer from "@/features/user/components/mypage/MyPageTabContent.server";
 import MyPageSidebarServer from "@/features/user/components/mypage/MyPageSidebar.server";
+import MyPageTabContentServer from "@/features/user/components/mypage/MyPageTabContent.server";
 import { ProfileActions } from "../ProfileActions";
 import { ProfileRedirect } from "../ProfileRedirect";
 
@@ -42,11 +42,7 @@ export default function ProfileLayout({
 
         {/* 탭 콘텐츠 - 통합 데이터 관리 */}
         <div className="flex-1">
-          <MyPageTabContentServer
-            mode={mode}
-            username={username}
-            searchParams={searchParams}
-          />
+          <MyPageTabContentServer mode={mode} username={username} searchParams={searchParams} />
 
           {/* 추가 프로필 액션 버튼들 */}
           <ProfileActions targetUsername={username || ""} mode={mode} />
