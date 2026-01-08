@@ -13,32 +13,50 @@ import EmptyState from "@/components/shared/EmptyState";
 import CustomPagination from "@/components/shared/navigation/CustomPagination";
 import TabContentSkeleton from "@/components/shared/skeletons/TabContentSkeleton";
 import { PostCard } from "@/features/posts";
-import { PostDetailResponse } from "@/generated/api";
+import { PostDetailResponse, PagedResponsePostListResponse } from "@/generated/api";
 import { usePagination } from "@/hooks/usePagination";
 import ErrorDisplay from "../shared/ErrorDisplay";
 
-import { useProfileData } from "@/features/user/hooks/useProfileData";
+import { useMyPosts } from "@/features/user/hooks/useMyPageQueries";
+import { usePublicProfile } from "@/features/user/hooks/useUserQueries";
 
 interface PostsTabProps {
   isOwner?: boolean;
   username?: string;
+  initialPostsData?: PagedResponsePostListResponse;
+  initialPageSize?: number;
 }
 
-export default function PostsTab({ isOwner = true, username }: PostsTabProps = {}) {
+export default function PostsTab({
+  isOwner = true,
+  username,
+  initialPostsData,
+  initialPageSize,
+}: PostsTabProps = {}) {
   // 스크롤 위치 유지 (탭 UX 최적화)
   const { currentPage, currentPageForAPI, setPage } = usePagination({
     scrollToTop: false,
   });
-  const pageSize = 5;
-
-  // 통합 프로필 데이터 훅 사용
-  const profileData = useProfileData(isOwner, username, {
+  const pageSize = initialPageSize ?? 5;
+  const params = {
     page: currentPageForAPI,
     size: pageSize,
     sort: ["createdAt,desc"],
+  };
+  const isFirstPage = currentPageForAPI === 0;
+
+  const myPostsQuery = useMyPosts(params, {
+    enabled: isOwner,
+    initialData: isOwner && isFirstPage ? initialPostsData : undefined,
   });
 
-  const { data: postsData, isLoading, error } = profileData.posts;
+  const publicProfileQuery = usePublicProfile(username ?? "", params, {
+    enabled: !isOwner && !!username,
+  });
+
+  const postsData = isOwner ? myPostsQuery.data : publicProfileQuery.data?.posts;
+  const isLoading = isOwner ? myPostsQuery.isLoading : publicProfileQuery.isLoading;
+  const error = isOwner ? myPostsQuery.error : publicProfileQuery.error;
 
   // 응답 구조에 따라 데이터 추출
   let posts: PostDetailResponse[] = [];

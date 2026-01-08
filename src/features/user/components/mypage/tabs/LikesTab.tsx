@@ -14,33 +14,42 @@ import CustomPagination from "@/components/shared/navigation/CustomPagination";
 import TabContentSkeleton from "@/components/shared/skeletons/TabContentSkeleton";
 import { PostCard } from "@/features/posts";
 import { useMyLikes } from "@/features/user";
-import { PostDetailResponse } from "@/generated/api";
+import { PagedResponseLikeResponse, PostDetailResponse } from "@/generated/api";
 import { usePagination } from "@/hooks/usePagination";
 import ErrorDisplay from "../shared/ErrorDisplay";
 
 interface LikesTabProps {
   isOwner?: boolean;
   username?: string;
+  initialLikesData?: PagedResponseLikeResponse;
+  initialPageSize?: number;
 }
 
 export default function LikesTab({
   isOwner = true,
   username: _username, // eslint-disable-line @typescript-eslint/no-unused-vars
+  initialLikesData,
+  initialPageSize,
 }: LikesTabProps = {}) {
   // 스크롤 위치 유지 (탭 UX 최적화)
   const { currentPage, currentPageForAPI, setPage } = usePagination({
     scrollToTop: false,
   });
-  const pageSize = 5;
+  const pageSize = initialPageSize ?? 5;
+  const params = {
+    page: currentPageForAPI,
+    size: pageSize,
+    sort: ["createdAt,desc"],
+  };
+  const isFirstPage = currentPageForAPI === 0;
 
   const {
     data: likes,
     isLoading,
     error,
-  } = useMyLikes({
-    page: currentPageForAPI,
-    size: pageSize,
-    sort: ["createdAt,desc"], // 최신순 정렬
+  } = useMyLikes(params, {
+    enabled: isOwner,
+    initialData: isOwner && isFirstPage ? initialLikesData : undefined,
   });
 
   const likedPosts = (likes?.content as PostDetailResponse[]) || [];

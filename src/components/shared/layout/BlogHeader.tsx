@@ -1,5 +1,5 @@
 import { HeaderLogo } from "./HeaderLogo";
-import { HeaderNavigation } from "./HeaderNavigation";
+import HeaderNavigationServer from "./HeaderNavigation.server";
 
 export default function BlogHeader() {
   // if (hideHeader) return null;
@@ -10,7 +10,7 @@ export default function BlogHeader() {
       {/* 안쪽 header: max-width, 중앙 정렬(mx-auto), 실제 콘텐츠 배치 */}
       <header className="mx-auto flex h-14 max-w-[1100px] items-center justify-between">
         <HeaderLogo />
-        <HeaderNavigation />
+        <HeaderNavigationServer />
       </header>
     </div>
   );

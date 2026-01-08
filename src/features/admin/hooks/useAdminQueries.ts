@@ -1,9 +1,8 @@
 import { PendingUserResponse } from "@/generated/api/models";
+import type { ActionResult } from "@/lib/actionResult";
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { approveUserAction } from "../actions/adminActions";
-import { approveUserAction } from "../actions/adminActions";
 import { adminService } from "../services/adminService";
-import type { ActionResult } from "@/lib/actionResult";
 
 export const ADMIN_QUERY_KEYS = {
   all: ["admin"] as const,

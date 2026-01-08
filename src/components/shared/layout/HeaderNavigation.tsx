@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import type { UserProfileResponse } from "@/generated/api/models";
 import { useLoadingDots } from "@/hooks/useLoadingDots";
 import { DropdownActionItem } from "@/types/dropdown";
 import { isAdmin, canCreatePost } from "@/lib/auth";
@@ -11,10 +12,21 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DropdownMenuList } from "../navigation/DropdownMenuList";
 
-export const HeaderNavigation = () => {
+interface HeaderNavigationProps {
+  initialUserRole?: string | null;
+  initialUserProfile?: UserProfileResponse | null;
+}
+
+export const HeaderNavigation = ({
+  initialUserRole,
+  initialUserProfile,
+}: HeaderNavigationProps) => {
   const githubLoginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github";
   const { isLoggedIn, userProfile, isLoading, logout, needsProfileCompletion, refetchAuthStatus } =
-    useAuth();
+    useAuth({
+      initialUserRole,
+      initialUserProfile,
+    });
 
   console.log("HeaderNavigation state:", {
     isLoggedIn,

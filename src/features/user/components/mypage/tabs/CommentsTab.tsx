@@ -14,33 +14,41 @@ import CustomPagination from "@/components/shared/navigation/CustomPagination";
 import TabContentSkeleton from "@/components/shared/skeletons/TabContentSkeleton";
 import { CommentList } from "@/features/comments";
 import { useMyComments } from "@/features/user";
-import { CommentResponse } from "@/generated/api";
+import type { CommentResponse, PagedResponseCommentListResponse } from "@/generated/api";
 import { usePagination } from "@/hooks/usePagination";
 import ErrorDisplay from "../shared/ErrorDisplay";
 
 interface CommentsTabProps {
   isOwner?: boolean;
   username?: string;
+  initialCommentsData?: PagedResponseCommentListResponse;
+  initialPageSize?: number;
 }
 
 export default function CommentsTab({
   isOwner = true,
   username: _username, // eslint-disable-line @typescript-eslint/no-unused-vars
+  initialCommentsData,
+  initialPageSize,
 }: CommentsTabProps = {}) {
   // 스크롤 위치 유지 (탭 UX 최적화)
   const { currentPage, currentPageForAPI, setPage } = usePagination({
     scrollToTop: false,
   });
-  const pageSize = 5;
+  const pageSize = initialPageSize ?? 5;
+  const params = {
+    page: currentPageForAPI,
+    size: pageSize,
+    sort: ["createdAt,desc"],
+  };
+  const isFirstPage = currentPageForAPI === 0;
 
   const {
     data: commentsData,
     isLoading,
     error,
-  } = useMyComments({
-    page: currentPageForAPI,
-    size: pageSize,
-    sort: ["createdAt,desc"], // 최신순 정렬
+  } = useMyComments(params, {
+    initialData: isOwner && isFirstPage ? initialCommentsData : undefined,
   });
 
   const totalPages = commentsData?.totalPages || 0;

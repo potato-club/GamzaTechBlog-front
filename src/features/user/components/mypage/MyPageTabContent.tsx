@@ -12,6 +12,11 @@
  */
 
 import TabMenu from "@/components/shared/navigation/TabMenu";
+import type {
+  PagedResponseCommentListResponse,
+  PagedResponseLikeResponse,
+  PagedResponsePostListResponse,
+} from "@/generated/api";
 import { CommentsTab, LikesTab, PostsTab, useMyPageTab } from "@/features/user";
 import type { TabType } from "@/types/mypage";
 
@@ -24,10 +29,22 @@ const MYPAGE_TAB_LABELS: Record<TabType, string> = {
 interface MyPageTabContentProps {
   isOwner?: boolean;
   username?: string;
+  initialPostsData?: PagedResponsePostListResponse;
+  initialCommentsData?: PagedResponseCommentListResponse;
+  initialLikesData?: PagedResponseLikeResponse;
+  initialPageSize?: number;
 }
 
-export default function MyPageTabContent({ isOwner = true, username }: MyPageTabContentProps = {}) {
+export default function MyPageTabContent({
+  isOwner = true,
+  username,
+  initialPostsData,
+  initialCommentsData,
+  initialLikesData,
+  initialPageSize,
+}: MyPageTabContentProps = {}) {
   const { currentTab, handleTabChange } = useMyPageTab();
+  const effectiveTab = isOwner ? currentTab : "posts";
 
   // 공개 프로필에서는 "작성 글" 탭만 표시
   const visibleTabs = isOwner
@@ -39,27 +56,55 @@ export default function MyPageTabContent({ isOwner = true, username }: MyPageTab
    * 각 탭 컴포넌트는 독립적으로 데이터 fetching과 상태 관리를 담당합니다.
    */
   const renderTabContent = () => {
-    switch (currentTab) {
+    switch (effectiveTab) {
       case "posts":
-        return <PostsTab isOwner={isOwner} username={username} />;
+        return (
+          <PostsTab
+            isOwner={isOwner}
+            username={username}
+            initialPostsData={initialPostsData}
+            initialPageSize={initialPageSize}
+          />
+        );
       case "comments":
-        return <CommentsTab isOwner={isOwner} username={username} />;
+        return (
+          <CommentsTab
+            isOwner={isOwner}
+            username={username}
+            initialCommentsData={initialCommentsData}
+            initialPageSize={initialPageSize}
+          />
+        );
       case "likes":
-        return <LikesTab isOwner={isOwner} username={username} />;
+        return (
+          <LikesTab
+            isOwner={isOwner}
+            username={username}
+            initialLikesData={initialLikesData}
+            initialPageSize={initialPageSize}
+          />
+        );
       default:
-        return <PostsTab isOwner={isOwner} username={username} />;
+        return (
+          <PostsTab
+            isOwner={isOwner}
+            username={username}
+            initialPostsData={initialPostsData}
+            initialPageSize={initialPageSize}
+          />
+        );
     }
   };
 
   return (
     <section className="flex-1" aria-label={isOwner ? "마이페이지 콘텐츠" : "프로필 콘텐츠"}>
       <TabMenu
-        tab={currentTab}
+        tab={effectiveTab}
         onTabChange={handleTabChange}
         labels={MYPAGE_TAB_LABELS}
         visibleTabs={visibleTabs}
       />
-      <div role="tabpanel" aria-labelledby={`${currentTab}-tab`} className="mt-4 md:mt-6">
+      <div role="tabpanel" aria-labelledby={`${effectiveTab}-tab`} className="mt-4 md:mt-6">
         <div className="px-0 md:px-10">
           <div className="mx-auto w-full md:min-w-[700px]">{renderTabContent()}</div>
         </div>

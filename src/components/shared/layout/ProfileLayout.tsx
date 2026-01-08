@@ -1,4 +1,5 @@
-import { MyPageTabContent } from "@/features/user";
+import MyPageTabContent from "@/features/user/components/mypage/MyPageTabContent";
+import MyPageTabContentServer from "@/features/user/components/mypage/MyPageTabContent.server";
 import MyPageSidebarServer from "@/features/user/components/mypage/MyPageSidebar.server";
 import { ProfileActions } from "../ProfileActions";
 import { ProfileRedirect } from "../ProfileRedirect";
@@ -7,6 +8,7 @@ interface ProfileLayoutProps {
   mode: "mypage" | "public";
   username?: string; // public 모드일 때 필요
   children?: React.ReactNode;
+  searchParams?: Record<string, string | string[] | undefined> | URLSearchParams;
 }
 
 /**
@@ -19,7 +21,12 @@ interface ProfileLayoutProps {
  * @param username - public 모드일 때 조회할 사용자명
  * @param children - 추가 콘텐츠 (현재는 사용하지 않음)
  */
-export default function ProfileLayout({ mode, username, children }: ProfileLayoutProps) {
+export default function ProfileLayout({
+  mode,
+  username,
+  children,
+  searchParams,
+}: ProfileLayoutProps) {
   const isOwner = mode === "mypage";
 
   return (
@@ -33,7 +40,11 @@ export default function ProfileLayout({ mode, username, children }: ProfileLayou
 
         {/* 탭 콘텐츠 - 통합 데이터 관리 */}
         <div className="flex-1">
-          <MyPageTabContent isOwner={isOwner} username={username} />
+          {isOwner ? (
+            <MyPageTabContentServer searchParams={searchParams} />
+          ) : (
+            <MyPageTabContent isOwner={isOwner} username={username} />
+          )}
 
           {/* 추가 프로필 액션 버튼들 */}
           <ProfileActions targetUsername={username || ""} mode={mode} />

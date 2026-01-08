@@ -11,7 +11,13 @@
 import { ProfileLayout } from "@/components/shared";
 import { createUserServiceServer } from "@/features/user";
 
-export default async function MyPage() {
+export const dynamic = "force-dynamic";
+
+interface MyPageProps {
+  searchParams?: Record<string, string | string[] | undefined>;
+}
+
+export default async function MyPage({ searchParams }: MyPageProps) {
   console.log("Rendering MyPage Server Component");
 
   // 인증 상태 확인 - User Service 사용
@@ -22,5 +28,5 @@ export default async function MyPage() {
     console.error("Authentication failed:", error);
   }
 
-  return <ProfileLayout mode="mypage" />;
+  return <ProfileLayout mode="mypage" searchParams={searchParams} />;
 }

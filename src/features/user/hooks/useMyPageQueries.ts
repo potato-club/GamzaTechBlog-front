@@ -7,15 +7,37 @@
  * TanStack Query를 통해 효율적으로 관리합니다.
  */
 
-import { commentService } from "@/features/comments";
-import { postService } from "@/features/posts";
 import {
   Pageable,
   PagedResponseCommentListResponse,
   PagedResponseLikeResponse,
   PagedResponsePostListResponse,
+  ResponseDtoPagedResponseCommentListResponse,
+  ResponseDtoPagedResponseLikeResponse,
+  ResponseDtoPagedResponsePostListResponse,
 } from "@/generated/api";
+import { apiFetch } from "@/lib/apiFetch";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+
+const buildQueryString = (params?: Pageable) => {
+  if (!params) return "";
+
+  const searchParams = new URLSearchParams();
+  if (params.page !== undefined) searchParams.set("page", String(params.page));
+  if (params.size !== undefined) searchParams.set("size", String(params.size));
+  if (params.sort) {
+    params.sort.forEach((sortValue) => searchParams.append("sort", sortValue));
+  }
+
+  const queryString = searchParams.toString();
+  return queryString ? `?${queryString}` : "";
+};
+
+const ensureOk = async (response: Response, message: string) => {
+  if (!response.ok) {
+    throw new Error(message);
+  }
+};
 
 /**
  * 사용자가 작성한 게시글 목록을 조회하는 훅
@@ -30,7 +52,13 @@ export function useMyPosts(
 ) {
   return useQuery({
     queryKey: ["my-posts", params], // 캐시 키: 사용자의 게시글 목록
-    queryFn: () => postService.getUserPosts(params || { page: 0, size: 10 }),
+    queryFn: async () => {
+      const queryString = buildQueryString(params || { page: 0, size: 10 });
+      const response = await apiFetch(`/api/users/me/posts${queryString}`);
+      await ensureOk(response, "Failed to fetch my posts.");
+      const data = (await response.json()) as ResponseDtoPagedResponsePostListResponse;
+      return data.data as PagedResponsePostListResponse;
+    },
 
     staleTime: 1000 * 60 * 2, // 2분간 fresh 상태 유지 (사용자 데이터는 더 자주 갱신)
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
@@ -57,7 +85,13 @@ export function useMyComments(
 ) {
   return useQuery({
     queryKey: ["my-comments", params], // 캐시 키에 params 포함하여 페이지 변경 감지
-    queryFn: () => commentService.getUserComments(params || { page: 0, size: 10 }),
+    queryFn: async () => {
+      const queryString = buildQueryString(params || { page: 0, size: 10 });
+      const response = await apiFetch(`/api/users/me/comments${queryString}`);
+      await ensureOk(response, "Failed to fetch my comments.");
+      const data = (await response.json()) as ResponseDtoPagedResponseCommentListResponse;
+      return data.data as PagedResponseCommentListResponse;
+    },
 
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지
@@ -82,7 +116,13 @@ export function useMyLikes(
 ) {
   return useQuery({
     queryKey: ["my-likes", params], // 캐시 키: 사용자의 좋아요 목록
-    queryFn: () => postService.getUserLikes(params || { page: 0, size: 10 }),
+    queryFn: async () => {
+      const queryString = buildQueryString(params || { page: 0, size: 10 });
+      const response = await apiFetch(`/api/users/me/likes${queryString}`);
+      await ensureOk(response, "Failed to fetch my likes.");
+      const data = (await response.json()) as ResponseDtoPagedResponseLikeResponse;
+      return data.data as PagedResponseLikeResponse;
+    },
 
     staleTime: 1000 * 60 * 5, // 5분간 데이터를 신선하다고 간주
     gcTime: 1000 * 60 * 10, // 10분간 캐시 유지

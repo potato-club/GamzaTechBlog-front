@@ -7,18 +7,27 @@
 
 import { authService } from "@/features/auth";
 import { useUserProfile, useUserRole } from "@/features/user";
+import type { UserProfileResponse } from "@/generated/api/models";
 import { performLogout } from "@/lib/tokenManager";
 import { useQueryClient } from "@tanstack/react-query";
 
-export function useAuth() {
+interface UseAuthOptions {
+  initialUserRole?: string | null;
+  initialUserProfile?: UserProfileResponse | null;
+}
+
+export function useAuth(options: UseAuthOptions = {}) {
   const queryClient = useQueryClient();
 
-  const roleQuery = useUserRole();
+  const roleQuery = useUserRole({
+    initialData: options.initialUserRole,
+  });
 
   const isLoggedIn = roleQuery.data !== null && roleQuery.data !== undefined;
   const needsProfileCompletion = roleQuery.data === "PRE_REGISTER";
   const profileQuery = useUserProfile({
     enabled: isLoggedIn && !needsProfileCompletion,
+    initialData: options.initialUserProfile ?? undefined,
   });
   const userProfile = needsProfileCompletion ? null : profileQuery.data;
 
