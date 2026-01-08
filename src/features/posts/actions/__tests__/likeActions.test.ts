@@ -20,8 +20,14 @@ const postCacheInvalidationMock = postCacheInvalidation as jest.Mocked<
 >;
 
 describe("likeActions", () => {
+  const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   it("좋아요 추가 시 캐시를 무효화해야 함", async () => {
@@ -50,5 +56,33 @@ describe("likeActions", () => {
     expect(removeLike).toHaveBeenCalledWith(202);
     expect(postCacheInvalidationMock.invalidateDetail).toHaveBeenCalledWith(202);
     expect(result).toEqual({ success: true, data: undefined });
+  });
+
+  it("좋아요 추가 실패 시 에러 결과를 반환해야 함", async () => {
+    // Given
+    const addLike = jest.fn().mockRejectedValue(new Error("좋아요 추가 실패"));
+    createLikeServiceServerMock.mockReturnValue({ addLike } as any);
+
+    // When
+    const result = await addLikeAction(303);
+
+    // Then
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("좋아요 추가 실패");
+    expect(postCacheInvalidationMock.invalidateDetail).not.toHaveBeenCalled();
+  });
+
+  it("좋아요 취소 실패 시 에러 결과를 반환해야 함", async () => {
+    // Given
+    const removeLike = jest.fn().mockRejectedValue(new Error("좋아요 취소 실패"));
+    createLikeServiceServerMock.mockReturnValue({ removeLike } as any);
+
+    // When
+    const result = await removeLikeAction(404);
+
+    // Then
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("좋아요 취소 실패");
+    expect(postCacheInvalidationMock.invalidateDetail).not.toHaveBeenCalled();
   });
 });
