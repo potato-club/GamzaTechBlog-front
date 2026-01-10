@@ -43,7 +43,7 @@ export const createUserServiceServer = () => {
 export async function getCurrentUser(): Promise<UserProfileResponse | null> {
   try {
     const userService = createUserServiceServer();
-    return await userService.getProfile();
+    return await userService.getProfile({ cache: "no-store" });
   } catch (error) {
     console.error("Failed to get current user:", error);
     return null;

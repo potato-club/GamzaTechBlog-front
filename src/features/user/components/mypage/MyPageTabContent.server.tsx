@@ -75,6 +75,7 @@ export default async function MyPageTabContentServer({
     size: DEFAULT_PAGE_SIZE,
     sort: DEFAULT_SORT,
   };
+  const personalCache: RequestInit = { cache: "no-store" };
 
   let postsData: PagedResponsePostListResponse | null = null;
   let commentsData: PagedResponseCommentListResponse | null = null;
@@ -94,11 +95,11 @@ export default async function MyPageTabContentServer({
       const commentService = createCommentServiceServer();
 
       if (currentTab === "posts") {
-        postsData = await postService.getUserPosts(pageParams);
+        postsData = await postService.getUserPosts(pageParams, personalCache);
       } else if (currentTab === "comments") {
-        commentsData = await commentService.getUserComments(pageParams);
+        commentsData = await commentService.getUserComments(pageParams, personalCache);
       } else {
-        likesData = await postService.getUserLikes(pageParams);
+        likesData = await postService.getUserLikes(pageParams, personalCache);
       }
     }
   } catch (error) {

@@ -84,10 +84,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 
   try {
     const userService = createUserServiceServer();
-    initialUserRole = await userService.getUserRole();
+    const personalCache: RequestInit = { cache: "no-store" };
+    initialUserRole = await userService.getUserRole(personalCache);
 
     if (initialUserRole && initialUserRole !== "PRE_REGISTER") {
-      initialUserProfile = await userService.getProfile();
+      initialUserProfile = await userService.getProfile(personalCache);
     }
   } catch (error) {
     console.warn("Failed to fetch auth state for layout:", error);

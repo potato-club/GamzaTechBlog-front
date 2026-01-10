@@ -11,9 +11,15 @@ import type {
   UserProfileRequest,
   UserProfileResponse,
 } from "@/generated/api";
+import type { ActionResult } from "@/lib/actionResult";
 import { handleTokenExpiration } from "@/lib/tokenManager";
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
-import { userService } from "../services/userService";
+import {
+  updateProfileAction,
+  updateProfileImageAction,
+  updateProfileInSignupAction,
+  withdrawAccountAction,
+} from "../actions/userActions";
 import { USER_QUERY_KEYS } from "../queryKeys";
 
 // 뮤테이션 컨텍스트 타입 정의
@@ -30,12 +36,12 @@ interface UpdateProfileContext {
  * 프로필 이미지를 업로드하는 뮤테이션 훅 (낙관적 업데이트 포함)
  */
 export function useUpdateProfileImage(
-  options?: UseMutationOptions<ProfileImageResponse, Error, File, UpdateProfileImageContext>
+  options?: UseMutationOptions<ActionResult<ProfileImageResponse>, Error, File, UpdateProfileImageContext>
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (imageFile: File) => userService.updateProfileImage(imageFile),
+    mutationFn: (imageFile: File) => updateProfileImageAction(imageFile),
 
     // 낙관적 업데이트: 서버 응답 전에 UI 즉시 업데이트
     onMutate: async (imageFile: File): Promise<UpdateProfileImageContext> => {
@@ -62,8 +68,24 @@ export function useUpdateProfileImage(
       return { previousProfile, tempImageUrl };
     },
 
-    onSuccess: (imageResponse, variables, context) => {
-      console.log("프로필 이미지 업로드 성공:", imageResponse);
+    onSuccess: (result, variables, context) => {
+      if (!result.success) {
+        console.error("프로필 이미지 업로드 실패:", result.error);
+
+        // 임시 URL 정리
+        if (context?.tempImageUrl) {
+          URL.revokeObjectURL(context.tempImageUrl);
+        }
+
+        // 백업된 데이터로 롤백
+        if (context?.previousProfile) {
+          queryClient.setQueryData(USER_QUERY_KEYS.profile(), context.previousProfile);
+        }
+
+        return;
+      }
+
+      console.log("프로필 이미지 업로드 성공:", result.data);
 
       // 임시 URL 정리
       if (context?.tempImageUrl) {
@@ -77,12 +99,12 @@ export function useUpdateProfileImage(
       if (currentProfile) {
         const updatedProfile: UserProfileResponse = {
           ...currentProfile,
-          profileImageUrl: imageResponse.imageUrl,
+          profileImageUrl: result.data.imageUrl,
         };
         queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
       }
 
-      options?.onSuccess?.(imageResponse, variables, context);
+      options?.onSuccess?.(result, variables, context);
     },
 
     // 실패 시: 이전 상태로 롤백
@@ -117,19 +139,21 @@ export function useUpdateProfileImage(
  * 회원가입 플로우에서 사용되며, 프로필 정보를 설정합니다.
  */
 export function useUpdateProfileInSignup(
-  options?: UseMutationOptions<UserProfileResponse, Error, UserProfileRequest>
+  options?: UseMutationOptions<ActionResult<UserProfileResponse>, Error, UserProfileRequest>
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (profileData: UserProfileRequest) => userService.updateProfileInSignup(profileData),
+    mutationFn: (profileData: UserProfileRequest) => updateProfileInSignupAction(profileData),
 
-    onSuccess: (updatedProfile, variables, context) => {
-      // 프로필 캐시 업데이트
-      queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
+    onSuccess: (result, variables, context) => {
+      if (result.success) {
+        // 프로필 캐시 업데이트
+        queryClient.setQueryData(USER_QUERY_KEYS.profile(), result.data);
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
+      }
 
-      options?.onSuccess?.(updatedProfile, variables, context);
+      options?.onSuccess?.(result, variables, context);
     },
 
     onError: (error, variables, context) => {
@@ -149,7 +173,7 @@ export function useUpdateProfileInSignup(
  */
 export function useUpdateProfile(
   options?: UseMutationOptions<
-    UserProfileResponse,
+    ActionResult<UserProfileResponse>,
     Error,
     UpdateProfileRequest,
     UpdateProfileContext
@@ -158,7 +182,7 @@ export function useUpdateProfile(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (profileData: UpdateProfileRequest) => userService.updateProfile(profileData),
+    mutationFn: (profileData: UpdateProfileRequest) => updateProfileAction(profileData),
 
     // 낙관적 업데이트: 서버 응답 전에 UI 즉시 업데이트
     onMutate: async (profileData: UpdateProfileRequest): Promise<UpdateProfileContext> => {
@@ -182,12 +206,16 @@ export function useUpdateProfile(
       return { previousProfile };
     },
 
-    onSuccess: (updatedProfile, variables, context) => {
-      // 서버에서 받은 실제 데이터로 캐시 업데이트
-      queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
+    onSuccess: (result, variables, context) => {
+      if (result.success) {
+        // 서버에서 받은 실제 데이터로 캐시 업데이트
+        queryClient.setQueryData(USER_QUERY_KEYS.profile(), result.data);
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
+      } else if (context?.previousProfile) {
+        queryClient.setQueryData(USER_QUERY_KEYS.profile(), context.previousProfile);
+      }
 
-      options?.onSuccess?.(updatedProfile, variables, context);
+      options?.onSuccess?.(result, variables, context);
     },
 
     // 실패 시: 이전 상태로 롤백
@@ -216,17 +244,21 @@ export function useUpdateProfile(
  *
  * 계정 탈퇴 후 자동으로 로그아웃 처리하고 홈으로 리다이렉트합니다.
  */
-export function useWithdrawAccount(options?: UseMutationOptions<void, Error, void>) {
+export function useWithdrawAccount(
+  options?: UseMutationOptions<ActionResult<void>, Error, void>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => userService.withdrawAccount(),
+    mutationFn: () => withdrawAccountAction(),
 
-    onSuccess: (data, variables, context) => {
-      // 토큰 만료 처리 및 홈으로 리다이렉트
-      handleTokenExpiration(queryClient, "/");
+    onSuccess: (result, variables, context) => {
+      if (result.success) {
+        // 토큰 만료 처리 및 홈으로 리다이렉트
+        handleTokenExpiration(queryClient, "/");
+      }
 
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(result, variables, context);
     },
 
     onError: (error, variables, context) => {

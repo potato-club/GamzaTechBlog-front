@@ -136,7 +136,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     let initialIsLiked = false;
     try {
       const userService = createUserServiceServer();
-      const profileData = await userService.getProfile();
+      const profileData = await userService.getProfile({ cache: "no-store" });
 
       if (profileData) {
         isCurrentUserAuthor = canEditPost(profileData, post.writer || "");

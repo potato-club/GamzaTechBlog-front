@@ -23,7 +23,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
   // 인증 상태 확인 - User Service 사용
   try {
     const userService = createUserServiceServer();
-    await userService.getProfile();
+    await userService.getProfile({ cache: "no-store" });
   } catch (error) {
     console.error("Authentication failed:", error);
   }

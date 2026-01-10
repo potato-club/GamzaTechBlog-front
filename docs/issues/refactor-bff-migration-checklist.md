@@ -179,8 +179,10 @@
 
 ### 3.3 캐시/동적 렌더링 정책
 
-- [ ] 개인화 요청 `no-store` 적용 기준 확정
-- [ ] `cookies()` 사용하는 페이지 `force-dynamic` 여부 점검
+- [x] 개인화 요청은 `cache: "no-store"` 기본 적용 (role/profile/마이페이지 목록 등)
+- [x] `cookies()` 사용하는 페이지 `force-dynamic` 여부 점검
+  - 마이페이지/관리자 영역은 `force-dynamic` 유지
+  - 루트 레이아웃은 전역 `force-dynamic`은 보류 (필요 시 재검토)
 
 ### 3.4 클라이언트 읽기 축소
 

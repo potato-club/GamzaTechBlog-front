@@ -95,7 +95,10 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
         console.log("프로필 이미지 업로드 중...");
         // 이미지 업로드 API는 별도로 프로필 URL을 반환하지 않고, 성공 여부만 알려준다고 가정합니다.
         // 성공 후, useAuth 훅을 통해 재검증(refetch)되어 이미지가 자동으로 업데이트됩니다.
-        await updateProfileImageMutation.mutateAsync(selectedImage);
+        const imageResult = await updateProfileImageMutation.mutateAsync(selectedImage);
+        if (!imageResult.success) {
+          throw new Error(imageResult.error);
+        }
         console.log("프로필 이미지 업로드 완료");
         hasChanges = true;
       }
@@ -117,7 +120,10 @@ export default function ProfileEditDialog({ userProfile }: ProfileEditDialogProp
         };
 
         console.log("프로필 정보 업데이트 중...");
-        await updateProfileMutation.mutateAsync(updatedData);
+        const updateResult = await updateProfileMutation.mutateAsync(updatedData);
+        if (!updateResult.success) {
+          throw new Error(updateResult.error);
+        }
         console.log("프로필 정보 업데이트 완료");
         hasChanges = true;
       }
