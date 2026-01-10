@@ -10,6 +10,8 @@
 
 import { ProfileLayout } from "@/components/shared";
 import { createUserServiceServer } from "@/features/user/services/userService.server";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,13 @@ interface MyPageProps {
 
 export default async function MyPage({ searchParams }: MyPageProps) {
   console.log("Rendering MyPage Server Component");
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get("authorization")?.value;
+  if (!token) {
+    const loginUrl = process.env.NEXT_PUBLIC_OAUTH_LOGIN_URL || "/api/auth/github";
+    redirect(loginUrl);
+  }
 
   // 인증 상태 확인 - User Service 사용
   try {
