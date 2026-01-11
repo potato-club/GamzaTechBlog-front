@@ -1,5 +1,4 @@
 // Main Components
-export { default as InteractivePostList } from "./InteractivePostList";
 export { default as PostCard } from "./PostCard";
 export { default as PostForm } from "./PostForm";
 export { default as PostFormActions } from "./PostFormActions";
@@ -12,7 +11,6 @@ export { default as PostTitleInput } from "./PostTitleInput";
 
 // Popular Posts
 export { default as PopularPost } from "./PopularPost";
-export { default as PopularPostList } from "./PopularPostList";
 export { default as PopularPostsSection } from "./PopularPostsSection.server";
 
 // Server Components

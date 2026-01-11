@@ -110,7 +110,7 @@ export const DynamicPostCommentsSection = dynamic(
   () => import("../../features/posts/components/PostCommentsSection"),
   {
     loading: () => <CommentsSkeleton count={2} />,
-    ssr: false, // 댓글은 인터랙티브하므로 클라이언트에서만
+    ssr: true,
   }
 );
 

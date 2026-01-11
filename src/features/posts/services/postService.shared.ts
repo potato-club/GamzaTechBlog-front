@@ -161,8 +161,12 @@ export const createPostService = (api: DefaultApi) => {
      * @param params - 페이지네이션 파라미터
      * @returns 페이지네이션된 검색 결과
      */
-    async searchPosts(keyword: string, params: Pageable): Promise<PagedResponsePostListResponse> {
-      const response = await api.searchPosts({ keyword, pageable: params });
+    async searchPosts(
+      keyword: string,
+      params: Pageable,
+      options?: RequestInit
+    ): Promise<PagedResponsePostListResponse> {
+      const response = await api.searchPosts({ keyword, pageable: params }, options);
       return response.data as PagedResponsePostListResponse;
     },
 

@@ -1,13 +1,7 @@
 // 읽기 전용 쿼리 훅
 export {
   POST_QUERY_KEYS,
-  usePopularPosts,
   usePost,
-  usePosts,
-  usePostsByTag,
-  usePrefetchPosts,
-  useSearchPosts,
-  useTags,
 } from "./usePostQueries";
 
 // 변경 작업 훅 (Server Actions 기반)

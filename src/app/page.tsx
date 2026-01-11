@@ -1,9 +1,14 @@
 import { DynamicWelcomeModal } from "@/components/dynamic/DynamicComponents";
 import ContentLayout from "@/components/shared/layout/ContentLayout";
-import { createPostServiceServer, MainContent, PostListSection } from "@/features/posts";
-import { HydrationBoundary } from "@tanstack/react-query";
+import { createIntroServiceServer } from "@/features/intro";
+import {
+  createPostServiceServer,
+  MainContent,
+  PostListSection,
+  WelcomeBoardSection,
+} from "@/features/posts";
+import type { Pageable, PagedResponseIntroResponse, PagedResponsePostListResponse } from "@/generated/api";
 import { Metadata } from "next";
-import { prefetchHomeFeed } from "../features/posts/services/hydration.server";
 
 export async function generateMetadata({
   searchParams,
@@ -65,27 +70,67 @@ export async function generateMetadata({
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ tag?: string; page?: string }>;
+  searchParams: Promise<{ tag?: string; page?: string; tab?: string }>;
 }) {
-  const { tag, page } = await searchParams;
+  const { tag, page, tab } = await searchParams;
+  const currentTab = tab === "welcome" ? "welcome" : "posts";
   const currentPage = Number(page) || 1;
   const pageSize = 10;
+  const queryParams: Pageable = {
+    page: currentPage - 1,
+    size: pageSize,
+    sort: ["createdAt,desc"],
+  };
+  const listCache: RequestInit = { next: { revalidate: 300 } };
 
-  const [dehydratedState, sidebarData] = await Promise.all([
-    prefetchHomeFeed({ tag, page: currentPage, size: pageSize }),
-    createPostServiceServer().getSidebarData(),
+  const postService = createPostServiceServer();
+  const introService = createIntroServiceServer();
+  const [postsData, introData, sidebarData] = await Promise.all([
+    currentTab === "posts"
+      ? tag
+        ? postService.getPostsByTag(tag, queryParams, listCache)
+        : postService.getPosts(queryParams, listCache)
+      : Promise.resolve(null),
+    currentTab === "welcome"
+      ? introService.getIntroList(
+          {
+            page: currentPage - 1,
+            size: pageSize,
+            sort: ["createdAt,desc"],
+          },
+          listCache
+        )
+      : Promise.resolve(null),
+    postService.getSidebarData({ next: { revalidate: 600 } }),
   ]);
+  const resolvedPostsData = postsData as PagedResponsePostListResponse | null;
+  const resolvedIntroData = introData as PagedResponseIntroResponse | null;
 
   return (
     <>
       <DynamicWelcomeModal />
-      <HydrationBoundary state={dehydratedState}>
-        <ContentLayout popularPosts={sidebarData.weeklyPopular} tags={sidebarData.allTags}>
-          <MainContent
-            postsTabContent={<PostListSection initialTag={tag} initialPage={currentPage} />}
-          />
-        </ContentLayout>
-      </HydrationBoundary>
+      <ContentLayout popularPosts={sidebarData.weeklyPopular} tags={sidebarData.allTags}>
+        <MainContent
+          currentTab={currentTab}
+          postsTabContent={
+            resolvedPostsData ? (
+              <PostListSection
+                initialTag={tag}
+                posts={resolvedPostsData.content || []}
+                totalPages={resolvedPostsData.totalPages || 0}
+              />
+            ) : null
+          }
+          welcomeTabContent={
+            resolvedIntroData ? (
+              <WelcomeBoardSection
+                intros={resolvedIntroData.content || []}
+                totalPages={resolvedIntroData.totalPages || 0}
+              />
+            ) : null
+          }
+        />
+      </ContentLayout>
     </>
   );
 }

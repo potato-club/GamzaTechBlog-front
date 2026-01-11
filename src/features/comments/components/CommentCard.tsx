@@ -36,9 +36,10 @@ type MyComment = CommentResponse & {
 interface CommentCardProps {
   comment: CommentResponse | MyComment;
   postId: number; // TanStack Query 뮤테이션에 필요
+  onCommentDeleted?: () => void;
 }
 
-export default function CommentCard({ comment, postId }: CommentCardProps) {
+export default function CommentCard({ comment, postId, onCommentDeleted }: CommentCardProps) {
   /**
    * TanStack Query 뮤테이션을 사용한 댓글 삭제
    *
@@ -74,6 +75,7 @@ export default function CommentCard({ comment, postId }: CommentCardProps) {
     try {
       await deleteCommentMutation.mutateAsync(comment.commentId);
       setIsDeleteDialogOpen(false);
+      onCommentDeleted?.();
     } catch (error) {
       // 에러는 TanStack Query의 onError에서 이미 처리됨
       // 추가 사용자 피드백이 필요하면 여기에 추가

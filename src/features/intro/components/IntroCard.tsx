@@ -16,6 +16,7 @@ import { IntroResponse } from "@/generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useDeleteIntro } from "../hooks";
@@ -26,6 +27,7 @@ interface IntroCardProps {
 
 export default function IntroCard({ intro }: IntroCardProps) {
   const { userProfile } = useAuth();
+  const router = useRouter();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteIntroMutation = useDeleteIntro();
 
@@ -41,6 +43,7 @@ export default function IntroCard({ intro }: IntroCardProps) {
       await deleteIntroMutation.mutateAsync(intro.introId);
       setIsDeleteDialogOpen(false);
       toast.success("자기소개가 삭제되었습니다.");
+      router.refresh();
     } catch (error) {
       console.error("자기소개 삭제 실패:", error);
       toast.error("자기소개 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");

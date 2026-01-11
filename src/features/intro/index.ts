@@ -1,5 +1,5 @@
 // Services
-export { introService } from "./services/introService";
+export { createIntroServiceServer } from "./services/introService.server";
 
 // Server Actions
 export { createIntroAction, deleteIntroAction } from "./actions/introActions";

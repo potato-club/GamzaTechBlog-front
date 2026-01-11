@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { INTRO_TEXTS } from "@/constants/uiTexts";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { useCreateIntro } from "../hooks";
 
 export default function IntroForm() {
   const { userProfile, isLoggedIn } = useAuth();
+  const router = useRouter();
   const createIntroMutation = useCreateIntro();
   const [content, setContent] = useState("");
 
@@ -36,6 +38,7 @@ export default function IntroForm() {
       await createIntroMutation.mutateAsync(content.trim());
       setContent("");
       toast.success("자기소개가 등록되었습니다!");
+      router.refresh();
     } catch (error) {
       console.error("자기소개 등록 실패:", error);
       toast.error("자기소개 등록에 실패했습니다. 다시 시도해주세요.");

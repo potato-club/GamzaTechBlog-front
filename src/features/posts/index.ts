@@ -6,14 +6,8 @@ export {
   useDeletePost,
   // Image hooks
   useImageUpload,
-  usePopularPosts,
   usePost,
-  usePosts,
-  usePostsByTag,
-  usePrefetchPosts,
   useRemoveLike,
-  useSearchPosts,
-  useTags,
   useUpdatePost,
 } from "./hooks";
 
@@ -31,7 +25,6 @@ export type {
 
 // Components
 export {
-  InteractivePostList,
   MainContent,
   // ⚠️ MarkdownViewer, ToastEditor는 무거워서 여기서 export하지 않습니다
   // 이유: 번들 크기 최적화 (각각 200-300KB)
@@ -39,7 +32,6 @@ export {
   //   import { DynamicMarkdownViewer } from "@/components/dynamic/DynamicComponents";
   //   import { DynamicToastEditor } from "@/components/dynamic/DynamicComponents";
   PopularPost,
-  PopularPostList,
   PopularPostListSkeleton,
   PopularPostsSection,
   PostCard,
