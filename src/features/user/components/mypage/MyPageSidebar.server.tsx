@@ -1,7 +1,8 @@
 import UserIcon from "@/components/ui/UserIcon";
 import { Button } from "@/components/ui/button";
 import { createMyPageStats } from "@/constants/mypageConstants";
-import { createUserServiceServer, UserActivityStatItem } from "@/features/user";
+import { UserActivityStatItem } from "@/features/user";
+import { createUserServiceServer } from "@/features/user/services/userService.server";
 import ProfileEditDialog from "@/features/user/components/ProfileEditDialog";
 import type { UserActivityResponse, UserProfileResponse } from "@/generated/api";
 import Image from "next/image";
@@ -31,11 +32,12 @@ export default async function MyPageSidebarServer({
 
   try {
     const userService = createUserServiceServer();
+    const personalCache: RequestInit = { cache: "no-store" };
 
     if (isOwner) {
       // 내 프로필 조회 - 서버 User Service 사용
-      userProfile = await userService.getProfile();
-      activityStats = await userService.getActivityCounts();
+      userProfile = await userService.getProfile(personalCache);
+      activityStats = await userService.getActivityCounts(personalCache);
     } else {
       // 공개 프로필 조회
       if (!username) {

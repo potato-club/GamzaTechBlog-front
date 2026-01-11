@@ -63,7 +63,10 @@ export default function SignupPage() {
 
     // TanStack Query 뮤테이션 실행
     try {
-      await updateProfileMutation.mutateAsync(payload);
+      const result = await updateProfileMutation.mutateAsync(payload);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       // 인증 상태 업데이트 (기존 로직 유지)
       await refetchAuthStatus();

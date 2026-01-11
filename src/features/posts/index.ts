@@ -6,8 +6,6 @@ export {
   useDeletePost,
   // Image hooks
   useImageUpload,
-  // Like hooks
-  useLikeStatus,
   usePopularPosts,
   usePost,
   usePosts,
@@ -61,7 +59,6 @@ export {
 } from "./components";
 
 // Services
-export { likeService } from "./services/likeService";
 export { createLikeServiceServer } from "./services/likeService.server";
 export { postService } from "./services/postService";
 export type { LikedPostResponse } from "./services/postService";

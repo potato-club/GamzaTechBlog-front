@@ -24,7 +24,7 @@ import type {
  *
  * @example
  * // 서버 환경
- * const userService = createUserService(createServerApiClient());
+ * const userService = createUserService(createBackendApiClient());
  */
 export const createUserService = (api: DefaultApi) => {
   return {

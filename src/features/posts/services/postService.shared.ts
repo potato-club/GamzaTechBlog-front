@@ -110,10 +110,14 @@ export const createPostService = (api: DefaultApi) => {
      * 사용자가 작성한 게시글 목록을 조회합니다.
      *
      * @param params - 페이지네이션 파라미터
+     * @param options - fetch 옵션 (캐싱, revalidate 등)
      * @returns 페이지네이션된 게시물 목록
      */
-    async getUserPosts(params: Pageable): Promise<PagedResponsePostListResponse> {
-      const response = await api.getMyPosts(params);
+    async getUserPosts(
+      params: Pageable,
+      options?: RequestInit
+    ): Promise<PagedResponsePostListResponse> {
+      const response = await api.getMyPosts(params, options);
       return response.data as PagedResponsePostListResponse;
     },
 
@@ -130,10 +134,11 @@ export const createPostService = (api: DefaultApi) => {
      * 사용자가 좋아요한 게시글 목록을 조회합니다.
      *
      * @param params - 페이지네이션 파라미터
+     * @param options - fetch 옵션 (캐싱, revalidate 등)
      * @returns 페이지네이션된 좋아요 목록
      */
-    async getUserLikes(params: Pageable): Promise<PagedResponseLikeResponse> {
-      const response = await api.getMyLikes(params);
+    async getUserLikes(params: Pageable, options?: RequestInit): Promise<PagedResponseLikeResponse> {
+      const response = await api.getMyLikes(params, options);
       return response.data as PagedResponseLikeResponse;
     },
 

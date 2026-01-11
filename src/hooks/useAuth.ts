@@ -6,32 +6,26 @@
  */
 
 import { authService } from "@/features/auth";
-import { useUserProfile, useUserRole } from "@/features/user";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { performLogout } from "@/lib/tokenManager";
-import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 export function useAuth() {
-  const queryClient = useQueryClient();
+  const router = useRouter();
+  const { userRole, userProfile: profileFromServer } = useAuthContext();
 
-  const roleQuery = useUserRole();
-
-  const isLoggedIn = roleQuery.data !== null && roleQuery.data !== undefined;
-  const needsProfileCompletion = roleQuery.data === "PRE_REGISTER";
-  const profileQuery = useUserProfile({
-    enabled: isLoggedIn && !needsProfileCompletion,
-  });
-  const userProfile = needsProfileCompletion ? null : profileQuery.data;
-
-  const isLoading =
-    roleQuery.isLoading || (isLoggedIn && !needsProfileCompletion && profileQuery.isLoading);
+  const isLoggedIn = userRole !== null && userRole !== undefined;
+  const needsProfileCompletion = userRole === "PRE_REGISTER";
+  const userProfile = needsProfileCompletion ? null : profileFromServer;
+  const isLoading = false;
 
   const logout = async () => {
-    await performLogout(authService.logout, queryClient);
+    await performLogout(authService.logout);
+    router.refresh();
   };
 
   const refetchAuthStatus = async () => {
-    const results = await Promise.allSettled([roleQuery.refetch(), profileQuery.refetch()]);
-    return results;
+    router.refresh();
   };
 
   return {
@@ -39,8 +33,8 @@ export function useAuth() {
     userProfile,
     needsProfileCompletion,
     isLoading,
-    error: roleQuery.error || profileQuery.error,
-    isError: roleQuery.isError || profileQuery.isError,
+    error: null,
+    isError: false,
     logout,
     refetchAuthStatus,
   };

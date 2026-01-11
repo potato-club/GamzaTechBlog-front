@@ -1,5 +1,7 @@
 "use client";
 
+import { AuthProvider } from "@/contexts/AuthContext";
+import type { UserProfileResponse } from "@/generated/api/models";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 
@@ -26,11 +28,23 @@ export const queryClient = new QueryClient({
   },
 });
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+interface ProvidersProps {
+  children: React.ReactNode;
+  initialUserRole?: string | null;
+  initialUserProfile?: UserProfileResponse | null;
+}
+
+export default function Providers({
+  children,
+  initialUserRole,
+  initialUserProfile,
+}: ProvidersProps) {
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <AuthProvider initialUserRole={initialUserRole} initialUserProfile={initialUserProfile}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }

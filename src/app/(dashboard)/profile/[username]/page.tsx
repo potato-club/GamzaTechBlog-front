@@ -8,7 +8,7 @@
  */
 
 import { ProfileLayout } from "@/components/shared";
-import { getPublicUser } from "@/features/user/services/userService";
+import { getPublicUser } from "@/features/user/services/userService.server";
 import { notFound } from "next/navigation";
 
 /**
@@ -34,11 +34,12 @@ interface PublicProfilePageProps {
   params: Promise<{
     username: string;
   }>;
+  searchParams?: Record<string, string | string[] | undefined>;
 }
 
 export const dynamic = "force-dynamic";
 
-export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
+export default async function PublicProfilePage({ params, searchParams }: PublicProfilePageProps) {
   const { username } = await params;
 
   // 공개 프로필 정보 조회
@@ -49,5 +50,5 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     notFound();
   }
 
-  return <ProfileLayout mode="public" username={username} />;
+  return <ProfileLayout mode="public" username={username} searchParams={searchParams} />;
 }
