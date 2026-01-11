@@ -12,14 +12,16 @@ import SearchPageSidebar from "./SearchPageSidebar";
 
 interface SearchPageContentProps {
   searchParams: {
-    q?: string;
-    page?: string;
+    q?: string | string[];
+    page?: string | string[];
   };
 }
 
 export default async function SearchPageContent({ searchParams }: SearchPageContentProps) {
-  const keyword = searchParams.q?.trim() || "";
-  const currentPage = Number(searchParams.page) || 1;
+  const resolveParam = (value?: string | string[]) =>
+    Array.isArray(value) ? value[value.length - 1] : value;
+  const keyword = resolveParam(searchParams.q)?.trim() || "";
+  const currentPage = Number(resolveParam(searchParams.page)) || 1;
   const pageSize = 10;
 
   const queryParams: Pageable = {

@@ -45,7 +45,9 @@ export function usePagination(options: UsePaginationOptions = {}) {
   const searchParams = useSearchParams();
 
   // URL에서 현재 페이지 읽기 (1부터 시작)
-  const pageFromUrl = searchParams?.get("page");
+  const pageValues = searchParams?.getAll("page") ?? [];
+  const pageFromUrl =
+    pageValues.length > 0 ? pageValues[pageValues.length - 1] : searchParams?.get("page");
   const parsedPage = parseInt(pageFromUrl || "", 10);
   const currentPage = !isNaN(parsedPage) && parsedPage > 0 ? parsedPage : defaultPage;
 
@@ -60,10 +62,9 @@ export function usePagination(options: UsePaginationOptions = {}) {
     (page: number) => {
       const params = new URLSearchParams(searchParams?.toString() || "");
 
-      // 페이지 파라미터 처리
-      if (page <= 1) {
-        params.delete("page");
-      } else {
+      // 페이지 파라미터 처리 (중복 제거 후 설정)
+      params.delete("page");
+      if (page > 1) {
         params.set("page", page.toString());
       }
 
