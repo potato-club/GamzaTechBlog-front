@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * 검색 페이지 사이드바 컴포넌트
  *
@@ -7,21 +5,26 @@
  * TagContext가 필요하지 않는 검색 페이지에서 사용
  */
 
-import { PopularPostList } from "@/features/posts";
+import { PopularPostsSection } from "@/features/posts";
+import type { PostPopularResponse } from "@/generated/api";
 
-export default function SearchPageSidebar() {
+interface SearchPageSidebarProps {
+  popularPosts: PostPopularResponse[];
+}
+
+export default function SearchPageSidebar({ popularPosts }: SearchPageSidebarProps) {
   return (
     <aside className="ml-10 hidden flex-1 border-l border-[#D5D9E3] pl-10 md:block">
       {/*
         인기 게시글만 표시:
-        - PopularPostList: 인기 게시글을 자동으로 로드하고 캐싱
+        - PopularPostsSection: 서버에서 받은 인기 게시글 표시
 
         TagSection은 제외하여 TagContext 의존성 없음
 
         데스크톱 전용: 기존 좌측 경계선과 패딩 복원
         모바일에서는 숨김, 데스크톱에서만 표시
       */}
-      <PopularPostList />
+      <PopularPostsSection popularPosts={popularPosts} />
     </aside>
   );
 }

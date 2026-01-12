@@ -174,7 +174,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         </article>
 
         <div className="px-4 md:px-8">
-          <DynamicPostCommentsSection postId={postId} />
+          <DynamicPostCommentsSection postId={postId} initialComments={post.comments || []} />
         </div>
       </div>
     );

@@ -200,25 +200,29 @@
 
 ### 4.1 공개 읽기 경로 결정
 
-- [ ] 홈/목록/상세는 RSC vs direct 중 선택 확정
-- [ ] `src/app/page.tsx`/`src/app/(content)/posts/[id]/page.tsx` 기준 정리
+- [x] 홈/목록/상세는 RSC로 통일
+- [x] `src/app/page.tsx`/`src/app/(content)/posts/[id]/page.tsx` 기준 정리
 
 ### 4.2 중복 fetch 제거
 
-- [ ] 서버에서 받은 데이터는 클라이언트에서 재요청하지 않도록 정리
-  - `src/features/posts/components/PostCommentsSection.tsx`
-  - `src/features/posts/components/InteractivePostList.tsx`
-- [ ] `src/features/posts/hooks/usePostQueries.ts` 사용 범위 재정의
+- [x] 서버에서 받은 데이터는 클라이언트에서 재요청하지 않도록 정리
+  - `src/features/posts/components/PostCommentsSection.tsx` (initialComments 전달)
+  - 홈/검색 리스트는 RSC props 기반 렌더링
+- [x] `src/features/posts/hooks/usePostQueries.ts` 사용 범위 재정의 (public read 제거)
 
 ### 4.3 캐시 전략 정리
 
-- [ ] ISR/SSG/`revalidate` 기준 문서화
-- [ ] 공개 데이터 캐시 정책 확정
+- [x] ISR/SSG/`revalidate` 기준 문서화
+- [x] 공개 데이터 캐시 정책 확정
+  - 홈 목록: `revalidate: 300`
+  - 사이드바(태그/인기): `revalidate: 600`
+  - 게시글 상세: `revalidate: 86400`
+  - 검색 결과: `cache: "no-store"`
 
 ### 4.4 Hydration/Prefetch 단순화
 
-- [ ] `src/features/posts/services/hydration.server.ts` 유지 여부 결정
-- [ ] 불필요한 RQ prefetch 제거 여부 검토
+- [x] `src/features/posts/services/hydration.server.ts` 미사용(삭제됨)
+- [x] 불필요한 RQ prefetch 제거 (OptimizedLink 데이터 프리페치 제거)
 
 ### 4.5 회귀 테스트
 

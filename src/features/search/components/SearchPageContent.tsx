@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * 검색 페이지 콘텐츠 컴포넌트
  *
@@ -7,89 +5,62 @@
  * 검색 기능을 추가합니다.
  */
 
-import CustomPagination from "@/components/shared/navigation/CustomPagination";
-import { PostList, useSearchPosts } from "@/features/posts";
-import { PostListResponse } from "@/generated/api/models";
-import { usePagination } from "@/hooks/usePagination";
-import { useSearchParams } from "next/navigation";
+import { PaginationWrapper } from "@/components/shared";
+import { createPostServiceServer, PostList } from "@/features/posts";
+import type { Pageable, PostListResponse, PostPopularResponse } from "@/generated/api";
 import SearchPageSidebar from "./SearchPageSidebar";
-import SearchResultsSkeleton from "./skeletons/SearchResultsSkeleton";
-import SearchSidebarSkeleton from "./skeletons/SearchSidebarSkeleton";
 
-export default function SearchPageContent() {
-  const searchParams = useSearchParams();
-  const keyword = searchParams?.get("q") || "";
+interface SearchPageContentProps {
+  searchParams: {
+    q?: string | string[];
+    page?: string | string[];
+  };
+}
 
-  // 스크롤 위치 유지 (검색 결과 UX 최적화)
-  const { currentPage, currentPageForAPI, setPage } = usePagination({
-    scrollToTop: false,
-  });
+export default async function SearchPageContent({ searchParams }: SearchPageContentProps) {
+  const resolveParam = (value?: string | string[]) =>
+    Array.isArray(value) ? value[value.length - 1] : value;
+  const keyword = resolveParam(searchParams.q)?.trim() || "";
+  const currentPage = Number(resolveParam(searchParams.page)) || 1;
   const pageSize = 10;
 
-  /**
-   * 검색 결과를 가져옵니다.
-   */
-  const {
-    data: postResponse,
-    isLoading: isLoadingPosts,
-    error: postsError,
-  } = useSearchPosts(keyword, {
-    page: currentPageForAPI,
+  const queryParams: Pageable = {
+    page: currentPage - 1,
     size: pageSize,
     sort: ["createdAt,desc"],
-  });
-
-  const posts: PostListResponse[] = postResponse?.content || [];
-  const totalPages = postResponse?.totalPages || 0;
-
-  // 페이지 변경 핸들러
-  const handlePageChange = (page: number) => {
-    setPage(page);
   };
 
-  // 로딩 중일 때 스켈레톤 UI 표시
-  if (isLoadingPosts) {
-    return (
-      <div className="mx-auto flex flex-col gap-3">
-        {/* 메인 페이지 로고 영역만큼의 간격 추가 */}
-        <section className="flex h-[120px] items-center text-[24px] md:h-[262px] md:text-[34px]">
-          {/* 모바일: 축소된 높이와 폰트, 데스크톱: 기존 유지 */}
-          {keyword && (
-            <p className="mt-2 text-[#20242B]">
-              <span className="text-[#ABB5BD]">Results for</span>{" "}
-              <span className="font-semibold">{keyword}</span>
-            </p>
-          )}
-        </section>
+  const postService = createPostServiceServer();
+  let posts: PostListResponse[] = [];
+  let totalPages = 0;
+  let postsError: string | null = null;
+  let popularPosts: PostPopularResponse[] = [];
 
-        <div className="flex flex-col pb-6 md:flex-row md:pb-10">
-          <section className="w-full md:flex-3">
-            <h2 className="text-xl font-semibold md:text-2xl">검색 결과</h2>
-            {keyword && (
-              <p className="mt-2 mb-4 text-sm text-gray-600 md:mb-6 md:text-base">
-                &quot;{keyword}&quot;에 대한 검색 결과
-              </p>
-            )}
-            {/* 게시글 로딩 스켈레톤 */}
-            <SearchResultsSkeleton />
-          </section>
+  try {
+    if (keyword) {
+      const postResponse = await postService.searchPosts(keyword, queryParams, {
+        cache: "no-store",
+      });
+      posts = postResponse.content || [];
+      totalPages = postResponse.totalPages || 0;
+    }
+  } catch (error) {
+    postsError = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+  }
 
-          {/* 사이드바 로딩 스켈레톤 - 모바일에서는 숨김, 데스크톱에서만 표시 */}
-          <aside className="ml-10 hidden flex-1 border-l border-[#D5D9E3] pl-10 md:block">
-            <SearchSidebarSkeleton />
-          </aside>
-        </div>
-      </div>
+  try {
+    popularPosts = await postService.getPopularPosts({ next: { revalidate: 600 } });
+  } catch (error) {
+    console.warn(
+      "Failed to fetch popular posts:",
+      error instanceof Error ? `${error.name}: ${error.message}` : String(error)
     );
   }
 
-  // 에러 발생 시 에러 메시지 표시
   if (postsError) {
     return (
       <div className="mx-auto flex flex-col gap-3">
-        {/* 메인 페이지 로고 영역만큼의 간격 추가 */}
         <section className="flex h-[120px] items-center text-[24px] md:h-[262px] md:text-[34px]">
-          {/* 모바일: 축소된 높이와 폰트, 데스크톱: 기존 유지 */}
           {keyword && (
             <p className="mt-2 text-[#20242B]">
               <span className="text-[#ABB5BD]">Results for</span>{" "}
@@ -101,9 +72,7 @@ export default function SearchPageContent() {
         <div className="flex justify-center pb-6 md:pb-10">
           <div className="text-center text-red-500">
             <p className="text-base md:text-lg">검색 중 오류가 발생했습니다.</p>
-            <p className="mt-2 text-sm text-gray-500 md:text-base">
-              {postsError?.message || "알 수 없는 오류가 발생했습니다."}
-            </p>
+            <p className="mt-2 text-sm text-gray-500 md:text-base">{postsError}</p>
           </div>
         </div>
       </div>
@@ -112,9 +81,7 @@ export default function SearchPageContent() {
 
   return (
     <div className="mx-auto flex flex-col gap-3">
-      {/* 메인 페이지 로고 영역만큼의 간격 추가 */}
       <section className="flex h-[120px] items-center text-[24px] md:h-[262px] md:text-[34px]">
-        {/* 모바일: 축소된 높이와 폰트, 데스크톱: 기존 유지 */}
         {keyword && (
           <p className="mt-2 text-[#20242B]">
             <span className="text-[#ABB5BD]">Results for</span>{" "}
@@ -132,7 +99,6 @@ export default function SearchPageContent() {
 
           <PostList
             posts={posts}
-            isLoading={isLoadingPosts}
             searchKeyword={keyword}
             emptyMessage={
               keyword ? `"${keyword}"에 대한 검색 결과가 없습니다` : "검색어를 입력해주세요"
@@ -143,16 +109,16 @@ export default function SearchPageContent() {
           />
 
           {totalPages > 1 && (
-            <CustomPagination
-              currentPage={currentPage}
+            <PaginationWrapper
               totalPages={totalPages}
-              onPageChange={handlePageChange}
+              scrollToTop={false}
+              extraParams={{ q: keyword }}
               className="mt-8 md:mt-12"
             />
           )}
         </section>
 
-        <SearchPageSidebar />
+        <SearchPageSidebar popularPosts={popularPosts} />
       </div>
     </div>
   );

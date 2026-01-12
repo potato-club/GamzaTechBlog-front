@@ -12,6 +12,7 @@ interface CommentListProps {
   postId?: number;
   variant?: "post" | "my";
   className?: string;
+  onCommentDeleted?: () => void;
 }
 
 export default function CommentList({
@@ -19,6 +20,7 @@ export default function CommentList({
   postId,
   variant,
   className = "",
+  onCommentDeleted,
 }: CommentListProps) {
   const resolvedVariant = variant || (postId !== undefined ? "post" : "my");
   // const reversedComments = [...comments].reverse();
@@ -43,6 +45,7 @@ export default function CommentList({
           comment={comment}
           // 'post' variant일 경우 부모로부터 받은 postId를, 'my' variant일 경우 comment에 포함된 postId를 사용
           postId={resolvedVariant === "post" ? postId! : (comment as MyComment).postId!}
+          onCommentDeleted={onCommentDeleted}
         />
       ))}
     </div>

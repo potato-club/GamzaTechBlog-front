@@ -8,7 +8,9 @@ import type {
   PostPopularResponse,
   PostRequest,
   PostResponse,
+  ResponseDtoPagedResponsePostListResponse,
 } from "@/generated/api";
+import { apiFetch } from "@/lib/apiFetch";
 
 /**
  * Post Service 팩토리 함수
@@ -137,7 +139,10 @@ export const createPostService = (api: DefaultApi) => {
      * @param options - fetch 옵션 (캐싱, revalidate 등)
      * @returns 페이지네이션된 좋아요 목록
      */
-    async getUserLikes(params: Pageable, options?: RequestInit): Promise<PagedResponseLikeResponse> {
+    async getUserLikes(
+      params: Pageable,
+      options?: RequestInit
+    ): Promise<PagedResponseLikeResponse> {
       const response = await api.getMyLikes(params, options);
       return response.data as PagedResponseLikeResponse;
     },
@@ -161,9 +166,39 @@ export const createPostService = (api: DefaultApi) => {
      * @param params - 페이지네이션 파라미터
      * @returns 페이지네이션된 검색 결과
      */
-    async searchPosts(keyword: string, params: Pageable): Promise<PagedResponsePostListResponse> {
-      const response = await api.searchPosts({ keyword, pageable: params });
-      return response.data as PagedResponsePostListResponse;
+    async searchPosts(
+      keyword: string,
+      params: Pageable,
+      options?: RequestInit
+    ): Promise<PagedResponsePostListResponse> {
+      const searchParams = new URLSearchParams({ keyword });
+      if (typeof params.page === "number") {
+        searchParams.set("page", params.page.toString());
+      }
+      if (typeof params.size === "number") {
+        searchParams.set("size", params.size.toString());
+      }
+      if (params.sort?.length) {
+        params.sort.forEach((sortKey) => {
+          searchParams.append("sort", sortKey);
+        });
+      }
+
+      const response = await apiFetch(`/api/v1/posts/search?${searchParams.toString()}`, {
+        ...options,
+        mode: "direct-public",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to search posts (status ${response.status}).`);
+      }
+
+      const payload = (await response.json()) as ResponseDtoPagedResponsePostListResponse | null;
+      if (!payload?.data) {
+        throw new Error("Search response data is missing.");
+      }
+
+      return payload.data as PagedResponsePostListResponse;
     },
 
     /**

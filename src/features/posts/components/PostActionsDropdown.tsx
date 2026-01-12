@@ -3,8 +3,7 @@
 import { DropdownMenuList } from "@/components/shared/navigation/DropdownMenuList";
 import { Button } from "@/components/ui/button";
 import { UI_CONSTANTS } from "@/constants/ui";
-import { useDeletePost, usePost } from "@/features/posts";
-import { useAuth } from "@/hooks/useAuth";
+import { useDeletePost } from "@/features/posts";
 import { cn } from "@/lib/utils";
 import { DropdownActionItem } from "@/types/dropdown";
 import { useRouter } from "next/navigation";
@@ -16,8 +15,6 @@ interface PostActionsDropdownProps {
 
 export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   const router = useRouter();
-  const { userProfile, isLoggedIn } = useAuth();
-  const { data: post } = usePost(postId);
 
   const deletePostMutation = useDeletePost({
     onSuccess: (result) => {
@@ -44,28 +41,8 @@ export function PostActionsDropdown({ postId }: PostActionsDropdownProps) {
   }, [deletePostMutation, postId]);
 
   const handleEditPost = useCallback(() => {
-    // 로그인 상태 확인
-    if (!isLoggedIn || !userProfile) {
-      alert(UI_CONSTANTS.FORMS.VALIDATION_MESSAGES.REQUIRED_LOGIN);
-      return;
-    }
-
-    // 게시글 정보 확인
-    if (!post) {
-      alert("게시글 정보를 불러올 수 없습니다.");
-      return;
-    }
-
-    const isAuthor = userProfile.nickname === post.writer;
-
-    if (!isAuthor) {
-      alert("본인이 작성한 게시글만 수정할 수 있습니다.");
-      return;
-    }
-
-    // 작성자가 맞으면 편집 페이지로 이동
     router.push(`/posts/${postId}/edit`);
-  }, [isLoggedIn, userProfile, post, postId, router]);
+  }, [postId, router]);
 
   const headerDropdownItems: DropdownActionItem[] = [
     {
