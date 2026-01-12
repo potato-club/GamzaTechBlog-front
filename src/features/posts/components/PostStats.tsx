@@ -1,6 +1,6 @@
 "use client";
 
-import { useAddLike, useRemoveLike } from "@/features/posts";
+import { useAddLike, useRemoveLike } from "@/features/likes";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import { useEffect, useState } from "react";

@@ -2,6 +2,7 @@
 export * from "./admin";
 export * from "./auth";
 export * from "./comments";
+export * from "./likes";
 export * from "./posts";
 export * from "./search";
 export * from "./tags";

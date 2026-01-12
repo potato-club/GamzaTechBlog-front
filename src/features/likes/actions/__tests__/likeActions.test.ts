@@ -1,8 +1,8 @@
-import { addLikeAction, removeLikeAction } from "@/features/posts/actions/likeActions";
-import { createLikeServiceServer } from "@/features/posts/services/likeService.server";
+import { addLikeAction, removeLikeAction } from "@/features/likes/actions/likeActions";
+import { createLikeServiceServer } from "@/features/likes/services/likeService.server";
 import { postCacheInvalidation } from "@/features/posts/utils/cacheInvalidation";
 
-jest.mock("@/features/posts/services/likeService.server", () => ({
+jest.mock("@/features/likes/services/likeService.server", () => ({
   createLikeServiceServer: jest.fn(),
 }));
 

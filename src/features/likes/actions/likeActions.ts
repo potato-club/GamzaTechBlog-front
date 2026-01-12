@@ -1,6 +1,6 @@
 "use server";
 
-import { createLikeServiceServer } from "@/features/posts/services/likeService.server";
+import { createLikeServiceServer } from "@/features/likes/services/likeService.server";
 import { postCacheInvalidation } from "@/features/posts/utils/cacheInvalidation";
 import { withActionResult } from "@/lib/actionResult";
 
