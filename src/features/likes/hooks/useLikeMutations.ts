@@ -5,9 +5,9 @@
  * 읽기 작업은 RSC에서 초기 상태를 전달합니다.
  */
 
+import type { ActionResult } from "@/lib/actionResult";
 import { useActionMutation, type ActionMutationOptions } from "@/lib/useActionMutation";
 import { addLikeAction, removeLikeAction } from "../actions/likeActions";
-import type { ActionResult } from "@/lib/actionResult";
 
 /**
  * 좋아요 추가 뮤테이션 훅
@@ -19,7 +19,7 @@ export function useAddLike(
   postId: number,
   options?: ActionMutationOptions<ActionResult<void>, void>
 ) {
-  return useActionMutation(() => addLikeAction(postId), {
+  return useActionMutation<ActionResult<void>, void>(() => addLikeAction(postId), {
     onSuccess: (result, variables) => {
       options?.onSuccess?.(result, variables);
     },
@@ -43,7 +43,7 @@ export function useRemoveLike(
   postId: number,
   options?: ActionMutationOptions<ActionResult<void>, void>
 ) {
-  return useActionMutation(() => removeLikeAction(postId), {
+  return useActionMutation<ActionResult<void>, void>(() => removeLikeAction(postId), {
     onSuccess: (result, variables) => {
       options?.onSuccess?.(result, variables);
     },

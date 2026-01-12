@@ -63,7 +63,9 @@ describe("postActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("생성 실패");
+    if (!result.success) {
+      expect(result.error).toBe("생성 실패");
+    }
     expect(postCacheInvalidationMock.invalidateList).not.toHaveBeenCalled();
   });
 
@@ -107,7 +109,9 @@ describe("postActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("삭제 실패");
+    if (!result.success) {
+      expect(result.error).toBe("삭제 실패");
+    }
     expect(postCacheInvalidationMock.invalidatePostAndList).not.toHaveBeenCalled();
   });
 
@@ -122,7 +126,9 @@ describe("postActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("수정 실패");
+    if (!result.success) {
+      expect(result.error).toBe("수정 실패");
+    }
     expect(postCacheInvalidationMock.invalidatePostAndList).not.toHaveBeenCalled();
   });
 });

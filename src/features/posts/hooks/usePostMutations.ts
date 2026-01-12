@@ -27,18 +27,21 @@ import type {
 export function useCreatePost(
   options?: ActionMutationOptions<ActionResult<PostResponse>, CreatePostInput>
 ) {
-  return useActionMutation((input) => createPostAction(input), {
-    onSuccess: (result, variables) => {
-      options?.onSuccess?.(result, variables);
-    },
-    onError: (error, variables) => {
-      console.error("게시글 생성 실패:", error);
-      options?.onError?.(error, variables);
-    },
-    onSettled: (data, error, variables) => {
-      options?.onSettled?.(data, error, variables);
-    },
-  });
+  return useActionMutation<ActionResult<PostResponse>, CreatePostInput>(
+    (input) => createPostAction(input),
+    {
+      onSuccess: (result, variables) => {
+        options?.onSuccess?.(result, variables);
+      },
+      onError: (error, variables) => {
+        console.error("게시글 생성 실패:", error);
+        options?.onError?.(error, variables);
+      },
+      onSettled: (data, error, variables) => {
+        options?.onSettled?.(data, error, variables);
+      },
+    }
+  );
 }
 
 /**
@@ -50,18 +53,21 @@ export function useCreatePost(
 export function useDeletePost(
   options?: ActionMutationOptions<ActionResult<void>, DeletePostInput>
 ) {
-  return useActionMutation((input) => deletePostAction(input), {
-    onSuccess: (result, variables) => {
-      options?.onSuccess?.(result, variables);
-    },
-    onError: (error, variables) => {
-      console.error("게시글 삭제 실패:", error);
-      options?.onError?.(error, variables);
-    },
-    onSettled: (data, error, variables) => {
-      options?.onSettled?.(data, error, variables);
-    },
-  });
+  return useActionMutation<ActionResult<void>, DeletePostInput>(
+    (input) => deletePostAction(input),
+    {
+      onSuccess: (result, variables) => {
+        options?.onSuccess?.(result, variables);
+      },
+      onError: (error, variables) => {
+        console.error("게시글 삭제 실패:", error);
+        options?.onError?.(error, variables);
+      },
+      onSettled: (data, error, variables) => {
+        options?.onSettled?.(data, error, variables);
+      },
+    }
+  );
 }
 
 /**
@@ -73,16 +79,19 @@ export function useDeletePost(
 export function useUpdatePost(
   options?: ActionMutationOptions<ActionResult<PostResponse>, UpdatePostInput>
 ) {
-  return useActionMutation((input) => updatePostAction(input), {
-    onSuccess: (result, variables) => {
-      options?.onSuccess?.(result, variables);
-    },
-    onError: (error, variables) => {
-      console.error("게시글 수정 실패:", error);
-      options?.onError?.(error, variables);
-    },
-    onSettled: (data, error, variables) => {
-      options?.onSettled?.(data, error, variables);
-    },
-  });
+  return useActionMutation<ActionResult<PostResponse>, UpdatePostInput>(
+    (input) => updatePostAction(input),
+    {
+      onSuccess: (result, variables) => {
+        options?.onSuccess?.(result, variables);
+      },
+      onError: (error, variables) => {
+        console.error("게시글 수정 실패:", error);
+        options?.onError?.(error, variables);
+      },
+      onSettled: (data, error, variables) => {
+        options?.onSettled?.(data, error, variables);
+      },
+    }
+  );
 }

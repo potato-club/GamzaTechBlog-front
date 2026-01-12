@@ -43,6 +43,8 @@ describe("adminActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("승인 실패");
+    if (!result.success) {
+      expect(result.error).toBe("승인 실패");
+    }
   });
 });

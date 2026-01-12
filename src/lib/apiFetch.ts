@@ -1,6 +1,6 @@
 type FetchMode = "bff" | "direct-public" | "direct-private";
 
-export type ApiFetchOptions = RequestInit & {
+export type ApiFetchOptions = Omit<RequestInit, "mode"> & {
   mode?: FetchMode;
 };
 

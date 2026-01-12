@@ -46,7 +46,6 @@ export {
 } from "./components";
 
 // Services
-export { postService } from "./services/postService";
 export { createPostServiceServer } from "./services/postService.server";
 
 // Types

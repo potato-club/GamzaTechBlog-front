@@ -20,18 +20,21 @@ export function useCreateComment(
   postId: number,
   options?: ActionMutationOptions<ActionResult<CommentResponse>, CommentRequest>
 ) {
-  return useActionMutation((commentRequest) => createCommentAction(postId, commentRequest), {
-    onSuccess: (result, variables) => {
-      options?.onSuccess?.(result, variables);
-    },
-    onError: (error, variables) => {
-      console.error("댓글 등록 실패:", error);
-      options?.onError?.(error, variables);
-    },
-    onSettled: (data, error, variables) => {
-      options?.onSettled?.(data, error, variables);
-    },
-  });
+  return useActionMutation<ActionResult<CommentResponse>, CommentRequest>(
+    (commentRequest) => createCommentAction(postId, commentRequest),
+    {
+      onSuccess: (result, variables) => {
+        options?.onSuccess?.(result, variables);
+      },
+      onError: (error, variables) => {
+        console.error("댓글 등록 실패:", error);
+        options?.onError?.(error, variables);
+      },
+      onSettled: (data, error, variables) => {
+        options?.onSettled?.(data, error, variables);
+      },
+    }
+  );
 }
 
 /**
@@ -44,16 +47,19 @@ export function useDeleteComment(
   postId: number,
   options?: ActionMutationOptions<ActionResult<void>, number>
 ) {
-  return useActionMutation((commentId) => deleteCommentAction(postId, commentId), {
-    onSuccess: (result, commentId) => {
-      options?.onSuccess?.(result, commentId);
-    },
-    onError: (error, commentId) => {
-      console.error("댓글 삭제 실패:", error);
-      options?.onError?.(error, commentId);
-    },
-    onSettled: (data, error, commentId) => {
-      options?.onSettled?.(data, error, commentId);
-    },
-  });
+  return useActionMutation<ActionResult<void>, number>(
+    (commentId) => deleteCommentAction(postId, commentId),
+    {
+      onSuccess: (result, commentId) => {
+        options?.onSuccess?.(result, commentId);
+      },
+      onError: (error, commentId) => {
+        console.error("댓글 삭제 실패:", error);
+        options?.onError?.(error, commentId);
+      },
+      onSettled: (data, error, commentId) => {
+        options?.onSettled?.(data, error, commentId);
+      },
+    }
+  );
 }

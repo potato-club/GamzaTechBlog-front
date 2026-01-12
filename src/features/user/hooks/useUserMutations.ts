@@ -126,7 +126,7 @@ export function useUpdateProfile(
  * 계정 탈퇴 후 자동으로 로그아웃 처리하고 홈으로 리다이렉트합니다.
  */
 export function useWithdrawAccount(options?: ActionMutationOptions<ActionResult<void>, void>) {
-  return useActionMutation(() => withdrawAccountAction(), {
+  return useActionMutation<ActionResult<void>, void>(() => withdrawAccountAction(), {
     onSuccess: (result, variables) => {
       if (result.success) {
         // 토큰 만료 처리 및 홈으로 리다이렉트

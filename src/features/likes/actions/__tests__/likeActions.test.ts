@@ -68,7 +68,9 @@ describe("likeActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("좋아요 추가 실패");
+    if (!result.success) {
+      expect(result.error).toBe("좋아요 추가 실패");
+    }
     expect(postCacheInvalidationMock.invalidateDetail).not.toHaveBeenCalled();
   });
 
@@ -82,7 +84,9 @@ describe("likeActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("좋아요 취소 실패");
+    if (!result.success) {
+      expect(result.error).toBe("좋아요 취소 실패");
+    }
     expect(postCacheInvalidationMock.invalidateDetail).not.toHaveBeenCalled();
   });
 });

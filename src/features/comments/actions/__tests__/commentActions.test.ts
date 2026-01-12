@@ -79,7 +79,9 @@ describe("commentActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("댓글 생성 실패");
+    if (!result.success) {
+      expect(result.error).toBe("댓글 생성 실패");
+    }
     expect(postCacheInvalidationMock.invalidateDetail).not.toHaveBeenCalled();
   });
 
@@ -95,7 +97,9 @@ describe("commentActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("댓글 삭제 실패");
+    if (!result.success) {
+      expect(result.error).toBe("댓글 삭제 실패");
+    }
     expect(postCacheInvalidationMock.invalidateDetail).not.toHaveBeenCalled();
   });
 });

@@ -1,18 +1,14 @@
-"use client";
+import { createPostServiceServer } from "@/features/posts";
+import { EditPostForm } from "@/features/posts/components/EditPostForm";
+import { notFound } from "next/navigation";
 
 /**
- * 게시글 수정 페이지
+ * 게시글 수정 페이지 (서버 컴포넌트)
  *
- * 공통 PostForm 컴포넌트를 사용하여 게시글 수정 기능을 구현합니다.
+ * Shell & Core 패턴에서 Shell 역할을 담당합니다.
+ * - 서버에서 게시글 데이터 조회
+ * - 클라이언트 컴포넌트(EditPostForm)에 데이터 전달
  */
-
-import { PostForm, postService, useUpdatePost, type PostFormData } from "@/features/posts";
-// Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
-import { useAuth } from "@/hooks/useAuth";
-import { canEditPost } from "@/lib/auth";
-import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
-import type { PostDetailResponse } from "@/generated/api";
 
 interface EditPostPageProps {
   params: Promise<{
@@ -20,139 +16,28 @@ interface EditPostPageProps {
   }>;
 }
 
-export default function EditPostPage({ params }: EditPostPageProps) {
-  const router = useRouter();
+async function fetchPost(postId: number) {
+  try {
+    const postService = createPostServiceServer();
+    return await postService.getPostById(postId);
+  } catch {
+    return null;
+  }
+}
 
-  // Next.js 15+ params는 Promise이므로 React.use()로 unwrap
-  const resolvedParams = use(params);
+export default async function EditPostPage({ params }: EditPostPageProps) {
+  const resolvedParams = await params;
   const postId = parseInt(resolvedParams.id);
 
-  const { userProfile, isLoggedIn, isLoading } = useAuth();
-
-  const [post, setPost] = useState<PostDetailResponse | null>(null);
-  const [isLoadingPost, setIsLoadingPost] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchPost = async () => {
-      try {
-        const data = await postService.getPostById(postId);
-        if (isMounted) {
-          setPost(data);
-        }
-      } catch (fetchError) {
-        if (isMounted) {
-          setError(fetchError instanceof Error ? fetchError : new Error("게시글 조회 실패"));
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoadingPost(false);
-        }
-      }
-    };
-
-    fetchPost();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [postId]);
-
-  const updatePostMutation = useUpdatePost({
-    onSuccess: (result) => {
-      if (result.success) {
-        // 성공 시 게시글 상세 페이지로 이동
-        router.push(`/posts/${postId}`);
-      } else {
-        alert(result.error);
-      }
-    },
-    onError: (error) => {
-      console.error("게시글 수정 실패:", error);
-      alert("게시글 수정 중 오류가 발생했습니다.");
-    },
-  });
-
-  const handleSubmit = async (data: PostFormData) => {
-    await updatePostMutation.mutateAsync({
-      postId,
-      postData: {
-        title: data.title,
-        content: data.content,
-        tags: data.tags,
-      },
-    });
-  };
-
-  // 로딩 중 UI (인증 정보 또는 게시글 로딩 중)
-  if (isLoading || isLoadingPost) {
-    return (
-      <div className="mt-32 flex min-h-[400px] items-center justify-center">
-        <div className="text-lg text-gray-600">
-          {isLoading ? "사용자 정보를 확인하는 중..." : "게시글을 불러오는 중..."}
-        </div>
-      </div>
-    );
+  if (isNaN(postId)) {
+    notFound();
   }
 
-  // 로그인하지 않은 경우
-  if (!isLoggedIn || !userProfile) {
-    return (
-      <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
-        <div className="text-lg text-red-600">로그인이 필요합니다.</div>
-        <button
-          onClick={() => router.push("/login")}
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-        >
-          로그인하기
-        </button>
-      </div>
-    );
+  const post = await fetchPost(postId);
+
+  if (!post) {
+    notFound();
   }
 
-  // 게시글 로딩 에러 또는 존재하지 않는 경우
-  if (error || !post) {
-    return (
-      <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
-        <div className="text-lg text-red-600">게시글을 불러올 수 없습니다.</div>
-        <button
-          onClick={() => router.back()}
-          className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-        >
-          뒤로 가기
-        </button>
-      </div>
-    );
-  }
-
-  // 게시글 수정 권한 체크
-  if (!canEditPost(userProfile, post.writer || "")) {
-    return (
-      <div className="mt-32 flex min-h-[400px] flex-col items-center justify-center gap-4">
-        <div className="text-lg text-red-600">이 게시글을 수정할 권한이 없습니다.</div>
-        <div className="text-sm text-gray-600">본인이 작성한 게시글만 수정할 수 있습니다.</div>
-        <button
-          onClick={() => router.back()}
-          className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-        >
-          뒤로 가기
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <PostForm
-      mode="edit"
-      initialData={{
-        title: post.title || "",
-        content: post.content || "",
-        tags: post.tags || [],
-      }}
-      onSubmitAction={handleSubmit}
-      isLoading={updatePostMutation.isPending}
-    />
-  );
+  return <EditPostForm post={post} postId={postId} />;
 }
