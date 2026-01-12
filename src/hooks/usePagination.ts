@@ -46,8 +46,7 @@ export function usePagination(options: UsePaginationOptions = {}) {
 
   // URL에서 현재 페이지 읽기 (1부터 시작)
   const pageValues = searchParams?.getAll("page") ?? [];
-  const pageFromUrl =
-    pageValues.length > 0 ? pageValues[pageValues.length - 1] : searchParams?.get("page");
+  const pageFromUrl = pageValues.length > 0 ? pageValues[pageValues.length - 1] : null;
   const parsedPage = parseInt(pageFromUrl || "", 10);
   const currentPage = !isNaN(parsedPage) && parsedPage > 0 ? parsedPage : defaultPage;
 
