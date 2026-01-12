@@ -32,9 +32,7 @@ export function createSuccessResult<T>(data: T): ActionResult<T> {
   return { success: true, data };
 }
 
-export function withActionResult<Args extends unknown[], T>(
-  action: (...args: Args) => Promise<T>
-) {
+export function withActionResult<Args extends unknown[], T>(action: (...args: Args) => Promise<T>) {
   return async (...args: Args): Promise<ActionResult<T>> => {
     try {
       const data = await action(...args);

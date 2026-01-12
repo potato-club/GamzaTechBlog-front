@@ -1,5 +1,3 @@
-import type { Mock } from "jest-mock";
-
 jest.mock("next/headers", () => ({
   cookies: jest.fn(),
   headers: jest.fn(),
@@ -41,16 +39,16 @@ describe("logoutActions", () => {
       get: jest.fn().mockReturnValue("refreshToken=abc"),
     };
 
-    (cookies as Mock).mockResolvedValue(cookieStore);
-    (headers as Mock).mockResolvedValue(headerStore);
-    (global.fetch as Mock).mockResolvedValue(new Response(null, { status: 200 }));
+    (cookies as jest.Mock).mockResolvedValue(cookieStore);
+    (headers as jest.Mock).mockResolvedValue(headerStore);
+    (global.fetch as jest.Mock).mockResolvedValue(new Response(null, { status: 200 }));
 
     // When
     await logoutAction();
 
     // Then
     expect(global.fetch).toHaveBeenCalledTimes(1);
-    const [url, options] = (global.fetch as Mock).mock.calls[0];
+    const [url, options] = (global.fetch as jest.Mock).mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://api.test/api/auth/me/logout");
     expect(options.method).toBe("POST");
     expect(options.redirect).toBe("manual");
@@ -77,9 +75,9 @@ describe("logoutActions", () => {
       get: jest.fn().mockReturnValue("refreshToken=abc"),
     };
 
-    (cookies as Mock).mockResolvedValue(cookieStore);
-    (headers as Mock).mockResolvedValue(headerStore);
-    (global.fetch as Mock).mockResolvedValue(new Response(null, { status: 403 }));
+    (cookies as jest.Mock).mockResolvedValue(cookieStore);
+    (headers as jest.Mock).mockResolvedValue(headerStore);
+    (global.fetch as jest.Mock).mockResolvedValue(new Response(null, { status: 403 }));
 
     // When + Then
     await expect(logoutAction()).rejects.toThrow("Logout failed");

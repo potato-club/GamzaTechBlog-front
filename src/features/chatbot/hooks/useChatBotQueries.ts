@@ -1,11 +1,10 @@
 /**
- * TanStack Query를 사용한 챗봇 관련 API 훅들
+ * 챗봇 관련 API 훅들
  *
- * 챗봇 메시지 전송 등의 기능을 TanStack Query로 구현하여
- * 효율적인 상태 관리와 UI 업데이트를 제공합니다.
+ * 메시지 전송 등 변경 작업을 클라이언트 훅으로 처리합니다.
  */
 
-import { useMutation } from "@tanstack/react-query";
+import { useActionMutation } from "@/lib/useActionMutation";
 import { chatBotService } from "../services";
 import { Message } from "../types";
 
@@ -19,8 +18,7 @@ import { Message } from "../types";
 export const useSendMessageMutation = (
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
 ) => {
-  return useMutation({
-    mutationFn: chatBotService.sendMessage,
+  return useActionMutation(chatBotService.sendMessage, {
     onSuccess: (response) => {
       const botMessage: Message = {
         id: crypto.randomUUID(),

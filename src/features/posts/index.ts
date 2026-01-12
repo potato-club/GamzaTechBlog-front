@@ -1,18 +1,13 @@
 // Hooks
 export {
-  POST_QUERY_KEYS,
-  useAddLike,
   useCreatePost,
   useDeletePost,
   // Image hooks
   useImageUpload,
-  usePost,
-  useRemoveLike,
   useUpdatePost,
 } from "./hooks";
 
 // Server Actions
-export { addLikeAction, removeLikeAction } from "./actions/likeActions";
 export { createPostAction, deletePostAction, updatePostAction } from "./actions/postActions";
 
 // Action Types
@@ -51,9 +46,6 @@ export {
 } from "./components";
 
 // Services
-export { createLikeServiceServer } from "./services/likeService.server";
-export { postService } from "./services/postService";
-export type { LikedPostResponse } from "./services/postService";
 export { createPostServiceServer } from "./services/postService.server";
 
 // Types

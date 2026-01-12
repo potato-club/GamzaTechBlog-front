@@ -3,9 +3,8 @@
 /**
  * 댓글 작성 폼 컴포넌트
  *
- * TanStack Query의 useMutation을 사용하여 댓글 등록을 처리합니다.
- * Optimistic Update를 통해 서버 응답 전에 UI를 먼저 업데이트하여
- * 더 빠른 사용자 경험을 제공합니다.
+ * 서버 액션 기반으로 댓글 등록을 처리합니다.
+ * 로딩 상태와 실패 처리는 훅에서 제공합니다.
  */
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ import { FormEvent, useCallback, useState } from "react";
 
 interface CommentFormProps {
   postId: number;
-  onCommentSubmitted?: (newComment: CommentResponse) => void; // 이제 선택사항 (TanStack Query가 자동 처리)
+  onCommentSubmitted?: (newComment: CommentResponse) => void; // 선택사항 (상위에서 후처리 필요 시)
   userProfile?: UserProfileResponse | null | undefined; // 선택적 prop으로 변경 (하위 호환성)
 }
 
@@ -45,15 +44,6 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
     return "/profileSVG.svg";
   }, [currentUserProfile]);
 
-  /**
-   * TanStack Query 뮤테이션을 사용한 댓글 등록
-   *
-   * 이 훅은 다음 기능들을 자동으로 제공합니다:
-   * - Optimistic Update: 서버 응답 전에 UI 즉시 업데이트
-   * - 에러 처리: 실패 시 이전 상태로 자동 롤백
-   * - 로딩 상태: isLoading을 통한 버튼 비활성화
-   * - 캐시 갱신: 성공 시 관련 쿼리 자동 무효화
-   */
   const createCommentMutation = useCreateComment(postId);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -70,7 +60,6 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
       return;
     }
 
-    // TanStack Query 뮤테이션 실행
     try {
       const result = await createCommentMutation.mutateAsync({
         content: newComment.trim(),
@@ -90,8 +79,6 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
         onCommentSubmitted(result.data);
       }
     } catch (error) {
-      // 에러는 TanStack Query의 onError에서 이미 처리됨
-      // 추가 사용자 피드백이 필요하면 여기에 추가
       console.error("댓글 등록 중 오류:", error);
       alert("댓글 작성에 실패했습니다. 다시 시도해주세요.");
     }
@@ -130,7 +117,7 @@ export default function CommentForm({ postId, onCommentSubmitted, userProfile }:
           aria-required="true"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          disabled={createCommentMutation.isPending} // TanStack Query 로딩 상태 사용
+          disabled={createCommentMutation.isPending}
         />
       </div>
       <div className="flex items-center justify-end">

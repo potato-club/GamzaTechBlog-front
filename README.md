@@ -52,7 +52,7 @@
 - **TypeScript** - 타입 안정성
 
 ### 상태 관리
-- **TanStack Query (React Query)** - 서버 상태 관리
+- **Server Actions / RSC** - 서버 데이터 처리
 - **Zustand** - 클라이언트 상태 관리
 - **React Hook Form** - 폼 관리
 
@@ -263,18 +263,15 @@ export const postService = {
 };
 ```
 
-### TanStack Query 사용
+### 클라이언트 액션 훅
 
 ```typescript
-// features/posts/hooks/usePostQueries.ts
-import { useQuery } from '@tanstack/react-query';
-import { postService } from '../services/postService';
+// features/posts/hooks/usePostMutations.ts
+import { useActionMutation } from '@/lib/useActionMutation';
+import { createPostAction } from '../actions/postActions';
 
-export const usePostQueries = () => {
-  return useQuery({
-    queryKey: ['posts'],
-    queryFn: () => postService.getPosts(),
-  });
+export const useCreatePost = () => {
+  return useActionMutation((input) => createPostAction(input));
 };
 ```
 

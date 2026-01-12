@@ -1,8 +1,8 @@
-import { addLikeAction, removeLikeAction } from "@/features/posts/actions/likeActions";
-import { createLikeServiceServer } from "@/features/posts/services/likeService.server";
+import { addLikeAction, removeLikeAction } from "@/features/likes/actions/likeActions";
+import { createLikeServiceServer } from "@/features/likes/services/likeService.server";
 import { postCacheInvalidation } from "@/features/posts/utils/cacheInvalidation";
 
-jest.mock("@/features/posts/services/likeService.server", () => ({
+jest.mock("@/features/likes/services/likeService.server", () => ({
   createLikeServiceServer: jest.fn(),
 }));
 
@@ -68,7 +68,9 @@ describe("likeActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("좋아요 추가 실패");
+    if (!result.success) {
+      expect(result.error).toBe("좋아요 추가 실패");
+    }
     expect(postCacheInvalidationMock.invalidateDetail).not.toHaveBeenCalled();
   });
 
@@ -82,7 +84,9 @@ describe("likeActions", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("좋아요 취소 실패");
+    if (!result.success) {
+      expect(result.error).toBe("좋아요 취소 실패");
+    }
     expect(postCacheInvalidationMock.invalidateDetail).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,5 @@
 // Main Components
+export { EditPostForm } from "./EditPostForm";
 export { default as PostCard } from "./PostCard";
 export { default as PostForm } from "./PostForm";
 export { default as PostFormActions } from "./PostFormActions";

@@ -46,7 +46,7 @@ This is a Next.js 15 frontend for GamzaTechBlog, a Korean tech blog platform. Th
 - `src/app/admin/`: Admin-only pages
 
 ### State Management
-- **TanStack Query (React Query)**: Server state management and caching
+- **Server Actions / RSC**: Server-side data fetching and mutations
 - **Zustand**: Client-side state management (stores not present in current codebase structure)
 - **React Hook Form + Zod**: Form handling and validation
 

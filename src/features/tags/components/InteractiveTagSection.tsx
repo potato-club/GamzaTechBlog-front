@@ -34,7 +34,7 @@ export default function InteractiveTagSection({ tags }: InteractiveTagSectionPro
     const queryString = params.toString();
     const url = queryString ? `/?${queryString}` : "/";
 
-    // URL 업데이트 (TanStack Query가 자동으로 새 데이터 페칭)
+    // URL 업데이트 (서버 컴포넌트가 새 데이터로 렌더링)
     router.push(url, { scroll: false }); // 스크롤 위치 유지
   };
 

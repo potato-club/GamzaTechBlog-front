@@ -2,12 +2,8 @@ import {
   DynamicMarkdownViewer,
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
-import {
-  createLikeServiceServer,
-  createPostServiceServer,
-  PostHeader,
-  PostStats,
-} from "@/features/posts";
+import { createLikeServiceServer } from "@/features/likes";
+import { createPostServiceServer, PostHeader, PostStats } from "@/features/posts";
 import { createUserServiceServer } from "@/features/user/services/userService.server";
 import { canEditPost } from "@/lib/auth";
 import { Metadata } from "next";

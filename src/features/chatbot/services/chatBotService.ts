@@ -2,11 +2,11 @@
  * 챗봇 관련 API 서비스
  *
  * 챗봇과의 통신을 담당하는 서비스 레이어입니다.
- * apiClient를 사용하여 API 호출만을 담당합니다.
+ * apiFetch를 사용하여 API 호출만을 담당합니다.
  */
 
 import { ChatMessageRequest, ChatMessageResponse } from "@/generated/api";
-import { apiClient } from "@/lib/apiClient";
+import { apiFetch } from "@/lib/apiFetch";
 
 export const chatBotService = {
   /**
@@ -21,10 +21,19 @@ export const chatBotService = {
       message,
     };
 
-    const response = await apiClient.chat({
-      chatMessageRequest: chatRequest,
+    const response = await apiFetch("/api/v1/ai/chat", {
+      method: "POST",
+      mode: "direct-private",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(chatRequest),
     });
 
-    return response;
+    if (!response.ok) {
+      throw new Error(`Failed to send chat message (status ${response.status}).`);
+    }
+
+    return (await response.json()) as ChatMessageResponse;
   },
 };

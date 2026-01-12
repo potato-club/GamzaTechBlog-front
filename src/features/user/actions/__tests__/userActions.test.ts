@@ -74,7 +74,9 @@ describe("userActions", () => {
     // Then
     expect(updateProfile).toHaveBeenCalledWith(request);
     expect(result.success).toBe(false);
-    expect(result.error).toBe("프로필 업데이트 실패");
+    if (!result.success) {
+      expect(result.error).toBe("프로필 업데이트 실패");
+    }
   });
 
   it("프로필 이미지 업데이트를 성공적으로 처리해야 함", async () => {

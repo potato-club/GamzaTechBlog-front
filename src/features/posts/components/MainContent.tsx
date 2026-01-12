@@ -16,12 +16,17 @@ export default function MainContent({
 }: MainContentProps) {
   const resolvedTab: MainTab = currentTab === "welcome" ? "welcome" : "posts";
   const resolvedContent =
-    resolvedTab === "welcome" ? welcomeTabContent : postsTabContent ?? welcomeTabContent;
+    resolvedTab === "welcome" ? welcomeTabContent : (postsTabContent ?? welcomeTabContent);
 
   return (
     <div className="flex-1 md:flex-3">
       <MainTabMenu currentTab={resolvedTab} />
-      <div role="tabpanel" aria-labelledby={`${resolvedTab}-tab`} key={resolvedTab} className="mt-6">
+      <div
+        role="tabpanel"
+        aria-labelledby={`${resolvedTab}-tab`}
+        key={resolvedTab}
+        className="mt-6"
+      >
         {resolvedContent}
       </div>
     </div>

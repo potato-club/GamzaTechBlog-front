@@ -1,7 +1,6 @@
 // User Domain Feature Exports
 export * from "./components";
 export * from "./hooks";
-export * from "./services";
 export * from "./types";
 
 // Hooks
@@ -22,9 +21,6 @@ export {
   UserActivityStatItem,
   UserActivityStatsSkeleton,
 } from "./components";
-
-// Services
-export { userService } from "./services/userService";
 
 // Types
 export type { MyPageTab, ProfileEditDialogProps, UserActivityStatItemProps } from "./types";

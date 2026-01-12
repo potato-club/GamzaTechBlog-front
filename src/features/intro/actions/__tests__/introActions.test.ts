@@ -58,7 +58,9 @@ describe("introAction", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("소개 생성 실패");
+    if (!result.success) {
+      expect(result.error).toBe("소개 생성 실패");
+    }
   });
 
   it("소개 삭제 실패 시 에러 결과를 반환해야 함", async () => {
@@ -71,6 +73,8 @@ describe("introAction", () => {
 
     // Then
     expect(result.success).toBe(false);
-    expect(result.error).toBe("소개 삭제 실패");
+    if (!result.success) {
+      expect(result.error).toBe("소개 삭제 실패");
+    }
   });
 });

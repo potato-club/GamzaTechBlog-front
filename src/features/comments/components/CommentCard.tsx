@@ -3,8 +3,7 @@
 /**
  * 댓글 카드 컴포넌트
  *
- * TanStack Query의 useDeleteComment 뮤테이션을 사용하여
- * 댓글 삭제 시 Optimistic Update와 자동 캐시 관리를 제공합니다.
+ * 서버 액션 기반 훅으로 댓글 삭제를 처리합니다.
  */
 
 import { DropdownMenuList } from "@/components/shared/navigation/DropdownMenuList";
@@ -35,21 +34,11 @@ type MyComment = CommentResponse & {
 
 interface CommentCardProps {
   comment: CommentResponse | MyComment;
-  postId: number; // TanStack Query 뮤테이션에 필요
+  postId: number;
   onCommentDeleted?: () => void;
 }
 
 export default function CommentCard({ comment, postId, onCommentDeleted }: CommentCardProps) {
-  /**
-   * TanStack Query 뮤테이션을 사용한 댓글 삭제
-   *
-   * 이 훅은 다음 기능들을 자동으로 제공합니다:
-   * - Optimistic Update: 서버 응답 전에 UI에서 댓글 즉시 제거
-   * - 에러 처리: 실패 시 이전 상태로 자동 롤백
-   * - 로딩 상태: isPending을 통한 UI 비활성화
-   * - 캐시 갱신: 성공 시 관련 쿼리 자동 무효화
-   */
-
   // const { user } = useAuth(); // Zustand 로직 제거됨
   // const user = null; // 임시로 null로 설정
   const { userProfile } = useAuth();
@@ -71,14 +60,11 @@ export default function CommentCard({ comment, postId, onCommentDeleted }: Comme
   const confirmDelete = async () => {
     if (deleteCommentMutation.isPending || typeof comment.commentId !== "number") return;
 
-    // TanStack Query 뮤테이션 실행
     try {
       await deleteCommentMutation.mutateAsync(comment.commentId);
       setIsDeleteDialogOpen(false);
       onCommentDeleted?.();
     } catch (error) {
-      // 에러는 TanStack Query의 onError에서 이미 처리됨
-      // 추가 사용자 피드백이 필요하면 여기에 추가
       console.error("댓글 삭제 실패:", error);
       alert("댓글 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }

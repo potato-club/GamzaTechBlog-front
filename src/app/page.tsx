@@ -7,7 +7,11 @@ import {
   PostListSection,
   WelcomeBoardSection,
 } from "@/features/posts";
-import type { Pageable, PagedResponseIntroResponse, PagedResponsePostListResponse } from "@/generated/api";
+import type {
+  Pageable,
+  PagedResponseIntroResponse,
+  PagedResponsePostListResponse,
+} from "@/generated/api";
 import { Metadata } from "next";
 
 export async function generateMetadata({

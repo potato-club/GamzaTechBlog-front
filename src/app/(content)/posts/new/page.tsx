@@ -4,8 +4,7 @@
  * 게시글 작성 페이지
  *
  * Server Actions를 통해 게시글을 생성하고,
- * 성공 시 서버/클라이언트 캐시를 모두 무효화하여
- * 즉각적인 UI 업데이트를 보장합니다.
+ * 성공 시 서버 캐시를 무효화하여 최신 데이터를 보장합니다.
  */
 
 import type { PostFormData } from "@/features/posts";
