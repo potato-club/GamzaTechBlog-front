@@ -9,11 +9,7 @@ interface PostListSectionProps {
   totalPages: number;
 }
 
-export default function PostListSection({
-  initialTag,
-  posts,
-  totalPages,
-}: PostListSectionProps) {
+export default function PostListSection({ initialTag, posts, totalPages }: PostListSectionProps) {
   return (
     <section className="flex-1 md:flex-3">
       {initialTag && (
@@ -40,9 +36,7 @@ export default function PostListSection({
             </svg>
           }
           title={initialTag ? `#${initialTag} 태그 게시글이 없습니다` : "게시글이 없습니다"}
-          description={
-            initialTag ? "다른 태그를 선택해보세요!" : "첫 번째 게시글을 작성해보세요!"
-          }
+          description={initialTag ? "다른 태그를 선택해보세요!" : "첫 번째 게시글을 작성해보세요!"}
         />
       ) : (
         <>

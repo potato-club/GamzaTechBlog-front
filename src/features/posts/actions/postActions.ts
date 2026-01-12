@@ -44,14 +44,12 @@ export const createPostAction = withActionResult(
  * @param input - 삭제할 게시글 ID
  * @returns 성공 여부 또는 에러
  */
-export const deletePostAction = withActionResult(
-  async (input: DeletePostInput): Promise<void> => {
-    const postService = createPostServiceServer();
-    await postService.deletePost(input.postId);
+export const deletePostAction = withActionResult(async (input: DeletePostInput): Promise<void> => {
+  const postService = createPostServiceServer();
+  await postService.deletePost(input.postId);
 
-    postCacheInvalidation.invalidatePostAndList(input.postId);
-  }
-);
+  postCacheInvalidation.invalidatePostAndList(input.postId);
+});
 
 /**
  * 게시글 수정 Server Action

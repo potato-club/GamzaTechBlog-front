@@ -5,9 +5,7 @@ jest.mock("@/app/api/posts/_proxy", () => ({
   forwardPostRequest: jest.fn(),
 }));
 
-const forwardPostRequestMock = forwardPostRequest as jest.MockedFunction<
-  typeof forwardPostRequest
->;
+const forwardPostRequestMock = forwardPostRequest as jest.MockedFunction<typeof forwardPostRequest>;
 
 describe("post route handlers", () => {
   beforeEach(() => {

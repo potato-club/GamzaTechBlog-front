@@ -10,7 +10,6 @@ import type {
   UserProfileRequest,
   UserProfileResponse,
 } from "@/generated/api";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 // Mock next/navigation
@@ -46,21 +45,6 @@ const {
 
 const { handleTokenExpiration } = jest.requireMock("@/lib/tokenManager") as {
   handleTokenExpiration: jest.Mock;
-};
-
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-
-  const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-
-  return { queryClient, Wrapper };
 };
 
 function UpdateProfileInSignupProbe({ payload }: { payload: UserProfileRequest }) {
@@ -122,13 +106,7 @@ describe("useUserMutations", () => {
       };
       updateProfileInSignupAction.mockResolvedValue({ success: true, data: updated });
 
-      const { Wrapper } = createWrapper();
-
-      render(
-        <Wrapper>
-          <UpdateProfileInSignupProbe payload={payload} />
-        </Wrapper>
-      );
+      render(<UpdateProfileInSignupProbe payload={payload} />);
 
       // When
       fireEvent.click(screen.getByRole("button", { name: "run" }));
@@ -161,13 +139,7 @@ describe("useUserMutations", () => {
       };
       updateProfileAction.mockResolvedValue({ success: true, data: updated });
 
-      const { Wrapper } = createWrapper();
-
-      render(
-        <Wrapper>
-          <UpdateProfileProbe payload={payload} />
-        </Wrapper>
-      );
+      render(<UpdateProfileProbe payload={payload} />);
 
       // When
       fireEvent.click(screen.getByRole("button", { name: "run" }));
@@ -189,13 +161,7 @@ describe("useUserMutations", () => {
       };
       updateProfileAction.mockResolvedValue({ success: false, error: "업데이트 실패" });
 
-      const { Wrapper } = createWrapper();
-
-      render(
-        <Wrapper>
-          <UpdateProfileProbe payload={payload} />
-        </Wrapper>
-      );
+      render(<UpdateProfileProbe payload={payload} />);
 
       // When
       fireEvent.click(screen.getByRole("button", { name: "run" }));
@@ -215,13 +181,7 @@ describe("useUserMutations", () => {
       const response: ProfileImageResponse = { imageUrl: "https://example.com/avatar.png" };
       updateProfileImageAction.mockResolvedValue({ success: true, data: response });
 
-      const { Wrapper } = createWrapper();
-
-      render(
-        <Wrapper>
-          <UpdateProfileImageProbe file={file} />
-        </Wrapper>
-      );
+      render(<UpdateProfileImageProbe file={file} />);
 
       // When
       fireEvent.click(screen.getByRole("button", { name: "run" }));
@@ -238,13 +198,7 @@ describe("useUserMutations", () => {
       const file = new File(["avatar"], "avatar.png", { type: "image/png" });
       updateProfileImageAction.mockResolvedValue({ success: false, error: "업로드 실패" });
 
-      const { Wrapper } = createWrapper();
-
-      render(
-        <Wrapper>
-          <UpdateProfileImageProbe file={file} />
-        </Wrapper>
-      );
+      render(<UpdateProfileImageProbe file={file} />);
 
       // When
       fireEvent.click(screen.getByRole("button", { name: "run" }));
@@ -261,13 +215,8 @@ describe("useUserMutations", () => {
     it("성공 시 토큰 만료 처리를 호출해야 함", async () => {
       // Given
       withdrawAccountAction.mockResolvedValue({ success: true, data: undefined });
-      const { queryClient, Wrapper } = createWrapper();
 
-      render(
-        <Wrapper>
-          <WithdrawAccountProbe />
-        </Wrapper>
-      );
+      render(<WithdrawAccountProbe />);
 
       // When
       fireEvent.click(screen.getByRole("button", { name: "run" }));
@@ -275,7 +224,7 @@ describe("useUserMutations", () => {
       // Then
       await waitFor(() => {
         expect(withdrawAccountAction).toHaveBeenCalled();
-        expect(handleTokenExpiration).toHaveBeenCalledWith(queryClient, "/");
+        expect(handleTokenExpiration).toHaveBeenCalledWith(undefined, "/");
       });
     });
   });

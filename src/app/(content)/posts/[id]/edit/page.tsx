@@ -6,12 +6,13 @@
  * 공통 PostForm 컴포넌트를 사용하여 게시글 수정 기능을 구현합니다.
  */
 
-import { PostForm, usePost, useUpdatePost, type PostFormData } from "@/features/posts";
+import { PostForm, postService, useUpdatePost, type PostFormData } from "@/features/posts";
 // Zustand import 제거됨 - import { useAuth } from "@/store/authStore";
 import { useAuth } from "@/hooks/useAuth";
 import { canEditPost } from "@/lib/auth";
 import { useRouter } from "next/navigation";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
+import type { PostDetailResponse } from "@/generated/api";
 
 interface EditPostPageProps {
   params: Promise<{
@@ -28,8 +29,36 @@ export default function EditPostPage({ params }: EditPostPageProps) {
 
   const { userProfile, isLoggedIn, isLoading } = useAuth();
 
-  // 기존 게시글 데이터 조회
-  const { data: post, isLoading: isLoadingPost, error } = usePost(postId);
+  const [post, setPost] = useState<PostDetailResponse | null>(null);
+  const [isLoadingPost, setIsLoadingPost] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPost = async () => {
+      try {
+        const data = await postService.getPostById(postId);
+        if (isMounted) {
+          setPost(data);
+        }
+      } catch (fetchError) {
+        if (isMounted) {
+          setError(fetchError instanceof Error ? fetchError : new Error("게시글 조회 실패"));
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingPost(false);
+        }
+      }
+    };
+
+    fetchPost();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [postId]);
 
   const updatePostMutation = useUpdatePost({
     onSuccess: (result) => {

@@ -32,14 +32,10 @@ export default function PostCommentsSection({
 
   return (
     <section className="my-12 text-[17px] text-[#353841]" aria-label="댓글 섹션">
-      {/* TanStack Query가 댓글 추가를 자동으로 처리하므로 onCommentSubmitted는 선택사항 */}
-      <CommentForm
-        postId={postId}
-        userProfile={userProfile}
-        onCommentSubmitted={refreshComments}
-      />
+      {/* 댓글 추가 후 최신 데이터를 가져오기 위해 refresh */}
+      <CommentForm postId={postId} userProfile={userProfile} onCommentSubmitted={refreshComments} />
 
-      {/* TanStack Query가 댓글 삭제를 자동으로 처리하므로 onCommentDeleted는 선택사항 */}
+      {/* 댓글 삭제 후 최신 데이터를 가져오기 위해 refresh */}
       <CommentList
         comments={comments}
         variant="post"

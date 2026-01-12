@@ -21,9 +21,7 @@ export const createIntroAction = withActionResult(
 /**
  * Server Action: delete intro.
  */
-export const deleteIntroAction = withActionResult(
-  async (introId: number): Promise<void> => {
-    const api = createBackendApiClient();
-    await api.deleteIntro({ introId });
-  }
-);
+export const deleteIntroAction = withActionResult(async (introId: number): Promise<void> => {
+  const api = createBackendApiClient();
+  await api.deleteIntro({ introId });
+});
