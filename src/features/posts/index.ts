@@ -53,7 +53,6 @@ export {
 // Services
 export { createLikeServiceServer } from "./services/likeService.server";
 export { postService } from "./services/postService";
-export type { LikedPostResponse } from "./services/postService";
 export { createPostServiceServer } from "./services/postService.server";
 
 // Types

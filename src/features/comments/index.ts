@@ -2,9 +2,8 @@
 export * from "./components";
 export * from "./hooks";
 export * from "./actions/commentActions";
-export * from "./services";
+// Services export removed to avoid client-side apiClient usage.
 // export * from "./types";
 
 // Services
-export { commentService } from "./services/commentService";
 export { createCommentServiceServer } from "./services/commentService.server";
