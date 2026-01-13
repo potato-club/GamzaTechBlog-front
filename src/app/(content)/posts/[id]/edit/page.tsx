@@ -19,7 +19,7 @@ interface EditPostPageProps {
 async function fetchPost(postId: number) {
   try {
     const postService = createPostServiceServer();
-    return await postService.getPostById(postId);
+    return await postService.getPostById(postId, { cache: "no-store" });
   } catch {
     return null;
   }
