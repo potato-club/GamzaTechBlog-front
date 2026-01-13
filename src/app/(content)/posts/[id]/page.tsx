@@ -7,10 +7,10 @@ import PostHeader from "@/features/posts/components/PostHeader";
 import PostStats from "@/features/posts/components/PostStats";
 import { createPostServiceServer } from "@/features/posts/services/postService.server";
 import { createUserServiceServer } from "@/features/user/services/userService.server";
-import { canEditPost } from "@/lib/auth";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { isPostOwner } from "../../../../lib/auth";
 
 /**
  * 게시글 데이터 캐싱 함수
@@ -129,15 +129,16 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
       notFound();
     }
 
-    // 현재 로그인한 사용자가 게시글을 수정할 수 있는지 확인
-    let isCurrentUserAuthor = false;
+    // 현재 로그인한 사용자가 게시글 작성자인지 확인 (드롭다운 표시용)
+    let isPostOwnerFlag = false;
     let initialIsLiked = false;
     try {
       const userService = createUserServiceServer();
       const profileData = await userService.getProfile({ cache: "no-store" });
 
       if (profileData) {
-        isCurrentUserAuthor = canEditPost(profileData, post.writer || "");
+        isPostOwnerFlag = isPostOwner(profileData, post.writer || "");
+
         try {
           const likeService = createLikeServiceServer();
           initialIsLiked = await likeService.checkLikeStatus(postId, { cache: "no-store" });
@@ -154,13 +155,13 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         "User profile fetch failed:",
         error instanceof Error ? `${error.name}: ${error.message}` : String(error)
       );
-      isCurrentUserAuthor = false;
+      isPostOwnerFlag = false;
     }
 
     return (
       <div className="layout-stable mx-auto flex flex-col gap-6 md:gap-12">
         <article className="max-w-full border-b border-[#D5D9E3] px-4 py-6 md:px-8 md:py-8">
-          <PostHeader post={post} postId={postId} isCurrentUserAuthor={isCurrentUserAuthor} />
+          <PostHeader post={post} postId={postId} isCurrentUserAuthor={isPostOwnerFlag} />
           <DynamicMarkdownViewer content={post.content || ""} />
           {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
           <PostStats
