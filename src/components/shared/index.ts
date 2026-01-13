@@ -1,11 +1,9 @@
-// Layout Components
+// Layout Components (Client-safe)
 export { default as BlogHeader } from "./layout/BlogHeader";
 export { default as Footer } from "./layout/Footer";
 export { HeaderLogo } from "./layout/HeaderLogo";
 export { HeaderNavigation } from "./layout/HeaderNavigation";
 export { default as LogoSection } from "./layout/LogoSection";
-export { default as ProfileLayout } from "./layout/ProfileLayout";
-export { default as SidebarSection } from "./layout/SidebarSection.server";
 
 // Layout Skeletons
 export { default as LogoSkeleton } from "./layout/skeletons/LogoSkeleton";
@@ -29,3 +27,8 @@ export { default as WelcomeModal } from "./interactive/WelcomeModal";
 export { default as MainPageSkeleton } from "./skeletons/MainPageSkeleton";
 export { default as MyPageSidebarSkeleton } from "./skeletons/MyPageSidebarSkeleton";
 export { default as TabContentSkeleton } from "./skeletons/TabContentSkeleton";
+
+// ⚠️ Server Components는 barrel export에서 제외합니다.
+// 직접 import하세요:
+// import ProfileLayout from "@/components/shared/layout/ProfileLayout";
+// import SidebarSection from "@/components/shared/layout/SidebarSection.server";

@@ -5,7 +5,7 @@
  * TagContext가 필요하지 않는 검색 페이지에서 사용
  */
 
-import { PopularPostsSection } from "@/features/posts";
+import PopularPostsSection from "@/features/posts/components/PopularPostsSection.server";
 import type { PostPopularResponse } from "@/generated/api";
 
 interface SearchPageSidebarProps {

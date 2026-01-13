@@ -1,2 +1,3 @@
 export * from "./skeletons";
-export { default as TagsSection } from "./TagsSection.server";
+// Server Components are excluded from barrel exports.
+// Direct import: import TagsSection from "@/features/tags/components/TagsSection.server";

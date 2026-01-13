@@ -12,10 +12,9 @@ export {
   useWithdrawAccount,
 } from "./hooks";
 
-// Components
+// Components (Client-safe only)
 export {
   ErrorDisplay,
-  MyPageSidebarServer,
   ProfileEditDialog,
   ProfileEditDialogSkeleton,
   UserActivityStatItem,
@@ -24,3 +23,7 @@ export {
 
 // Types
 export type { MyPageTab, ProfileEditDialogProps, UserActivityStatItemProps } from "./types";
+
+// ⚠️ Server Components/Services는 직접 import하세요:
+// import MyPageSidebarServer from "@/features/user/components/mypage/MyPageSidebar.server";
+// import { createUserServiceServer } from "@/features/user/services/userService.server";

@@ -1,4 +1,4 @@
-import { SearchPageContent } from "@/features/search";
+import SearchPageContent from "@/features/search/components/SearchPageContent";
 
 export default async function SearchPage({
   searchParams,

@@ -1,4 +1,4 @@
-import { PaginationWrapper } from "@/components/shared";
+import PaginationWrapper from "@/components/shared/pagination/PaginationWrapper";
 import type { IntroResponse } from "@/generated/api";
 import IntroCard from "./IntroCard";
 

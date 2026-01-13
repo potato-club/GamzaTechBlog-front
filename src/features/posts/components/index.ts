@@ -1,4 +1,4 @@
-// Main Components
+// Main Components (Client-safe)
 export { EditPostForm } from "./EditPostForm";
 export { default as PostCard } from "./PostCard";
 export { default as PostForm } from "./PostForm";
@@ -10,12 +10,8 @@ export { default as PostStats } from "./PostStats";
 export { default as PostTagManager } from "./PostTagManager";
 export { default as PostTitleInput } from "./PostTitleInput";
 
-// Popular Posts
+// Popular Posts (Client-safe)
 export { default as PopularPost } from "./PopularPost";
-export { default as PopularPostsSection } from "./PopularPostsSection.server";
-
-// Server Components
-export { default as PostListSection } from "./PostListSection.server";
 
 // Comments & Actions
 export { default as PostCommentsSection } from "./PostCommentsSection";
@@ -34,3 +30,8 @@ export { default as PostListSkeleton } from "./skeletons/PostListSkeleton";
 
 export { default as MainContent } from "./MainContent";
 export { default as WelcomeBoardSection } from "./WelcomeBoardSection";
+
+// ⚠️ Server Components는 barrel export에서 제외합니다.
+// 직접 import하세요:
+// import PopularPostsSection from "@/features/posts/components/PopularPostsSection.server";
+// import PostListSection from "@/features/posts/components/PostListSection.server";

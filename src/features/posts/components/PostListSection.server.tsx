@@ -1,4 +1,4 @@
-import { PaginationWrapper } from "@/components/shared";
+import PaginationWrapper from "@/components/shared/pagination/PaginationWrapper";
 import type { PostListResponse } from "@/generated/api";
 import EmptyState from "@/components/shared/EmptyState";
 import PostCard from "./PostCard";

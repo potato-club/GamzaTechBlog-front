@@ -1,12 +1,10 @@
 import { DynamicWelcomeModal } from "@/components/dynamic/DynamicComponents";
 import ContentLayout from "@/components/shared/layout/ContentLayout";
-import { createIntroServiceServer } from "@/features/intro";
-import {
-  createPostServiceServer,
-  MainContent,
-  PostListSection,
-  WelcomeBoardSection,
-} from "@/features/posts";
+import { createIntroServiceServer } from "@/features/intro/services/introService.server";
+import MainContent from "@/features/posts/components/MainContent";
+import PostListSection from "@/features/posts/components/PostListSection.server";
+import WelcomeBoardSection from "@/features/posts/components/WelcomeBoardSection";
+import { createPostServiceServer } from "@/features/posts/services/postService.server";
 import type {
   Pageable,
   PagedResponseIntroResponse,

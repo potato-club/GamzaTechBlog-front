@@ -4,10 +4,10 @@ import Link from "next/link";
 import BlogHeader from "@/components/shared/layout/BlogHeader";
 import Footer from "@/components/shared/layout/Footer";
 import { Toaster } from "@/components/ui";
+import ChatBot from "@/features/chatbot/components/ChatBot";
 import { createUserServiceServer } from "@/features/user/services/userService.server";
 import type { UserProfileResponse } from "@/generated/api/models";
 import Providers from "@/providers/Providers";
-import { ChatBot } from "../features/chatbot";
 import { pretendard } from "./fonts";
 import "./globals.css";
 

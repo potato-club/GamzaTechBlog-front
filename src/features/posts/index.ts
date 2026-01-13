@@ -18,7 +18,7 @@ export type {
   UpdatePostInput,
 } from "./actions/types";
 
-// Components
+// Components (Client-safe only)
 export {
   MainContent,
   // ⚠️ MarkdownViewer, ToastEditor는 무거워서 여기서 export하지 않습니다
@@ -28,7 +28,6 @@ export {
   //   import { DynamicToastEditor } from "@/components/dynamic/DynamicComponents";
   PopularPost,
   PopularPostListSkeleton,
-  PopularPostsSection,
   PostCard,
   PostCommentsSection,
   PostDetailSkeleton,
@@ -36,7 +35,6 @@ export {
   PostFormActions,
   PostHeader,
   PostList,
-  PostListSection,
   PostListSkeleton,
   PostMeta,
   PostStats,
@@ -45,8 +43,8 @@ export {
   WelcomeBoardSection,
 } from "./components";
 
-// Services
-export { createPostServiceServer } from "./services/postService.server";
+// ⚠️ Server Services는 barrel export에서 제외합니다.
+// 직접 import하세요: import { createPostServiceServer } from "@/features/posts/services/postService.server";
 
 // Types
 export type {

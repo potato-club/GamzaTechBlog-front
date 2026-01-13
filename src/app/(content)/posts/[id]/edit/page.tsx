@@ -1,5 +1,5 @@
-import { createPostServiceServer } from "@/features/posts";
 import { EditPostForm } from "@/features/posts/components/EditPostForm";
+import { createPostServiceServer } from "@/features/posts/services/postService.server";
 import { notFound } from "next/navigation";
 
 /**

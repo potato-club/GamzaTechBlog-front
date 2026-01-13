@@ -1,7 +1,7 @@
 import EmptyState from "@/components/shared/EmptyState";
-import { CommentList } from "@/features/comments";
+import CommentList from "@/features/comments/components/CommentList";
 import { createCommentServiceServer } from "@/features/comments/services/commentService.server";
-import { PostCard } from "@/features/posts";
+import PostCard from "@/features/posts/components/PostCard";
 import { createPostServiceServer } from "@/features/posts/services/postService.server";
 import { getPublicUser } from "@/features/user/services/userService.server";
 import type {

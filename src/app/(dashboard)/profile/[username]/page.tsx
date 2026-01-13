@@ -7,13 +7,17 @@
  * @param params - 동적 라우팅 매개변수 { username: string }
  */
 
-import { ProfileLayout } from "@/components/shared";
+import ProfileLayout from "@/components/shared/layout/ProfileLayout";
 import { getPublicUser } from "@/features/user/services/userService.server";
 import { notFound } from "next/navigation";
 
-/**
- * 페이지 메타데이터 생성
- */
+interface PublicProfilePageProps {
+  params: Promise<{
+    username: string;
+  }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}
+
 export async function generateMetadata({ params }: PublicProfilePageProps) {
   const { username } = await params;
   const userProfile = await getPublicUser(username);
@@ -30,25 +34,17 @@ export async function generateMetadata({ params }: PublicProfilePageProps) {
   };
 }
 
-interface PublicProfilePageProps {
-  params: Promise<{
-    username: string;
-  }>;
-  searchParams?: Record<string, string | string[] | undefined>;
-}
-
 export const dynamic = "force-dynamic";
 
 export default async function PublicProfilePage({ params, searchParams }: PublicProfilePageProps) {
   const { username } = await params;
+  const resolvedSearchParams = await searchParams;
 
-  // 공개 프로필 정보 조회
   const userProfile = await getPublicUser(username);
 
-  // 사용자가 존재하지 않으면 404 페이지 표시
   if (!userProfile) {
     notFound();
   }
 
-  return <ProfileLayout mode="public" username={username} searchParams={searchParams} />;
+  return <ProfileLayout mode="public" username={username} searchParams={resolvedSearchParams} />;
 }

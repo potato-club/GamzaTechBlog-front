@@ -8,7 +8,7 @@
  * ProfileLayout을 사용하여 공개 프로필 페이지와 일관된 구조를 유지합니다.
  */
 
-import { ProfileLayout } from "@/components/shared";
+import ProfileLayout from "@/components/shared/layout/ProfileLayout";
 import { createUserServiceServer } from "@/features/user/services/userService.server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -16,11 +16,12 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 interface MyPageProps {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export default async function MyPage({ searchParams }: MyPageProps) {
   console.log("Rendering MyPage Server Component");
+  const resolvedSearchParams = await searchParams;
 
   const cookieStore = await cookies();
   const token = cookieStore.get("authorization")?.value;
@@ -37,5 +38,5 @@ export default async function MyPage({ searchParams }: MyPageProps) {
     console.error("Authentication failed:", error);
   }
 
-  return <ProfileLayout mode="mypage" searchParams={searchParams} />;
+  return <ProfileLayout mode="mypage" searchParams={resolvedSearchParams} />;
 }
