@@ -12,6 +12,23 @@ import type {
 } from "@/generated/api";
 import { apiFetch } from "@/lib/apiFetch";
 
+type NextOptions = { revalidate?: number | false; tags?: string[] };
+type RequestInitWithNext = RequestInit & { next?: NextOptions };
+
+const mergeNextOptions = (
+  baseOptions: RequestInitWithNext | undefined,
+  defaultTags: string[]
+): RequestInitWithNext => {
+  const existingTags = baseOptions?.next?.tags || [];
+  return {
+    ...baseOptions,
+    next: {
+      ...baseOptions?.next,
+      tags: [...defaultTags, ...existingTags],
+    },
+  };
+};
+
 /**
  * Post Service 팩토리 함수
  *
@@ -40,9 +57,10 @@ export const createPostService = (api: DefaultApi) => {
      */
     async getPosts(
       params: Pageable,
-      options?: RequestInit
+      options?: RequestInitWithNext
     ): Promise<PagedResponsePostListResponse> {
-      const response = await api.getPosts({ ...params }, options);
+      const mergedOptions = mergeNextOptions(options, ["posts-list"]);
+      const response = await api.getPosts({ ...params }, mergedOptions);
       return response.data as PagedResponsePostListResponse;
     },
 
@@ -52,8 +70,9 @@ export const createPostService = (api: DefaultApi) => {
      * @param options - fetch 옵션 (캐싱, revalidate 등)
      * @returns 인기 게시물 배열
      */
-    async getPopularPosts(options?: RequestInit): Promise<PostPopularResponse[]> {
-      const response = await api.getWeeklyPopularPosts(options);
+    async getPopularPosts(options?: RequestInitWithNext): Promise<PostPopularResponse[]> {
+      const mergedOptions = mergeNextOptions(options, ["posts-popular"]);
+      const response = await api.getWeeklyPopularPosts(mergedOptions);
       return response.data as PostPopularResponse[];
     },
 
@@ -68,9 +87,10 @@ export const createPostService = (api: DefaultApi) => {
     async getPostsByTag(
       tagName: string,
       params: Pageable,
-      options?: RequestInit
+      options?: RequestInitWithNext
     ): Promise<PagedResponsePostListResponse> {
-      const response = await api.getPostsByTag({ tagName, ...params }, options);
+      const mergedOptions = mergeNextOptions(options, ["posts-list"]);
+      const response = await api.getPostsByTag({ tagName, ...params }, mergedOptions);
       return response.data as PagedResponsePostListResponse;
     },
 
@@ -80,8 +100,9 @@ export const createPostService = (api: DefaultApi) => {
      * @param options - fetch 옵션 (캐싱, revalidate 등)
      * @returns 태그 이름 배열
      */
-    async getTags(options?: RequestInit): Promise<string[]> {
-      const response = await api.getAllTags(options);
+    async getTags(options?: RequestInitWithNext): Promise<string[]> {
+      const mergedOptions = mergeNextOptions(options, ["tags"]);
+      const response = await api.getAllTags(mergedOptions);
       return response.data as string[];
     },
 
@@ -92,8 +113,9 @@ export const createPostService = (api: DefaultApi) => {
      * @param options - fetch 옵션 (캐싱, revalidate 등)
      * @returns 게시글 상세 정보
      */
-    async getPostById(postId: number, options?: RequestInit): Promise<PostDetailResponse> {
-      const response = await api.getPostDetail({ postId }, options);
+    async getPostById(postId: number, options?: RequestInitWithNext): Promise<PostDetailResponse> {
+      const mergedOptions = mergeNextOptions(options, [`post-${postId}`]);
+      const response = await api.getPostDetail({ postId }, mergedOptions);
       return response.data as PostDetailResponse;
     },
 
@@ -228,11 +250,13 @@ export const createPostService = (api: DefaultApi) => {
      * @returns 사이드바 데이터 (인기 게시글, 전체 태그)
      */
     async getSidebarData(
-      options?: RequestInit
+      options?: RequestInitWithNext
     ): Promise<{ weeklyPopular: PostPopularResponse[]; allTags: string[] }> {
+      const popularOptions = mergeNextOptions(options, ["posts-popular"]);
+      const tagsOptions = mergeNextOptions(options, ["tags"]);
       const [popularPosts, tags] = await Promise.all([
-        api.getWeeklyPopularPosts(options).then((res) => res.data as PostPopularResponse[]),
-        api.getAllTags(options).then((res) => res.data as string[]),
+        api.getWeeklyPopularPosts(popularOptions).then((res) => res.data as PostPopularResponse[]),
+        api.getAllTags(tagsOptions).then((res) => res.data as string[]),
       ]);
 
       return {
