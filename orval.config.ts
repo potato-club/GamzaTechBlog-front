@@ -4,7 +4,7 @@ export default defineConfig({
   gamzaTech: {
     input: "https://gamzatech.site/v3/api-docs/all",
     output: {
-      mode: "tags-split",
+      mode: "split",
       target: "src/generated/orval",
       schemas: "src/generated/orval/models",
       client: "react-query",

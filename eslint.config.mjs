@@ -22,7 +22,7 @@ const eslintConfig = [
 
   {
     files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
-    ignores: ["src/generated/api/**"], // Ignore auto-generated API client
+    ignores: ["src/generated/**"], // Ignore all auto-generated code (api, orval)
     plugins: {
       react: reactPlugin,
       import: importPlugin,
