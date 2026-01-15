@@ -1,69 +1,178 @@
 "use client";
 
-import { useAddLike, useRemoveLike } from "@/features/likes";
-import { useAuth } from "@/hooks/useAuth";
+/**
+ * 좋아요 버튼 및 댓글 개수 표시 컴포넌트 (RQ Hydration 버전)
+ *
+ * RQ 캐시에서 게시글 데이터를 읽어 좋아요 상태와 개수를 표시합니다.
+ * Optimistic Update로 즉각적인 UI 반응을 제공합니다.
+ */
+
+import {
+  getGetPostDetailQueryOptions,
+  getIsPostLikedQueryOptions,
+  useLikePost,
+  useUnlikePost,
+} from "@/generated/orval/api";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 
 interface PostStatsProps {
   postId: number;
-  initialLikesCount: number;
-  initialIsLiked?: boolean;
-  commentsCount: number;
+  isLoggedIn: boolean;
 }
 
-export default function PostStats({
-  postId,
-  initialLikesCount,
-  initialIsLiked = false,
-  commentsCount = 0,
-}: PostStatsProps) {
-  const { isLoggedIn } = useAuth();
-  const [likesCount, setLikesCount] = useState(initialLikesCount);
-  const [isLiked, setIsLiked] = useState(initialIsLiked);
+export default function PostStats({ postId, isLoggedIn }: PostStatsProps) {
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    setIsLiked(initialIsLiked);
-  }, [initialIsLiked]);
+  // RQ 캐시에서 게시글 상세 데이터 읽기 (Hydration된 데이터)
+  const { data: postData } = useQuery({
+    ...getGetPostDetailQueryOptions(postId),
+    staleTime: Infinity, // 캐시된 데이터 사용
+  });
 
-  useEffect(() => {
-    setLikesCount(initialLikesCount);
-  }, [initialLikesCount]);
+  // RQ 캐시에서 좋아요 상태 읽기 (로그인한 경우에만)
+  const { data: likedData } = useQuery({
+    ...getIsPostLikedQueryOptions(postId),
+    enabled: isLoggedIn,
+    staleTime: Infinity,
+  });
 
-  const addLikeMutation = useAddLike(postId);
-  const removeLikeMutation = useRemoveLike(postId);
+  const post = postData?.data;
+  const isLiked = likedData?.data ?? false;
+  const likesCount = post?.likesCount ?? 0;
+  const commentsCount = post?.comments?.length ?? 0;
 
-  const handleLikeClick = async () => {
-    // 로그인하지 않은 경우 알림 표시
+  // 좋아요 Mutation with Optimistic Update
+  const likeMutation = useLikePost({
+    mutation: {
+      onMutate: async () => {
+        // 이전 캐시 데이터 저장
+        const previousPostData = queryClient.getQueryData(
+          getGetPostDetailQueryOptions(postId).queryKey
+        );
+        const previousLikedData = queryClient.getQueryData(
+          getIsPostLikedQueryOptions(postId).queryKey
+        );
+
+        // Optimistic Update: 게시글 좋아요 수 증가
+        queryClient.setQueryData(
+          getGetPostDetailQueryOptions(postId).queryKey,
+          (old: typeof postData) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: {
+                ...old.data,
+                likesCount: (old.data.likesCount ?? 0) + 1,
+              },
+            };
+          }
+        );
+
+        // Optimistic Update: 좋아요 상태 변경
+        queryClient.setQueryData(
+          getIsPostLikedQueryOptions(postId).queryKey,
+          (old: typeof likedData) => ({
+            ...old,
+            data: true,
+          })
+        );
+
+        return { previousPostData, previousLikedData };
+      },
+      onError: (error, _variables, context) => {
+        console.error("좋아요 추가 실패:", error);
+        // 롤백
+        if (context?.previousPostData) {
+          queryClient.setQueryData(
+            getGetPostDetailQueryOptions(postId).queryKey,
+            context.previousPostData
+          );
+        }
+        if (context?.previousLikedData) {
+          queryClient.setQueryData(
+            getIsPostLikedQueryOptions(postId).queryKey,
+            context.previousLikedData
+          );
+        }
+        alert("좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+      },
+    },
+  });
+
+  const unlikeMutation = useUnlikePost({
+    mutation: {
+      onMutate: async () => {
+        const previousPostData = queryClient.getQueryData(
+          getGetPostDetailQueryOptions(postId).queryKey
+        );
+        const previousLikedData = queryClient.getQueryData(
+          getIsPostLikedQueryOptions(postId).queryKey
+        );
+
+        // Optimistic Update: 게시글 좋아요 수 감소
+        queryClient.setQueryData(
+          getGetPostDetailQueryOptions(postId).queryKey,
+          (old: typeof postData) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: {
+                ...old.data,
+                likesCount: Math.max((old.data.likesCount ?? 0) - 1, 0),
+              },
+            };
+          }
+        );
+
+        // Optimistic Update: 좋아요 상태 변경
+        queryClient.setQueryData(
+          getIsPostLikedQueryOptions(postId).queryKey,
+          (old: typeof likedData) => ({
+            ...old,
+            data: false,
+          })
+        );
+
+        return { previousPostData, previousLikedData };
+      },
+      onError: (error, _variables, context) => {
+        console.error("좋아요 취소 실패:", error);
+        if (context?.previousPostData) {
+          queryClient.setQueryData(
+            getGetPostDetailQueryOptions(postId).queryKey,
+            context.previousPostData
+          );
+        }
+        if (context?.previousLikedData) {
+          queryClient.setQueryData(
+            getIsPostLikedQueryOptions(postId).queryKey,
+            context.previousLikedData
+          );
+        }
+        alert("좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+      },
+    },
+  });
+
+  const handleLikeClick = () => {
     if (!isLoggedIn) {
       alert("좋아요를 누르려면 로그인이 필요합니다.");
       return;
     }
 
-    // 이미 뮤테이션이 진행 중인 경우 중복 요청 방지
-    if (addLikeMutation.isPending || removeLikeMutation.isPending) {
+    if (likeMutation.isPending || unlikeMutation.isPending) {
       return;
     }
 
-    try {
-      if (isLiked) {
-        // 좋아요 취소
-        await removeLikeMutation.mutateAsync();
-        setIsLiked(false);
-        setLikesCount((prev) => prev - 1);
-      } else {
-        // 좋아요 추가
-        await addLikeMutation.mutateAsync();
-        setIsLiked(true);
-        setLikesCount((prev) => prev + 1);
-      }
-    } catch (error) {
-      console.error("좋아요 처리 실패:", error);
-      alert("좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+    if (isLiked) {
+      unlikeMutation.mutate({ postId });
+    } else {
+      likeMutation.mutate({ postId });
     }
   };
 
-  const isLoading = addLikeMutation.isPending || removeLikeMutation.isPending;
+  const isPending = likeMutation.isPending || unlikeMutation.isPending;
 
   return (
     <div className="mt-4 flex items-center gap-6">
@@ -71,10 +180,10 @@ export default function PostStats({
       <button
         type="button"
         className={`flex items-center gap-2 transition-opacity ${
-          isLoading ? "cursor-not-allowed opacity-50" : "hover:opacity-80"
+          isPending ? "cursor-not-allowed opacity-50" : "hover:opacity-80"
         } ${!isLoggedIn ? "opacity-60" : ""}`}
         onClick={handleLikeClick}
-        disabled={isLoading}
+        disabled={isPending}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -93,9 +202,7 @@ export default function PostStats({
             className="transition-all duration-200"
           />
         </svg>
-        <span className="text-sm text-gray-600">
-          {isLoading ? "처리 중..." : `좋아요 ${likesCount}`}
-        </span>
+        <span className="text-sm text-gray-600">좋아요 {likesCount}</span>
       </button>
 
       {/* 댓글 개수 */}

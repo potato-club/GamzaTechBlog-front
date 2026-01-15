@@ -2,36 +2,38 @@ import {
   DynamicMarkdownViewer,
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
-import { createLikeServiceServer } from "@/features/likes/services/likeService.server";
 import PostHeader from "@/features/posts/components/PostHeader";
 import PostStats from "@/features/posts/components/PostStats";
-import { createPostServiceServer } from "@/features/posts/services/postService.server";
 import { createUserServiceServer } from "@/features/user/services/userService.server";
+import {
+  getGetPostDetailQueryOptions,
+  getIsPostLikedQueryOptions,
+  getPostDetail,
+} from "@/generated/orval/api";
+import { getQueryClient } from "@/lib/getQueryClient";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { isPostOwner } from "../../../../lib/auth";
 
 /**
- * 게시글 데이터 캐싱 함수
+ * 게시글 데이터 캐싱 함수 (메타데이터용)
  *
  * React의 cache 함수를 사용하여 동일한 postId에 대한 중복 요청을 방지합니다.
  * generateMetadata와 PostPage 컴포넌트에서 동일한 데이터를 사용할 때 최적화됩니다.
  */
 const getCachedPost = cache(async (postId: number) => {
-  // 서버용 Post Service 사용
-  const postService = createPostServiceServer();
-  // ISR 적용: 86400초(24시간) 주기로 페이지를 재생성합니다.
-  return await postService.getPostById(postId, { next: { revalidate: 86400 } });
+  try {
+    const response = await getPostDetail(postId);
+    return response.data;
+  } catch {
+    return null;
+  }
 });
 
 /**
  * 동적 메타데이터 생성 함수
- *
- * 이 함수는 각 게시글마다 고유한 메타데이터를 생성합니다.
- * - 검색엔진 최적화 (SEO)
- * - 소셜미디어 공유시 미리보기 개선
- * - 카카오톡, 페이스북 등에서 링크 공유시 예쁜 카드 형태로 표시
  */
 export async function generateMetadata({
   params,
@@ -41,7 +43,6 @@ export async function generateMetadata({
   const { id: postId } = await params;
 
   try {
-    // 캐싱된 함수를 사용하여 중복 요청 방지
     const post = await getCachedPost(Number(postId));
 
     if (!post) {
@@ -51,7 +52,6 @@ export async function generateMetadata({
       };
     }
 
-    // 게시글 내용에서 첫 160자를 설명으로 사용 (소셜미디어 최적 길이)
     const description = post.content
       ? post.content.replace(/[#*`]/g, "").substring(0, 160) + "..."
       : "감자 기술 블로그의 게시글입니다.";
@@ -60,8 +60,6 @@ export async function generateMetadata({
       title: `${post.title} | 감자 기술 블로그`,
       description,
       keywords: post.tags?.join(", ") || "개발, 기술블로그, 프로그래밍",
-
-      // OpenGraph: 페이스북, 카카오톡 등에서 사용
       openGraph: {
         title: post.title,
         description,
@@ -69,26 +67,21 @@ export async function generateMetadata({
         publishedTime: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
         authors: [post.writer || "익명"],
         tags: post.tags,
-        // PostDetailResponse에는 thumbnailImageUrl이 없으므로 기본 이미지 사용
         images: [
           {
-            url: "/logo2.svg", // 기본 로고 이미지 사용
+            url: "/logo2.svg",
             width: 1200,
             height: 630,
             alt: post.title || "감자 기술 블로그",
           },
         ],
       },
-
-      // Twitter 카드: 트위터에서 사용
       twitter: {
         card: "summary_large_image",
         title: post.title,
         description,
-        images: ["/logo2.svg"], // 기본 로고 이미지 사용
+        images: ["/logo2.svg"],
       },
-
-      // 추가 SEO 설정
       alternates: {
         canonical: `/posts/${postId}`,
       },
@@ -103,79 +96,78 @@ export async function generateMetadata({
 }
 
 /**
- * 게시글 상세 페이지 (서버 컴포넌트)
+ * 게시글 상세 페이지 (서버 컴포넌트 + RQ Hydration)
  *
- * 서버 컴포넌트로 구현한 이유:
- * 1. SEO 최적화 - 게시글 내용이 서버에서 렌더링
- * 2. 초기 로딩 성능 개선 - 클라이언트 API 호출 없음
- * 3. 메타데이터와 데이터 소스 일관성
- * 4. 캐싱 최적화 - Next.js 서버 캐싱 활용
+ * 서버에서 prefetchQuery로 데이터를 가져오고,
+ * HydrationBoundary로 클라이언트에 전달합니다.
  */
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const postId = Number(id);
 
-  // URL 파라미터 유효성 검사
   if (!Number.isInteger(postId) || postId <= 0) {
     notFound();
   }
 
-  try {
-    // 캐싱된 함수를 사용하여 중복 요청 방지
-    const post = await getCachedPost(postId);
+  const queryClient = getQueryClient();
 
-    // 게시글이 없는 경우
+  try {
+    // 게시글 상세 데이터 prefetch
+    await queryClient.prefetchQuery(getGetPostDetailQueryOptions(postId));
+
+    // 게시글 데이터 가져오기 (렌더링용)
+    const postData = queryClient.getQueryData(getGetPostDetailQueryOptions(postId).queryKey) as
+      | Awaited<ReturnType<typeof getPostDetail>>
+      | undefined;
+
+    const post = postData?.data;
+
     if (!post) {
       notFound();
     }
 
-    // 현재 로그인한 사용자가 게시글 작성자인지 확인 (드롭다운 표시용)
+    // 현재 로그인한 사용자 확인 (작성자 여부)
     let isPostOwnerFlag = false;
-    let initialIsLiked = false;
+    let isLoggedIn = false;
+
     try {
       const userService = createUserServiceServer();
       const profileData = await userService.getProfile({ cache: "no-store" });
 
       if (profileData) {
+        isLoggedIn = true;
         isPostOwnerFlag = isPostOwner(profileData, post.writer || "");
 
-        try {
-          const likeService = createLikeServiceServer();
-          initialIsLiked = await likeService.checkLikeStatus(postId, { cache: "no-store" });
-        } catch (error) {
-          console.warn(
-            "Like status fetch failed:",
-            error instanceof Error ? `${error.name}: ${error.message}` : String(error)
-          );
-        }
+        // 로그인된 사용자는 좋아요 상태도 prefetch
+        await queryClient.prefetchQuery(getIsPostLikedQueryOptions(postId));
       }
     } catch (error) {
-      // 로그인되지 않은 사용자나 API 에러의 경우 false로 처리
       console.warn(
         "User profile fetch failed:",
         error instanceof Error ? `${error.name}: ${error.message}` : String(error)
       );
-      isPostOwnerFlag = false;
     }
 
     return (
-      <div className="layout-stable mx-auto flex flex-col gap-6 md:gap-12">
-        <article className="max-w-full border-b border-[#D5D9E3] px-4 py-6 md:px-8 md:py-8">
-          <PostHeader post={post} postId={postId} isCurrentUserAuthor={isPostOwnerFlag} />
-          <DynamicMarkdownViewer content={post.content || ""} />
-          {/* 게시글 좋아요 버튼 및 댓글 개수 노출 */}
-          <PostStats
-            postId={postId}
-            initialLikesCount={post.likesCount || 0}
-            initialIsLiked={initialIsLiked}
-            commentsCount={post.comments?.length || 0}
-          />
-        </article>
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <div className="layout-stable mx-auto flex flex-col gap-6 md:gap-12">
+          <article className="max-w-full border-b border-[#D5D9E3] px-4 py-6 md:px-8 md:py-8">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <PostHeader post={post as any} postId={postId} isCurrentUserAuthor={isPostOwnerFlag} />
+            <DynamicMarkdownViewer content={post.content || ""} />
+            {/* 게시글 좋아요 버튼 및 댓글 개수 - RQ 캐시에서 읽음 */}
+            <PostStats postId={postId} isLoggedIn={isLoggedIn} />
+          </article>
 
-        <div className="px-4 md:px-8">
-          <DynamicPostCommentsSection postId={postId} initialComments={post.comments || []} />
+          <div className="px-4 md:px-8">
+            {}
+            <DynamicPostCommentsSection
+              postId={postId}
+              initialComments={(post.comments || []) as any}
+            />
+          </div>
         </div>
-      </div>
+      </HydrationBoundary>
     );
   } catch (error) {
     console.error("Error fetching post:", error);
