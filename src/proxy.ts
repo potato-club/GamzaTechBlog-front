@@ -2,7 +2,7 @@ import { decodeJwt, jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Next.js 미들웨어 - 라우트 보호 및 인증 처리
+ * Next.js proxy - 라우트 보호 및 인증 처리
  *
  * 보호된 경로에 대한 서버 레벨 접근 제어를 제공합니다.
  * JWT 토큰 검증을 통해 인증되지 않은 사용자의 접근을 차단합니다.
@@ -10,21 +10,18 @@ import { NextRequest, NextResponse } from "next/server";
 
 // 보호된 경로 패턴 정의
 const PROTECTED_ROUTES = {
-  // 인증이 필요한 일반 사용자 경로
-  AUTH_REQUIRED: ["/dashboard", "/mypage", "/posts/create", "/posts/*/edit"],
   // 관리자 권한이 필요한 경로
   ADMIN_REQUIRED: ["/admin"],
 } as const;
 
 // 인증 페이지 경로 (로그인된 사용자는 접근 불가)
-const AUTH_PAGES = ["/login", "/signup"] as const;
+const AUTH_PAGES = ["/signup"] as const;
 
 const REFRESH_BUFFER_MS = 60 * 1000;
 
 interface UserJWTPayload {
   sub: string;
   githubId: string;
-  role?: string;
   jti: string;
   iat: number;
   exp: number;
@@ -55,7 +52,7 @@ async function verifyToken(token: string): Promise<UserJWTPayload | null> {
 
     return payload as unknown as UserJWTPayload;
   } catch (error) {
-    console.warn("JWT verification failed in middleware:", error);
+    console.warn("JWT verification failed in proxy:", error);
     return null;
   }
 }
@@ -86,7 +83,7 @@ async function refreshAccessToken(request: NextRequest): Promise<Response | null
 
     return response;
   } catch (error) {
-    console.warn("Failed to refresh access token in middleware:", error);
+    console.warn("Failed to refresh access token in proxy:", error);
     return null;
   }
 }
@@ -98,7 +95,7 @@ function isTokenNearExpiry(token: string): boolean {
     const expiryTime = payload.exp * 1000;
     return expiryTime < Date.now() + REFRESH_BUFFER_MS;
   } catch (error) {
-    console.warn("Failed to decode JWT in middleware:", error);
+    console.warn("Failed to decode JWT in proxy:", error);
     return false;
   }
 }
@@ -141,10 +138,10 @@ async function getUserRole(token: string): Promise<string | null> {
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 정적 파일 및 API 경로는 미들웨어 스킵
+  // 정적 파일 및 API 경로는 proxy 스킵
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
@@ -156,7 +153,6 @@ export async function middleware(request: NextRequest) {
 
   const token = request.cookies.get("authorization")?.value;
   const isAuthPage = matchesRoute(pathname, AUTH_PAGES);
-  const requiresAuth = matchesRoute(pathname, PROTECTED_ROUTES.AUTH_REQUIRED);
   const requiresAdmin = matchesRoute(pathname, PROTECTED_ROUTES.ADMIN_REQUIRED);
 
   if (token && isTokenNearExpiry(token)) {
@@ -173,39 +169,45 @@ export async function middleware(request: NextRequest) {
 
   // 1. 토큰이 없는 경우
   if (!token) {
-    if (requiresAuth || requiresAdmin) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
     return NextResponse.next();
   }
 
   // 2. 토큰 검증
   const user = await verifyToken(token);
   if (!user) {
-    // 토큰이 유효하지 않은 경우 쿠키 삭제 후 로그인 페이지로 리다이렉트
-    const response = NextResponse.redirect(new URL("/login", request.url));
+    // 토큰이 유효하지 않은 경우 쿠키 삭제 후 다음 처리로 진행
+    const response = NextResponse.next();
     response.cookies.delete("authorization");
     return response;
   }
 
-  // 3. 로그인된 사용자가 인증 페이지에 접근하는 경우
+  const userRole = await getUserRole(token);
+
+  // 3. 추가 정보 입력 전 사용자는 /signup만 허용
+  if (userRole === "PRE_REGISTER") {
+    if (pathname !== "/signup") {
+      return NextResponse.redirect(new URL("/signup", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // 4. 로그인된 사용자가 인증 페이지에 접근하는 경우
   if (isAuthPage) {
+    if (pathname === "/signup" && !userRole) {
+      return NextResponse.next();
+    }
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // 4. 관리자 권한이 필요한 경로 체크
+  // 5. 관리자 권한이 필요한 경로 체크
   if (requiresAdmin) {
-    const userRole = await getUserRole(token);
-
     if (userRole !== "ADMIN") {
       // 관리자가 아닌 경우 403 페이지로 리다이렉트
       return NextResponse.redirect(new URL("/403", request.url));
     }
   }
 
-  // 5. 모든 검증 통과
+  // 6. 모든 검증 통과
   return NextResponse.next();
 }
 
