@@ -5,8 +5,8 @@
  * apiFetch를 사용하여 API 호출만을 담당합니다.
  */
 
+import { chat } from "@/generated/orval/api";
 import type { ChatMessageRequest, ChatMessageResponse } from "@/generated/orval/models";
-import { apiFetch } from "@/lib/apiFetch";
 
 export const chatBotService = {
   /**
@@ -21,19 +21,6 @@ export const chatBotService = {
       message,
     };
 
-    const response = await apiFetch("/api/v1/ai/chat", {
-      method: "POST",
-      mode: "direct-private",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(chatRequest),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to send chat message (status ${response.status}).`);
-    }
-
-    return (await response.json()) as ChatMessageResponse;
+    return chat(chatRequest);
   },
 };
