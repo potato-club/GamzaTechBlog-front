@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import Link from "next/link";
 
 import BlogHeader from "@/components/shared/layout/BlogHeader";
@@ -82,16 +83,21 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   let initialUserRole: string | null = null;
   let initialUserProfile: UserProfileResponse | null = null;
 
-  try {
-    const userService = createUserServiceServer();
-    const personalCache: RequestInit = { cache: "no-store" };
-    initialUserRole = await userService.getUserRole(personalCache);
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("authorization")?.value;
 
-    if (initialUserRole && initialUserRole !== "PRE_REGISTER") {
-      initialUserProfile = await userService.getProfile(personalCache);
+  if (accessToken) {
+    try {
+      const userService = createUserServiceServer();
+      const personalCache: RequestInit = { cache: "no-store" };
+      initialUserRole = await userService.getUserRole(personalCache);
+
+      if (initialUserRole && initialUserRole !== "PRE_REGISTER") {
+        initialUserProfile = await userService.getProfile(personalCache);
+      }
+    } catch (error) {
+      console.warn("Failed to fetch auth state for layout:", error);
     }
-  } catch (error) {
-    console.warn("Failed to fetch auth state for layout:", error);
   }
 
   return (
