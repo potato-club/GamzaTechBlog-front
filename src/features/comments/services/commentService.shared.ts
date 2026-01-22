@@ -1,10 +1,10 @@
+import type { DefaultApi } from "@/generated/api";
 import type {
   CommentRequest,
   CommentResponse,
-  DefaultApi,
   Pageable,
   PagedResponseCommentListResponse,
-} from "@/generated/api";
+} from "@/generated/orval/models";
 
 /**
  * Comment Service 팩토리 함수

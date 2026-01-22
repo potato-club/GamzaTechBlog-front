@@ -1,6 +1,6 @@
 "use server";
 
-import type { IntroResponse } from "@/generated/api";
+import type { IntroResponse } from "@/generated/orval/models";
 import { withActionResult } from "@/lib/actionResult";
 import { createBackendApiClient } from "@/lib/serverApiClient";
 import { introCacheInvalidation } from "../utils/cacheInvalidation";

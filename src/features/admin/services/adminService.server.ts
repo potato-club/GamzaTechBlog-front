@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { PendingUserResponse } from "@/generated/api/models";
+import type { PendingUserResponse } from "@/generated/orval/models";
 import { createBackendApiClient } from "@/lib/serverApiClient";
 
 export const createAdminServiceServer = () => {

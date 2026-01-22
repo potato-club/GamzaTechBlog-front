@@ -1,4 +1,4 @@
-import { UpdateProfileRequest, UserProfileResponse } from "@/generated/api/models";
+import type { UpdateProfileRequest, UserProfileResponse } from "@/generated/orval/models";
 
 // 컴포넌트 Props 타입
 

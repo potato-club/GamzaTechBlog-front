@@ -9,7 +9,7 @@ import type {
   UpdateProfileRequest,
   UserProfileRequest,
   UserProfileResponse,
-} from "@/generated/api";
+} from "@/generated/orval/models";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 // Mock next/navigation

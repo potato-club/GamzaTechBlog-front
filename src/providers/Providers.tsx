@@ -1,7 +1,7 @@
 "use client";
 
 import { AuthProvider } from "@/contexts/AuthContext";
-import type { UserProfileResponse } from "@/generated/api/models";
+import type { UserProfileResponse } from "@/generated/orval/models";
 import { QueryProvider } from "./QueryProvider";
 
 interface ProvidersProps {

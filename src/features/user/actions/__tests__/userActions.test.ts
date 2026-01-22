@@ -10,7 +10,7 @@ import type {
   UpdateProfileRequest,
   UserProfileRequest,
   UserProfileResponse,
-} from "@/generated/api";
+} from "@/generated/orval/models";
 
 jest.mock("@/features/user/services/userService.server", () => ({
   createUserServiceServer: jest.fn(),

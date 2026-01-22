@@ -13,7 +13,7 @@ import type {
   UpdateProfileRequest,
   UserProfileRequest,
   UserProfileResponse,
-} from "@/generated/api";
+} from "@/generated/orval/models";
 import type { ActionResult } from "@/lib/actionResult";
 import { handleTokenExpiration } from "@/lib/tokenManager";
 import { useActionMutation, type ActionMutationOptions } from "@/lib/useActionMutation";

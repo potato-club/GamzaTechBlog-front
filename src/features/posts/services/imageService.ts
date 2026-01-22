@@ -1,4 +1,4 @@
-import type { ResponseDtoString } from "@/generated/api/models";
+import type { ResponseDtoString } from "@/generated/orval/models";
 
 export const imageService = {
   /**

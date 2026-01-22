@@ -5,7 +5,7 @@
  * apiFetch를 사용하여 API 호출만을 담당합니다.
  */
 
-import { ChatMessageRequest, ChatMessageResponse } from "@/generated/api";
+import type { ChatMessageRequest, ChatMessageResponse } from "@/generated/orval/models";
 import { apiFetch } from "@/lib/apiFetch";
 
 export const chatBotService = {

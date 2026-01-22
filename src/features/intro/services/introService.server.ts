@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { Pageable, PagedResponseIntroResponse } from "@/generated/api";
+import type { Pageable, PagedResponseIntroResponse } from "@/generated/orval/models";
 import { createBackendApiClient } from "@/lib/serverApiClient";
 
 type NextOptions = { revalidate?: number | false; tags?: string[] };

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import type { UserProfileResponse } from "@/generated/api/models";
+import type { UserProfileResponse } from "@/generated/orval/models";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useAuth } from "@/hooks/useAuth";
 

@@ -10,7 +10,7 @@
 import { Button } from "@/components/ui/button";
 import { UI_CONSTANTS } from "@/constants/ui";
 import { useCreateComment } from "@/features/comments";
-import { CommentResponse, UserProfileResponse } from "@/generated/api";
+import type { CommentResponse, UserProfileResponse } from "@/generated/orval/models";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import { FormEvent, useCallback, useState } from "react";

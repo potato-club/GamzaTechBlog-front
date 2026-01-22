@@ -1,6 +1,6 @@
 import IntroForm from "@/features/intro/components/IntroForm";
 import IntroList from "@/features/intro/components/IntroList";
-import type { IntroResponse } from "@/generated/api";
+import type { IntroResponse } from "@/generated/orval/models";
 
 interface WelcomeBoardSectionProps {
   intros: IntroResponse[];

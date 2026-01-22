@@ -7,7 +7,7 @@ import type {
 } from "@/features/posts/actions/types";
 import { createPostServiceServer } from "@/features/posts/services/postService.server";
 import { postCacheInvalidation } from "@/features/posts/utils/cacheInvalidation";
-import type { PostResponse } from "@/generated/api";
+import type { PostResponse } from "@/generated/orval/models";
 import { withActionResult } from "@/lib/actionResult";
 
 /**

@@ -8,7 +8,7 @@
 
 import { Position } from "@/enums/position";
 import { SignupForm } from "@/features/auth";
-import type { UserProfileRequest } from "@/generated/api";
+import type { UserProfileRequest } from "@/generated/orval/models";
 import { useAuth } from "@/hooks/useAuth";
 import { SignupFormValues, signupSchema } from "@/lib/schemas/signupSchema";
 import { zodResolver } from "@hookform/resolvers/zod";

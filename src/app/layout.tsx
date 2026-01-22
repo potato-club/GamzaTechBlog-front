@@ -6,7 +6,7 @@ import Footer from "@/components/shared/layout/Footer";
 import { Toaster } from "@/components/ui";
 import ChatBot from "@/features/chatbot/components/ChatBot";
 import { createUserServiceServer } from "@/features/user/services/userService.server";
-import type { UserProfileResponse } from "@/generated/api/models";
+import type { UserProfileResponse } from "@/generated/orval/models";
 import Providers from "@/providers/Providers";
 import { pretendard } from "./fonts";
 import "./globals.css";

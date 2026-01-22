@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useDeleteComment } from "@/features/comments";
-import { CommentResponse } from "@/generated/api";
+import type { CommentResponse } from "@/generated/orval/models";
 import { useAuth } from "@/hooks/useAuth";
 
 import { DropdownActionItem } from "@/types/dropdown";

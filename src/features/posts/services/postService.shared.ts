@@ -1,5 +1,5 @@
+import type { DefaultApi } from "@/generated/api";
 import type {
-  DefaultApi,
   HomeFeedResponse,
   Pageable,
   PagedResponseLikeResponse,
@@ -9,7 +9,7 @@ import type {
   PostRequest,
   PostResponse,
   ResponseDtoPagedResponsePostListResponse,
-} from "@/generated/api";
+} from "@/generated/orval/models";
 import { apiFetch } from "@/lib/apiFetch";
 
 type NextOptions = { revalidate?: number | false; tags?: string[] };

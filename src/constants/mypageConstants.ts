@@ -1,6 +1,6 @@
 // src/constants/mypageConstants.ts
 
-import { UserActivityResponse } from "../generated/api";
+import type { UserActivityResponse } from "@/generated/orval/models";
 
 // 각 스탯 아이템의 정적 정보를 정의합니다.
 export const MY_PAGE_STATS_DEFINITIONS = [

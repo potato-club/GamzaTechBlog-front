@@ -1,4 +1,4 @@
-import { PostDetailResponse, PostListResponse, PostResponse } from "@/generated/api/models";
+import type { PostDetailResponse, PostListResponse, PostResponse } from "@/generated/orval/models";
 
 // 컴포넌트 Props 타입
 export interface PostCardProps {

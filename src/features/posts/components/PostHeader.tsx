@@ -1,7 +1,7 @@
 import { ProfileLink } from "@/components/shared/ProfileLink";
 import TagBadge from "@/components/ui/TagBadge";
 import { UI_CONSTANTS } from "@/constants/ui";
-import { PostDetailResponse } from "@/generated/api";
+import type { PostDetailResponse } from "@/generated/orval/models";
 import Image from "next/image";
 import { isValidTagArray } from "../../../lib/typeGuards";
 import { PostActionsDropdown } from "./PostActionsDropdown";

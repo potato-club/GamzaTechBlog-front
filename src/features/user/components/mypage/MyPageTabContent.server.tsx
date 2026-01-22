@@ -12,7 +12,7 @@ import type {
   PagedResponseLikeResponse,
   PagedResponsePostListResponse,
   PostListResponse,
-} from "@/generated/api/models";
+} from "@/generated/orval/models";
 import { VALID_TABS, type TabType } from "@/types/mypage";
 import MyPagePagination from "./MyPagePagination.client";
 import MyPageTabMenu from "./MyPageTabMenu.client";

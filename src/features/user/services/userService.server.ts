@@ -1,7 +1,11 @@
 import "server-only";
 
 import { createBackendApiClient } from "@/lib/serverApiClient";
-import type { Pageable, UserProfileResponse, UserPublicProfileResponse } from "@/generated/api";
+import type {
+  Pageable,
+  UserProfileResponse,
+  UserPublicProfileResponse,
+} from "@/generated/orval/models";
 import { createUserService } from "./userService.shared";
 
 /**

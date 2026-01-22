@@ -4,7 +4,7 @@
  * 프로젝트 규모에 적합한 간단한 권한 체크 함수들을 제공합니다.
  */
 
-import type { UserProfileResponse } from "@/generated/api/models";
+import type { UserProfileResponse } from "@/generated/orval/models";
 
 /**
  * 사용자가 관리자인지 확인

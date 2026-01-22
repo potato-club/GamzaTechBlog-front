@@ -1,4 +1,4 @@
-import { CommentResponse } from "@/generated/api";
+import type { CommentResponse } from "@/generated/orval/models";
 import CommentCard from "./CommentCard";
 
 // 'my' variant에서 postTitle과 postId를 사용하기 위한 확장 타입

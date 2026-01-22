@@ -9,7 +9,7 @@ import type {
   Pageable,
   PagedResponseIntroResponse,
   PagedResponsePostListResponse,
-} from "@/generated/api";
+} from "@/generated/orval/models";
 import { Metadata } from "next";
 
 export async function generateMetadata({

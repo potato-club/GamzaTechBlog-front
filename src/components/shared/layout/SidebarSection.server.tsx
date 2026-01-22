@@ -1,6 +1,6 @@
 import PopularPostsSection from "@/features/posts/components/PopularPostsSection.server";
 import TagsSection from "@/features/tags/components/TagsSection.server";
-import { PostPopularResponse } from "@/generated/api";
+import type { PostPopularResponse } from "@/generated/orval/models";
 
 /**
  * 사이드바 섹션 컴포넌트

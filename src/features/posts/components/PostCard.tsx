@@ -4,7 +4,7 @@
  */
 
 import { PostLink } from "@/components/shared/navigation/OptimizedLink";
-import { PostListResponse } from "@/generated/api";
+import type { PostListResponse } from "@/generated/orval/models";
 import { markdownToText } from "@/lib/markdown";
 import { highlightSearchKeyword } from "@/lib/textHighlight";
 import Image from "next/image";

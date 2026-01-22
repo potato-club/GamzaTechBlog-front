@@ -10,7 +10,7 @@
  */
 
 import { PostForm, useUpdatePost, type PostFormData } from "@/features/posts";
-import type { PostDetailResponse } from "@/generated/api";
+import type { PostDetailResponse } from "@/generated/orval/models";
 import { useAuth } from "@/hooks/useAuth";
 import { canEditPost } from "@/lib/auth";
 import { useRouter } from "next/navigation";

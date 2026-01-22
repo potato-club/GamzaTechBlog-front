@@ -4,7 +4,7 @@ import { createMyPageStats } from "@/constants/mypageConstants";
 import ProfileEditDialog from "@/features/user/components/ProfileEditDialog";
 import UserActivityStatItem from "@/features/user/components/UserActivityStatItem";
 import { createUserServiceServer } from "@/features/user/services/userService.server";
-import type { UserActivityResponse, UserProfileResponse } from "@/generated/api";
+import type { UserActivityResponse, UserProfileResponse } from "@/generated/orval/models";
 import Image from "next/image";
 import Link from "next/link";
 

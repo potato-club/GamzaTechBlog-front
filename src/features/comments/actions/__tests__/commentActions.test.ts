@@ -4,7 +4,7 @@ import {
 } from "@/features/comments/actions/commentActions";
 import { createCommentServiceServer } from "@/features/comments/services/commentService.server";
 import { postCacheInvalidation } from "@/features/posts/utils/cacheInvalidation";
-import type { CommentRequest, CommentResponse } from "@/generated/api";
+import type { CommentRequest, CommentResponse } from "@/generated/orval/models";
 
 jest.mock("@/features/comments/services/commentService.server", () => ({
   createCommentServiceServer: jest.fn(),

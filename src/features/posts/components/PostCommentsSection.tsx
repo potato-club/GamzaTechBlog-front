@@ -8,7 +8,7 @@
  */
 
 import { CommentForm, CommentList } from "@/features/comments";
-import type { CommentResponse } from "@/generated/api";
+import type { CommentResponse } from "@/generated/orval/models";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";

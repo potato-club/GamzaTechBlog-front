@@ -1,4 +1,4 @@
-import type { PostRequest } from "@/generated/api";
+import type { PostRequest } from "@/generated/orval/models";
 export type { ActionResult } from "@/lib/actionResult";
 
 /**

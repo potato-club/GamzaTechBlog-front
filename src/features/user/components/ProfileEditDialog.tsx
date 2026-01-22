@@ -35,7 +35,7 @@ import {
 
 import { Position } from "@/enums/position";
 import { useUpdateProfile, useUpdateProfileImage, useWithdrawAccount } from "@/features/user";
-import type { UpdateProfileRequest, UserProfileResponse } from "@/generated/api";
+import type { UpdateProfileRequest, UserProfileResponse } from "@/generated/orval/models";
 import { cn } from "@/lib/utils";
 import { Camera, UserIcon } from "lucide-react";
 import Image from "next/image";

@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import type { UserProfileResponse } from "@/generated/api/models";
+import type { UserProfileResponse } from "@/generated/orval/models";
 import { HeaderNavigation } from "@/components/shared/layout/HeaderNavigation";
 
 const pushMock = jest.fn();

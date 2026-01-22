@@ -5,7 +5,7 @@ import type {
   UpdateProfileRequest,
   UserProfileRequest,
   UserProfileResponse,
-} from "@/generated/api";
+} from "@/generated/orval/models";
 import { withActionResult } from "@/lib/actionResult";
 import { createUserServiceServer } from "../services/userService.server";
 

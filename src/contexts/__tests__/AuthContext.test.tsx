@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import type { UserProfileResponse } from "@/generated/api/models";
+import type { UserProfileResponse } from "@/generated/orval/models";
 import { AuthProvider, useAuthContext } from "@/contexts/AuthContext";
 
 function AuthProbe() {

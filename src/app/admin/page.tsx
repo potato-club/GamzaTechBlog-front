@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import UserApprovalTable from "@/features/admin/components/UserApprovalTable";
 import { createAdminServiceServer } from "@/features/admin/services/adminService.server";
-import type { PendingUserResponse } from "@/generated/api/models";
+import type { PendingUserResponse } from "@/generated/orval/models";
 
 export default async function AdminPage() {
   let users: PendingUserResponse[] = [];

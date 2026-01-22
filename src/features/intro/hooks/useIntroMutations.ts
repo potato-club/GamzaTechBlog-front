@@ -5,7 +5,7 @@
  * 읽기 작업은 서버 컴포넌트에서 처리
  */
 
-import type { IntroResponse } from "@/generated/api/models";
+import type { IntroResponse } from "@/generated/orval/models";
 import type { ActionResult } from "@/lib/actionResult";
 import { useActionMutation, type ActionMutationOptions } from "@/lib/useActionMutation";
 import { createIntroAction, deleteIntroAction } from "../actions/introActions";

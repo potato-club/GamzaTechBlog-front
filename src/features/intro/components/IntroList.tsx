@@ -1,5 +1,5 @@
 import PaginationWrapper from "@/components/shared/pagination/PaginationWrapper";
-import type { IntroResponse } from "@/generated/api";
+import type { IntroResponse } from "@/generated/orval/models";
 import IntroCard from "./IntroCard";
 
 interface IntroListProps {

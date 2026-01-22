@@ -8,7 +8,7 @@
  * - 검색 키워드 하이라이트
  */
 
-import { PostListResponse } from "@/generated/api/models";
+import type { PostListResponse } from "@/generated/orval/models";
 import PostCard from "./PostCard";
 import PostListSkeleton from "./skeletons/PostListSkeleton";
 

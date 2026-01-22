@@ -5,7 +5,7 @@ import {
 } from "@/features/posts/actions/postActions";
 import { createPostServiceServer } from "@/features/posts/services/postService.server";
 import { postCacheInvalidation } from "@/features/posts/utils/cacheInvalidation";
-import type { PostRequest, PostResponse } from "@/generated/api";
+import type { PostRequest, PostResponse } from "@/generated/orval/models";
 
 jest.mock("@/features/posts/services/postService.server", () => ({
   createPostServiceServer: jest.fn(),

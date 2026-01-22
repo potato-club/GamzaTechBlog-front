@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { INTRO_TEXTS } from "@/constants/uiTexts";
-import { IntroResponse } from "@/generated/api";
+import type { IntroResponse } from "@/generated/orval/models";
 import { useAuth } from "@/hooks/useAuth";
 import { DropdownActionItem } from "@/types/dropdown";
 import Image from "next/image";

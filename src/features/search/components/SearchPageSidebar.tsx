@@ -6,7 +6,7 @@
  */
 
 import PopularPostsSection from "@/features/posts/components/PopularPostsSection.server";
-import type { PostPopularResponse } from "@/generated/api";
+import type { PostPopularResponse } from "@/generated/orval/models";
 
 interface SearchPageSidebarProps {
   popularPosts: PostPopularResponse[];

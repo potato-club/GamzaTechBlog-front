@@ -5,7 +5,7 @@
  * 읽기 작업은 useCommentQueries.ts (또는 해당 read 훅)에서 처리합니다.
  */
 
-import type { CommentRequest, CommentResponse } from "@/generated/api";
+import type { CommentRequest, CommentResponse } from "@/generated/orval/models";
 import type { ActionResult } from "@/lib/actionResult";
 import { useActionMutation, type ActionMutationOptions } from "@/lib/useActionMutation";
 import { createCommentAction, deleteCommentAction } from "../actions/commentActions";

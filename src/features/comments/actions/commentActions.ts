@@ -1,6 +1,6 @@
 "use server";
 
-import type { CommentRequest, CommentResponse } from "@/generated/api";
+import type { CommentRequest, CommentResponse } from "@/generated/orval/models";
 import { postCacheInvalidation } from "@/features/posts/utils/cacheInvalidation";
 import { createCommentServiceServer } from "../services/commentService.server";
 import { withActionResult } from "@/lib/actionResult";

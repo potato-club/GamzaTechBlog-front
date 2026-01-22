@@ -1,6 +1,6 @@
 import LogoSection from "@/components/shared/layout/LogoSection";
 import SidebarSection from "@/components/shared/layout/SidebarSection.server";
-import { PostPopularResponse } from "@/generated/api";
+import type { PostPopularResponse } from "@/generated/orval/models";
 import { ReactNode } from "react";
 
 interface ContentLayoutProps {

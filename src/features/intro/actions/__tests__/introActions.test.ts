@@ -1,5 +1,5 @@
 import { createIntroAction, deleteIntroAction } from "@/features/intro/actions/introActions";
-import type { IntroResponse } from "@/generated/api";
+import type { IntroResponse } from "@/generated/orval/models";
 import { createBackendApiClient } from "@/lib/serverApiClient";
 
 jest.mock("@/lib/serverApiClient", () => ({

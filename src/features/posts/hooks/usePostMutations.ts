@@ -5,7 +5,7 @@ import {
   deletePostAction,
   updatePostAction,
 } from "@/features/posts/actions/postActions";
-import type { PostResponse } from "@/generated/api";
+import type { PostResponse } from "@/generated/orval/models";
 import { useActionMutation, type ActionMutationOptions } from "@/lib/useActionMutation";
 import type {
   ActionResult,

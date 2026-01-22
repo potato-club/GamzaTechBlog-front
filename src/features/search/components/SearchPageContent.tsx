@@ -8,7 +8,7 @@
 import PaginationWrapper from "@/components/shared/pagination/PaginationWrapper";
 import PostList from "@/features/posts/components/PostList";
 import { createPostServiceServer } from "@/features/posts/services/postService.server";
-import type { Pageable, PostListResponse, PostPopularResponse } from "@/generated/api";
+import type { Pageable, PostListResponse, PostPopularResponse } from "@/generated/orval/models";
 import SearchPageSidebar from "./SearchPageSidebar";
 
 interface SearchPageContentProps {

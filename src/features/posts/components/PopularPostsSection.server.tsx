@@ -1,5 +1,5 @@
 import PopularPost from "@/features/posts/components/PopularPost";
-import { PostPopularResponse } from "@/generated/api";
+import type { PostPopularResponse } from "@/generated/orval/models";
 
 /**
  * 인기 게시글 섹션 컴포넌트

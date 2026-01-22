@@ -1,5 +1,5 @@
+import type { DefaultApi } from "@/generated/api";
 import type {
-  DefaultApi,
   Pageable,
   ProfileImageResponse,
   UpdateProfileRequest,
@@ -7,7 +7,7 @@ import type {
   UserProfileRequest,
   UserProfileResponse,
   UserPublicProfileResponse,
-} from "@/generated/api";
+} from "@/generated/orval/models";
 
 /**
  * User Service 팩토리 함수

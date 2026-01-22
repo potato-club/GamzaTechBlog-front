@@ -1,6 +1,6 @@
 "use client";
 
-import type { UserProfileResponse } from "@/generated/api/models";
+import type { UserProfileResponse } from "@/generated/orval/models";
 import { createContext, useContext, useMemo } from "react";
 
 export interface AuthContextValue {

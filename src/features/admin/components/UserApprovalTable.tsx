@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useApproveUser } from "@/features/admin";
-import { PendingUserResponse } from "@/generated/api/models";
+import type { PendingUserResponse } from "@/generated/orval/models";
 
 interface UserApprovalTableProps {
   users: PendingUserResponse[];
