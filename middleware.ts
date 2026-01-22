@@ -1,4 +1,4 @@
-import { jwtVerify } from "jose";
+import { decodeJwt, jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -18,6 +18,8 @@ const PROTECTED_ROUTES = {
 
 // 인증 페이지 경로 (로그인된 사용자는 접근 불가)
 const AUTH_PAGES = ["/login", "/signup"] as const;
+
+const REFRESH_BUFFER_MS = 60 * 1000;
 
 interface UserJWTPayload {
   sub: string;
@@ -55,6 +57,49 @@ async function verifyToken(token: string): Promise<UserJWTPayload | null> {
   } catch (error) {
     console.warn("JWT verification failed in middleware:", error);
     return null;
+  }
+}
+
+async function refreshAccessToken(request: NextRequest): Promise<Response | null> {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  if (!apiBaseUrl) {
+    console.warn("NEXT_PUBLIC_API_BASE_URL is not configured");
+    return null;
+  }
+
+  try {
+    const cookie = request.headers.get("cookie");
+    const headers = new Headers();
+
+    if (cookie) {
+      headers.set("cookie", cookie);
+    }
+
+    const response = await fetch(`${apiBaseUrl}/api/auth/reissue`, {
+      method: "POST",
+      headers,
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return response;
+  } catch (error) {
+    console.warn("Failed to refresh access token in middleware:", error);
+    return null;
+  }
+}
+
+function isTokenNearExpiry(token: string): boolean {
+  try {
+    const payload = decodeJwt(token);
+    if (!payload.exp) return false;
+    const expiryTime = payload.exp * 1000;
+    return expiryTime < Date.now() + REFRESH_BUFFER_MS;
+  } catch (error) {
+    console.warn("Failed to decode JWT in middleware:", error);
+    return false;
   }
 }
 
@@ -113,6 +158,18 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = matchesRoute(pathname, AUTH_PAGES);
   const requiresAuth = matchesRoute(pathname, PROTECTED_ROUTES.AUTH_REQUIRED);
   const requiresAdmin = matchesRoute(pathname, PROTECTED_ROUTES.ADMIN_REQUIRED);
+
+  if (token && isTokenNearExpiry(token)) {
+    const refreshResponse = await refreshAccessToken(request);
+    if (refreshResponse) {
+      const response = NextResponse.next();
+      const setCookie = refreshResponse.headers.get("set-cookie");
+      if (setCookie) {
+        response.headers.set("set-cookie", setCookie);
+      }
+      return response;
+    }
+  }
 
   // 1. 토큰이 없는 경우
   if (!token) {

@@ -53,50 +53,93 @@ function buildUrlWithParams(baseUrl: string, params?: Record<string, unknown>): 
 export async function orvalFetcher<T>(options: OrvalFetcherOptions): Promise<T> {
   const { url, method, headers: customHeaders, params, data, signal } = options;
 
-  const fullUrl = buildUrlWithParams(`${API_BASE_URL}${url}`, params);
+  const executeRequest = async (): Promise<Response> => {
+    const fullUrl = buildUrlWithParams(`${API_BASE_URL}${url}`, params);
+    const headers = new Headers(customHeaders);
 
-  const headers = new Headers(customHeaders);
+    if (data && !headers.has("Content-Type") && !(data instanceof FormData)) {
+      headers.set("Content-Type", "application/json");
+    }
 
-  // Content-Type 설정 (FormData가 아닌 경우)
-  if (data && !headers.has("Content-Type") && !(data instanceof FormData)) {
-    headers.set("Content-Type", "application/json");
-  }
+    const requestInit: RequestInit = {
+      method,
+      headers,
+      signal,
+      credentials: "include",
+    };
 
-  const requestInit: RequestInit = {
-    method,
-    headers,
-    signal,
-    credentials: "include", // 쿠키 포함 (인증용)
+    if (data) {
+      requestInit.body = data instanceof FormData ? data : JSON.stringify(data);
+    }
+
+    return fetch(fullUrl, requestInit);
   };
 
-  // Body 설정
-  if (data) {
-    if (data instanceof FormData) {
-      requestInit.body = data;
-    } else {
-      requestInit.body = JSON.stringify(data);
+  const handleResponse = async (response: Response): Promise<T> => {
+    if (!response.ok) {
+      const errorBody = await response.text().catch(() => "Unknown error");
+      throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
     }
+
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      return (await response.text()) as T;
+    }
+
+    return response.json();
+  };
+
+  const response = await executeRequest();
+
+  if (response.status === 401 && typeof window !== "undefined") {
+    const refreshed = await handleTokenRefresh();
+    if (refreshed) {
+      const retryResponse = await executeRequest();
+      return handleResponse(retryResponse);
+    }
+    window.location.href = "/login";
   }
 
-  const response = await fetch(fullUrl, requestInit);
+  return handleResponse(response);
+}
 
-  if (!response.ok) {
-    const errorBody = await response.text().catch(() => "Unknown error");
-    throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
+let isRefreshing = false;
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshToken(): Promise<boolean> {
+  if (!API_BASE_URL) return false;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/reissue`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.warn("Failed to refresh token:", error);
+    return false;
+  }
+}
+
+async function handleTokenRefresh(): Promise<boolean> {
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
   }
 
-  // 204 No Content 처리
-  if (response.status === 204) {
-    return undefined as T;
-  }
+  isRefreshing = true;
+  refreshPromise = refreshToken();
 
-  // JSON 응답이 아닌 경우 처리
-  const contentType = response.headers.get("content-type");
-  if (!contentType?.includes("application/json")) {
-    return (await response.text()) as T;
+  try {
+    return await refreshPromise;
+  } finally {
+    isRefreshing = false;
+    refreshPromise = null;
   }
-
-  return response.json();
 }
 
 export default orvalFetcher;
