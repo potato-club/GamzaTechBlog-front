@@ -1,4 +1,5 @@
-import type { DefaultApi } from "@/generated/api";
+import "server-only";
+
 import type {
   HomeFeedResponse,
   Pageable,
@@ -8,9 +9,15 @@ import type {
   PostPopularResponse,
   PostRequest,
   PostResponse,
+  ResponseDtoHomeFeedResponse,
+  ResponseDtoListPostPopularResponse,
+  ResponseDtoListString,
   ResponseDtoPagedResponsePostListResponse,
+  ResponseDtoPagedResponseLikeResponse,
+  ResponseDtoPostDetailResponse,
+  ResponseDtoPostResponse,
 } from "@/generated/orval/models";
-import { apiFetch } from "@/lib/apiFetch";
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 
 type NextOptions = { revalidate?: number | false; tags?: string[] };
 type RequestInitWithNext = RequestInit & { next?: NextOptions };
@@ -29,24 +36,37 @@ const mergeNextOptions = (
   };
 };
 
+const buildPageParams = (params?: Pageable) => {
+  const searchParams = new URLSearchParams();
+
+  if (typeof params?.page === "number") {
+    searchParams.set("page", params.page.toString());
+  }
+  if (typeof params?.size === "number") {
+    searchParams.set("size", params.size.toString());
+  }
+  if (params?.sort?.length) {
+    params.sort.forEach((sortKey) => {
+      searchParams.append("sort", sortKey);
+    });
+  }
+
+  return searchParams;
+};
+
+const buildQueryString = (params?: Pageable) => {
+  const query = buildPageParams(params).toString();
+  return query ? `?${query}` : "";
+};
+
 /**
  * Post Service 팩토리 함수
  *
- * 클라이언트/서버 환경 모두에서 사용 가능한 공통 로직을 제공합니다.
- * API 클라이언트 인스턴스를 주입받아 환경에 독립적으로 동작합니다.
+ * 서버 환경에서 사용 가능한 공통 로직을 제공합니다.
  *
- * @param api - DefaultApi 인스턴스 (클라이언트용 또는 서버용)
  * @returns Post Service 객체
- *
- * @example
- * // 클라이언트 환경
- * const postService = createPostService(apiClient);
- *
- * @example
- * // 서버 환경
- * const postService = createPostService(createBackendApiClient());
  */
-export const createPostService = (api: DefaultApi) => {
+export const createPostService = () => {
   return {
     /**
      * 최신순 게시물 목록을 조회합니다.
@@ -60,8 +80,17 @@ export const createPostService = (api: DefaultApi) => {
       options?: RequestInitWithNext
     ): Promise<PagedResponsePostListResponse> {
       const mergedOptions = mergeNextOptions(options, ["posts-list"]);
-      const response = await api.getPosts({ ...params }, mergedOptions);
-      return response.data as PagedResponsePostListResponse;
+      const query = buildQueryString(params);
+      const payload = await serverApiFetchJson<ResponseDtoPagedResponsePostListResponse>(
+        `/api/v1/posts${query}`,
+        mergedOptions
+      );
+
+      if (!payload.data) {
+        throw new Error("Posts response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -72,8 +101,16 @@ export const createPostService = (api: DefaultApi) => {
      */
     async getPopularPosts(options?: RequestInitWithNext): Promise<PostPopularResponse[]> {
       const mergedOptions = mergeNextOptions(options, ["posts-popular"]);
-      const response = await api.getWeeklyPopularPosts(mergedOptions);
-      return response.data as PostPopularResponse[];
+      const payload = await serverApiFetchJson<ResponseDtoListPostPopularResponse>(
+        "/api/v1/posts/popular",
+        mergedOptions
+      );
+
+      if (!payload.data) {
+        throw new Error("Popular posts response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -90,8 +127,17 @@ export const createPostService = (api: DefaultApi) => {
       options?: RequestInitWithNext
     ): Promise<PagedResponsePostListResponse> {
       const mergedOptions = mergeNextOptions(options, ["posts-list"]);
-      const response = await api.getPostsByTag({ tagName, ...params }, mergedOptions);
-      return response.data as PagedResponsePostListResponse;
+      const query = buildQueryString(params);
+      const payload = await serverApiFetchJson<ResponseDtoPagedResponsePostListResponse>(
+        `/api/v1/posts/tags/${tagName}${query}`,
+        mergedOptions
+      );
+
+      if (!payload.data) {
+        throw new Error("Posts by tag response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -102,8 +148,16 @@ export const createPostService = (api: DefaultApi) => {
      */
     async getTags(options?: RequestInitWithNext): Promise<string[]> {
       const mergedOptions = mergeNextOptions(options, ["tags"]);
-      const response = await api.getAllTags(mergedOptions);
-      return response.data as string[];
+      const payload = await serverApiFetchJson<ResponseDtoListString>(
+        "/api/v1/tags",
+        mergedOptions
+      );
+
+      if (!payload.data) {
+        throw new Error("Tags response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -115,8 +169,16 @@ export const createPostService = (api: DefaultApi) => {
      */
     async getPostById(postId: number, options?: RequestInitWithNext): Promise<PostDetailResponse> {
       const mergedOptions = mergeNextOptions(options, [`post-${postId}`]);
-      const response = await api.getPostDetail({ postId }, mergedOptions);
-      return response.data as PostDetailResponse;
+      const payload = await serverApiFetchJson<ResponseDtoPostDetailResponse>(
+        `/api/v1/posts/${postId}`,
+        mergedOptions
+      );
+
+      if (!payload.data) {
+        throw new Error("Post detail response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -126,8 +188,16 @@ export const createPostService = (api: DefaultApi) => {
      * @returns 생성된 게시글 정보
      */
     async createPost(post: PostRequest): Promise<PostResponse> {
-      const response = await api.publishPost({ postRequest: post });
-      return response.data as PostResponse;
+      const payload = await serverApiFetchJson<ResponseDtoPostResponse>("/api/v1/posts", {
+        method: "POST",
+        body: JSON.stringify(post),
+      });
+
+      if (!payload.data) {
+        throw new Error("Post response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -141,8 +211,17 @@ export const createPostService = (api: DefaultApi) => {
       params: Pageable,
       options?: RequestInit
     ): Promise<PagedResponsePostListResponse> {
-      const response = await api.getMyPosts(params, options);
-      return response.data as PagedResponsePostListResponse;
+      const query = buildQueryString(params);
+      const payload = await serverApiFetchJson<ResponseDtoPagedResponsePostListResponse>(
+        `/api/v1/posts/me${query}`,
+        options
+      );
+
+      if (!payload.data) {
+        throw new Error("User posts response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -151,7 +230,9 @@ export const createPostService = (api: DefaultApi) => {
      * @param postId - 삭제할 게시글 ID
      */
     async deletePost(postId: number): Promise<void> {
-      await api.removePost({ id: postId });
+      await serverApiFetchJson(`/api/v1/posts/${postId}`, {
+        method: "DELETE",
+      });
     },
 
     /**
@@ -165,8 +246,17 @@ export const createPostService = (api: DefaultApi) => {
       params: Pageable,
       options?: RequestInit
     ): Promise<PagedResponseLikeResponse> {
-      const response = await api.getMyLikes(params, options);
-      return response.data as PagedResponseLikeResponse;
+      const query = buildQueryString(params);
+      const payload = await serverApiFetchJson<ResponseDtoPagedResponseLikeResponse>(
+        `/api/v1/likes/me${query}`,
+        options
+      );
+
+      if (!payload.data) {
+        throw new Error("User likes response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -177,8 +267,19 @@ export const createPostService = (api: DefaultApi) => {
      * @returns 수정된 게시글 정보
      */
     async updatePost(postId: number, postData: PostRequest): Promise<PostResponse> {
-      const response = await api.revisePost({ id: postId, postRequest: postData });
-      return response.data as PostResponse;
+      const payload = await serverApiFetchJson<ResponseDtoPostResponse>(
+        `/api/v1/posts/${postId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(postData),
+        }
+      );
+
+      if (!payload.data) {
+        throw new Error("Post response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -193,34 +294,20 @@ export const createPostService = (api: DefaultApi) => {
       params: Pageable,
       options?: RequestInit
     ): Promise<PagedResponsePostListResponse> {
-      const searchParams = new URLSearchParams({ keyword });
-      if (typeof params.page === "number") {
-        searchParams.set("page", params.page.toString());
-      }
-      if (typeof params.size === "number") {
-        searchParams.set("size", params.size.toString());
-      }
-      if (params.sort?.length) {
-        params.sort.forEach((sortKey) => {
-          searchParams.append("sort", sortKey);
-        });
-      }
+      const searchParams = buildPageParams(params);
+      searchParams.set("keyword", keyword);
 
-      const response = await apiFetch(`/api/v1/posts/search?${searchParams.toString()}`, {
-        ...options,
-        mode: "direct-public",
-      });
+      const query = searchParams.toString();
+      const payload = await serverApiFetchJson<ResponseDtoPagedResponsePostListResponse>(
+        `/api/v1/posts/search?${query}`,
+        options
+      );
 
-      if (!response.ok) {
-        throw new Error(`Failed to search posts (status ${response.status}).`);
-      }
-
-      const payload = (await response.json()) as ResponseDtoPagedResponsePostListResponse | null;
-      if (!payload?.data) {
+      if (!payload.data) {
         throw new Error("Search response data is missing.");
       }
 
-      return payload.data as PagedResponsePostListResponse;
+      return payload.data;
     },
 
     /**
@@ -239,8 +326,36 @@ export const createPostService = (api: DefaultApi) => {
       },
       options?: RequestInit
     ): Promise<HomeFeedResponse> {
-      const response = await api.getHomeFeed(params || {}, options);
-      return response.data as HomeFeedResponse;
+      const searchParams = new URLSearchParams();
+
+      if (typeof params?.page === "number") {
+        searchParams.set("page", params.page.toString());
+      }
+      if (typeof params?.size === "number") {
+        searchParams.set("size", params.size.toString());
+      }
+      if (params?.sort?.length) {
+        params.sort.forEach((sortKey) => {
+          searchParams.append("sort", sortKey);
+        });
+      }
+      if (params?.tags?.length) {
+        params.tags.forEach((tag) => {
+          searchParams.append("tags", tag);
+        });
+      }
+
+      const query = searchParams.toString();
+      const payload = await serverApiFetchJson<ResponseDtoHomeFeedResponse>(
+        `/api/v1/posts/feed${query ? `?${query}` : ""}`,
+        options
+      );
+
+      if (!payload.data) {
+        throw new Error("Home feed response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -254,14 +369,22 @@ export const createPostService = (api: DefaultApi) => {
     ): Promise<{ weeklyPopular: PostPopularResponse[]; allTags: string[] }> {
       const popularOptions = mergeNextOptions(options, ["posts-popular"]);
       const tagsOptions = mergeNextOptions(options, ["tags"]);
-      const [popularPosts, tags] = await Promise.all([
-        api.getWeeklyPopularPosts(popularOptions).then((res) => res.data as PostPopularResponse[]),
-        api.getAllTags(tagsOptions).then((res) => res.data as string[]),
+
+      const [popularPayload, tagsPayload] = await Promise.all([
+        serverApiFetchJson<ResponseDtoListPostPopularResponse>(
+          "/api/v1/posts/popular",
+          popularOptions
+        ),
+        serverApiFetchJson<ResponseDtoListString>("/api/v1/tags", tagsOptions),
       ]);
 
+      if (!popularPayload.data || !tagsPayload.data) {
+        throw new Error("Sidebar response data is missing.");
+      }
+
       return {
-        weeklyPopular: popularPosts,
-        allTags: tags,
+        weeklyPopular: popularPayload.data,
+        allTags: tagsPayload.data,
       };
     },
   };

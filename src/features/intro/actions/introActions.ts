@@ -1,24 +1,29 @@
 "use server";
 
-import type { IntroResponse } from "@/generated/orval/models";
+import type { IntroResponse, ResponseDtoIntroResponse } from "@/generated/orval/models";
 import { withActionResult } from "@/lib/actionResult";
-import { createBackendApiClient } from "@/lib/serverApiClient";
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 import { introCacheInvalidation } from "../utils/cacheInvalidation";
 
 export const createIntroAction = withActionResult(
   async (content: string): Promise<IntroResponse> => {
-    const api = createBackendApiClient();
-    const response = await api.createIntro({
-      introCreateRequest: { content },
+    const payload = await serverApiFetchJson<ResponseDtoIntroResponse>("/api/v1/intros", {
+      method: "POST",
+      body: JSON.stringify({ content }),
     });
 
+    if (!payload.data) {
+      throw new Error("Intro response data is missing.");
+    }
+
     introCacheInvalidation.invalidateList();
-    return response.data as IntroResponse;
+    return payload.data;
   }
 );
 
 export const deleteIntroAction = withActionResult(async (introId: number): Promise<void> => {
-  const api = createBackendApiClient();
-  await api.deleteIntro({ introId });
+  await serverApiFetchJson(`/api/v1/intros/${introId}`, {
+    method: "DELETE",
+  });
   introCacheInvalidation.invalidateList();
 });

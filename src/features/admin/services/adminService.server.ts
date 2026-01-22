@@ -1,11 +1,10 @@
 import "server-only";
 
 import type { PendingUserResponse } from "@/generated/orval/models";
-import { createBackendApiClient } from "@/lib/serverApiClient";
+import type { ResponseDtoListPendingUserResponse } from "@/generated/orval/models";
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 
 export const createAdminServiceServer = () => {
-  const api = createBackendApiClient();
-
   return {
     /**
      * 승인 대기 중인 사용자 목록 조회
@@ -15,8 +14,12 @@ export const createAdminServiceServer = () => {
     async getPendingUsers(
       requestInit: RequestInit = { cache: "no-store" }
     ): Promise<PendingUserResponse[]> {
-      const response = await api.getPendingUsers(requestInit);
-      return (response.data as PendingUserResponse[]) || [];
+      const payload = await serverApiFetchJson<ResponseDtoListPendingUserResponse>(
+        "/api/admin/users/pending",
+        requestInit
+      );
+
+      return payload.data ?? [];
     },
   };
 };

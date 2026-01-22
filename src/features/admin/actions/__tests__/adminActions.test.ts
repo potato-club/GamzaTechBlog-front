@@ -1,12 +1,12 @@
 import { approveUserAction } from "@/features/admin/actions/adminActions";
-import { createBackendApiClient } from "@/lib/serverApiClient";
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 
-jest.mock("@/lib/serverApiClient", () => ({
-  createBackendApiClient: jest.fn(),
+jest.mock("@/lib/serverApiFetch", () => ({
+  serverApiFetchJson: jest.fn(),
 }));
 
-const createBackendApiClientMock = createBackendApiClient as jest.MockedFunction<
-  typeof createBackendApiClient
+const serverApiFetchJsonMock = serverApiFetchJson as jest.MockedFunction<
+  typeof serverApiFetchJson
 >;
 
 describe("adminActions", () => {
@@ -22,21 +22,21 @@ describe("adminActions", () => {
 
   it("백엔드 클라이언트로 사용자를 승인해야 함", async () => {
     // Given
-    const approveUserProfile = jest.fn().mockResolvedValue(undefined);
-    createBackendApiClientMock.mockReturnValue({ approveUserProfile } as any);
+    serverApiFetchJsonMock.mockResolvedValue(undefined);
 
     // When
     const result = await approveUserAction(55);
 
     // Then
-    expect(approveUserProfile).toHaveBeenCalledWith({ id: 55 });
+    expect(serverApiFetchJsonMock).toHaveBeenCalledWith("/api/admin/users/55/approve", {
+      method: "PUT",
+    });
     expect(result).toEqual({ success: true, data: undefined });
   });
 
   it("사용자 승인 실패 시 에러 결과를 반환해야 함", async () => {
     // Given
-    const approveUserProfile = jest.fn().mockRejectedValue(new Error("승인 실패"));
-    createBackendApiClientMock.mockReturnValue({ approveUserProfile } as any);
+    serverApiFetchJsonMock.mockRejectedValue(new Error("승인 실패"));
 
     // When
     const result = await approveUserAction(77);

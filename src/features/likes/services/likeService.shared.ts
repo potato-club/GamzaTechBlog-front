@@ -1,23 +1,15 @@
-import type { DefaultApi } from "@/generated/api";
+import "server-only";
+
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 
 /**
  * Like Service 팩토리 함수
  *
- * 클라이언트/서버 환경 모두에서 사용 가능한 공통 로직을 제공합니다.
- * API 클라이언트 인스턴스를 주입받아 환경에 독립적으로 동작합니다.
+ * 서버 환경에서 사용 가능한 공통 로직을 제공합니다.
  *
- * @param api - DefaultApi 인스턴스 (클라이언트용 또는 서버용)
  * @returns Like Service 객체
- *
- * @example
- * // 클라이언트 환경
- * const likeService = createLikeService(apiClient);
- *
- * @example
- * // 서버 환경
- * const likeService = createLikeService(createBackendApiClient());
  */
-export const createLikeService = (api: DefaultApi) => {
+export const createLikeService = () => {
   return {
     /**
      * 게시글에 좋아요를 추가합니다.
@@ -25,7 +17,9 @@ export const createLikeService = (api: DefaultApi) => {
      * @param postId - 게시글 ID
      */
     async addLike(postId: number): Promise<void> {
-      await api.likePost({ postId });
+      await serverApiFetchJson(`/api/v1/likes/${postId}`, {
+        method: "POST",
+      });
     },
 
     /**
@@ -34,7 +28,9 @@ export const createLikeService = (api: DefaultApi) => {
      * @param postId - 게시글 ID
      */
     async removeLike(postId: number): Promise<void> {
-      await api.unlikePost({ postId });
+      await serverApiFetchJson(`/api/v1/likes/${postId}`, {
+        method: "DELETE",
+      });
     },
 
     /**
@@ -45,8 +41,11 @@ export const createLikeService = (api: DefaultApi) => {
      * @returns 좋아요 상태 (true: 좋아요 누름, false: 좋아요 안누름)
      */
     async checkLikeStatus(postId: number, options?: RequestInit): Promise<boolean> {
-      const response = await api.isPostLiked({ postId }, options);
-      return response.data as boolean;
+      const payload = await serverApiFetchJson<{ data?: boolean }>(
+        `/api/v1/likes/${postId}/liked`,
+        options
+      );
+      return payload.data ?? false;
     },
   };
 };

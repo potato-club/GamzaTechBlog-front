@@ -1,4 +1,3 @@
-import { createBackendApiClient } from "@/lib/serverApiClient";
 import { createPostService } from "./postService.shared";
 
 /**
@@ -34,5 +33,5 @@ import { createPostService } from "./postService.shared";
  * ```
  */
 export const createPostServiceServer = () => {
-  return createPostService(createBackendApiClient());
+  return createPostService();
 };

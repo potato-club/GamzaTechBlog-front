@@ -1,29 +1,21 @@
-import type { DefaultApi } from "@/generated/api";
+import "server-only";
+
 import type {
   CommentRequest,
   CommentResponse,
   Pageable,
   PagedResponseCommentListResponse,
 } from "@/generated/orval/models";
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 
 /**
  * Comment Service 팩토리 함수
  *
- * 클라이언트/서버 환경 모두에서 사용 가능한 공통 로직을 제공합니다.
- * API 클라이언트 인스턴스를 주입받아 환경에 독립적으로 동작합니다.
+ * 서버 환경에서 사용 가능한 공통 로직을 제공합니다.
  *
- * @param api - DefaultApi 인스턴스 (클라이언트용 또는 서버용)
  * @returns Comment Service 객체
- *
- * @example
- * // 클라이언트 환경
- * const commentService = createCommentService(apiClient);
- *
- * @example
- * // 서버 환경
- * const commentService = createCommentService(createBackendApiClient());
  */
-export const createCommentService = (api: DefaultApi) => {
+export const createCommentService = () => {
   return {
     /**
      * 댓글을 등록합니다.
@@ -33,11 +25,19 @@ export const createCommentService = (api: DefaultApi) => {
      * @returns 생성된 댓글 정보
      */
     async registerComment(postId: number, content: CommentRequest): Promise<CommentResponse> {
-      const response = await api.addComment({
-        postId,
-        commentRequest: content,
-      });
-      return response.data as CommentResponse;
+      const payload = await serverApiFetchJson<{ data?: CommentResponse }>(
+        `/api/v1/comment/${postId}/comments`,
+        {
+          method: "POST",
+          body: JSON.stringify(content),
+        }
+      );
+
+      if (!payload.data) {
+        throw new Error("Comment response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -46,7 +46,9 @@ export const createCommentService = (api: DefaultApi) => {
      * @param commentId - 댓글 ID
      */
     async deleteComment(commentId: number): Promise<void> {
-      await api.deleteComment({ commentId });
+      await serverApiFetchJson(`/api/v1/comment/${commentId}`, {
+        method: "DELETE",
+      });
     },
 
     /**
@@ -60,8 +62,31 @@ export const createCommentService = (api: DefaultApi) => {
       params?: Pageable,
       options?: RequestInit
     ): Promise<PagedResponseCommentListResponse> {
-      const response = await api.getMyComments(params, options);
-      return response.data as PagedResponseCommentListResponse;
+      const searchParams = new URLSearchParams();
+
+      if (typeof params?.page === "number") {
+        searchParams.set("page", params.page.toString());
+      }
+      if (typeof params?.size === "number") {
+        searchParams.set("size", params.size.toString());
+      }
+      if (params?.sort?.length) {
+        params.sort.forEach((sortKey) => {
+          searchParams.append("sort", sortKey);
+        });
+      }
+
+      const query = searchParams.toString();
+      const payload = await serverApiFetchJson<{ data?: PagedResponseCommentListResponse }>(
+        `/api/v1/comment/me/comments${query ? `?${query}` : ""}`,
+        options
+      );
+
+      if (!payload.data) {
+        throw new Error("Comment list response data is missing.");
+      }
+
+      return payload.data;
     },
   };
 };

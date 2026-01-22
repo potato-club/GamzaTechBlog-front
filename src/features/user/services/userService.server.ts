@@ -1,6 +1,5 @@
 import "server-only";
 
-import { createBackendApiClient } from "@/lib/serverApiClient";
 import type {
   Pageable,
   UserProfileResponse,
@@ -38,7 +37,7 @@ import { createUserService } from "./userService.shared";
  * ```
  */
 export const createUserServiceServer = () => {
-  return createUserService(createBackendApiClient());
+  return createUserService();
 };
 
 /**

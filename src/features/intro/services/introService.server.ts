@@ -1,7 +1,8 @@
 import "server-only";
 
 import type { Pageable, PagedResponseIntroResponse } from "@/generated/orval/models";
-import { createBackendApiClient } from "@/lib/serverApiClient";
+import type { ResponseDtoPagedResponseIntroResponse } from "@/generated/orval/models";
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 
 type NextOptions = { revalidate?: number | false; tags?: string[] };
 type RequestInitWithNext = RequestInit & { next?: NextOptions };
@@ -21,16 +22,37 @@ const mergeNextOptions = (
 };
 
 export const createIntroServiceServer = () => {
-  const api = createBackendApiClient();
-
   return {
     async getIntroList(
       params?: Pageable,
       options?: RequestInitWithNext
     ): Promise<PagedResponseIntroResponse> {
       const mergedOptions = mergeNextOptions(options, ["intros-list"]);
-      const response = await api.getIntroList(params || {}, mergedOptions);
-      return response.data as PagedResponseIntroResponse;
+      const searchParams = new URLSearchParams();
+
+      if (typeof params?.page === "number") {
+        searchParams.set("page", params.page.toString());
+      }
+      if (typeof params?.size === "number") {
+        searchParams.set("size", params.size.toString());
+      }
+      if (params?.sort?.length) {
+        params.sort.forEach((sortKey) => {
+          searchParams.append("sort", sortKey);
+        });
+      }
+
+      const query = searchParams.toString();
+      const payload = await serverApiFetchJson<ResponseDtoPagedResponseIntroResponse>(
+        `/api/v1/intros${query ? `?${query}` : ""}`,
+        mergedOptions
+      );
+
+      if (!payload.data) {
+        throw new Error("Intro list response data is missing.");
+      }
+
+      return payload.data;
     },
   };
 };

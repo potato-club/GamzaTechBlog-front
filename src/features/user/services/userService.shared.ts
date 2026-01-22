@@ -1,4 +1,5 @@
-import type { DefaultApi } from "@/generated/api";
+import "server-only";
+
 import type {
   Pageable,
   ProfileImageResponse,
@@ -8,25 +9,16 @@ import type {
   UserProfileResponse,
   UserPublicProfileResponse,
 } from "@/generated/orval/models";
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 
 /**
  * User Service 팩토리 함수
  *
- * 클라이언트/서버 환경 모두에서 사용 가능한 공통 로직을 제공합니다.
- * API 클라이언트 인스턴스를 주입받아 환경에 독립적으로 동작합니다.
+ * 서버 환경에서 사용 가능한 공통 로직을 제공합니다.
  *
- * @param api - DefaultApi 인스턴스 (클라이언트용 또는 서버용)
  * @returns User Service 객체
- *
- * @example
- * // 클라이언트 환경
- * const userService = createUserService(apiClient);
- *
- * @example
- * // 서버 환경
- * const userService = createUserService(createBackendApiClient());
  */
-export const createUserService = (api: DefaultApi) => {
+export const createUserService = () => {
   return {
     /**
      * 사용자 프로필 정보를 가져옵니다.
@@ -35,15 +27,25 @@ export const createUserService = (api: DefaultApi) => {
      * @returns 사용자 프로필 정보
      */
     async getProfile(options?: RequestInit): Promise<UserProfileResponse> {
-      const response = await api.getCurrentUserProfile(options);
-      return response.data as UserProfileResponse;
+      const payload = await serverApiFetchJson<{ data?: UserProfileResponse }>(
+        "/api/v1/users/me/get/profile",
+        options
+      );
+
+      if (!payload.data) {
+        throw new Error("User profile response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
      * 로그아웃을 수행합니다.
      */
     async logout(): Promise<void> {
-      await api.logout();
+      await serverApiFetchJson("/api/auth/me/logout", {
+        method: "POST",
+      });
     },
 
     /**
@@ -53,17 +55,28 @@ export const createUserService = (api: DefaultApi) => {
      * @returns 업데이트된 프로필 정보
      */
     async updateProfileInSignup(profileData: UserProfileRequest): Promise<UserProfileResponse> {
-      const response = await api.completeProfile({
-        userProfileRequest: profileData,
-      });
-      return response.data as UserProfileResponse;
+      const payload = await serverApiFetchJson<{ data?: UserProfileResponse }>(
+        "/api/v1/users/me/complete",
+        {
+          method: "POST",
+          body: JSON.stringify(profileData),
+        }
+      );
+
+      if (!payload.data) {
+        throw new Error("User profile response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
      * 계정 탈퇴를 수행합니다.
      */
     async withdrawAccount(): Promise<void> {
-      await api.withdraw();
+      await serverApiFetchJson("/api/v1/users/me/withdraw", {
+        method: "DELETE",
+      });
     },
 
     /**
@@ -73,8 +86,16 @@ export const createUserService = (api: DefaultApi) => {
      * @returns 활동 통계 정보
      */
     async getActivityCounts(options?: RequestInit): Promise<UserActivityResponse> {
-      const response = await api.getActivitySummary(options);
-      return response.data as UserActivityResponse;
+      const payload = await serverApiFetchJson<{ data?: UserActivityResponse }>(
+        "/api/v1/users/me/activity",
+        options
+      );
+
+      if (!payload.data) {
+        throw new Error("User activity response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -85,8 +106,11 @@ export const createUserService = (api: DefaultApi) => {
      */
     async getUserRole(options?: RequestInit): Promise<string | null> {
       try {
-        const response = await api.getCurrentUserRole(options);
-        return response.data as string;
+        const payload = await serverApiFetchJson<{ data?: string }>(
+          "/api/v1/users/me/role",
+          options
+        );
+        return payload.data ?? null;
       } catch (error) {
         console.error("Error fetching user role:", error);
         return null;
@@ -100,10 +124,19 @@ export const createUserService = (api: DefaultApi) => {
      * @returns 업데이트된 프로필 정보
      */
     async updateProfile(profileData: UpdateProfileRequest): Promise<UserProfileResponse> {
-      const response = await api.updateProfile({
-        updateProfileRequest: profileData,
-      });
-      return response.data as UserProfileResponse;
+      const payload = await serverApiFetchJson<{ data?: UserProfileResponse }>(
+        "/api/v1/users/me/update/profile",
+        {
+          method: "PUT",
+          body: JSON.stringify(profileData),
+        }
+      );
+
+      if (!payload.data) {
+        throw new Error("User profile response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -113,10 +146,22 @@ export const createUserService = (api: DefaultApi) => {
      * @returns 업데이트된 프로필 이미지 정보
      */
     async updateProfileImage(imageFile: File): Promise<ProfileImageResponse> {
-      const response = await api.updateProfileImage({
-        imageFile: imageFile,
-      });
-      return response.data as ProfileImageResponse;
+      const formData = new FormData();
+      formData.append("imageFile", imageFile);
+
+      const payload = await serverApiFetchJson<{ data?: ProfileImageResponse }>(
+        "/api/v1/profile-images",
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
+
+      if (!payload.data) {
+        throw new Error("Profile image response data is missing.");
+      }
+
+      return payload.data;
     },
 
     /**
@@ -132,14 +177,31 @@ export const createUserService = (api: DefaultApi) => {
       params?: Pageable,
       options?: RequestInit
     ): Promise<UserPublicProfileResponse> {
-      const response = await api.getPublicProfileByNickname(
-        {
-          nickname,
-          ...(params || {}),
-        },
+      const searchParams = new URLSearchParams();
+
+      if (typeof params?.page === "number") {
+        searchParams.set("page", params.page.toString());
+      }
+      if (typeof params?.size === "number") {
+        searchParams.set("size", params.size.toString());
+      }
+      if (params?.sort?.length) {
+        params.sort.forEach((sortKey) => {
+          searchParams.append("sort", sortKey);
+        });
+      }
+
+      const query = searchParams.toString();
+      const payload = await serverApiFetchJson<{ data?: UserPublicProfileResponse }>(
+        `/api/v1/users/public/profile/${nickname}${query ? `?${query}` : ""}`,
         options
       );
-      return response.data as UserPublicProfileResponse;
+
+      if (!payload.data) {
+        throw new Error("Public profile response data is missing.");
+      }
+
+      return payload.data;
     },
   };
 };

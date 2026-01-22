@@ -1,12 +1,13 @@
 "use server";
 
-import { createBackendApiClient } from "@/lib/serverApiClient";
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 import { withActionResult } from "@/lib/actionResult";
 
 /**
  * Server Action: approve user profile.
  */
 export const approveUserAction = withActionResult(async (userId: number): Promise<void> => {
-  const api = createBackendApiClient();
-  await api.approveUserProfile({ id: userId });
+  await serverApiFetchJson(`/api/admin/users/${userId}/approve`, {
+    method: "PUT",
+  });
 });
