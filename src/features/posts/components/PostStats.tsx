@@ -10,11 +10,11 @@
 import {
   getGetPostDetailQueryOptions,
   getIsPostLikedQueryOptions,
-  useLikePost,
-  useUnlikePost,
 } from "@/generated/orval/api";
+import { useAddLike, useRemoveLike } from "@/features/likes/hooks/useLikeMutations";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
+import { useRef } from "react";
 
 interface PostStatsProps {
   postId: number;
@@ -42,116 +42,52 @@ export default function PostStats({ postId, isLoggedIn }: PostStatsProps) {
   const likesCount = post?.likesCount ?? 0;
   const commentsCount = post?.comments?.length ?? 0;
 
-  // 좋아요 Mutation with Optimistic Update
-  const likeMutation = useLikePost({
-    mutation: {
-      onMutate: async () => {
-        // 이전 캐시 데이터 저장
-        const previousPostData = queryClient.getQueryData(
-          getGetPostDetailQueryOptions(postId).queryKey
-        );
-        const previousLikedData = queryClient.getQueryData(
-          getIsPostLikedQueryOptions(postId).queryKey
-        );
+  const likeRollbackRef = useRef<{
+    previousPostData?: typeof postData;
+    previousLikedData?: typeof likedData;
+  } | null>(null);
+  const unlikeRollbackRef = useRef<{
+    previousPostData?: typeof postData;
+    previousLikedData?: typeof likedData;
+  } | null>(null);
 
-        // Optimistic Update: 게시글 좋아요 수 증가
+  const likeMutation = useAddLike(postId, {
+    onError: (error) => {
+      console.error("좋아요 추가 실패:", error);
+
+      if (likeRollbackRef.current?.previousPostData) {
         queryClient.setQueryData(
           getGetPostDetailQueryOptions(postId).queryKey,
-          (old: typeof postData) => {
-            if (!old?.data) return old;
-            return {
-              ...old,
-              data: {
-                ...old.data,
-                likesCount: (old.data.likesCount ?? 0) + 1,
-              },
-            };
-          }
+          likeRollbackRef.current.previousPostData
         );
+      }
 
-        // Optimistic Update: 좋아요 상태 변경
-        queryClient.setQueryData(
-          getIsPostLikedQueryOptions(postId).queryKey,
-          (old: typeof likedData) => ({
-            ...old,
-            data: true,
-          })
-        );
+      queryClient.setQueryData(
+        getIsPostLikedQueryOptions(postId).queryKey,
+        likeRollbackRef.current?.previousLikedData ?? { data: false }
+      );
 
-        return { previousPostData, previousLikedData };
-      },
-      onError: (error, _variables, context) => {
-        console.error("좋아요 추가 실패:", error);
-        // 롤백
-        if (context?.previousPostData) {
-          queryClient.setQueryData(
-            getGetPostDetailQueryOptions(postId).queryKey,
-            context.previousPostData
-          );
-        }
-        if (context?.previousLikedData) {
-          queryClient.setQueryData(
-            getIsPostLikedQueryOptions(postId).queryKey,
-            context.previousLikedData
-          );
-        }
-        alert("좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
-      },
+      alert("좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
     },
   });
 
-  const unlikeMutation = useUnlikePost({
-    mutation: {
-      onMutate: async () => {
-        const previousPostData = queryClient.getQueryData(
-          getGetPostDetailQueryOptions(postId).queryKey
-        );
-        const previousLikedData = queryClient.getQueryData(
-          getIsPostLikedQueryOptions(postId).queryKey
-        );
+  const unlikeMutation = useRemoveLike(postId, {
+    onError: (error) => {
+      console.error("좋아요 취소 실패:", error);
 
-        // Optimistic Update: 게시글 좋아요 수 감소
+      if (unlikeRollbackRef.current?.previousPostData) {
         queryClient.setQueryData(
           getGetPostDetailQueryOptions(postId).queryKey,
-          (old: typeof postData) => {
-            if (!old?.data) return old;
-            return {
-              ...old,
-              data: {
-                ...old.data,
-                likesCount: Math.max((old.data.likesCount ?? 0) - 1, 0),
-              },
-            };
-          }
+          unlikeRollbackRef.current.previousPostData
         );
+      }
 
-        // Optimistic Update: 좋아요 상태 변경
-        queryClient.setQueryData(
-          getIsPostLikedQueryOptions(postId).queryKey,
-          (old: typeof likedData) => ({
-            ...old,
-            data: false,
-          })
-        );
+      queryClient.setQueryData(
+        getIsPostLikedQueryOptions(postId).queryKey,
+        unlikeRollbackRef.current?.previousLikedData ?? { data: true }
+      );
 
-        return { previousPostData, previousLikedData };
-      },
-      onError: (error, _variables, context) => {
-        console.error("좋아요 취소 실패:", error);
-        if (context?.previousPostData) {
-          queryClient.setQueryData(
-            getGetPostDetailQueryOptions(postId).queryKey,
-            context.previousPostData
-          );
-        }
-        if (context?.previousLikedData) {
-          queryClient.setQueryData(
-            getIsPostLikedQueryOptions(postId).queryKey,
-            context.previousLikedData
-          );
-        }
-        alert("좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
-      },
+      alert("좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
     },
   });
 
@@ -166,9 +102,57 @@ export default function PostStats({ postId, isLoggedIn }: PostStatsProps) {
     }
 
     if (isLiked) {
-      unlikeMutation.mutate({ postId });
+      unlikeRollbackRef.current = {
+        previousPostData: queryClient.getQueryData(getGetPostDetailQueryOptions(postId).queryKey),
+        previousLikedData: queryClient.getQueryData(getIsPostLikedQueryOptions(postId).queryKey),
+      };
+
+      queryClient.setQueryData(
+        getGetPostDetailQueryOptions(postId).queryKey,
+        (old: typeof postData) => {
+          if (!old?.data) return old;
+          return {
+            ...old,
+            data: {
+              ...old.data,
+              likesCount: Math.max((old.data.likesCount ?? 0) - 1, 0),
+            },
+          };
+        }
+      );
+
+      queryClient.setQueryData(
+        getIsPostLikedQueryOptions(postId).queryKey,
+        (old: typeof likedData) => (old ? { ...old, data: false } : { data: false })
+      );
+
+      unlikeMutation.mutate();
     } else {
-      likeMutation.mutate({ postId });
+      likeRollbackRef.current = {
+        previousPostData: queryClient.getQueryData(getGetPostDetailQueryOptions(postId).queryKey),
+        previousLikedData: queryClient.getQueryData(getIsPostLikedQueryOptions(postId).queryKey),
+      };
+
+      queryClient.setQueryData(
+        getGetPostDetailQueryOptions(postId).queryKey,
+        (old: typeof postData) => {
+          if (!old?.data) return old;
+          return {
+            ...old,
+            data: {
+              ...old.data,
+              likesCount: (old.data.likesCount ?? 0) + 1,
+            },
+          };
+        }
+      );
+
+      queryClient.setQueryData(
+        getIsPostLikedQueryOptions(postId).queryKey,
+        (old: typeof likedData) => (old ? { ...old, data: true } : { data: true })
+      );
+
+      likeMutation.mutate();
     }
   };
 
