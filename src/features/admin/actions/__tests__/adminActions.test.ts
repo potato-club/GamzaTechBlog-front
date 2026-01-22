@@ -5,9 +5,7 @@ jest.mock("@/lib/serverApiFetch", () => ({
   serverApiFetchJson: jest.fn(),
 }));
 
-const serverApiFetchJsonMock = serverApiFetchJson as jest.MockedFunction<
-  typeof serverApiFetchJson
->;
+const serverApiFetchJsonMock = serverApiFetchJson as jest.MockedFunction<typeof serverApiFetchJson>;
 
 describe("adminActions", () => {
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});

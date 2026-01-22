@@ -17,7 +17,7 @@ This project uses **Yarn** as the package manager. Always use `yarn` instead of 
 - `yarn lint` - Run ESLint
 
 ### API Management
-- `yarn gen:api` - Generate TypeScript API client from OpenAPI spec at gamzatech.site/v3/api-docs/all
+- `yarn gen:orval` - Generate Orval client from OpenAPI spec at gamzatech.site/v3/api-docs/all
 
 ## Architecture Overview
 
@@ -25,7 +25,7 @@ This is a Next.js 15 frontend for GamzaTechBlog, a Korean tech blog platform. Th
 
 ### Project Structure
 - **Feature-based organization**: Each feature has its own folder in `src/features/` containing components, hooks, services, and types
-- **API-first approach**: API client is auto-generated from OpenAPI specs in `src/generated/api/`
+- **API-first approach**: API client is auto-generated from OpenAPI specs in `src/generated/orval/`
 - **Shared components**: Reusable UI components in `src/components/` using shadcn/ui and Radix UI
 - **Type safety**: Full TypeScript with Zod for validation
 
@@ -33,10 +33,8 @@ This is a Next.js 15 frontend for GamzaTechBlog, a Korean tech blog platform. Th
 
 **API Client Architecture**:
 
-- Dual API client system in `src/lib/apiClient.ts`
-- `apiClient`: Client-side with automatic token refresh and request queuing
-- `createServerApiClient()`: Server-side factory for SSR/SSG components
-- Generated API types in `src/generated/api/` from OpenAPI spec (auto-regenerated)
+- Server-side fetch wrapper in `src/lib/serverApiFetch.ts`
+- Orval-generated API types in `src/generated/orval/` (auto-regenerated)
 
 **Route Structure**:
 
@@ -74,9 +72,9 @@ This is a Next.js 15 frontend for GamzaTechBlog, a Korean tech blog platform. Th
 - **Pretendard Font**: Korean typography
 
 ### API Integration
-- **Generated Client**: TypeScript client auto-generated from OpenAPI spec
-- **Centralized Services**: Each feature has a service layer (`*Service.ts`) that wraps the API client
-- **Type Definitions**: All API types are generated and imported from `@/generated/api`
+- **Generated Client**: Orval client auto-generated from OpenAPI spec
+- **Centralized Services**: Each feature has a service layer (`*Service.ts`) that wraps the fetch wrapper
+- **Type Definitions**: All API types are generated and imported from `@/generated/orval`
 
 ### Performance Optimizations
 - **Bundle Analysis**: Available via `build:analyze` command

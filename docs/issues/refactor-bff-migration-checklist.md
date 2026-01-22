@@ -41,7 +41,7 @@
 
 ### 0.3 서버 전용 클라이언트 스켈레톤
 
-- [x] 신규 모듈 이름 확정 (예: `src/lib/serverApiClient.ts`)
+- [x] 신규 모듈 이름 확정 (예: `src/lib/serverApiFetch.ts`)
 - [x] `cookies()` 기반 쿠키 주입 방식 결정
 - [x] 공통 fetch wrapper 설계
   - 타임아웃, 에러 변환, JSON 파싱 실패 처리

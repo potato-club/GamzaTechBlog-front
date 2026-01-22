@@ -10,6 +10,7 @@ import {
   getIsPostLikedQueryOptions,
   getPostDetail,
 } from "@/generated/orval/api";
+import type { PostDetailResponse } from "@/generated/orval/models";
 import { getQueryClient } from "@/lib/getQueryClient";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
@@ -120,7 +121,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
       | Awaited<ReturnType<typeof getPostDetail>>
       | undefined;
 
-    const post = postData?.data;
+    const post = postData?.data as PostDetailResponse | undefined;
 
     if (!post) {
       notFound();
@@ -152,8 +153,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
       <HydrationBoundary state={dehydrate(queryClient)}>
         <div className="layout-stable mx-auto flex flex-col gap-6 md:gap-12">
           <article className="max-w-full border-b border-[#D5D9E3] px-4 py-6 md:px-8 md:py-8">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            <PostHeader post={post as any} postId={postId} isCurrentUserAuthor={isPostOwnerFlag} />
+            <PostHeader post={post} postId={postId} isCurrentUserAuthor={isPostOwnerFlag} />
             <DynamicMarkdownViewer content={post.content || ""} />
             {/* 게시글 좋아요 버튼 및 댓글 개수 - RQ 캐시에서 읽음 */}
             <PostStats postId={postId} isLoggedIn={isLoggedIn} />
@@ -161,10 +161,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
           <div className="px-4 md:px-8">
             {}
-            <DynamicPostCommentsSection
-              postId={postId}
-              initialComments={(post.comments || []) as any}
-            />
+            <DynamicPostCommentsSection postId={postId} initialComments={post.comments || []} />
           </div>
         </div>
       </HydrationBoundary>

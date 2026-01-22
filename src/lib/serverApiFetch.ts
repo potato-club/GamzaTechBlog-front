@@ -27,10 +27,7 @@ export async function serverApiFetch(path: string, options: RequestInit = {}): P
   });
 }
 
-export async function serverApiFetchJson<T>(
-  path: string,
-  options: RequestInit = {}
-): Promise<T> {
+export async function serverApiFetchJson<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await serverApiFetch(path, options);
 
   if (!response.ok) {

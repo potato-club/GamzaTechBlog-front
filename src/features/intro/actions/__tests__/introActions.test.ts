@@ -1,14 +1,18 @@
 import { createIntroAction, deleteIntroAction } from "@/features/intro/actions/introActions";
 import type { IntroResponse } from "@/generated/orval/models";
 import { serverApiFetchJson } from "@/lib/serverApiFetch";
+import { revalidateTag } from "next/cache";
 
 jest.mock("@/lib/serverApiFetch", () => ({
   serverApiFetchJson: jest.fn(),
 }));
 
-const serverApiFetchJsonMock = serverApiFetchJson as jest.MockedFunction<
-  typeof serverApiFetchJson
->;
+jest.mock("next/cache", () => ({
+  revalidateTag: jest.fn(),
+}));
+
+const serverApiFetchJsonMock = serverApiFetchJson as jest.MockedFunction<typeof serverApiFetchJson>;
+const revalidateTagMock = revalidateTag as jest.MockedFunction<typeof revalidateTag>;
 
 describe("introAction", () => {
   const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
@@ -34,6 +38,7 @@ describe("introAction", () => {
       method: "POST",
       body: JSON.stringify({ content: "소개" }),
     });
+    expect(revalidateTagMock).toHaveBeenCalledWith("intros-list", "max");
     expect(result).toEqual({ success: true, data: intro });
   });
 
@@ -48,6 +53,7 @@ describe("introAction", () => {
     expect(serverApiFetchJsonMock).toHaveBeenCalledWith("/api/v1/intros/123", {
       method: "DELETE",
     });
+    expect(revalidateTagMock).toHaveBeenCalledWith("intros-list", "max");
     expect(result).toEqual({ success: true, data: undefined });
   });
 

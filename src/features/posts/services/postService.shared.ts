@@ -267,13 +267,10 @@ export const createPostService = () => {
      * @returns 수정된 게시글 정보
      */
     async updatePost(postId: number, postData: PostRequest): Promise<PostResponse> {
-      const payload = await serverApiFetchJson<ResponseDtoPostResponse>(
-        `/api/v1/posts/${postId}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(postData),
-        }
-      );
+      const payload = await serverApiFetchJson<ResponseDtoPostResponse>(`/api/v1/posts/${postId}`, {
+        method: "PUT",
+        body: JSON.stringify(postData),
+      });
 
       if (!payload.data) {
         throw new Error("Post response data is missing.");

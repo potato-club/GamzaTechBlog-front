@@ -212,7 +212,7 @@ yarn start            # 프로덕션 서버 시작
 yarn lint             # ESLint 실행
 
 # API
-yarn gen:api          # OpenAPI 스펙에서 API 클라이언트 생성
+yarn gen:orval        # OpenAPI 스펙에서 Orval 클라이언트 생성
 ```
 
 ### API 클라이언트 생성
@@ -220,10 +220,10 @@ yarn gen:api          # OpenAPI 스펙에서 API 클라이언트 생성
 백엔드 API 스펙이 업데이트되면 클라이언트를 재생성하세요:
 
 ```bash
-yarn gen:api
+yarn gen:orval
 ```
 
-이 명령은 `https://gamzatech.site/v3/api-docs/all`에서 OpenAPI 스펙을 가져와 TypeScript 클라이언트를 `src/generated/api/`에 생성합니다.
+이 명령은 `https://gamzatech.site/v3/api-docs/all`에서 OpenAPI 스펙을 가져와 Orval 클라이언트를 `src/generated/orval/`에 생성합니다.
 
 ### 코딩 컨벤션
 
@@ -248,16 +248,13 @@ yarn gen:api
 
 ```typescript
 // features/posts/services/postService.ts
-import { PostsApi, Configuration } from '@/generated/api';
-
-const postsApi = new PostsApi(new Configuration({
-  basePath: process.env.NEXT_PUBLIC_API_BASE_URL,
-}));
+import { serverApiFetchJson } from "@/lib/serverApiFetch";
 
 export const postService = {
   getPosts: async (params) => {
-    const response = await postsApi.getPosts(params);
-    return response.data;
+    const query = new URLSearchParams(params).toString();
+    const payload = await serverApiFetchJson(`/api/v1/posts?${query}`);
+    return payload.data;
   },
   // ...
 };
