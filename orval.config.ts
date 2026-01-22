@@ -8,7 +8,6 @@ export default defineConfig({
       target: "src/generated/orval",
       schemas: "src/generated/orval/models",
       client: "react-query",
-      baseUrl: "https://gamzatech.site",
       override: {
         mutator: {
           path: "./src/lib/orvalFetcher.ts",

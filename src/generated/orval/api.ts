@@ -91,7 +91,7 @@ export const updateProfile = (
       
       
       return orvalFetcher<ResponseDtoUserProfileResponse>(
-      {url: `https://gamzatech.site/api/v1/users/me/update/profile`, method: 'PUT',
+      {url: `/api/v1/users/me/update/profile`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: updateProfileRequest
     },
@@ -161,7 +161,7 @@ if(updateProjectBody.thumbnail !== undefined) {
  }
 
       return orvalFetcher<ResponseDtoProjectListResponse>(
-      {url: `https://gamzatech.site/api/v1/projects/update/${projectId}`, method: 'PUT',
+      {url: `/api/v1/projects/update/${projectId}`, method: 'PUT',
       headers: {'Content-Type': 'multipart/form-data', },
        data: formData
     },
@@ -226,7 +226,7 @@ export const getProfileImage = (
       
       
       return orvalFetcher<ResponseDtoProfileImageResponse>(
-      {url: `https://gamzatech.site/api/v1/profile-images`, method: 'GET', signal
+      {url: `/api/v1/profile-images`, method: 'GET', signal
     },
       );
     }
@@ -236,7 +236,7 @@ export const getProfileImage = (
 
 export const getGetProfileImageQueryKey = () => {
     return [
-    `https://gamzatech.site/api/v1/profile-images`
+    `/api/v1/profile-images`
     ] as const;
     }
 
@@ -320,7 +320,7 @@ export const updateProfileImage = (
 formData.append(`imageFile`, profileImageRequest.imageFile)
 
       return orvalFetcher<ResponseDtoProfileImageResponse>(
-      {url: `https://gamzatech.site/api/v1/profile-images`, method: 'PUT',
+      {url: `/api/v1/profile-images`, method: 'PUT',
       headers: {'Content-Type': 'multipart/form-data', },
        data: formData
     },
@@ -384,7 +384,7 @@ export const deleteProfileImage = (
       
       
       return orvalFetcher<ResponseDtoVoid>(
-      {url: `https://gamzatech.site/api/v1/profile-images`, method: 'DELETE'
+      {url: `/api/v1/profile-images`, method: 'DELETE'
     },
       );
     }
@@ -447,7 +447,7 @@ export const revisePost = (
       
       
       return orvalFetcher<ResponseDtoPostResponse>(
-      {url: `https://gamzatech.site/api/v1/posts/${id}`, method: 'PUT',
+      {url: `/api/v1/posts/${id}`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: postRequest
     },
@@ -511,7 +511,7 @@ export const removePost = (
       
       
       return orvalFetcher<ResponseDtoVoid>(
-      {url: `https://gamzatech.site/api/v1/posts/${id}`, method: 'DELETE'
+      {url: `/api/v1/posts/${id}`, method: 'DELETE'
     },
       );
     }
@@ -574,7 +574,7 @@ export const update = (
       
       
       return orvalFetcher<ResponseDtoLong>(
-      {url: `https://gamzatech.site/api/admissions/admin/${admissionId}`, method: 'PUT',
+      {url: `/api/admissions/admin/${admissionId}`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: updateAdmissionResultRequest
     },
@@ -638,7 +638,7 @@ export const _delete = (
       
       
       return orvalFetcher<ResponseDtoVoid>(
-      {url: `https://gamzatech.site/api/admissions/admin/${admissionId}`, method: 'DELETE'
+      {url: `/api/admissions/admin/${admissionId}`, method: 'DELETE'
     },
       );
     }
@@ -700,7 +700,7 @@ export const approveUserProfile = (
       
       
       return orvalFetcher<ResponseDtoVoid>(
-      {url: `https://gamzatech.site/api/admin/users/${id}/approve`, method: 'PUT'
+      {url: `/api/admin/users/${id}/approve`, method: 'PUT'
     },
       );
     }
@@ -763,7 +763,7 @@ export const completeProfile = (
       
       
       return orvalFetcher<ResponseDtoUserProfileResponse>(
-      {url: `https://gamzatech.site/api/v1/users/me/complete`, method: 'POST',
+      {url: `/api/v1/users/me/complete`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: userProfileRequest, signal
     },
@@ -831,7 +831,7 @@ formData.append(`request`, JSON.stringify(createProjectBody.request));
 formData.append(`thumbnail`, createProjectBody.thumbnail)
 
       return orvalFetcher<ResponseDtoProjectListResponse>(
-      {url: `https://gamzatech.site/api/v1/projects/create`, method: 'POST',
+      {url: `/api/v1/projects/create`, method: 'POST',
       headers: {'Content-Type': 'multipart/form-data', },
        data: formData, signal
     },
@@ -896,7 +896,7 @@ export const getPosts = (
       
       
       return orvalFetcher<ResponseDtoPagedResponsePostListResponse>(
-      {url: `https://gamzatech.site/api/v1/posts`, method: 'GET',
+      {url: `/api/v1/posts`, method: 'GET',
         params, signal
     },
       );
@@ -907,7 +907,7 @@ export const getPosts = (
 
 export const getGetPostsQueryKey = (params?: GetPostsParams,) => {
     return [
-    `https://gamzatech.site/api/v1/posts`, ...(params ? [params]: [])
+    `/api/v1/posts`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -990,7 +990,7 @@ export const publishPost = (
       
       
       return orvalFetcher<ResponseDtoPostResponse>(
-      {url: `https://gamzatech.site/api/v1/posts`, method: 'POST',
+      {url: `/api/v1/posts`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: postRequest, signal
     },
@@ -1057,7 +1057,7 @@ export const uploadImage = (
 formData.append(`file`, uploadImageBody.file)
 
       return orvalFetcher<ResponseDtoString>(
-      {url: `https://gamzatech.site/api/v1/posts/images`, method: 'POST',
+      {url: `/api/v1/posts/images`, method: 'POST',
       headers: {'Content-Type': 'multipart/form-data', },
        data: formData, signal
     },
@@ -1122,7 +1122,7 @@ export const likePost = (
       
       
       return orvalFetcher<ResponseDtoString>(
-      {url: `https://gamzatech.site/api/v1/likes/${postId}`, method: 'POST', signal
+      {url: `/api/v1/likes/${postId}`, method: 'POST', signal
     },
       );
     }
@@ -1184,7 +1184,7 @@ export const unlikePost = (
       
       
       return orvalFetcher<ResponseDtoString>(
-      {url: `https://gamzatech.site/api/v1/likes/${postId}`, method: 'DELETE'
+      {url: `/api/v1/likes/${postId}`, method: 'DELETE'
     },
       );
     }
@@ -1247,7 +1247,7 @@ export const getIntroList = (
       
       
       return orvalFetcher<ResponseDtoPagedResponseIntroResponse>(
-      {url: `https://gamzatech.site/api/v1/intros`, method: 'GET',
+      {url: `/api/v1/intros`, method: 'GET',
         params, signal
     },
       );
@@ -1258,7 +1258,7 @@ export const getIntroList = (
 
 export const getGetIntroListQueryKey = (params?: GetIntroListParams,) => {
     return [
-    `https://gamzatech.site/api/v1/intros`, ...(params ? [params]: [])
+    `/api/v1/intros`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -1341,7 +1341,7 @@ export const createIntro = (
       
       
       return orvalFetcher<ResponseDtoIntroResponse>(
-      {url: `https://gamzatech.site/api/v1/intros`, method: 'POST',
+      {url: `/api/v1/intros`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: introCreateRequest, signal
     },
@@ -1406,7 +1406,7 @@ export const getComments = (
       
       
       return orvalFetcher<ResponseDtoListCommentResponse>(
-      {url: `https://gamzatech.site/api/v1/comment/${postId}/comments`, method: 'GET', signal
+      {url: `/api/v1/comment/${postId}/comments`, method: 'GET', signal
     },
       );
     }
@@ -1416,7 +1416,7 @@ export const getComments = (
 
 export const getGetCommentsQueryKey = (postId?: number,) => {
     return [
-    `https://gamzatech.site/api/v1/comment/${postId}/comments`
+    `/api/v1/comment/${postId}/comments`
     ] as const;
     }
 
@@ -1500,7 +1500,7 @@ export const addComment = (
       
       
       return orvalFetcher<ResponseDtoCommentResponse>(
-      {url: `https://gamzatech.site/api/v1/comment/${postId}/comments`, method: 'POST',
+      {url: `/api/v1/comment/${postId}/comments`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: commentRequest, signal
     },
@@ -1565,7 +1565,7 @@ export const chat = (
       
       
       return orvalFetcher<ChatMessageResponse>(
-      {url: `https://gamzatech.site/api/v1/ai/chat`, method: 'POST',
+      {url: `/api/v1/ai/chat`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: chatMessageRequest, signal
     },
@@ -1630,7 +1630,7 @@ export const reissue = (
       
       
       return orvalFetcher<ResponseDtoAccessTokenResponse>(
-      {url: `https://gamzatech.site/api/auth/reissue`, method: 'POST', signal
+      {url: `/api/auth/reissue`, method: 'POST', signal
     },
       );
     }
@@ -1693,7 +1693,7 @@ export const logout = (
       
       
       return orvalFetcher<ResponseDtoString>(
-      {url: `https://gamzatech.site/api/auth/me/logout`, method: 'POST', signal
+      {url: `/api/auth/me/logout`, method: 'POST', signal
     },
       );
     }
@@ -1756,7 +1756,7 @@ export const lookup = (
       
       
       return orvalFetcher<ResponseDtoLookupResponse>(
-      {url: `https://gamzatech.site/api/admissions/lookup`, method: 'POST',
+      {url: `/api/admissions/lookup`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: lookupRequest, signal
     },
@@ -1821,7 +1821,7 @@ export const getAll = (
       
       
       return orvalFetcher<ResponseDtoListAdmissionResultResponse>(
-      {url: `https://gamzatech.site/api/admissions/admin`, method: 'GET', signal
+      {url: `/api/admissions/admin`, method: 'GET', signal
     },
       );
     }
@@ -1831,7 +1831,7 @@ export const getAll = (
 
 export const getGetAllQueryKey = () => {
     return [
-    `https://gamzatech.site/api/admissions/admin`
+    `/api/admissions/admin`
     ] as const;
     }
 
@@ -1914,7 +1914,7 @@ export const create = (
       
       
       return orvalFetcher<ResponseDtoLong>(
-      {url: `https://gamzatech.site/api/admissions/admin`, method: 'POST',
+      {url: `/api/admissions/admin`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: createAdmissionResultRequest, signal
     },
@@ -1980,7 +1980,7 @@ export const getPublicProfileByNickname = (
       
       
       return orvalFetcher<ResponseDtoUserPublicProfileResponse>(
-      {url: `https://gamzatech.site/api/v1/users/public/profile/${nickname}`, method: 'GET',
+      {url: `/api/v1/users/public/profile/${nickname}`, method: 'GET',
         params, signal
     },
       );
@@ -1992,7 +1992,7 @@ export const getPublicProfileByNickname = (
 export const getGetPublicProfileByNicknameQueryKey = (nickname?: string,
     params?: GetPublicProfileByNicknameParams,) => {
     return [
-    `https://gamzatech.site/api/v1/users/public/profile/${nickname}`, ...(params ? [params]: [])
+    `/api/v1/users/public/profile/${nickname}`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -2080,7 +2080,7 @@ export const getCurrentUserRole = (
       
       
       return orvalFetcher<ResponseDtoString>(
-      {url: `https://gamzatech.site/api/v1/users/me/role`, method: 'GET', signal
+      {url: `/api/v1/users/me/role`, method: 'GET', signal
     },
       );
     }
@@ -2090,7 +2090,7 @@ export const getCurrentUserRole = (
 
 export const getGetCurrentUserRoleQueryKey = () => {
     return [
-    `https://gamzatech.site/api/v1/users/me/role`
+    `/api/v1/users/me/role`
     ] as const;
     }
 
@@ -2173,7 +2173,7 @@ export const getCurrentUserProfile = (
       
       
       return orvalFetcher<ResponseDtoUserProfileResponse>(
-      {url: `https://gamzatech.site/api/v1/users/me/get/profile`, method: 'GET', signal
+      {url: `/api/v1/users/me/get/profile`, method: 'GET', signal
     },
       );
     }
@@ -2183,7 +2183,7 @@ export const getCurrentUserProfile = (
 
 export const getGetCurrentUserProfileQueryKey = () => {
     return [
-    `https://gamzatech.site/api/v1/users/me/get/profile`
+    `/api/v1/users/me/get/profile`
     ] as const;
     }
 
@@ -2266,7 +2266,7 @@ export const getActivitySummary = (
       
       
       return orvalFetcher<ResponseDtoUserActivityResponse>(
-      {url: `https://gamzatech.site/api/v1/users/me/activity`, method: 'GET', signal
+      {url: `/api/v1/users/me/activity`, method: 'GET', signal
     },
       );
     }
@@ -2276,7 +2276,7 @@ export const getActivitySummary = (
 
 export const getGetActivitySummaryQueryKey = () => {
     return [
-    `https://gamzatech.site/api/v1/users/me/activity`
+    `/api/v1/users/me/activity`
     ] as const;
     }
 
@@ -2360,7 +2360,7 @@ export const getAllTags = (
       
       
       return orvalFetcher<ResponseDtoListString>(
-      {url: `https://gamzatech.site/api/v1/tags`, method: 'GET', signal
+      {url: `/api/v1/tags`, method: 'GET', signal
     },
       );
     }
@@ -2370,7 +2370,7 @@ export const getAllTags = (
 
 export const getGetAllTagsQueryKey = () => {
     return [
-    `https://gamzatech.site/api/v1/tags`
+    `/api/v1/tags`
     ] as const;
     }
 
@@ -2453,7 +2453,7 @@ export const getAllProjects = (
       
       
       return orvalFetcher<ResponseDtoListProjectListResponse>(
-      {url: `https://gamzatech.site/api/v1/projects`, method: 'GET',
+      {url: `/api/v1/projects`, method: 'GET',
         params, signal
     },
       );
@@ -2464,7 +2464,7 @@ export const getAllProjects = (
 
 export const getGetAllProjectsQueryKey = (params?: GetAllProjectsParams,) => {
     return [
-    `https://gamzatech.site/api/v1/projects`, ...(params ? [params]: [])
+    `/api/v1/projects`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -2547,7 +2547,7 @@ export const getPostDetail = (
       
       
       return orvalFetcher<ResponseDtoPostDetailResponse>(
-      {url: `https://gamzatech.site/api/v1/posts/${postId}`, method: 'GET', signal
+      {url: `/api/v1/posts/${postId}`, method: 'GET', signal
     },
       );
     }
@@ -2557,7 +2557,7 @@ export const getPostDetail = (
 
 export const getGetPostDetailQueryKey = (postId?: number,) => {
     return [
-    `https://gamzatech.site/api/v1/posts/${postId}`
+    `/api/v1/posts/${postId}`
     ] as const;
     }
 
@@ -2641,7 +2641,7 @@ export const getPostsByTag = (
       
       
       return orvalFetcher<ResponseDtoPagedResponsePostListResponse>(
-      {url: `https://gamzatech.site/api/v1/posts/tags/${tagName}`, method: 'GET',
+      {url: `/api/v1/posts/tags/${tagName}`, method: 'GET',
         params, signal
     },
       );
@@ -2653,7 +2653,7 @@ export const getPostsByTag = (
 export const getGetPostsByTagQueryKey = (tagName?: string,
     params?: GetPostsByTagParams,) => {
     return [
-    `https://gamzatech.site/api/v1/posts/tags/${tagName}`, ...(params ? [params]: [])
+    `/api/v1/posts/tags/${tagName}`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -2741,7 +2741,7 @@ export const searchPosts = (
       
       
       return orvalFetcher<ResponseDtoPagedResponsePostListResponse>(
-      {url: `https://gamzatech.site/api/v1/posts/search`, method: 'GET',
+      {url: `/api/v1/posts/search`, method: 'GET',
         params, signal
     },
       );
@@ -2752,7 +2752,7 @@ export const searchPosts = (
 
 export const getSearchPostsQueryKey = (params?: SearchPostsParams,) => {
     return [
-    `https://gamzatech.site/api/v1/posts/search`, ...(params ? [params]: [])
+    `/api/v1/posts/search`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -2835,7 +2835,7 @@ export const getWeeklyPopularPosts = (
       
       
       return orvalFetcher<ResponseDtoListPostPopularResponse>(
-      {url: `https://gamzatech.site/api/v1/posts/popular`, method: 'GET', signal
+      {url: `/api/v1/posts/popular`, method: 'GET', signal
     },
       );
     }
@@ -2845,7 +2845,7 @@ export const getWeeklyPopularPosts = (
 
 export const getGetWeeklyPopularPostsQueryKey = () => {
     return [
-    `https://gamzatech.site/api/v1/posts/popular`
+    `/api/v1/posts/popular`
     ] as const;
     }
 
@@ -2928,7 +2928,7 @@ export const getMyPosts = (
       
       
       return orvalFetcher<ResponseDtoPagedResponsePostListResponse>(
-      {url: `https://gamzatech.site/api/v1/posts/me`, method: 'GET',
+      {url: `/api/v1/posts/me`, method: 'GET',
         params, signal
     },
       );
@@ -2939,7 +2939,7 @@ export const getMyPosts = (
 
 export const getGetMyPostsQueryKey = (params?: GetMyPostsParams,) => {
     return [
-    `https://gamzatech.site/api/v1/posts/me`, ...(params ? [params]: [])
+    `/api/v1/posts/me`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -3022,7 +3022,7 @@ export const getHomeFeed = (
       
       
       return orvalFetcher<ResponseDtoHomeFeedResponse>(
-      {url: `https://gamzatech.site/api/v1/posts/feed`, method: 'GET',
+      {url: `/api/v1/posts/feed`, method: 'GET',
         params, signal
     },
       );
@@ -3033,7 +3033,7 @@ export const getHomeFeed = (
 
 export const getGetHomeFeedQueryKey = (params?: GetHomeFeedParams,) => {
     return [
-    `https://gamzatech.site/api/v1/posts/feed`, ...(params ? [params]: [])
+    `/api/v1/posts/feed`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -3116,7 +3116,7 @@ export const getCommitHistories = (
       
       
       return orvalFetcher<ResponseDtoListCommitHistoryResponse>(
-      {url: `https://gamzatech.site/api/v1/posts/commits/${postId}`, method: 'GET', signal
+      {url: `/api/v1/posts/commits/${postId}`, method: 'GET', signal
     },
       );
     }
@@ -3126,7 +3126,7 @@ export const getCommitHistories = (
 
 export const getGetCommitHistoriesQueryKey = (postId?: number,) => {
     return [
-    `https://gamzatech.site/api/v1/posts/commits/${postId}`
+    `/api/v1/posts/commits/${postId}`
     ] as const;
     }
 
@@ -3209,7 +3209,7 @@ export const isPostLiked = (
       
       
       return orvalFetcher<ResponseDtoBoolean>(
-      {url: `https://gamzatech.site/api/v1/likes/${postId}/liked`, method: 'GET', signal
+      {url: `/api/v1/likes/${postId}/liked`, method: 'GET', signal
     },
       );
     }
@@ -3219,7 +3219,7 @@ export const isPostLiked = (
 
 export const getIsPostLikedQueryKey = (postId?: number,) => {
     return [
-    `https://gamzatech.site/api/v1/likes/${postId}/liked`
+    `/api/v1/likes/${postId}/liked`
     ] as const;
     }
 
@@ -3302,7 +3302,7 @@ export const getMyLikes = (
       
       
       return orvalFetcher<ResponseDtoPagedResponseLikeResponse>(
-      {url: `https://gamzatech.site/api/v1/likes/me`, method: 'GET',
+      {url: `/api/v1/likes/me`, method: 'GET',
         params, signal
     },
       );
@@ -3313,7 +3313,7 @@ export const getMyLikes = (
 
 export const getGetMyLikesQueryKey = (params?: GetMyLikesParams,) => {
     return [
-    `https://gamzatech.site/api/v1/likes/me`, ...(params ? [params]: [])
+    `/api/v1/likes/me`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -3396,7 +3396,7 @@ export const getMyComments = (
       
       
       return orvalFetcher<ResponseDtoPagedResponseCommentListResponse>(
-      {url: `https://gamzatech.site/api/v1/comment/me/comments`, method: 'GET',
+      {url: `/api/v1/comment/me/comments`, method: 'GET',
         params, signal
     },
       );
@@ -3407,7 +3407,7 @@ export const getMyComments = (
 
 export const getGetMyCommentsQueryKey = (params?: GetMyCommentsParams,) => {
     return [
-    `https://gamzatech.site/api/v1/comment/me/comments`, ...(params ? [params]: [])
+    `/api/v1/comment/me/comments`, ...(params ? [params]: [])
     ] as const;
     }
 
@@ -3490,7 +3490,7 @@ export const getPendingUsers = (
       
       
       return orvalFetcher<ResponseDtoListPendingUserResponse>(
-      {url: `https://gamzatech.site/api/admin/users/pending`, method: 'GET', signal
+      {url: `/api/admin/users/pending`, method: 'GET', signal
     },
       );
     }
@@ -3500,7 +3500,7 @@ export const getPendingUsers = (
 
 export const getGetPendingUsersQueryKey = () => {
     return [
-    `https://gamzatech.site/api/admin/users/pending`
+    `/api/admin/users/pending`
     ] as const;
     }
 
@@ -3582,7 +3582,7 @@ export const withdraw = (
       
       
       return orvalFetcher<ResponseDtoString>(
-      {url: `https://gamzatech.site/api/v1/users/me/withdraw`, method: 'DELETE'
+      {url: `/api/v1/users/me/withdraw`, method: 'DELETE'
     },
       );
     }
@@ -3644,7 +3644,7 @@ export const deleteProject = (
       
       
       return orvalFetcher<ResponseDtoString>(
-      {url: `https://gamzatech.site/api/v1/projects/delete/${projectId}`, method: 'DELETE'
+      {url: `/api/v1/projects/delete/${projectId}`, method: 'DELETE'
     },
       );
     }
@@ -3706,7 +3706,7 @@ export const deleteIntro = (
       
       
       return orvalFetcher<ResponseDtoVoid>(
-      {url: `https://gamzatech.site/api/v1/intros/${introId}`, method: 'DELETE'
+      {url: `/api/v1/intros/${introId}`, method: 'DELETE'
     },
       );
     }
@@ -3768,7 +3768,7 @@ export const deleteComment = (
       
       
       return orvalFetcher<ResponseDtoString>(
-      {url: `https://gamzatech.site/api/v1/comment/${commentId}`, method: 'DELETE'
+      {url: `/api/v1/comment/${commentId}`, method: 'DELETE'
     },
       );
     }

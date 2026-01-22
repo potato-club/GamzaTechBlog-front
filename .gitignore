@@ -47,5 +47,12 @@ certificates
 # kiro
 .kiro
 
-
+# AI
 claudedocs
+.agent
+.claudedocs
+.codex
+.cursor
+.opencode
+.claude
+AGENTS.md
