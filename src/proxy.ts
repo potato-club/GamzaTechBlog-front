@@ -118,7 +118,7 @@ function matchesRoute(pathname: string, patterns: readonly string[]): boolean {
 async function getUserRole(token: string): Promise<string | null> {
   try {
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-    const response = await fetch(`${apiBaseUrl}/api/users/role`, {
+    const response = await fetch(`${apiBaseUrl}/api/v1/users/me/role`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

@@ -7,10 +7,15 @@ export const imageService = {
    * @returns 업로드된 이미지 URL
    */
   async uploadImage(file: File): Promise<string> {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!apiBaseUrl) {
+      throw new Error("API base URL is not configured.");
+    }
+
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetch("/api/posts/images", {
+    const response = await fetch(`${apiBaseUrl}/api/v1/posts/images`, {
       method: "POST",
       body: formData,
       credentials: "include",
