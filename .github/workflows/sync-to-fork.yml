@@ -10,6 +10,7 @@ jobs:
   sync:
     name: Sync to forked repo
     runs-on: ubuntu-latest
+    if: github.repository == 'potato-club/GamzaTechBlog-front'
 
     steps:
       - name: Checkout branch
