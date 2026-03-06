@@ -1,48 +1,49 @@
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 /**
- * 게시글 관련 캐시 무효화 전략
+ * 게시글 관련 캐시 무효화 전략 (Tag 기반 통일)
  *
- * 단일 책임: 캐시 무효화 로직만 담당
- * 재사용성: 여러 액션에서 공통 사용
- * 테스트 용이성: 독립적인 유틸 함수
+ * 태그 설계:
+ * - posts-list: 게시글 목록 (홈, 태그별 목록)
+ * - post-${id}: 개별 게시글 상세
+ * - posts-popular: 인기 게시글
+ * - tags: 태그 목록
+ *
+ * Next.js 16 변경사항:
+ * - revalidateTag는 두 번째 인자 필요 (profile)
+ * - "max" 프로필 사용: stale-while-revalidate (SWR) 방식
  */
 export const postCacheInvalidation = {
   invalidateList() {
-    revalidatePath("/");
-    revalidatePath("/posts");
-    revalidateTag("posts-list");
+    revalidateTag("posts-list", "max");
   },
 
-  /**
-   * 특정 게시글 상세 캐시 무효화
-   *
-   * @param postId - 무효화할 게시글 ID
-   */
   invalidateDetail(postId: number) {
-    revalidatePath(`/posts/${postId}`);
-    revalidateTag(`post-${postId}`);
+    revalidateTag(`post-${postId}`, "max");
   },
 
-  /**
-   * 모든 게시글 관련 캐시 무효화
-   *
-   * 전체 게시글 데이터가 영향받는 경우 사용
-   */
+  invalidatePopular() {
+    revalidateTag("posts-popular", "max");
+  },
+
+  invalidateTags() {
+    revalidateTag("tags", "max");
+  },
+
+  invalidateSidebar() {
+    this.invalidatePopular();
+    this.invalidateTags();
+  },
+
   invalidateAll() {
     this.invalidateList();
-    revalidateTag("posts");
+    this.invalidateSidebar();
+    revalidateTag("posts", "max");
   },
 
-  /**
-   * 특정 게시글과 목록 캐시 무효화
-   *
-   * 게시글 수정/삭제 시 해당 게시글과 목록 모두 무효화
-   *
-   * @param postId - 무효화할 게시글 ID
-   */
   invalidatePostAndList(postId: number) {
     this.invalidateDetail(postId);
     this.invalidateList();
+    this.invalidateSidebar();
   },
 } as const;

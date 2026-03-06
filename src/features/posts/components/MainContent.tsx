@@ -1,42 +1,33 @@
-"use client";
-
-import TabMenu from "@/components/shared/navigation/TabMenu";
-import { WelcomeBoardSection } from "@/features/posts";
-import { useTab } from "@/hooks/useTab";
 import { ReactNode } from "react";
+import MainTabMenu from "./MainTabMenu.client";
 
 type MainTab = "posts" | "welcome";
-const VALID_MAIN_TABS: MainTab[] = ["posts", "welcome"];
 
-const MAIN_TAB_LABELS: Record<MainTab, string> = {
-  posts: "모내기",
-  welcome: "텃밭인사",
-};
+interface MainContentProps {
+  currentTab: MainTab;
+  postsTabContent?: ReactNode;
+  welcomeTabContent?: ReactNode;
+}
 
-export default function MainContent({ postsTabContent }: { postsTabContent: ReactNode }) {
-  const { currentTab, handleTabChange } = useTab<MainTab>({
-    defaultTab: "posts",
-    validTabs: VALID_MAIN_TABS,
-    queryParamName: "tab",
-    preserveParams: ["tag"], // tag는 유지, page는 초기화됨
-  });
-
-  const renderTabContent = () => {
-    switch (currentTab) {
-      case "posts":
-        return postsTabContent;
-      case "welcome":
-        return <WelcomeBoardSection />;
-      default:
-        return postsTabContent;
-    }
-  };
+export default function MainContent({
+  currentTab,
+  postsTabContent,
+  welcomeTabContent,
+}: MainContentProps) {
+  const resolvedTab: MainTab = currentTab === "welcome" ? "welcome" : "posts";
+  const resolvedContent =
+    resolvedTab === "welcome" ? welcomeTabContent : (postsTabContent ?? welcomeTabContent);
 
   return (
     <div className="flex-1 md:flex-3">
-      <TabMenu tab={currentTab} onTabChange={handleTabChange} labels={MAIN_TAB_LABELS} />
-      <div role="tabpanel" aria-labelledby={`${currentTab}-tab`} key={currentTab} className="mt-6">
-        {renderTabContent()}
+      <MainTabMenu currentTab={resolvedTab} />
+      <div
+        role="tabpanel"
+        aria-labelledby={`${resolvedTab}-tab`}
+        key={resolvedTab}
+        className="mt-6"
+      >
+        {resolvedContent}
       </div>
     </div>
   );

@@ -1,26 +1,14 @@
 // Hooks
 export {
-  POST_QUERY_KEYS,
-  useAddLike,
   useCreatePost,
   useDeletePost,
   // Image hooks
   useImageUpload,
-  // Like hooks
-  useLikeStatus,
-  usePopularPosts,
-  usePost,
-  usePosts,
-  usePostsByTag,
-  usePrefetchPosts,
-  useRemoveLike,
-  useSearchPosts,
-  useTags,
   useUpdatePost,
 } from "./hooks";
 
-// Server Actions (app/actions에서 import)
-export { createPostAction, deletePostAction, updatePostAction } from "@/app/actions/postActions";
+// Server Actions
+export { createPostAction, deletePostAction, updatePostAction } from "./actions/postActions";
 
 // Action Types
 export type {
@@ -30,16 +18,16 @@ export type {
   UpdatePostInput,
 } from "./actions/types";
 
-// Components
+// Components (Client-safe only)
 export {
-  InteractivePostList,
   MainContent,
-  MarkdownViewer,
-  MarkdownViewerSkeleton,
+  // ⚠️ MarkdownViewer, ToastEditor는 무거워서 여기서 export하지 않습니다
+  // 이유: 번들 크기 최적화 (각각 200-300KB)
+  // 사용 방법:
+  //   import { DynamicMarkdownViewer } from "@/components/dynamic/DynamicComponents";
+  //   import { DynamicToastEditor } from "@/components/dynamic/DynamicComponents";
   PopularPost,
-  PopularPostList,
   PopularPostListSkeleton,
-  PopularPostsSection,
   PostCard,
   PostCommentsSection,
   PostDetailSkeleton,
@@ -47,23 +35,16 @@ export {
   PostFormActions,
   PostHeader,
   PostList,
-  PostListSection,
   PostListSkeleton,
   PostMeta,
   PostStats,
   PostTagManager,
   PostTitleInput,
-  ToastEditor,
-  ToastEditorSkeleton,
   WelcomeBoardSection,
 } from "./components";
 
-// Services
-export { likeService } from "./services/likeService";
-export { createLikeServiceServer } from "./services/likeService.server";
-export { postService } from "./services/postService";
-export type { LikedPostResponse } from "./services/postService";
-export { createPostServiceServer } from "./services/postService.server";
+// ⚠️ Server Services는 barrel export에서 제외합니다.
+// 직접 import하세요: import { createPostServiceServer } from "@/features/posts/services/postService.server";
 
 // Types
 export type {

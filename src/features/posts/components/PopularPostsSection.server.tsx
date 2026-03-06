@@ -1,4 +1,4 @@
-import { PopularPost } from "@/features/posts";
+import PopularPost from "@/features/posts/components/PopularPost";
 import { PostPopularResponse } from "@/generated/api";
 
 /**

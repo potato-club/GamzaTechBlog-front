@@ -1,8 +1,13 @@
-"use client";
+import IntroForm from "@/features/intro/components/IntroForm";
+import IntroList from "@/features/intro/components/IntroList";
+import type { IntroResponse } from "@/generated/api";
 
-import { IntroForm, IntroList } from "@/features/intro";
+interface WelcomeBoardSectionProps {
+  intros: IntroResponse[];
+  totalPages: number;
+}
 
-export default function WelcomeBoardSection() {
+export default function WelcomeBoardSection({ intros, totalPages }: WelcomeBoardSectionProps) {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
@@ -19,7 +24,7 @@ export default function WelcomeBoardSection() {
       </div>
 
       {/* 자기소개 목록 */}
-      <IntroList />
+      <IntroList intros={intros} totalPages={totalPages} />
     </div>
   );
 }

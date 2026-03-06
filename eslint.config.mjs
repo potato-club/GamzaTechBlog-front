@@ -43,6 +43,14 @@ const eslintConfig = [
     },
   },
 
+  // 테스트 파일에서는 any 허용 (mock 작성 편의를 위해)
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx", "**/__tests__/**/*.ts", "**/__tests__/**/*.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+
   prettierConfig,
 ];
 

@@ -2,8 +2,11 @@ import {
   DynamicMarkdownViewer,
   DynamicPostCommentsSection,
 } from "@/components/dynamic/DynamicComponents";
-import { createPostServiceServer, PostHeader, PostStats } from "@/features/posts";
-import { createUserServiceServer } from "@/features/user";
+import { createLikeServiceServer } from "@/features/likes/services/likeService.server";
+import PostHeader from "@/features/posts/components/PostHeader";
+import PostStats from "@/features/posts/components/PostStats";
+import { createPostServiceServer } from "@/features/posts/services/postService.server";
+import { createUserServiceServer } from "@/features/user/services/userService.server";
 import { canEditPost } from "@/lib/auth";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -128,12 +131,22 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
     // 현재 로그인한 사용자가 게시글을 수정할 수 있는지 확인
     let isCurrentUserAuthor = false;
+    let initialIsLiked = false;
     try {
       const userService = createUserServiceServer();
-      const profileData = await userService.getProfile();
+      const profileData = await userService.getProfile({ cache: "no-store" });
 
       if (profileData) {
         isCurrentUserAuthor = canEditPost(profileData, post.writer || "");
+        try {
+          const likeService = createLikeServiceServer();
+          initialIsLiked = await likeService.checkLikeStatus(postId, { cache: "no-store" });
+        } catch (error) {
+          console.warn(
+            "Like status fetch failed:",
+            error instanceof Error ? `${error.name}: ${error.message}` : String(error)
+          );
+        }
       }
     } catch (error) {
       // 로그인되지 않은 사용자나 API 에러의 경우 false로 처리
@@ -153,12 +166,13 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
           <PostStats
             postId={postId}
             initialLikesCount={post.likesCount || 0}
+            initialIsLiked={initialIsLiked}
             commentsCount={post.comments?.length || 0}
           />
         </article>
 
         <div className="px-4 md:px-8">
-          <DynamicPostCommentsSection postId={postId} />
+          <DynamicPostCommentsSection postId={postId} initialComments={post.comments || []} />
         </div>
       </div>
     );

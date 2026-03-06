@@ -1,7 +1,6 @@
 // User Domain Feature Exports
 export * from "./components";
 export * from "./hooks";
-export * from "./services";
 export * from "./types";
 
 // Hooks
@@ -10,29 +9,21 @@ export {
   useUpdateProfile,
   useUpdateProfileImage,
   useUpdateProfileInSignup,
-  useUserActivityStats,
-  useUserProfile,
-  useUserRole,
   useWithdrawAccount,
 } from "./hooks";
 
-// Components
+// Components (Client-safe only)
 export {
-  CommentsTab,
   ErrorDisplay,
-  LikesTab,
-  MyPageSidebarServer,
-  MyPageTabContent,
-  PostsTab,
   ProfileEditDialog,
   ProfileEditDialogSkeleton,
   UserActivityStatItem,
   UserActivityStatsSkeleton,
 } from "./components";
 
-// Services
-export { getCurrentUser, getPublicUser, userService } from "./services/userService";
-export { createUserServiceServer } from "./services/userService.server";
-
 // Types
 export type { MyPageTab, ProfileEditDialogProps, UserActivityStatItemProps } from "./types";
+
+// ⚠️ Server Components/Services는 직접 import하세요:
+// import MyPageSidebarServer from "@/features/user/components/mypage/MyPageSidebar.server";
+// import { createUserServiceServer } from "@/features/user/services/userService.server";

@@ -2,7 +2,10 @@
  * 사용자 관련 변경 작업 훅들 (Mutations)
  *
  * 책임: 사용자 데이터 변경 (쓰기 전용)
- * 읽기 작업은 useUserQueries.ts 참조
+ * 읽기 작업은 서버 컴포넌트에서 처리
+ *
+ * NOTE: BFF 마이그레이션으로 프로필 데이터는 서버 컴포넌트에서만 fetch됩니다.
+ * 따라서 클라이언트 캐시 대신 router.refresh()로 서버 데이터를 갱신합니다.
  */
 
 import type {
@@ -11,103 +14,45 @@ import type {
   UserProfileRequest,
   UserProfileResponse,
 } from "@/generated/api";
+import type { ActionResult } from "@/lib/actionResult";
 import { handleTokenExpiration } from "@/lib/tokenManager";
-import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
-import { userService } from "../services/userService";
-import { USER_QUERY_KEYS } from "./useUserQueries";
-
-// 뮤테이션 컨텍스트 타입 정의
-interface UpdateProfileImageContext {
-  previousProfile: UserProfileResponse | undefined;
-  tempImageUrl: string;
-}
-
-interface UpdateProfileContext {
-  previousProfile: UserProfileResponse | undefined;
-}
+import { useActionMutation, type ActionMutationOptions } from "@/lib/useActionMutation";
+import { useRouter } from "next/navigation";
+import {
+  updateProfileAction,
+  updateProfileImageAction,
+  updateProfileInSignupAction,
+  withdrawAccountAction,
+} from "../actions/userActions";
 
 /**
- * 프로필 이미지를 업로드하는 뮤테이션 훅 (낙관적 업데이트 포함)
+ * 프로필 이미지를 업로드하는 뮤테이션 훅
+ *
+ * 서버 컴포넌트에서 프로필을 fetch하므로 성공 시 router.refresh()로 갱신합니다.
  */
 export function useUpdateProfileImage(
-  options?: UseMutationOptions<ProfileImageResponse, Error, File, UpdateProfileImageContext>
+  options?: ActionMutationOptions<ActionResult<ProfileImageResponse>, File>
 ) {
-  const queryClient = useQueryClient();
+  const router = useRouter();
 
-  return useMutation({
-    mutationFn: (imageFile: File) => userService.updateProfileImage(imageFile),
-
-    // 낙관적 업데이트: 서버 응답 전에 UI 즉시 업데이트
-    onMutate: async (imageFile: File): Promise<UpdateProfileImageContext> => {
-      // 진행 중인 쿼리들을 취소하여 낙관적 업데이트와 충돌 방지
-      await queryClient.cancelQueries({ queryKey: USER_QUERY_KEYS.profile() });
-
-      // 현재 캐시된 데이터를 백업 (롤백용)
-      const previousProfile = queryClient.getQueryData<UserProfileResponse>(
-        USER_QUERY_KEYS.profile()
-      );
-
-      // 임시 이미지 URL 생성 (미리보기용)
-      const tempImageUrl = URL.createObjectURL(imageFile);
-
-      // 낙관적으로 프로필 이미지 업데이트
-      if (previousProfile) {
-        const optimisticProfile: UserProfileResponse = {
-          ...previousProfile,
-          profileImageUrl: tempImageUrl,
-        };
-        queryClient.setQueryData(USER_QUERY_KEYS.profile(), optimisticProfile);
+  return useActionMutation((imageFile: File) => updateProfileImageAction(imageFile), {
+    onSuccess: (result, variables) => {
+      if (result.success) {
+        // 서버 컴포넌트 리렌더링으로 프로필 이미지 갱신
+        router.refresh();
+      } else {
+        console.error("프로필 이미지 업로드 실패:", result.error);
       }
 
-      return { previousProfile, tempImageUrl };
+      options?.onSuccess?.(result, variables);
     },
-
-    onSuccess: (imageResponse, variables, context) => {
-      console.log("프로필 이미지 업로드 성공:", imageResponse);
-
-      // 임시 URL 정리
-      if (context?.tempImageUrl) {
-        URL.revokeObjectURL(context.tempImageUrl);
-      }
-
-      // 서버에서 받은 실제 이미지 URL로 업데이트
-      const currentProfile = queryClient.getQueryData<UserProfileResponse>(
-        USER_QUERY_KEYS.profile()
-      );
-      if (currentProfile) {
-        const updatedProfile: UserProfileResponse = {
-          ...currentProfile,
-          profileImageUrl: imageResponse.imageUrl,
-        };
-        queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
-      }
-
-      options?.onSuccess?.(imageResponse, variables, context);
-    },
-
-    // 실패 시: 이전 상태로 롤백
-    onError: (error, variables, context) => {
+    onError: (error, variables) => {
       console.error("프로필 이미지 업로드 실패:", error);
-
-      // 임시 URL 정리
-      if (context?.tempImageUrl) {
-        URL.revokeObjectURL(context.tempImageUrl);
-      }
-
-      // 백업된 데이터로 롤백
-      if (context?.previousProfile) {
-        queryClient.setQueryData(USER_QUERY_KEYS.profile(), context.previousProfile);
-      }
-
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables);
     },
-
-    // 완료 시: 관련 쿼리 다시 가져오기
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.profile() });
+    onSettled: (data, error, variables) => {
+      options?.onSettled?.(data, error, variables);
     },
-
-    ...options,
   });
 }
 
@@ -115,100 +60,64 @@ export function useUpdateProfileImage(
  * 회원가입 시 프로필을 업데이트하는 뮤테이션 훅
  *
  * 회원가입 플로우에서 사용되며, 프로필 정보를 설정합니다.
+ * 회원가입 후 리다이렉트되므로 router.refresh()는 불필요합니다.
  */
 export function useUpdateProfileInSignup(
-  options?: UseMutationOptions<UserProfileResponse, Error, UserProfileRequest>
+  options?: ActionMutationOptions<ActionResult<UserProfileResponse>, UserProfileRequest>
 ) {
-  const queryClient = useQueryClient();
+  return useActionMutation(
+    (profileData: UserProfileRequest) => updateProfileInSignupAction(profileData),
+    {
+      onSuccess: (result, variables) => {
+        if (!result.success) {
+          console.error("프로필 업데이트 실패:", result.error);
+        }
 
-  return useMutation({
-    mutationFn: (profileData: UserProfileRequest) => userService.updateProfileInSignup(profileData),
-
-    onSuccess: (updatedProfile, variables, context) => {
-      // 프로필 캐시 업데이트
-      queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
-
-      options?.onSuccess?.(updatedProfile, variables, context);
-    },
-
-    onError: (error, variables, context) => {
-      console.error("프로필 업데이트 실패:", error);
-      options?.onError?.(error, variables, context);
-    },
-
-    ...options,
-  });
+        options?.onSuccess?.(result, variables);
+      },
+      onError: (error, variables) => {
+        console.error("프로필 업데이트 실패:", error);
+        options?.onError?.(error, variables);
+      },
+      onSettled: (data, error, variables) => {
+        options?.onSettled?.(data, error, variables);
+      },
+    }
+  );
 }
 
 /**
- * 사용자 프로필을 업데이트하는 뮤테이션 훅 (낙관적 업데이트 포함)
+ * 사용자 프로필을 업데이트하는 뮤테이션 훅
  *
- * 낙관적 업데이트를 통해 즉각적인 UI 반응을 제공하고,
- * 실패 시 자동으로 이전 상태로 롤백합니다.
+ * 서버 컴포넌트에서 프로필을 fetch하므로 성공 시 router.refresh()로 갱신합니다.
  */
 export function useUpdateProfile(
-  options?: UseMutationOptions<
-    UserProfileResponse,
-    Error,
-    UpdateProfileRequest,
-    UpdateProfileContext
-  >
+  options?: ActionMutationOptions<ActionResult<UserProfileResponse>, UpdateProfileRequest>
 ) {
-  const queryClient = useQueryClient();
+  const router = useRouter();
 
-  return useMutation({
-    mutationFn: (profileData: UpdateProfileRequest) => userService.updateProfile(profileData),
+  return useActionMutation(
+    (profileData: UpdateProfileRequest) => updateProfileAction(profileData),
+    {
+      onSuccess: (result, variables) => {
+        if (result.success) {
+          // 서버 컴포넌트 리렌더링으로 프로필 갱신
+          router.refresh();
+        } else {
+          console.error("프로필 업데이트 실패:", result.error);
+        }
 
-    // 낙관적 업데이트: 서버 응답 전에 UI 즉시 업데이트
-    onMutate: async (profileData: UpdateProfileRequest): Promise<UpdateProfileContext> => {
-      // 진행 중인 쿼리들을 취소하여 낙관적 업데이트와 충돌 방지
-      await queryClient.cancelQueries({ queryKey: USER_QUERY_KEYS.profile() });
-
-      // 현재 캐시된 데이터를 백업 (롤백용)
-      const previousProfile = queryClient.getQueryData<UserProfileResponse>(
-        USER_QUERY_KEYS.profile()
-      );
-
-      // 낙관적으로 프로필 데이터 업데이트
-      if (previousProfile) {
-        const optimisticProfile: UserProfileResponse = {
-          ...previousProfile,
-          ...profileData,
-        };
-        queryClient.setQueryData(USER_QUERY_KEYS.profile(), optimisticProfile);
-      }
-
-      return { previousProfile };
-    },
-
-    onSuccess: (updatedProfile, variables, context) => {
-      // 서버에서 받은 실제 데이터로 캐시 업데이트
-      queryClient.setQueryData(USER_QUERY_KEYS.profile(), updatedProfile);
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.activityStats() });
-
-      options?.onSuccess?.(updatedProfile, variables, context);
-    },
-
-    // 실패 시: 이전 상태로 롤백
-    onError: (error, variables, context) => {
-      console.error("프로필 업데이트 실패:", error);
-
-      // 백업된 데이터로 롤백
-      if (context?.previousProfile) {
-        queryClient.setQueryData(USER_QUERY_KEYS.profile(), context.previousProfile);
-      }
-
-      options?.onError?.(error, variables, context);
-    },
-
-    // 완료 시: 관련 쿼리 다시 가져오기
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.profile() });
-    },
-
-    ...options,
-  });
+        options?.onSuccess?.(result, variables);
+      },
+      onError: (error, variables) => {
+        console.error("프로필 업데이트 실패:", error);
+        options?.onError?.(error, variables);
+      },
+      onSettled: (data, error, variables) => {
+        options?.onSettled?.(data, error, variables);
+      },
+    }
+  );
 }
 
 /**
@@ -216,24 +125,22 @@ export function useUpdateProfile(
  *
  * 계정 탈퇴 후 자동으로 로그아웃 처리하고 홈으로 리다이렉트합니다.
  */
-export function useWithdrawAccount(options?: UseMutationOptions<void, Error, void>) {
-  const queryClient = useQueryClient();
+export function useWithdrawAccount(options?: ActionMutationOptions<ActionResult<void>, void>) {
+  return useActionMutation<ActionResult<void>, void>(() => withdrawAccountAction(), {
+    onSuccess: (result, variables) => {
+      if (result.success) {
+        // 토큰 만료 처리 및 홈으로 리다이렉트
+        handleTokenExpiration(undefined, "/");
+      }
 
-  return useMutation({
-    mutationFn: () => userService.withdrawAccount(),
-
-    onSuccess: (data, variables, context) => {
-      // 토큰 만료 처리 및 홈으로 리다이렉트
-      handleTokenExpiration(queryClient, "/");
-
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(result, variables);
     },
-
-    onError: (error, variables, context) => {
+    onError: (error, variables) => {
       console.error("계정 탈퇴 실패:", error);
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables);
     },
-
-    ...options,
+    onSettled: (data, error, variables) => {
+      options?.onSettled?.(data, error, variables);
+    },
   });
 }

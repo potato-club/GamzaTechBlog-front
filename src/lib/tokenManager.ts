@@ -5,21 +5,7 @@
  * 토큰 설정은 백엔드에서 자동으로 처리되므로 여기서는 삭제 및 만료 처리에 집중합니다.
  */
 
-import { deleteCookie, getCookie } from "cookies-next";
-import { USER_QUERY_KEYS } from "@/features/user";
-
-// --- 상수 정의 ---
-export const TOKEN_COOKIE_NAME = "authorization" as const;
-
-/**
-
-* 쿠키 삭제 시 사용할 옵션
- * 백엔드에서 설정한 쿠키와 동일한 옵션으로 삭제해야 함
- */
-const DELETE_COOKIE_OPTIONS = {
-  path: "/",
-  domain: ".gamzatech.site",
-} as const;
+import { USER_QUERY_KEYS } from "@/features/user/queryKeys";
 
 // --- 쿠키 관리 함수 ---
 
@@ -28,16 +14,15 @@ const DELETE_COOKIE_OPTIONS = {
  * @returns JWT 토큰 또는 undefined
  */
 export function getAuthCookie(): string | undefined {
-  const cookie = getCookie(TOKEN_COOKIE_NAME);
-  return typeof cookie === "string" ? cookie : undefined;
+  return undefined;
 }
 
 /**
  * 인증 토큰 쿠키를 삭제합니다.
- * 백엔드에서 설정한 쿠키와 동일한 옵션으로 삭제해야 제대로 지워집니다.
+ * HttpOnly 쿠키는 클라이언트에서 제거할 수 없으므로 서버에서 처리합니다.
  */
 export function removeAuthCookie(): void {
-  deleteCookie(TOKEN_COOKIE_NAME, DELETE_COOKIE_OPTIONS);
+  // no-op
 }
 
 // --- 토큰 만료 처리 ---
@@ -60,7 +45,7 @@ export function isRefreshTokenInvalidError(error: unknown): boolean {
  * 토큰 만료로 인한 로그아웃 처리
  * 쿠키 삭제, 쿼리 캐시 정리를 수행합니다.
  *
- * @param queryClient TanStack Query 클라이언트 (선택적)
+ * @param queryClient 클라이언트 캐시 인스턴스 (선택적)
  * @param redirectPath 리다이렉트할 경로 (선택적)
  */
 export function handleTokenExpiration(
@@ -98,7 +83,7 @@ export function handleTokenExpiration(
  * API 호출, 쿠키 삭제, 캐시 정리를 모두 수행합니다.
  *
  * @param logoutApiCall 백엔드 로그아웃 API 호출 함수
- * @param queryClient TanStack Query 클라이언트
+ * @param queryClient 클라이언트 캐시 인스턴스
  * @param redirectPath 로그아웃 후 리다이렉트할 경로
  */
 export async function performLogout(

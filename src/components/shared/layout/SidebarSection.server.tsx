@@ -1,5 +1,5 @@
-import { PopularPostsSection } from "@/features/posts";
-import { TagsSection } from "@/features/tags";
+import PopularPostsSection from "@/features/posts/components/PopularPostsSection.server";
+import TagsSection from "@/features/tags/components/TagsSection.server";
 import { PostPopularResponse } from "@/generated/api";
 
 /**

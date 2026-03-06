@@ -1,11 +1,5 @@
-// 읽기 전용 쿼리 훅
-export {
-  USER_QUERY_KEYS,
-  usePublicProfile,
-  useUserActivityStats,
-  useUserProfile,
-  useUserRole,
-} from "./useUserQueries";
+// 읽기 전용 쿼리 키
+export { USER_QUERY_KEYS } from "../queryKeys";
 
 // 변경 작업 훅 (Mutations)
 export {
@@ -14,7 +8,5 @@ export {
   useUpdateProfileInSignup,
   useWithdrawAccount,
 } from "./useUserMutations";
-
-export { useMyComments, useMyLikes, useMyPosts } from "./useMyPageQueries";
 
 export { useMyPageTab } from "./useMyPageTab";

@@ -22,7 +22,6 @@ export default function PostCard({
       {/* 콘텐츠 영역 */}
       <div className="flex-1 md:h-[140px] md:w-[500px]">
         <PostLink
-          postId={post.postId!}
           href={`/posts/${post.postId}`}
           className="block transition-colors hover:text-[#FAA631]"
         >
