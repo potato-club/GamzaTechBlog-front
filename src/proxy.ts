@@ -27,9 +27,6 @@ const CACHEABLE_PATHS = [
   /^\/profile\/[^/]+$/,
 ];
 
-// 토큰 재발급 시도를 건너뛸 경로 (무한 루프 방지)
-const REFRESH_SKIP_PATHS = [/^\/api\/auth\/reissue/];
-
 // 만료 n초 전부터 선제적으로 재발급
 const TOKEN_REFRESH_BUFFER_SECONDS = 60;
 
@@ -121,33 +118,28 @@ export async function proxy(request: NextRequest) {
   }
 
   // 2. 토큰 선제적 재발급 (만료 60초 전 ~ 만료 후)
-  //    reissue 경로 자체는 스킵하여 무한 루프 방지
-  const shouldSkipRefresh = REFRESH_SKIP_PATHS.some((p) => p.test(pathname));
+  const accessToken = request.cookies.get("authorization")?.value;
 
-  if (!shouldSkipRefresh) {
-    const accessToken = request.cookies.get("authorization")?.value;
+  if (accessToken) {
+    const exp = decodeJwtExp(accessToken);
+    const nowSeconds = Math.floor(Date.now() / 1000);
 
-    if (accessToken) {
-      const exp = decodeJwtExp(accessToken);
-      const nowSeconds = Math.floor(Date.now() / 1000);
+    if (exp !== null && exp - nowSeconds < TOKEN_REFRESH_BUFFER_SECONDS) {
+      const newSetCookies = await reissueToken(request);
 
-      if (exp !== null && exp - nowSeconds < TOKEN_REFRESH_BUFFER_SECONDS) {
-        const newSetCookies = await reissueToken(request);
-
-        if (newSetCookies) {
-          // 재발급 성공: 새 쿠키를 응답에 포함하여 클라이언트에 전달
-          // 현재 요청은 구 토큰으로 처리되지만 구 토큰은 아직 유효함
-          // 다음 요청부터 새 토큰 사용
-          const response = NextResponse.next();
-          // Set-Cookie가 포함된 응답은 CDN에 캐시되면 안 됨 (타 사용자에게 쿠키 전달 위험)
-          response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
-          for (const cookie of newSetCookies) {
-            response.headers.append("Set-Cookie", cookie);
-          }
-          return response;
+      if (newSetCookies) {
+        // 재발급 성공: 새 쿠키를 응답에 포함하여 클라이언트에 전달
+        // 현재 요청은 구 토큰으로 처리되지만 구 토큰은 아직 유효함
+        // 다음 요청부터 새 토큰 사용
+        const response = NextResponse.next();
+        // Set-Cookie가 포함된 응답은 CDN에 캐시되면 안 됨 (타 사용자에게 쿠키 전달 위험)
+        response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
+        for (const cookie of newSetCookies) {
+          response.headers.append("Set-Cookie", cookie);
         }
-        // 재발급 실패: 그대로 진행 → 하위 레이어(Server Action, RSC)에서 401 처리
+        return response;
       }
+      // 재발급 실패: 그대로 진행 → 하위 레이어(Server Action, RSC)에서 401 처리
     }
   }
 
