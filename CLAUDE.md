@@ -166,6 +166,7 @@ docs: README.md 작성 및 프로젝트 소개 추가
 3. **Detailed body**: Use bullet points to explain what and why (not how)
 4. **Present tense**: Use present tense in Korean ("추가한다" not "추가했다")
 5. **Reference issues**: Include issue numbers if applicable (e.g., `#123`)
+6. **No Co-Authored-By**: Never include `Co-Authored-By: Claude` or any AI attribution in commit messages
 
 ### Workflow Example
 ```bash
