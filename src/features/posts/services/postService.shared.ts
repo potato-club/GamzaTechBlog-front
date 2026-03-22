@@ -39,11 +39,6 @@ const mergeNextOptions = (
  * @returns Post Service 객체
  *
  * @example
- * // 클라이언트 환경
- * const postService = createPostService(apiClient);
- *
- * @example
- * // 서버 환경
  * const postService = createPostService(createBackendApiClient());
  */
 export const createPostService = (api: DefaultApi) => {
