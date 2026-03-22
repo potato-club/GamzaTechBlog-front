@@ -166,6 +166,7 @@ docs: README.md 작성 및 프로젝트 소개 추가
 3. **Detailed body**: Use bullet points to explain what and why (not how)
 4. **Present tense**: Use present tense in Korean ("추가한다" not "추가했다")
 5. **Reference issues**: Include issue numbers if applicable (e.g., `#123`)
+6. **No Co-Authored-By**: Never include `Co-Authored-By: Claude` or any AI attribution in commit messages
 
 ### Workflow Example
 ```bash
@@ -519,6 +520,6 @@ feat: 검색 필터 기능 추가
   3. 사용자의 승인을 받은 후에만 코드 수정 진행
   4. 긴급하거나 명확한 버그 수정 요청이 아닌 한, 자동으로 코드를 수정하지 말 것
 - **모든 작업은 반드시 Issue → Branch → PR 순서를 따를 것**: 이슈 없이 작업 시작 금지, PR 없이 main 직접 push 금지
-- 항상 어떤 작업이 끝나면 브랜치명을 추천 (이슈 번호 포함: `feat/42-description`)
+- 항상 어떤 작업이 끝나면 브렌치 명을 추천 (이슈 번호 포함: `feat/42-description`)
 - 항상 어떤 작업이 끝나면 커밋 컨벤션 규칙에 따라 한국어로 내용 추천
 - 항상 어떤 작업이 끝나면 PR을 생성하고 URL을 사용자에게 공유할 것
