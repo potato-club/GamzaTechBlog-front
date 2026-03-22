@@ -16,11 +16,6 @@ import type {
  * @returns Comment Service 객체
  *
  * @example
- * // 클라이언트 환경
- * const commentService = createCommentService(apiClient);
- *
- * @example
- * // 서버 환경
  * const commentService = createCommentService(createBackendApiClient());
  */
 export const createCommentService = (api: DefaultApi) => {
