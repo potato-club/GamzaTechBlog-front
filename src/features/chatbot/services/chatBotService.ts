@@ -1,12 +1,19 @@
 import { ChatMessageRequest, ChatMessageResponse } from "@/generated/api";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
 export const chatBotService = {
   async sendMessage(message: string): Promise<ChatMessageResponse> {
     const chatRequest: ChatMessageRequest = { message };
 
-    const response = await fetch("/api/ai/chat", {
+    const token = document.cookie.match(/(?:^|;\s*)authorization=([^;]*)/)?.[1];
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/ai/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify(chatRequest),
     });
 
