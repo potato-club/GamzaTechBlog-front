@@ -107,7 +107,7 @@ function applyCacheHeaders(response: NextResponse, pathname: string): void {
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const userAgent = request.headers.get("user-agent") ?? "";
 
