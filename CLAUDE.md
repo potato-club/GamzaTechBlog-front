@@ -186,6 +186,127 @@ git push origin feat/add-comment-system
 # 4. Create Pull Request with Korean description
 ```
 
+## GitHub Issue & PR Workflow
+
+**이 프로젝트는 모든 작업에 대해 이슈 → 브랜치 → PR 순서를 반드시 따른다.**
+작업의 맥락과 결정 근거를 문서로 남기는 것을 최우선으로 한다.
+
+### 필수 워크플로우 순서
+
+```
+1. Issue 생성  →  2. Branch 생성  →  3. 작업 & 커밋  →  4. PR 생성  →  5. Merge
+```
+
+모든 코드 변경은 반드시 이 순서를 거쳐야 한다. 이슈 없이 브랜치를 만들거나, PR 없이 main에 직접 push하는 것은 금지한다.
+
+---
+
+### Step 1. Issue 생성
+
+작업을 시작하기 전에 **반드시 GitHub Issue를 먼저 생성**한다.
+
+**Issue 작성 형식**:
+```
+제목: [type] 작업 내용을 간결하게 (한국어)
+예시: [feat] 댓글 시스템 추가
+      [fix] 로그인 토큰 만료 처리 오류
+      [chore] next 패키지 보안 취약점 업데이트
+```
+
+**Issue 본문 구조**:
+```markdown
+## 개요
+이 작업이 필요한 이유와 해결하려는 문제를 설명한다.
+
+## 작업 내용
+- [ ] 구체적인 작업 항목 1
+- [ ] 구체적인 작업 항목 2
+
+## 참고 사항
+관련 링크, CVE 번호, 관련 이슈 등 (선택)
+```
+
+**gh CLI로 이슈 생성**:
+```bash
+gh issue create --title "[feat] 댓글 시스템 추가" --body "..."
+```
+
+---
+
+### Step 2. Branch 생성
+
+이슈 번호를 브랜치명에 반드시 포함한다.
+
+**형식**: `<type>/<issue-number>-<short-description>`
+
+```bash
+# 이슈 #42번에 대한 브랜치
+git checkout -b feat/42-add-comment-system
+git checkout -b fix/38-auth-token-expiry
+git checkout -b chore/55-update-next-security
+```
+
+---
+
+### Step 3. 작업 & 커밋
+
+커밋 메시지 본문에 이슈 번호를 참조한다.
+
+```bash
+git commit -m "feat: 댓글 작성 기능 구현
+
+- 댓글 API 연동
+- 중첩 댓글 UI 구현
+
+ref #42"
+```
+
+---
+
+### Step 4. PR 생성
+
+PR은 반드시 연결된 이슈를 닫도록 `Closes #N`을 본문에 포함한다.
+
+**PR 제목**: 이슈 제목과 동일하게 작성 (한국어)
+
+**PR 본문 구조**:
+```markdown
+## 개요
+이 PR이 해결하는 문제와 접근 방식을 설명한다.
+
+## 변경 사항
+- 변경된 주요 내용 1
+- 변경된 주요 내용 2
+
+## 테스트
+- [ ] 빌드 성공 확인 (`yarn build`)
+- [ ] 주요 기능 동작 확인
+
+Closes #42
+```
+
+**gh CLI로 PR 생성**:
+```bash
+gh pr create \
+  --title "[feat] 댓글 시스템 추가" \
+  --body "..." \
+  --base main
+```
+
+---
+
+### Claude Code 작업 시 필수 규칙
+
+Claude가 이 프로젝트에서 작업할 때 반드시 따라야 할 순서:
+
+1. **작업 전**: `gh issue create`로 이슈 먼저 생성
+2. **브랜치 생성**: 이슈 번호 포함한 브랜치명 사용
+3. **작업 완료 후**: `gh pr create`로 PR 생성 (Closes #N 포함)
+4. **PR URL을 사용자에게 반드시 공유**
+
+이슈와 PR 없이 "브랜치명: xxx, 커밋 메시지: yyy" 형태로만 안내하는 것은 불충분하다.
+실제로 이슈와 PR을 생성하거나, 사용자에게 생성을 요청해야 한다.
+
 ## Coding Standards
 
 ### Type Safety
@@ -270,15 +391,20 @@ import { CardSkeleton } from "@/components/shared/skeletons";
 
 When working on this project and completing tasks:
 
-1. **Always recommend branch names in English** following the convention above
-2. **Always recommend commit messages in Korean** following the convention above
-3. **Include detailed commit body** with bullet points explaining the changes
-4. **Use appropriate commit type** based on the nature of the changes
-5. **Keep branch names concise** but descriptive enough to understand the purpose
-6. **Enforce type safety**: Avoid using `any` type unless absolutely necessary
-7. **Follow Single Responsibility Principle**: Design code with clear, focused purposes
-8. **Always run build test after completing a task**: Run `yarn build` to verify no breaking changes
-9. **Provide appropriate complexity solutions**: Consider user context (4th year university student, graduation pending)
+1. **Issue → Branch → PR 워크플로우 필수 준수**: 모든 작업은 이슈 생성으로 시작하고 PR 생성으로 마무리한다
+2. **Always create GitHub Issue first**: `gh issue create`로 이슈를 생성한 후 작업을 시작한다
+3. **Always include issue number in branch name**: `feat/42-add-comment-system` 형식으로 브랜치를 생성한다
+4. **Always create PR with `Closes #N`**: 작업 완료 후 `gh pr create`로 PR을 생성하고 이슈를 연결한다
+5. **Always share PR URL with the user**: PR 생성 후 URL을 반드시 사용자에게 전달한다
+6. **Always recommend branch names in English** following the convention above
+7. **Always recommend commit messages in Korean** following the convention above
+8. **Include detailed commit body** with bullet points explaining the changes
+9. **Use appropriate commit type** based on the nature of the changes
+10. **Keep branch names concise** but descriptive enough to understand the purpose
+11. **Enforce type safety**: Avoid using `any` type unless absolutely necessary
+12. **Follow Single Responsibility Principle**: Design code with clear, focused purposes
+13. **Always run build test after completing a task**: Run `yarn build` to verify no breaking changes
+14. **Provide appropriate complexity solutions**: Consider user context (4th year university student, graduation pending)
 
 ### Build Testing Protocol
 
@@ -392,5 +518,7 @@ feat: 검색 필터 기능 추가
   2. 해결 방법을 제시하고 적용 여부를 사용자에게 확인
   3. 사용자의 승인을 받은 후에만 코드 수정 진행
   4. 긴급하거나 명확한 버그 수정 요청이 아닌 한, 자동으로 코드를 수정하지 말 것
-- 항상 어떤 작업이 끝나면 브렌치 명을 추천
+- **모든 작업은 반드시 Issue → Branch → PR 순서를 따를 것**: 이슈 없이 작업 시작 금지, PR 없이 main 직접 push 금지
+- 항상 어떤 작업이 끝나면 브렌치 명을 추천 (이슈 번호 포함: `feat/42-description`)
 - 항상 어떤 작업이 끝나면 커밋 컨벤션 규칙에 따라 한국어로 내용 추천
+- 항상 어떤 작업이 끝나면 PR을 생성하고 URL을 사용자에게 공유할 것
