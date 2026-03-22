@@ -92,9 +92,6 @@ export const MESSAGE_TEXTS = {
   PROFILE_BOTH_SUCCESS: "프로필 이미지와 정보가 성공적으로 업데이트되었습니다.",
   NO_CHANGES: "변경된 내용이 없습니다.",
   PROFILE_UPDATE_FAILED: "프로필 업데이트에 실패했습니다. 다시 시도해주세요.",
-  TOKEN_REFRESH_SUCCESS: "새 액세스 토큰 발급 및 저장 성공.",
-  TOKEN_REFRESH_FAILED:
-    "리프레시 토큰이 만료되었거나 유효하지 않습니다. 강제 로그아웃이 필요합니다.",
 } as const;
 
 // 자기소개 관련

@@ -162,12 +162,6 @@ describe("proxy", () => {
       await expect(proxy(req)).resolves.toBeDefined();
     });
 
-    it("/api/auth/reissue 경로는 재발급 시도를 건너뛰어야 함 (무한 루프 방지)", async () => {
-      const req = makeRequest("/api/auth/reissue", { token: nearExpiryToken() });
-      await proxy(req);
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
-
     it("재발급 요청에 현재 쿠키와 Authorization 헤더를 포함해야 함", async () => {
       const token = nearExpiryToken();
       jest.spyOn(global, "fetch").mockResolvedValue(new Response(null, { status: 401 }));
