@@ -1,12 +1,10 @@
 import { postCacheInvalidation } from "@/features/posts/utils/cacheInvalidation";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 jest.mock("next/cache", () => ({
-  revalidatePath: jest.fn(),
   revalidateTag: jest.fn(),
 }));
 
-const revalidatePathMock = revalidatePath as jest.MockedFunction<typeof revalidatePath>;
 const revalidateTagMock = revalidateTag as jest.MockedFunction<typeof revalidateTag>;
 
 describe("postCacheInvalidation", () => {
@@ -19,8 +17,6 @@ describe("postCacheInvalidation", () => {
     postCacheInvalidation.invalidateList();
 
     // Then
-    expect(revalidatePathMock).toHaveBeenCalledWith("/");
-    expect(revalidatePathMock).toHaveBeenCalledWith("/posts");
     expect(revalidateTagMock).toHaveBeenCalledWith("posts-list", "max");
   });
 
@@ -29,7 +25,6 @@ describe("postCacheInvalidation", () => {
     postCacheInvalidation.invalidateDetail(42);
 
     // Then
-    expect(revalidatePathMock).toHaveBeenCalledWith("/posts/42");
     expect(revalidateTagMock).toHaveBeenCalledWith("post-42", "max");
   });
 
@@ -38,8 +33,6 @@ describe("postCacheInvalidation", () => {
     postCacheInvalidation.invalidateAll();
 
     // Then
-    expect(revalidatePathMock).toHaveBeenCalledWith("/");
-    expect(revalidatePathMock).toHaveBeenCalledWith("/posts");
     expect(revalidateTagMock).toHaveBeenCalledWith("posts-list", "max");
     expect(revalidateTagMock).toHaveBeenCalledWith("posts", "max");
   });
@@ -49,9 +42,6 @@ describe("postCacheInvalidation", () => {
     postCacheInvalidation.invalidatePostAndList(7);
 
     // Then
-    expect(revalidatePathMock).toHaveBeenCalledWith("/posts/7");
-    expect(revalidatePathMock).toHaveBeenCalledWith("/");
-    expect(revalidatePathMock).toHaveBeenCalledWith("/posts");
     expect(revalidateTagMock).toHaveBeenCalledWith("post-7", "max");
     expect(revalidateTagMock).toHaveBeenCalledWith("posts-list", "max");
   });

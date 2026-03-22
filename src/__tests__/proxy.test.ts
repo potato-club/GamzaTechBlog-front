@@ -6,10 +6,7 @@ import { proxy } from "@/proxy";
 /** 특정 exp를 가진 테스트용 JWT 생성 (서명은 가짜) */
 function makeJwt(exp: number): string {
   const toBase64url = (obj: object) =>
-    btoa(JSON.stringify(obj))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
+    btoa(JSON.stringify(obj)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   const header = toBase64url({ alg: "HS256", typ: "JWT" });
   const payload = toBase64url({ sub: "1", exp });
   return `${header}.${payload}.fake_sig`;
@@ -25,10 +22,7 @@ function validToken() {
   return makeJwt(Math.floor(Date.now() / 1000) + 600);
 }
 
-function makeRequest(
-  path: string,
-  options: { ua?: string; token?: string } = {}
-): NextRequest {
+function makeRequest(path: string, options: { ua?: string; token?: string } = {}): NextRequest {
   const headers: Record<string, string> = {
     "user-agent": options.ua ?? "Mozilla/5.0",
   };
@@ -182,9 +176,7 @@ describe("proxy", () => {
       await proxy(req);
 
       const [, init] = (global.fetch as jest.Mock).mock.calls[0];
-      expect((init.headers as Record<string, string>)["authorization"]).toBe(
-        `Bearer ${token}`
-      );
+      expect((init.headers as Record<string, string>)["authorization"]).toBe(`Bearer ${token}`);
       expect((init.headers as Record<string, string>)["cookie"]).toContain(
         `authorization=${token}`
       );
