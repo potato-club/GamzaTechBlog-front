@@ -187,7 +187,10 @@ export const createPostService = (api: DefaultApi) => {
       options?: RequestInit
     ): Promise<PagedResponsePostListResponse> {
       const response = await api.searchPosts({ keyword, pageable: params }, options);
-      return response.data as PagedResponsePostListResponse;
+      if (!response.data) {
+        throw new Error("Search response data is missing.");
+      }
+      return response.data;
     },
 
     /**
