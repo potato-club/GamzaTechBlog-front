@@ -20,12 +20,7 @@ const BLOCKED_BOT_PATTERNS = [
 ];
 
 // 캐시를 적용할 공개 페이지 경로
-const CACHEABLE_PATHS = [
-  /^\/$/,
-  /^\/posts\/[^/]+$/,
-  /^\/search/,
-  /^\/profile\/[^/]+$/,
-];
+const CACHEABLE_PATHS = [/^\/$/, /^\/posts\/[^/]+$/, /^\/search/, /^\/profile\/[^/]+$/];
 
 // 토큰 재발급 시도를 건너뛸 경로 (무한 루프 방지)
 const REFRESH_SKIP_PATHS = [/^\/api\/auth\/reissue/];
@@ -79,8 +74,7 @@ async function reissueToken(request: NextRequest): Promise<string[] | null> {
 
     // Next.js 16 (Node.js 18.18+) / Headers.getSetCookie 지원 여부를 방어적으로 확인 후 사용
     const setCookies =
-      typeof (res.headers as { getSetCookie?: () => string[] }).getSetCookie ===
-      "function"
+      typeof (res.headers as { getSetCookie?: () => string[] }).getSetCookie === "function"
         ? (res.headers as { getSetCookie: () => string[] }).getSetCookie()
         : [];
 
@@ -94,17 +88,12 @@ async function reissueToken(request: NextRequest): Promise<string[] | null> {
  * 공개 페이지에 Vercel Edge Cache 헤더를 적용합니다.
  */
 function applyCacheHeaders(response: NextResponse, pathname: string): void {
-  const isCacheable = CACHEABLE_PATHS.some((pattern) =>
-    pattern.test(pathname)
-  );
+  const isCacheable = CACHEABLE_PATHS.some((pattern) => pattern.test(pathname));
 
   if (isCacheable) {
     // s-maxage: CDN(Vercel Edge) 캐시 유지 시간 (1시간)
     // stale-while-revalidate: 백그라운드에서 갱신하는 동안 stale 캐시 제공 (24시간)
-    response.headers.set(
-      "Cache-Control",
-      "public, s-maxage=3600, stale-while-revalidate=86400"
-    );
+    response.headers.set("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
   }
 }
 
@@ -113,9 +102,7 @@ export async function proxy(request: NextRequest) {
   const userAgent = request.headers.get("user-agent") ?? "";
 
   // 1. 악성/AI 크롤러 차단
-  const isBlockedBot = BLOCKED_BOT_PATTERNS.some((pattern) =>
-    pattern.test(userAgent)
-  );
+  const isBlockedBot = BLOCKED_BOT_PATTERNS.some((pattern) => pattern.test(userAgent));
   if (isBlockedBot) {
     return new NextResponse("Forbidden", { status: 403 });
   }

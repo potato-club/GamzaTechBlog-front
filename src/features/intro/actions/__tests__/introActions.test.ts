@@ -6,6 +6,10 @@ jest.mock("@/lib/serverApiClient", () => ({
   createBackendApiClient: jest.fn(),
 }));
 
+jest.mock("@/features/intro/utils/cacheInvalidation", () => ({
+  introCacheInvalidation: { invalidateList: jest.fn() },
+}));
+
 const createBackendApiClientMock = createBackendApiClient as jest.MockedFunction<
   typeof createBackendApiClient
 >;

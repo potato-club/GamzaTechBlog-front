@@ -170,7 +170,9 @@ docs: README.md 작성 및 프로젝트 소개 추가
 
 ### Workflow Example
 ```bash
-# 1. Create a new branch (English)
+# 1. Create a new branch from main (English)
+git checkout main
+git pull origin main
 git checkout -b feat/add-comment-system
 
 # 2. Make changes and commit (Korean)
@@ -240,9 +242,15 @@ gh issue create --title "[feat] 댓글 시스템 추가" --body "..."
 
 **형식**: `<type>/<issue-number>-<short-description>`
 
+> **중요**: 브랜치는 **반드시 `main` 브랜치에서** 분기한다. 현재 체크아웃된 브랜치와 관계없이 항상 최신 `main`을 기준으로 생성한다.
+
 ```bash
-# 이슈 #42번에 대한 브랜치
+# 항상 main에서 분기
+git checkout main
+git pull origin main
 git checkout -b feat/42-add-comment-system
+
+# 이슈 번호 포함 예시
 git checkout -b fix/38-auth-token-expiry
 git checkout -b chore/55-update-next-security
 ```
