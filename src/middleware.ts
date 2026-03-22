@@ -27,28 +27,72 @@ const CACHEABLE_PATHS = [
   /^\/profile\/[^/]+$/,
 ];
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const userAgent = request.headers.get("user-agent") ?? "";
+// 토큰 재발급 시도를 건너뛸 경로 (무한 루프 방지)
+const REFRESH_SKIP_PATHS = [/^\/api\/auth\/reissue/];
 
-  // 1. 악성/AI 크롤러 차단
-  const isBlockedBot = BLOCKED_BOT_PATTERNS.some((pattern) =>
-    pattern.test(userAgent)
-  );
+// 만료 n초 전부터 선제적으로 재발급
+const TOKEN_REFRESH_BUFFER_SECONDS = 60;
 
-  if (isBlockedBot) {
-    return new NextResponse("Forbidden", { status: 403 });
+/**
+ * JWT payload의 exp 클레임을 디코딩합니다.
+ * Edge 런타임에서 동작하도록 atob 사용.
+ */
+function decodeJwtExp(token: string): number | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+
+    // base64url → base64 변환
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(base64));
+
+    return typeof payload.exp === "number" ? payload.exp : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 백엔드에 토큰 재발급을 요청하고, 성공 시 Set-Cookie 헤더 배열을 반환합니다.
+ * 실패하면 null을 반환합니다.
+ */
+async function reissueToken(request: NextRequest): Promise<string[] | null> {
+  const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!backendUrl) return null;
+
+  const cookieHeader = request.headers.get("cookie") ?? "";
+  const accessToken = request.cookies.get("authorization")?.value;
+
+  const reqHeaders: Record<string, string> = { cookie: cookieHeader };
+  if (accessToken) {
+    reqHeaders["authorization"] = `Bearer ${accessToken}`;
   }
 
-  // 2. API 경로는 캐시 없이 통과
-  if (pathname.startsWith("/api/")) {
-    return NextResponse.next();
+  try {
+    const res = await fetch(`${backendUrl}/api/auth/reissue`, {
+      method: "POST",
+      headers: reqHeaders,
+    });
+
+    if (!res.ok) return null;
+
+    // Next.js 15 (Node.js 18.18+) / Edge 런타임에서 getSetCookie 지원
+    const setCookies =
+      typeof (res.headers as { getSetCookie?: () => string[] }).getSetCookie ===
+      "function"
+        ? (res.headers as { getSetCookie: () => string[] }).getSetCookie()
+        : [];
+
+    return setCookies.length > 0 ? setCookies : null;
+  } catch {
+    return null;
   }
+}
 
-  const response = NextResponse.next();
-
-  // 3. 공개 페이지에 CDN 캐시 헤더 적용 (Vercel Edge Cache 활용)
-  // 봇이 같은 페이지를 재방문해도 서버리스 함수 재실행 없이 캐시 반환
+/**
+ * 공개 페이지에 Vercel Edge Cache 헤더를 적용합니다.
+ */
+function applyCacheHeaders(response: NextResponse, pathname: string): void {
   const isCacheable = CACHEABLE_PATHS.some((pattern) =>
     pattern.test(pathname)
   );
@@ -61,7 +105,60 @@ export function middleware(request: NextRequest) {
       "public, s-maxage=3600, stale-while-revalidate=86400"
     );
   }
+}
 
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const userAgent = request.headers.get("user-agent") ?? "";
+
+  // 1. 악성/AI 크롤러 차단
+  const isBlockedBot = BLOCKED_BOT_PATTERNS.some((pattern) =>
+    pattern.test(userAgent)
+  );
+  if (isBlockedBot) {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
+  // 2. 토큰 선제적 재발급 (만료 60초 전 ~ 만료 후)
+  //    reissue 경로 자체는 스킵하여 무한 루프 방지
+  const shouldSkipRefresh = REFRESH_SKIP_PATHS.some((p) => p.test(pathname));
+
+  if (!shouldSkipRefresh) {
+    const accessToken = request.cookies.get("authorization")?.value;
+
+    if (accessToken) {
+      const exp = decodeJwtExp(accessToken);
+      const nowSeconds = Math.floor(Date.now() / 1000);
+
+      if (exp !== null && exp - nowSeconds < TOKEN_REFRESH_BUFFER_SECONDS) {
+        const newSetCookies = await reissueToken(request);
+
+        if (newSetCookies) {
+          // 재발급 성공: 새 쿠키를 응답에 포함하여 클라이언트에 전달
+          // 현재 요청은 구 토큰으로 처리되지만 구 토큰은 아직 유효함
+          // 다음 요청부터 새 토큰 사용
+          const response = NextResponse.next();
+          if (!pathname.startsWith("/api/")) {
+            applyCacheHeaders(response, pathname);
+          }
+          for (const cookie of newSetCookies) {
+            response.headers.append("Set-Cookie", cookie);
+          }
+          return response;
+        }
+        // 재발급 실패: 그대로 진행 → 하위 레이어(Server Action, RSC)에서 401 처리
+      }
+    }
+  }
+
+  // 3. API 경로는 캐시 없이 통과
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
+  // 4. 페이지 응답에 CDN 캐시 헤더 적용
+  const response = NextResponse.next();
+  applyCacheHeaders(response, pathname);
   return response;
 }
 
