@@ -8,9 +8,7 @@ import type {
   PostPopularResponse,
   PostRequest,
   PostResponse,
-  ResponseDtoPagedResponsePostListResponse,
 } from "@/generated/api";
-import { apiFetch } from "@/lib/apiFetch";
 
 type NextOptions = { revalidate?: number | false; tags?: string[] };
 type RequestInitWithNext = RequestInit & { next?: NextOptions };
@@ -188,34 +186,8 @@ export const createPostService = (api: DefaultApi) => {
       params: Pageable,
       options?: RequestInit
     ): Promise<PagedResponsePostListResponse> {
-      const searchParams = new URLSearchParams({ keyword });
-      if (typeof params.page === "number") {
-        searchParams.set("page", params.page.toString());
-      }
-      if (typeof params.size === "number") {
-        searchParams.set("size", params.size.toString());
-      }
-      if (params.sort?.length) {
-        params.sort.forEach((sortKey) => {
-          searchParams.append("sort", sortKey);
-        });
-      }
-
-      const response = await apiFetch(`/api/v1/posts/search?${searchParams.toString()}`, {
-        ...options,
-        mode: "direct-public",
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to search posts (status ${response.status}).`);
-      }
-
-      const payload = (await response.json()) as ResponseDtoPagedResponsePostListResponse | null;
-      if (!payload?.data) {
-        throw new Error("Search response data is missing.");
-      }
-
-      return payload.data as PagedResponsePostListResponse;
+      const response = await api.searchPosts({ keyword, pageable: params }, options);
+      return response.data as PagedResponsePostListResponse;
     },
 
     /**
