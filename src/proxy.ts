@@ -42,9 +42,10 @@ function decodeJwtExp(token: string): number | null {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
 
-    // base64url → base64 변환
+    // base64url → base64 변환 후 패딩 추가 (JWT는 '=' 패딩 생략)
     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const payload = JSON.parse(atob(base64));
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const payload = JSON.parse(atob(padded));
 
     return typeof payload.exp === "number" ? payload.exp : null;
   } catch {
@@ -76,7 +77,7 @@ async function reissueToken(request: NextRequest): Promise<string[] | null> {
 
     if (!res.ok) return null;
 
-    // Next.js 15 (Node.js 18.18+) / Edge 런타임에서 getSetCookie 지원
+    // Next.js 16 (Node.js 18.18+) / Headers.getSetCookie 지원 여부를 방어적으로 확인 후 사용
     const setCookies =
       typeof (res.headers as { getSetCookie?: () => string[] }).getSetCookie ===
       "function"
@@ -138,9 +139,8 @@ export async function proxy(request: NextRequest) {
           // 현재 요청은 구 토큰으로 처리되지만 구 토큰은 아직 유효함
           // 다음 요청부터 새 토큰 사용
           const response = NextResponse.next();
-          if (!pathname.startsWith("/api/")) {
-            applyCacheHeaders(response, pathname);
-          }
+          // Set-Cookie가 포함된 응답은 CDN에 캐시되면 안 됨 (타 사용자에게 쿠키 전달 위험)
+          response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
           for (const cookie of newSetCookies) {
             response.headers.append("Set-Cookie", cookie);
           }
