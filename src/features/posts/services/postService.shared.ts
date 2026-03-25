@@ -199,10 +199,7 @@ export const createPostService = (
 
       const basePath = config?.basePath ?? "";
       const fetchFn = config?.fetchFn ?? fetch;
-      const response = await fetchFn(
-        `${basePath}/api/v1/posts/search?${searchParams}`,
-        options
-      );
+      const response = await fetchFn(`${basePath}/api/v1/posts/search?${searchParams}`, options);
 
       if (!response.ok) {
         throw new Error(`Search failed (status ${response.status}).`);
