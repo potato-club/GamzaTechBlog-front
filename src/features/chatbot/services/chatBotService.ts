@@ -1,12 +1,12 @@
 import { ChatMessageRequest, ChatMessageResponse } from "@/generated/api";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-if (!API_BASE_URL) {
-  throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured.");
-}
-
 export const chatBotService = {
   async sendMessage(message: string): Promise<ChatMessageResponse> {
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!API_BASE_URL) {
+      throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured.");
+    }
+
     const chatRequest: ChatMessageRequest = { message };
 
     const token = document.cookie.match(/(?:^|;\s*)authorization=([^;]*)/)?.[1];
