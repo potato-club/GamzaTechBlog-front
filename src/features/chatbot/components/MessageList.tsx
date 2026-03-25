@@ -1,16 +1,20 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { MessageListProps } from "../types";
 import { BotMessage, UserMessage } from "./messages";
 
 const MessageList = forwardRef<HTMLDivElement, MessageListProps>(({ messages, isPending }, ref) => {
+  const [currentTime, setCurrentTime] = useState("");
+
+  useEffect(() => {
+    setCurrentTime(new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" }));
+  }, []);
+
   return (
     <div className="flex-1 overflow-y-auto p-4">
       <div className="mb-4">
-        <div className="mb-4 text-center text-sm text-gray-500">
-          {new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
-        </div>
+        <div className="mb-4 text-center text-sm text-gray-500">{currentTime}</div>
 
         {messages.map((message) => (
           <div key={message.id}>
