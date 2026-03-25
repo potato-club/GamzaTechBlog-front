@@ -186,11 +186,30 @@ export const createPostService = (api: DefaultApi) => {
       params: Pageable,
       options?: RequestInit
     ): Promise<PagedResponsePostListResponse> {
-      const response = await api.searchPosts({ keyword, pageable: params }, options);
-      if (!response.data) {
+      // api.searchPosts()는 pageable을 중첩 객체로 직렬화하여 pageable[page]=0 형태로 전송합니다.
+      // Spring Boot의 Pageable 리졸버는 flat params(page=0)를 기대하므로
+      // URLSearchParams로 직접 flat params를 구성합니다.
+      const searchParams = new URLSearchParams({ keyword });
+      if (params.page != null) searchParams.set("page", String(params.page));
+      if (params.size != null) searchParams.set("size", String(params.size));
+      params.sort?.forEach((s) => searchParams.append("sort", s));
+
+      const fetchFn = api.fetchApi ?? fetch;
+      const response = await fetchFn(
+        `${api.basePath}/api/v1/posts/search?${searchParams}`,
+        options
+      );
+
+      if (!response.ok) {
+        throw new Error(`Search failed (status ${response.status}).`);
+      }
+
+      const json = await response.json();
+      const data = (json as { data?: PagedResponsePostListResponse })?.data;
+      if (!data) {
         throw new Error("Search response data is missing.");
       }
-      return response.data;
+      return data;
     },
 
     /**
