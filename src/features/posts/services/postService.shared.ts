@@ -39,7 +39,10 @@ const mergeNextOptions = (
  * @example
  * const postService = createPostService(createBackendApiClient());
  */
-export const createPostService = (api: DefaultApi) => {
+export const createPostService = (
+  api: DefaultApi,
+  config?: { basePath: string; fetchFn: typeof fetch }
+) => {
   return {
     /**
      * 최신순 게시물 목록을 조회합니다.
@@ -194,9 +197,10 @@ export const createPostService = (api: DefaultApi) => {
       if (params.size != null) searchParams.set("size", String(params.size));
       params.sort?.forEach((s) => searchParams.append("sort", s));
 
-      const fetchFn = api.fetchApi ?? fetch;
+      const basePath = config?.basePath ?? "";
+      const fetchFn = config?.fetchFn ?? fetch;
       const response = await fetchFn(
-        `${api.basePath}/api/v1/posts/search?${searchParams}`,
+        `${basePath}/api/v1/posts/search?${searchParams}`,
         options
       );
 
