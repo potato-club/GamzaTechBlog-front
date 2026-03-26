@@ -8,9 +8,7 @@ import type {
   PostPopularResponse,
   PostRequest,
   PostResponse,
-  ResponseDtoPagedResponsePostListResponse,
 } from "@/generated/api";
-import { apiFetch } from "@/lib/apiFetch";
 
 type NextOptions = { revalidate?: number | false; tags?: string[] };
 type RequestInitWithNext = RequestInit & { next?: NextOptions };
@@ -41,7 +39,10 @@ const mergeNextOptions = (
  * @example
  * const postService = createPostService(createBackendApiClient());
  */
-export const createPostService = (api: DefaultApi) => {
+export const createPostService = (
+  api: DefaultApi,
+  config?: { basePath: string; fetchFn: typeof fetch }
+) => {
   return {
     /**
      * 최신순 게시물 목록을 조회합니다.
@@ -188,34 +189,28 @@ export const createPostService = (api: DefaultApi) => {
       params: Pageable,
       options?: RequestInit
     ): Promise<PagedResponsePostListResponse> {
+      // api.searchPosts()는 pageable을 중첩 객체로 직렬화하여 pageable[page]=0 형태로 전송합니다.
+      // Spring Boot의 Pageable 리졸버는 flat params(page=0)를 기대하므로
+      // URLSearchParams로 직접 flat params를 구성합니다.
       const searchParams = new URLSearchParams({ keyword });
-      if (typeof params.page === "number") {
-        searchParams.set("page", params.page.toString());
-      }
-      if (typeof params.size === "number") {
-        searchParams.set("size", params.size.toString());
-      }
-      if (params.sort?.length) {
-        params.sort.forEach((sortKey) => {
-          searchParams.append("sort", sortKey);
-        });
-      }
+      if (params.page != null) searchParams.set("page", String(params.page));
+      if (params.size != null) searchParams.set("size", String(params.size));
+      params.sort?.forEach((s) => searchParams.append("sort", s));
 
-      const response = await apiFetch(`/api/v1/posts/search?${searchParams.toString()}`, {
-        ...options,
-        mode: "direct-public",
-      });
+      const basePath = config?.basePath ?? "";
+      const fetchFn = config?.fetchFn ?? fetch;
+      const response = await fetchFn(`${basePath}/api/v1/posts/search?${searchParams}`, options);
 
       if (!response.ok) {
-        throw new Error(`Failed to search posts (status ${response.status}).`);
+        throw new Error(`Search failed (status ${response.status}).`);
       }
 
-      const payload = (await response.json()) as ResponseDtoPagedResponsePostListResponse | null;
-      if (!payload?.data) {
+      const json = await response.json();
+      const data = (json as { data?: PagedResponsePostListResponse })?.data;
+      if (!data) {
         throw new Error("Search response data is missing.");
       }
-
-      return payload.data as PagedResponsePostListResponse;
+      return data;
     },
 
     /**

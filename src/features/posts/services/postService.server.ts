@@ -1,4 +1,4 @@
-import { createBackendApiClient } from "@/lib/serverApiClient";
+import { backendFetch, createBackendApiClient } from "@/lib/serverApiClient";
 import { createPostService } from "./postService.shared";
 
 /**
@@ -34,5 +34,8 @@ import { createPostService } from "./postService.shared";
  * ```
  */
 export const createPostServiceServer = () => {
-  return createPostService(createBackendApiClient());
+  return createPostService(createBackendApiClient(), {
+    basePath: process.env.NEXT_PUBLIC_API_BASE_URL || "",
+    fetchFn: backendFetch as typeof fetch,
+  });
 };

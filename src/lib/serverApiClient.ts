@@ -3,7 +3,7 @@ import "server-only";
 import { Configuration, DefaultApi } from "@/generated/api";
 import { cookies } from "next/headers";
 
-const backendFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
+export const backendFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
   const headers = new Headers(options.headers);
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("authorization")?.value;
