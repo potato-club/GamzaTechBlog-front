@@ -104,9 +104,9 @@
     "undici": "^7.16.0"
   },
   "resolutions": {
-    "prismjs": ">=1.30.0",
-    "mdast-util-to-hast": ">=13.2.1",
-    "dompurify": ">=3.2.4"
+    "prismjs": "^1.30.0",
+    "mdast-util-to-hast": "^13.2.1",
+    "dompurify": "^3.2.4"
   },
   "msw": {
     "workerDirectory": [
