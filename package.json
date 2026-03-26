@@ -40,7 +40,6 @@
     "cookie": "^1.0.2",
     "cookies-next": "^6.0.0",
     "eslint-config-naver": "^2.1.0",
-    "form": "^0.2.5",
     "highlight.js": "^11.11.1",
     "jose": "^6.1.0",
     "ky": "^1.11.0",
@@ -103,6 +102,11 @@
     "tw-animate-css": "^1.3.0",
     "typescript": "^5",
     "undici": "^7.16.0"
+  },
+  "resolutions": {
+    "prismjs": "^1.30.0",
+    "mdast-util-to-hast": "^13.2.1",
+    "dompurify": "^3.2.4"
   },
   "msw": {
     "workerDirectory": [

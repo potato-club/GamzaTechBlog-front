@@ -1,1 +1,1 @@
-JEST_SKIP_MSW=true yarn test --ci --passWithNoTests
+JEST_SKIP_MSW=true yarn test --ci --passWithNoTests --forceExit
