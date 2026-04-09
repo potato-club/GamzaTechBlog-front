@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { proxy } from "@/proxy";
+import { buildForwardedRequestHeaders, proxy } from "@/proxy";
 
 // --- 헬퍼 ---
 
@@ -22,12 +22,20 @@ function validToken() {
   return makeJwt(Math.floor(Date.now() / 1000) + 600);
 }
 
-function makeRequest(path: string, options: { ua?: string; token?: string } = {}): NextRequest {
+function makeRequest(
+  path: string,
+  options: { ua?: string; token?: string; refreshToken?: string } = {}
+): NextRequest {
   const headers: Record<string, string> = {
     "user-agent": options.ua ?? "Mozilla/5.0",
   };
-  if (options.token) {
-    headers["cookie"] = `authorization=${options.token}`;
+  const cookies = [
+    options.token ? `authorization=${options.token}` : null,
+    options.refreshToken ? `refreshToken=${options.refreshToken}` : null,
+  ].filter(Boolean);
+
+  if (cookies.length > 0) {
+    headers["cookie"] = cookies.join("; ");
   }
   return new NextRequest(`http://localhost${path}`, { headers });
 }
@@ -87,7 +95,7 @@ describe("proxy", () => {
     });
 
     it("만료 임박 토큰은 재발급을 시도해야 함", async () => {
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       await proxy(req);
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/auth/reissue"),
@@ -105,6 +113,15 @@ describe("proxy", () => {
   // ── 토큰 재발급 흐름 ────────────────────────────────────────
 
   describe("토큰 재발급", () => {
+    it("authorization 쿠키가 없어도 refreshToken 쿠키가 있으면 재발급을 시도해야 함", async () => {
+      const req = makeRequest("/", { refreshToken: "refresh-token" });
+      await proxy(req);
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/auth/reissue"),
+        expect.objectContaining({ method: "POST" })
+      );
+    });
+
     it("토큰이 없으면 재발급 시도 없이 통과해야 함", async () => {
       const req = makeRequest("/");
       await proxy(req);
@@ -126,7 +143,7 @@ describe("proxy", () => {
         headers: { getSetCookie: () => [setCookieValue] },
       } as unknown as Response);
 
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       const res = await proxy(req);
 
       expect(res.headers.get("set-cookie")).toContain("authorization=new_token");
@@ -166,7 +183,7 @@ describe("proxy", () => {
       const token = nearExpiryToken();
       jest.spyOn(global, "fetch").mockResolvedValue(new Response(null, { status: 401 }));
 
-      const req = makeRequest("/", { token });
+      const req = makeRequest("/", { token, refreshToken: "refresh-token" });
       await proxy(req);
 
       const [, init] = (global.fetch as jest.Mock).mock.calls[0];
@@ -174,6 +191,24 @@ describe("proxy", () => {
       expect((init.headers as Record<string, string>)["cookie"]).toContain(
         `authorization=${token}`
       );
+      expect((init.headers as Record<string, string>)["cookie"]).toContain(
+        "refreshToken=refresh-token"
+      );
+    });
+  });
+
+  describe("same-request auth propagation", () => {
+    it("재발급된 authorization 쿠키를 같은 요청의 forwarded header에도 반영해야 함", () => {
+      const oldToken = nearExpiryToken();
+      const req = makeRequest("/", { token: oldToken, refreshToken: "refresh-token" });
+
+      const headers = buildForwardedRequestHeaders(req, [
+        "authorization=new_token; HttpOnly; Path=/",
+      ]);
+
+      expect(headers.get("cookie")).toContain("authorization=new_token");
+      expect(headers.get("cookie")).toContain("refreshToken=refresh-token");
+      expect(headers.get("authorization")).toBe("Bearer new_token");
     });
   });
 
@@ -201,6 +236,14 @@ describe("proxy", () => {
       const req = makeRequest("/api/posts");
       const res = await proxy(req);
       expect(res.headers.get("cache-control")).toBeNull();
+    });
+
+    it("authorization 쿠키가 있는 공개 페이지는 public 캐시를 사용하지 않아야 함", async () => {
+      const req = makeRequest("/", { token: validToken(), refreshToken: "refresh-token" });
+      const res = await proxy(req);
+
+      expect(res.headers.get("cache-control")).toContain("private");
+      expect(res.headers.get("cache-control")).not.toContain("public");
     });
   });
 });

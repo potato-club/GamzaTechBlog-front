@@ -81,10 +81,102 @@ async function reissueToken(request: NextRequest): Promise<string[] | null> {
   }
 }
 
+type SetCookieMutation = {
+  name: string;
+  value: string;
+  shouldDelete: boolean;
+};
+
+function parseSetCookieMutation(setCookie: string): SetCookieMutation | null {
+  const [nameValue, ...attributes] = setCookie.split(";");
+  const separatorIndex = nameValue.indexOf("=");
+
+  if (separatorIndex === -1) return null;
+
+  const name = nameValue.slice(0, separatorIndex).trim();
+  const value = nameValue.slice(separatorIndex + 1).trim();
+
+  if (!name) return null;
+
+  const normalizedAttributes = attributes.map((attribute) => attribute.trim());
+  const maxAgeAttribute = normalizedAttributes.find((attribute) =>
+    attribute.toLowerCase().startsWith("max-age=")
+  );
+  const expiresAttribute = normalizedAttributes.find((attribute) =>
+    attribute.toLowerCase().startsWith("expires=")
+  );
+  const maxAge = maxAgeAttribute
+    ? Number.parseInt(maxAgeAttribute.slice("max-age=".length), 10)
+    : null;
+  const expiresAt = expiresAttribute
+    ? Date.parse(expiresAttribute.slice("expires=".length))
+    : Number.NaN;
+  const shouldDelete =
+    value === "" ||
+    (maxAge !== null && Number.isFinite(maxAge) && maxAge <= 0) ||
+    (!Number.isNaN(expiresAt) && expiresAt <= Date.now());
+
+  return { name, value, shouldDelete };
+}
+
+export function buildForwardedRequestHeaders(request: NextRequest, setCookies: string[]): Headers {
+  const forwardedHeaders = new Headers(request.headers);
+  const requestCookies = new Map(
+    request.cookies.getAll().map((cookie) => [cookie.name, cookie.value])
+  );
+
+  for (const setCookie of setCookies) {
+    const mutation = parseSetCookieMutation(setCookie);
+    if (!mutation) continue;
+
+    if (mutation.shouldDelete) {
+      requestCookies.delete(mutation.name);
+      continue;
+    }
+
+    requestCookies.set(mutation.name, mutation.value);
+  }
+
+  if (requestCookies.size > 0) {
+    forwardedHeaders.set(
+      "cookie",
+      Array.from(requestCookies.entries())
+        .map(([name, value]) => `${name}=${value}`)
+        .join("; ")
+    );
+  } else {
+    forwardedHeaders.delete("cookie");
+  }
+
+  const refreshedAccessToken = requestCookies.get("authorization");
+  if (refreshedAccessToken) {
+    forwardedHeaders.set("authorization", `Bearer ${refreshedAccessToken}`);
+  } else {
+    forwardedHeaders.delete("authorization");
+  }
+
+  return forwardedHeaders;
+}
+
+function hasAuthSessionCookie(request: NextRequest): boolean {
+  return Boolean(
+    request.cookies.get("authorization")?.value || request.cookies.get("refreshToken")?.value
+  );
+}
+
 /**
  * 공개 페이지에 Vercel Edge Cache 헤더를 적용합니다.
  */
-function applyCacheHeaders(response: NextResponse, pathname: string): void {
+function applyCacheHeaders(
+  response: NextResponse,
+  pathname: string,
+  hasAuthSession: boolean
+): void {
+  if (hasAuthSession) {
+    response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
+    return;
+  }
+
   const isCacheable = CACHEABLE_PATHS.some((pattern) => pattern.test(pathname));
 
   if (isCacheable) {
@@ -106,28 +198,37 @@ export async function proxy(request: NextRequest) {
 
   // 2. 토큰 선제적 재발급 (만료 60초 전 ~ 만료 후)
   const accessToken = request.cookies.get("authorization")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  if (accessToken) {
+  const shouldAttemptReissue = (() => {
+    if (!refreshToken) return false;
+    if (!accessToken) return true;
+
     const exp = decodeJwtExp(accessToken);
     const nowSeconds = Math.floor(Date.now() / 1000);
+    return exp !== null && exp - nowSeconds < TOKEN_REFRESH_BUFFER_SECONDS;
+  })();
 
-    if (exp !== null && exp - nowSeconds < TOKEN_REFRESH_BUFFER_SECONDS) {
-      const newSetCookies = await reissueToken(request);
+  if (shouldAttemptReissue) {
+    const newSetCookies = await reissueToken(request);
 
-      if (newSetCookies) {
-        // 재발급 성공: 새 쿠키를 응답에 포함하여 클라이언트에 전달
-        // 현재 요청은 구 토큰으로 처리되지만 구 토큰은 아직 유효함
-        // 다음 요청부터 새 토큰 사용
-        const response = NextResponse.next();
-        // Set-Cookie가 포함된 응답은 CDN에 캐시되면 안 됨 (타 사용자에게 쿠키 전달 위험)
-        response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
-        for (const cookie of newSetCookies) {
-          response.headers.append("Set-Cookie", cookie);
-        }
-        return response;
+    if (newSetCookies) {
+      const forwardedHeaders = buildForwardedRequestHeaders(request, newSetCookies);
+      // 재발급 성공: 새 쿠키를 응답에 포함하고 현재 요청에도 반영하여
+      // 같은 요청 내 Server Component / Route Handler와 auth 상태를 일치시킴
+      const response = NextResponse.next({
+        request: {
+          headers: forwardedHeaders,
+        },
+      });
+      // Set-Cookie가 포함된 응답은 CDN에 캐시되면 안 됨 (타 사용자에게 쿠키 전달 위험)
+      response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
+      for (const cookie of newSetCookies) {
+        response.headers.append("Set-Cookie", cookie);
       }
-      // 재발급 실패: 그대로 진행 → 하위 레이어(Server Action, RSC)에서 401 처리
+      return response;
     }
+    // 재발급 실패: 그대로 진행 → 하위 레이어(Server Action, RSC)에서 401 처리
   }
 
   // 3. API 경로는 캐시 없이 통과
@@ -137,7 +238,7 @@ export async function proxy(request: NextRequest) {
 
   // 4. 페이지 응답에 CDN 캐시 헤더 적용
   const response = NextResponse.next();
-  applyCacheHeaders(response, pathname);
+  applyCacheHeaders(response, pathname, hasAuthSessionCookie(request));
   return response;
 }
 
