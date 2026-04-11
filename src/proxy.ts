@@ -19,9 +19,6 @@ const BLOCKED_BOT_PATTERNS = [
   /cohere-ai/i,
 ];
 
-// 캐시를 적용할 공개 페이지 경로
-const CACHEABLE_PATHS = [/^\/$/, /^\/posts\/[^/]+$/, /^\/search/, /^\/profile\/[^/]+$/];
-
 // 만료 n초 전부터 선제적으로 재발급
 const TOKEN_REFRESH_BUFFER_SECONDS = 60;
 
@@ -160,34 +157,6 @@ export function buildForwardedRequestHeaders(request: NextRequest, setCookies: s
   return forwardedHeaders;
 }
 
-function hasAuthSessionCookie(request: NextRequest): boolean {
-  return Boolean(
-    request.cookies.get("authorization")?.value || request.cookies.get("refreshToken")?.value
-  );
-}
-
-/**
- * 공개 페이지에 Vercel Edge Cache 헤더를 적용합니다.
- */
-function applyCacheHeaders(
-  response: NextResponse,
-  pathname: string,
-  hasAuthSession: boolean
-): void {
-  if (hasAuthSession) {
-    response.headers.set("Cache-Control", "private, max-age=0, must-revalidate");
-    return;
-  }
-
-  const isCacheable = CACHEABLE_PATHS.some((pattern) => pattern.test(pathname));
-
-  if (isCacheable) {
-    // s-maxage: CDN(Vercel Edge) 캐시 유지 시간 (1시간)
-    // stale-while-revalidate: 백그라운드에서 갱신하는 동안 stale 캐시 제공 (24시간)
-    response.headers.set("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
-  }
-}
-
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const userAgent = request.headers.get("user-agent") ?? "";
@@ -208,7 +177,8 @@ export async function proxy(request: NextRequest) {
 
     const exp = decodeJwtExp(accessToken);
     const nowSeconds = Math.floor(Date.now() / 1000);
-    return exp !== null && exp - nowSeconds < TOKEN_REFRESH_BUFFER_SECONDS;
+    if (exp === null) return true;
+    return exp - nowSeconds < TOKEN_REFRESH_BUFFER_SECONDS;
   })();
 
   if (shouldAttemptReissue) {
@@ -238,10 +208,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 4. 페이지 응답에 CDN 캐시 헤더 적용
-  const response = NextResponse.next();
-  applyCacheHeaders(response, pathname, hasAuthSessionCookie(request));
-  return response;
+  // 4. 일반 페이지는 downstream 응답의 성공/실패를 알 수 없으므로
+  // middleware 단계에서 public 캐시 헤더를 강제하지 않는다.
+  return NextResponse.next();
 }
 
 export const config = {

@@ -108,6 +108,15 @@ describe("proxy", () => {
       await proxy(req);
       expect(global.fetch).not.toHaveBeenCalled();
     });
+
+    it("JWT 형식이 아닌 access token이어도 refreshToken이 있으면 재발급을 시도해야 함", async () => {
+      const req = makeRequest("/", { token: "not-a-jwt", refreshToken: "refresh-token" });
+      await proxy(req);
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/auth/reissue"),
+        expect.objectContaining({ method: "POST" })
+      );
+    });
   });
 
   // ── 토큰 재발급 흐름 ────────────────────────────────────────
@@ -232,18 +241,7 @@ describe("proxy", () => {
 
   // ── CDN 캐시 헤더 ───────────────────────────────────────────
 
-  describe("CDN 캐시 헤더", () => {
-    it.each([
-      ["/", "홈"],
-      ["/posts/my-post-slug", "게시글 상세"],
-      ["/search", "검색"],
-      ["/profile/username", "프로필"],
-    ])("%s (%s)는 public 캐시 헤더를 설정해야 함", async (path) => {
-      const req = makeRequest(path);
-      const res = await proxy(req);
-      expect(res.headers.get("cache-control")).toContain("s-maxage=3600");
-    });
-
+  describe("페이지 캐시 헤더", () => {
     it("/dashboard는 캐시 헤더를 설정하지 않아야 함", async () => {
       const req = makeRequest("/dashboard");
       const res = await proxy(req);
@@ -256,13 +254,22 @@ describe("proxy", () => {
       expect(res.headers.get("cache-control")).toBeNull();
     });
 
-    it("authorization 쿠키가 있는 공개 페이지는 public 캐시를 사용하지 않아야 함", async () => {
+    it.each([
+      ["/", "홈"],
+      ["/posts/my-post-slug", "게시글 상세"],
+      ["/search", "검색"],
+      ["/profile/username", "프로필"],
+    ])("%s (%s)는 middleware 단계에서 public 캐시 헤더를 설정하지 않아야 함", async (path) => {
+      const req = makeRequest(path);
+      const res = await proxy(req);
+      expect(res.headers.get("cache-control")).toBeNull();
+    });
+
+    it("authorization 쿠키가 있는 공개 페이지도 middleware 단계에서 캐시 헤더를 강제하지 않아야 함", async () => {
       const req = makeRequest("/", { token: validToken(), refreshToken: "refresh-token" });
       const res = await proxy(req);
 
-      expect(res.headers.get("cache-control")).toContain("private");
-      expect(res.headers.get("cache-control")).not.toContain("no-store");
-      expect(res.headers.get("cache-control")).not.toContain("public");
+      expect(res.headers.get("cache-control")).toBeNull();
     });
   });
 });
