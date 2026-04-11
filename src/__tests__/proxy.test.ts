@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { proxy } from "@/proxy";
+import { buildForwardedRequestHeaders, proxy } from "@/proxy";
 
 // --- 헬퍼 ---
 
@@ -22,12 +22,20 @@ function validToken() {
   return makeJwt(Math.floor(Date.now() / 1000) + 600);
 }
 
-function makeRequest(path: string, options: { ua?: string; token?: string } = {}): NextRequest {
+function makeRequest(
+  path: string,
+  options: { ua?: string; token?: string; refreshToken?: string } = {}
+): NextRequest {
   const headers: Record<string, string> = {
     "user-agent": options.ua ?? "Mozilla/5.0",
   };
-  if (options.token) {
-    headers["cookie"] = `authorization=${options.token}`;
+  const cookies = [
+    options.token ? `authorization=${options.token}` : null,
+    options.refreshToken ? `refreshToken=${options.refreshToken}` : null,
+  ].filter(Boolean);
+
+  if (cookies.length > 0) {
+    headers["cookie"] = cookies.join("; ");
   }
   return new NextRequest(`http://localhost${path}`, { headers });
 }
@@ -87,7 +95,7 @@ describe("proxy", () => {
     });
 
     it("만료 임박 토큰은 재발급을 시도해야 함", async () => {
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       await proxy(req);
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/auth/reissue"),
@@ -100,11 +108,29 @@ describe("proxy", () => {
       await proxy(req);
       expect(global.fetch).not.toHaveBeenCalled();
     });
+
+    it("JWT 형식이 아닌 access token이어도 refreshToken이 있으면 재발급을 시도해야 함", async () => {
+      const req = makeRequest("/", { token: "not-a-jwt", refreshToken: "refresh-token" });
+      await proxy(req);
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/auth/reissue"),
+        expect.objectContaining({ method: "POST" })
+      );
+    });
   });
 
   // ── 토큰 재발급 흐름 ────────────────────────────────────────
 
   describe("토큰 재발급", () => {
+    it("authorization 쿠키가 없어도 refreshToken 쿠키가 있으면 재발급을 시도해야 함", async () => {
+      const req = makeRequest("/", { refreshToken: "refresh-token" });
+      await proxy(req);
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/auth/reissue"),
+        expect.objectContaining({ method: "POST" })
+      );
+    });
+
     it("토큰이 없으면 재발급 시도 없이 통과해야 함", async () => {
       const req = makeRequest("/");
       await proxy(req);
@@ -126,7 +152,7 @@ describe("proxy", () => {
         headers: { getSetCookie: () => [setCookieValue] },
       } as unknown as Response);
 
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       const res = await proxy(req);
 
       expect(res.headers.get("set-cookie")).toContain("authorization=new_token");
@@ -138,7 +164,7 @@ describe("proxy", () => {
         headers: { getSetCookie: () => ["authorization=new_token; HttpOnly; Path=/"] },
       } as unknown as Response);
 
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       const res = await proxy(req);
 
       expect(res.headers.get("cache-control")).toContain("no-store");
@@ -148,7 +174,7 @@ describe("proxy", () => {
     it("재발급 API가 실패해도 요청은 그대로 통과해야 함", async () => {
       jest.spyOn(global, "fetch").mockResolvedValue(new Response(null, { status: 401 }));
 
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       const res = await proxy(req);
 
       expect(res.status).not.toBe(401);
@@ -157,7 +183,7 @@ describe("proxy", () => {
     it("재발급 API 네트워크 오류 시 요청은 그대로 통과해야 함", async () => {
       jest.spyOn(global, "fetch").mockRejectedValue(new Error("network error"));
 
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       // 예외 없이 정상 처리되어야 함
       await expect(proxy(req)).resolves.toBeDefined();
     });
@@ -166,7 +192,7 @@ describe("proxy", () => {
       const token = nearExpiryToken();
       jest.spyOn(global, "fetch").mockResolvedValue(new Response(null, { status: 401 }));
 
-      const req = makeRequest("/", { token });
+      const req = makeRequest("/", { token, refreshToken: "refresh-token" });
       await proxy(req);
 
       const [, init] = (global.fetch as jest.Mock).mock.calls[0];
@@ -174,23 +200,48 @@ describe("proxy", () => {
       expect((init.headers as Record<string, string>)["cookie"]).toContain(
         `authorization=${token}`
       );
+      expect((init.headers as Record<string, string>)["cookie"]).toContain(
+        "refreshToken=refresh-token"
+      );
+    });
+  });
+
+  describe("same-request auth propagation", () => {
+    it("재발급된 authorization 쿠키를 같은 요청의 forwarded header에도 반영해야 함", () => {
+      const oldToken = nearExpiryToken();
+      const req = makeRequest("/", { token: oldToken, refreshToken: "refresh-token" });
+
+      const headers = buildForwardedRequestHeaders(req, [
+        "authorization=new_token; HttpOnly; Path=/",
+      ]);
+
+      expect(headers.get("cookie")).toContain("authorization=new_token");
+      expect(headers.get("cookie")).toContain("refreshToken=refresh-token");
+      expect(headers.get("authorization")).toBe("Bearer new_token");
+    });
+
+    it("기존 Authorization 헤더가 있으면 재발급 후에도 유지해야 함", () => {
+      const oldToken = nearExpiryToken();
+      const req = new NextRequest("http://localhost/", {
+        headers: {
+          "user-agent": "Mozilla/5.0",
+          cookie: `authorization=${oldToken}; refreshToken=refresh-token`,
+          authorization: "Bearer caller-token",
+        },
+      });
+
+      const headers = buildForwardedRequestHeaders(req, [
+        "authorization=new_token; HttpOnly; Path=/",
+      ]);
+
+      expect(headers.get("cookie")).toContain("authorization=new_token");
+      expect(headers.get("authorization")).toBe("Bearer caller-token");
     });
   });
 
   // ── CDN 캐시 헤더 ───────────────────────────────────────────
 
-  describe("CDN 캐시 헤더", () => {
-    it.each([
-      ["/", "홈"],
-      ["/posts/my-post-slug", "게시글 상세"],
-      ["/search", "검색"],
-      ["/profile/username", "프로필"],
-    ])("%s (%s)는 public 캐시 헤더를 설정해야 함", async (path) => {
-      const req = makeRequest(path);
-      const res = await proxy(req);
-      expect(res.headers.get("cache-control")).toContain("s-maxage=3600");
-    });
-
+  describe("페이지 캐시 헤더", () => {
     it("/dashboard는 캐시 헤더를 설정하지 않아야 함", async () => {
       const req = makeRequest("/dashboard");
       const res = await proxy(req);
@@ -200,6 +251,24 @@ describe("proxy", () => {
     it("API 경로는 캐시 헤더를 설정하지 않아야 함", async () => {
       const req = makeRequest("/api/posts");
       const res = await proxy(req);
+      expect(res.headers.get("cache-control")).toBeNull();
+    });
+
+    it.each([
+      ["/", "홈"],
+      ["/posts/my-post-slug", "게시글 상세"],
+      ["/search", "검색"],
+      ["/profile/username", "프로필"],
+    ])("%s (%s)는 middleware 단계에서 public 캐시 헤더를 설정하지 않아야 함", async (path) => {
+      const req = makeRequest(path);
+      const res = await proxy(req);
+      expect(res.headers.get("cache-control")).toBeNull();
+    });
+
+    it("authorization 쿠키가 있는 공개 페이지도 middleware 단계에서 캐시 헤더를 강제하지 않아야 함", async () => {
+      const req = makeRequest("/", { token: validToken(), refreshToken: "refresh-token" });
+      const res = await proxy(req);
+
       expect(res.headers.get("cache-control")).toBeNull();
     });
   });
