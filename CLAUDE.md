@@ -5,9 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Package Manager
+
 This project uses **Yarn** as the package manager. Always use `yarn` instead of `npm`.
 
 ### Core Development
+
 - `yarn dev` - Start development server
 - `yarn dev:https:local` - Start HTTPS dev server on dev.gamzatech.site:3000
 - `yarn dev:https` - Start HTTPS dev server on app.gamzatech.site
@@ -17,6 +19,7 @@ This project uses **Yarn** as the package manager. Always use `yarn` instead of 
 - `yarn lint` - Run ESLint
 
 ### API Management
+
 - `yarn gen:api` - Generate TypeScript API client from OpenAPI spec at gamzatech.site/v3/api-docs/all
 
 ## Architecture Overview
@@ -24,6 +27,7 @@ This project uses **Yarn** as the package manager. Always use `yarn` instead of 
 This is a Next.js 15 frontend for GamzaTechBlog, a Korean tech blog platform. The codebase follows a feature-based architecture with the following key patterns:
 
 ### Project Structure
+
 - **Feature-based organization**: Each feature has its own folder in `src/features/` containing components, hooks, services, and types
 - **API-first approach**: API client is auto-generated from OpenAPI specs in `src/generated/api/`
 - **Shared components**: Reusable UI components in `src/components/` using shadcn/ui and Radix UI
@@ -46,6 +50,7 @@ This is a Next.js 15 frontend for GamzaTechBlog, a Korean tech blog platform. Th
 - `src/app/admin/`: Admin-only pages
 
 ### State Management
+
 - **Server Actions / RSC**: Server-side data fetching and mutations
 - **Zustand**: Client-side state management (stores not present in current codebase structure)
 - **React Hook Form + Zod**: Form handling and validation
@@ -58,6 +63,7 @@ This is a Next.js 15 frontend for GamzaTechBlog, a Korean tech blog platform. Th
 - Failed request queuing during token refresh
 
 ### Key Features
+
 - **Posts**: Blog post creation, editing, viewing with markdown support using Toast UI Editor
 - **Comments**: Nested commenting system
 - **Authentication**: JWT-based auth with cookie management
@@ -67,6 +73,7 @@ This is a Next.js 15 frontend for GamzaTechBlog, a Korean tech blog platform. Th
 - **Responsive Design**: Mobile-first with Tailwind CSS
 
 ### Styling & UI
+
 - **Tailwind CSS 4**: Utility-first styling
 - **shadcn/ui**: Component library built on Radix UI
 - **Toast UI Editor**: Markdown editor for blog posts
@@ -74,17 +81,20 @@ This is a Next.js 15 frontend for GamzaTechBlog, a Korean tech blog platform. Th
 - **Pretendard Font**: Korean typography
 
 ### API Integration
+
 - **Generated Client**: TypeScript client auto-generated from OpenAPI spec
 - **Centralized Services**: Each feature has a service layer (`*Service.ts`) that wraps the API client
 - **Type Definitions**: All API types are generated and imported from `@/generated/api`
 
 ### Performance Optimizations
+
 - **Bundle Analysis**: Available via `build:analyze` command
 - **Image Optimization**: WebP/AVIF support with optimized sizes
 - **Package Optimization**: Experimental package imports optimization for large libraries
 - **Caching**: Aggressive caching headers for static assets
 
 ### Development Notes
+
 - **Lint Configuration**: Uses Naver ESLint config with Prettier
 - **SSL Support**: Local HTTPS development with custom certificates
 - **Hot Reload**: Standard Next.js development experience
@@ -95,11 +105,13 @@ The application follows modern React patterns with server and client components,
 ## Git Workflow Guide
 
 ### Branch Naming Convention
+
 When creating branches for new work, always use **English** with the following format:
 
 **Format**: `<type>/<short-description>`
 
 **Types**:
+
 - `feat/` - New features
 - `fix/` - Bug fixes
 - `docs/` - Documentation changes
@@ -110,6 +122,7 @@ When creating branches for new work, always use **English** with the following f
 - `perf/` - Performance improvements
 
 **Examples**:
+
 ```bash
 feat/add-user-profile
 fix/auth-token-expiry
@@ -120,6 +133,7 @@ chore/update-dependencies
 ```
 
 ### Commit Message Convention
+
 Write commit messages in **Korean** using the following format:
 
 **Format**: `<type>: <subject>`
@@ -127,6 +141,7 @@ Write commit messages in **Korean** using the following format:
 **Additional body (optional)**: Provide detailed explanation with bullet points
 
 **Types** (same as branch types):
+
 - `feat:` - 새로운 기능 추가
 - `fix:` - 버그 수정
 - `docs:` - 문서 수정
@@ -137,6 +152,7 @@ Write commit messages in **Korean** using the following format:
 - `perf:` - 성능 개선
 
 **Examples**:
+
 ```bash
 feat: 사용자 프로필 페이지 추가
 
@@ -161,6 +177,7 @@ docs: README.md 작성 및 프로젝트 소개 추가
 ```
 
 ### Commit Guidelines
+
 1. **Atomic commits**: Each commit should represent a single logical change
 2. **Clear subject**: Keep the subject line concise (50 characters or less)
 3. **Detailed body**: Use bullet points to explain what and why (not how)
@@ -169,6 +186,7 @@ docs: README.md 작성 및 프로젝트 소개 추가
 6. **No Co-Authored-By**: Never include `Co-Authored-By: Claude` or any AI attribution in commit messages
 
 ### Workflow Example
+
 ```bash
 # 1. Create a new branch from main (English)
 git checkout main
@@ -191,140 +209,27 @@ git push origin feat/add-comment-system
 
 ## GitHub Issue & PR Workflow
 
-**이 프로젝트는 모든 작업에 대해 이슈 → 브랜치 → PR 순서를 반드시 따른다.**
-작업의 맥락과 결정 근거를 문서로 남기는 것을 최우선으로 한다.
+이 워크플로우의 **강제 요약 규칙은 루트 `AGENTS.md`** 에 둔다.
+상세 템플릿과 예시는 **`docs/workflows/github-issue-pr-workflow.md`** 를 단일 소스로 사용한다.
 
-### 필수 워크플로우 순서
+핵심 규칙:
 
-```
-1. Issue 생성  →  2. Branch 생성  →  3. 작업 & 커밋  →  4. PR 생성  →  5. Merge
-```
-
-모든 코드 변경은 반드시 이 순서를 거쳐야 한다. 이슈 없이 브랜치를 만들거나, PR 없이 main에 직접 push하는 것은 금지한다.
-
----
-
-### Step 1. Issue 생성
-
-작업을 시작하기 전에 **반드시 GitHub Issue를 먼저 생성**한다.
-
-**Issue 작성 형식**:
-```
-제목: [type] 작업 내용을 간결하게 (한국어)
-예시: [feat] 댓글 시스템 추가
-      [fix] 로그인 토큰 만료 처리 오류
-      [chore] next 패키지 보안 취약점 업데이트
-```
-
-**Issue 본문 구조**:
-```markdown
-## 개요
-이 작업이 필요한 이유와 해결하려는 문제를 설명한다.
-
-## 작업 내용
-- [ ] 구체적인 작업 항목 1
-- [ ] 구체적인 작업 항목 2
-
-## 참고 사항
-관련 링크, CVE 번호, 관련 이슈 등 (선택)
-```
-
-**gh CLI로 이슈 생성**:
-```bash
-gh issue create --title "[feat] 댓글 시스템 추가" --body "..."
-```
-
----
-
-### Step 2. Branch 생성
-
-이슈 번호를 브랜치명에 반드시 포함한다.
-
-**형식**: `<type>/<issue-number>-<short-description>`
-
-> **중요**: 브랜치는 **반드시 `main` 브랜치에서** 분기한다. 현재 체크아웃된 브랜치와 관계없이 항상 최신 `main`을 기준으로 생성한다.
-
-```bash
-# 항상 main에서 분기
-git checkout main
-git pull origin main
-git checkout -b feat/42-add-comment-system
-
-# 이슈 번호 포함 예시
-git checkout -b fix/38-auth-token-expiry
-git checkout -b chore/55-update-next-security
-```
-
----
-
-### Step 3. 작업 & 커밋
-
-커밋 메시지 본문에 이슈 번호를 참조한다.
-
-```bash
-git commit -m "feat: 댓글 작성 기능 구현
-
-- 댓글 API 연동
-- 중첩 댓글 UI 구현
-
-ref #42"
-```
-
----
-
-### Step 4. PR 생성
-
-PR은 반드시 연결된 이슈를 닫도록 `Closes #N`을 본문에 포함한다.
-
-**PR 제목**: 이슈 제목과 동일하게 작성 (한국어)
-
-**PR 본문 구조**:
-```markdown
-## 개요
-이 PR이 해결하는 문제와 접근 방식을 설명한다.
-
-## 변경 사항
-- 변경된 주요 내용 1
-- 변경된 주요 내용 2
-
-## 테스트
-- [ ] 빌드 성공 확인 (`yarn build`)
-- [ ] 주요 기능 동작 확인
-
-Closes #42
-```
-
-**gh CLI로 PR 생성**:
-```bash
-gh pr create \
-  --title "[feat] 댓글 시스템 추가" \
-  --body "..." \
-  --base main
-```
-
----
-
-### Claude Code 작업 시 필수 규칙
-
-Claude가 이 프로젝트에서 작업할 때 반드시 따라야 할 순서:
-
-1. **작업 전**: `gh issue create`로 이슈 먼저 생성
-2. **브랜치 생성**: 이슈 번호 포함한 브랜치명 사용
-3. **작업 완료 후**: `gh pr create`로 PR 생성 (Closes #N 포함)
-4. **PR URL을 사용자에게 반드시 공유**
-
-이슈와 PR 없이 "브랜치명: xxx, 커밋 메시지: yyy" 형태로만 안내하는 것은 불충분하다.
-실제로 이슈와 PR을 생성하거나, 사용자에게 생성을 요청해야 한다.
+1. 모든 코드 변경은 **Issue → Branch → Work & Commit → PR → Merge** 순서를 따른다.
+2. 이슈 없이 브랜치를 만들거나, PR 없이 `main`에 직접 push하지 않는다.
+3. 브랜치는 항상 최신 `main`에서 분기하고, `<type>/<issue-number>-<short-description>` 형식을 사용한다.
+4. PR 본문에는 반드시 `Closes #N`을 포함하고, PR URL을 사용자에게 공유한다.
 
 ## Coding Standards
 
 ### Type Safety
+
 - **Avoid `any` type**: Almost never use `any` type. Use proper types, generics, or `unknown` instead.
   - ❌ Bad: `const data: any = response.data`
   - ✅ Good: `const data: ResponseType = response.data`
   - ✅ Acceptable: `const data: unknown = response.data` (with type guards)
 
 ### Code Design Principles
+
 - **Single Responsibility Principle**: Each function, component, and module should have one clear purpose.
   - Functions should do one thing well
   - Components should have a single, well-defined responsibility
@@ -334,6 +239,7 @@ Claude가 이 프로젝트에서 작업할 때 반드시 따라야 할 순서:
 ### Loading State & Skeleton Components
 
 #### shadcn Skeleton 사용 원칙
+
 - **항상 shadcn Skeleton 사용**: 커스텀 `animate-pulse` + `bg-gray-200` 사용 금지
   - ❌ Bad: `<div className="animate-pulse"><div className="h-4 w-full bg-gray-200 rounded"></div></div>`
   - ✅ Good: `<Skeleton className="h-4 w-full" />`
@@ -348,6 +254,7 @@ Claude가 이 프로젝트에서 작업할 때 반드시 따라야 할 순서:
   - ✅ Good: shadcn Skeleton (자동으로 `bg-accent` 사용)
 
 #### Skeleton 컴포넌트 구조
+
 - **위치**:
   - 기능별: `src/features/[feature]/components/skeletons/`
   - 공통: `src/components/shared/skeletons/`
@@ -356,44 +263,54 @@ Claude가 이 프로젝트에서 작업할 때 반드시 따라야 할 순서:
 - **JSDoc**: 모든 skeleton 컴포넌트에 사용 예시 포함
 
 #### 공통 Skeleton 패턴
+
 프로젝트에서 제공하는 재사용 가능한 skeleton 컴포넌트:
 
 - **CardSkeleton**: 카드 레이아웃 로딩 (게시글 카드, 프로필 카드 등)
+
   ```tsx
   import { CardSkeleton } from "@/components/shared/skeletons";
-  <CardSkeleton count={5} showImage={true} showMeta={true} />
+  <CardSkeleton count={5} showImage={true} showMeta={true} />;
   ```
 
 - **ListSkeleton**: 리스트 레이아웃 로딩 (댓글 목록, 사용자 목록 등)
+
   ```tsx
   import { ListSkeleton } from "@/components/shared/skeletons";
-  <ListSkeleton items={5} showAvatar={true} avatarSize="md" />
+  <ListSkeleton items={5} showAvatar={true} avatarSize="md" />;
   ```
 
 - **FormSkeleton**: 폼 레이아웃 로딩 (수정, 작성 페이지 등)
   ```tsx
   import { FormSkeleton } from "@/components/shared/skeletons";
-  <FormSkeleton fields={4} showButtons={true} showTitle={true} />
+  <FormSkeleton fields={4} showButtons={true} showTitle={true} />;
   ```
 
 #### 사용 예시
+
 ```tsx
 // ❌ 나쁜 예: 인라인 커스텀 skeleton
-{isLoading && (
-  <div className="animate-pulse">
-    <div className="h-4 w-full bg-gray-200 rounded"></div>
-  </div>
-)}
+{
+  isLoading && (
+    <div className="animate-pulse">
+      <div className="h-4 w-full rounded bg-gray-200"></div>
+    </div>
+  );
+}
 
 // ✅ 좋은 예: 분리된 shadcn Skeleton 컴포넌트
 import PostListSkeleton from "./skeletons/PostListSkeleton";
 
-{isLoading && <PostListSkeleton count={5} />}
+{
+  isLoading && <PostListSkeleton count={5} />;
+}
 
 // ✅ 더 좋은 예: 공통 패턴 재사용
 import { CardSkeleton } from "@/components/shared/skeletons";
 
-{isLoading && <CardSkeleton count={5} />}
+{
+  isLoading && <CardSkeleton count={5} />;
+}
 ```
 
 ## Claude Code Instructions
@@ -428,6 +345,7 @@ rm -rf .next && yarn build
 ```
 
 **When to run build test**:
+
 - ✅ After completing any feature implementation
 - ✅ After refactoring code
 - ✅ Before creating a commit
@@ -439,12 +357,14 @@ rm -rf .next && yarn build
 **User Context**: 4th year university student, graduation pending
 
 **Approach Strategy**:
+
 1. **Prefer Simple Solutions First**: Start with straightforward approaches
    - Direct implementation over complex patterns
    - Built-in features over custom abstractions
    - Clear code over clever code
 
 2. **Offer Multiple Complexity Levels**: Provide options from simple to advanced
+
    ```
    Option 1 (Simple): Inline solution with clear logic
    Option 2 (Moderate): Extracted function with better organization
@@ -473,20 +393,20 @@ rm -rf .next && yarn build
 ```typescript
 // ✅ Good: Simple solution for one-time use
 // User asks: "How do I format this date?"
-const formattedDate = new Date(post.createdAt).toLocaleDateString('ko-KR');
+const formattedDate = new Date(post.createdAt).toLocaleDateString("ko-KR");
 
 // ✅ Good: Moderate solution when used in 3+ places
 // User asks: "I need this date format in multiple components"
 export const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('ko-KR');
+  return new Date(date).toLocaleDateString("ko-KR");
 };
 
 // ✅ Good: Advanced solution when justified
 // User asks: "I need flexible date formatting across the app with i18n"
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { format } from "date-fns";
+import { ko } from "date-fns/locale";
 
-export const formatDate = (date: string, formatString: string = 'PPP') => {
+export const formatDate = (date: string, formatString: string = "PPP") => {
   return format(new Date(date), formatString, { locale: ko });
 };
 
@@ -497,11 +417,13 @@ export const formatDate = (date: string, formatString: string = 'PPP') => {
 ```
 
 **Decision Framework**:
+
 - **Simple**: Will this be used once or twice? → Direct implementation
 - **Moderate**: Used 3-5 times? → Extract to utility function
 - **Advanced**: Core feature used everywhere? → Consider pattern/abstraction
 
 ### Example Task Completion Message
+
 ```
 작업이 완료되었습니다.
 
