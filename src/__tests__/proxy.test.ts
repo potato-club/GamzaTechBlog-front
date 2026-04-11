@@ -155,7 +155,7 @@ describe("proxy", () => {
         headers: { getSetCookie: () => ["authorization=new_token; HttpOnly; Path=/"] },
       } as unknown as Response);
 
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       const res = await proxy(req);
 
       expect(res.headers.get("cache-control")).toContain("no-store");
@@ -165,7 +165,7 @@ describe("proxy", () => {
     it("재발급 API가 실패해도 요청은 그대로 통과해야 함", async () => {
       jest.spyOn(global, "fetch").mockResolvedValue(new Response(null, { status: 401 }));
 
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       const res = await proxy(req);
 
       expect(res.status).not.toBe(401);
@@ -174,7 +174,7 @@ describe("proxy", () => {
     it("재발급 API 네트워크 오류 시 요청은 그대로 통과해야 함", async () => {
       jest.spyOn(global, "fetch").mockRejectedValue(new Error("network error"));
 
-      const req = makeRequest("/", { token: nearExpiryToken() });
+      const req = makeRequest("/", { token: nearExpiryToken(), refreshToken: "refresh-token" });
       // 예외 없이 정상 처리되어야 함
       await expect(proxy(req)).resolves.toBeDefined();
     });
@@ -210,6 +210,24 @@ describe("proxy", () => {
       expect(headers.get("cookie")).toContain("refreshToken=refresh-token");
       expect(headers.get("authorization")).toBe("Bearer new_token");
     });
+
+    it("기존 Authorization 헤더가 있으면 재발급 후에도 유지해야 함", () => {
+      const oldToken = nearExpiryToken();
+      const req = new NextRequest("http://localhost/", {
+        headers: {
+          "user-agent": "Mozilla/5.0",
+          cookie: `authorization=${oldToken}; refreshToken=refresh-token`,
+          authorization: "Bearer caller-token",
+        },
+      });
+
+      const headers = buildForwardedRequestHeaders(req, [
+        "authorization=new_token; HttpOnly; Path=/",
+      ]);
+
+      expect(headers.get("cookie")).toContain("authorization=new_token");
+      expect(headers.get("authorization")).toBe("Bearer caller-token");
+    });
   });
 
   // ── CDN 캐시 헤더 ───────────────────────────────────────────
@@ -243,6 +261,7 @@ describe("proxy", () => {
       const res = await proxy(req);
 
       expect(res.headers.get("cache-control")).toContain("private");
+      expect(res.headers.get("cache-control")).not.toContain("no-store");
       expect(res.headers.get("cache-control")).not.toContain("public");
     });
   });

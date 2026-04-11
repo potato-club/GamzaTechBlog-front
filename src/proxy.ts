@@ -149,10 +149,12 @@ export function buildForwardedRequestHeaders(request: NextRequest, setCookies: s
   }
 
   const refreshedAccessToken = requestCookies.get("authorization");
-  if (refreshedAccessToken) {
-    forwardedHeaders.set("authorization", `Bearer ${refreshedAccessToken}`);
-  } else {
-    forwardedHeaders.delete("authorization");
+  if (!request.headers.has("authorization")) {
+    if (refreshedAccessToken) {
+      forwardedHeaders.set("authorization", `Bearer ${refreshedAccessToken}`);
+    } else {
+      forwardedHeaders.delete("authorization");
+    }
   }
 
   return forwardedHeaders;
@@ -173,7 +175,7 @@ function applyCacheHeaders(
   hasAuthSession: boolean
 ): void {
   if (hasAuthSession) {
-    response.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
+    response.headers.set("Cache-Control", "private, max-age=0, must-revalidate");
     return;
   }
 
