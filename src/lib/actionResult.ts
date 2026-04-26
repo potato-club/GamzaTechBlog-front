@@ -1,3 +1,5 @@
+import { FetchError, ResponseError } from "@/generated/api";
+
 export type ActionResult<T = void> =
   | { success: true; data: T }
   | { success: false; error: string; code?: string };
@@ -10,8 +12,51 @@ export const ERROR_CODES = {
   NOT_FOUND: "NOT_FOUND",
 } as const;
 
-export function handleActionError(error: unknown): ActionResult<never> {
+type ErrorBody = {
+  message?: unknown;
+  code?: unknown;
+};
+
+const getStatusErrorCode = (status: number): string => {
+  if (status === 401) return ERROR_CODES.UNAUTHORIZED;
+  if (status === 404) return ERROR_CODES.NOT_FOUND;
+
+  return ERROR_CODES.UNKNOWN_ERROR;
+};
+
+async function readErrorBody(response: Response): Promise<ErrorBody | null> {
+  const body = await response
+    .clone()
+    .json()
+    .catch(() => null);
+
+  if (body && typeof body === "object") {
+    return body as ErrorBody;
+  }
+
+  return null;
+}
+
+export async function handleActionError(error: unknown): Promise<ActionResult<never>> {
   console.error("Server Action Error:", error);
+
+  if (error instanceof FetchError) {
+    return {
+      success: false,
+      error: "네트워크 오류가 발생했습니다.",
+      code: ERROR_CODES.NETWORK_ERROR,
+    };
+  }
+
+  if (error instanceof ResponseError) {
+    const body = await readErrorBody(error.response);
+
+    return {
+      success: false,
+      error: typeof body?.message === "string" ? body.message : error.message,
+      code: typeof body?.code === "string" ? body.code : getStatusErrorCode(error.response.status),
+    };
+  }
 
   if (error instanceof Error) {
     return {
