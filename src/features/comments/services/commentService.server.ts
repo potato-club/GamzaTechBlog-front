@@ -1,19 +1,39 @@
+import "server-only";
+
+import type { CommentRequest, CommentResponse, Pageable } from "@/generated/api";
+import type { PagedResponseCommentListResponse } from "@/generated/api/models";
 import { createBackendApiClient } from "@/lib/serverApiClient";
-import { createCommentService } from "./commentService.shared";
+import { unwrapData } from "@/lib/unwrapData";
 
 /**
  * 서버 환경에서 사용할 Comment Service 생성
  *
  * Next.js Server Components, Server Actions, Route Handlers에서 사용합니다.
- * 서버 전용 API 클라이언트를 주입하여 환경에 맞는 Service 인스턴스를 반환합니다.
- *
- * @returns Comment Service 인스턴스
- *
- * @example
- * // Server Component에서 사용
- * const commentService = createCommentServiceServer();
- * const comments = await commentService.getUserComments();
  */
 export const createCommentServiceServer = () => {
-  return createCommentService(createBackendApiClient());
+  const api = createBackendApiClient();
+
+  return {
+    async registerComment(postId: number, content: CommentRequest): Promise<CommentResponse> {
+      const response = await api.addComment({
+        postId,
+        commentRequest: content,
+      });
+      return unwrapData(response);
+    },
+
+    async deleteComment(commentId: number): Promise<void> {
+      await api.deleteComment({ commentId });
+    },
+
+    async getUserComments(
+      params?: Pageable,
+      options?: RequestInit
+    ): Promise<PagedResponseCommentListResponse> {
+      const response = await api.getMyComments(params, options);
+      return unwrapData(response);
+    },
+  };
 };
+
+export type CommentService = ReturnType<typeof createCommentServiceServer>;
