@@ -83,7 +83,7 @@ export function withActionResult<Args extends unknown[], T>(action: (...args: Ar
       const data = await action(...args);
       return createSuccessResult(data);
     } catch (error) {
-      return await handleActionError(error);
+      return handleActionError(error);
     }
   };
 }
