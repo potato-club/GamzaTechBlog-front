@@ -20,12 +20,11 @@ import { cache } from "react";
  *
  * revalidate: 라우트를 정적 생성하고 최대 24시간마다 시간 기반 재검증한다.
  *   실시간 최신화(글 수정·삭제·댓글 변경)는 revalidateTag("post-${id}")가 담당한다(cacheInvalidation).
- * generateStaticParams(빈 배열) + dynamicParams: 빌드 시 프리렌더하지 않고 첫 방문 시
- *   온디맨드로 정적 생성 후 캐시한다 — 게시글이 늘어도 빌드가 백엔드에 의존하지 않는다.
+ * generateStaticParams(빈 배열): 빌드 시 프리렌더하지 않고 첫 방문 시 온디맨드로 정적 생성 후
+ *   캐시한다 — 게시글이 늘어도 빌드가 백엔드에 의존하지 않는다(dynamicParams 기본값 true).
  *   전체 프리렌더가 필요하면 여기서 ID 목록을 반환하도록 바꾸면 된다.
  */
 export const revalidate = 86400;
-export const dynamicParams = true;
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   return [];

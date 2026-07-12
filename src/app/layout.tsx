@@ -4,8 +4,8 @@ import Link from "next/link";
 import BlogHeader from "@/components/shared/layout/BlogHeader";
 import Footer from "@/components/shared/layout/Footer";
 import { Toaster } from "@/components/ui";
+import { AuthProvider } from "@/contexts/AuthContext";
 import ChatBot from "@/features/chatbot/components/ChatBot";
-import Providers from "@/providers/Providers";
 import { pretendard } from "./fonts";
 import "./globals.css";
 
@@ -82,7 +82,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="ko" className={pretendard.variable}>
       <body className={`bg-white antialiased ${pretendard.className}`}>
-        <Providers>
+        <AuthProvider>
           <Link
             href="#main-content"
             className="sr-only z-50 rounded bg-[#20242B] px-4 py-2 text-white transition-all focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:ring-2 focus:ring-white focus:outline-none"
@@ -103,7 +103,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           </div>
 
           <ChatBot />
-        </Providers>
+        </AuthProvider>
       </body>
     </html>
   );
