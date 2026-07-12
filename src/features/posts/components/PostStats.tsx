@@ -8,27 +8,44 @@ import { useEffect, useState } from "react";
 interface PostStatsProps {
   postId: number;
   initialLikesCount: number;
-  initialIsLiked?: boolean;
   commentsCount: number;
 }
 
 export default function PostStats({
   postId,
   initialLikesCount,
-  initialIsLiked = false,
   commentsCount = 0,
 }: PostStatsProps) {
   const { isLoggedIn } = useAuth();
   const [likesCount, setLikesCount] = useState(initialLikesCount);
-  const [isLiked, setIsLiked] = useState(initialIsLiked);
-
-  useEffect(() => {
-    setIsLiked(initialIsLiked);
-  }, [initialIsLiked]);
+  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     setLikesCount(initialLikesCount);
   }, [initialLikesCount]);
+
+  // 좋아요 초기 상태는 요청자별(개인화) 데이터라 서버 렌더가 아니라 마운트 후 조회한다.
+  // 이래야 상세 페이지 HTML이 공용(정적/ISR)으로 캐시될 수 있다.
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setIsLiked(false);
+      return;
+    }
+
+    let cancelled = false;
+    fetch(`/api/posts/${postId}/like-status`, { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : { liked: false }))
+      .then((data: { liked: boolean }) => {
+        if (!cancelled) setIsLiked(Boolean(data.liked));
+      })
+      .catch(() => {
+        if (!cancelled) setIsLiked(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoggedIn, postId]);
 
   const addLikeMutation = useAddLike(postId);
   const removeLikeMutation = useRemoveLike(postId);

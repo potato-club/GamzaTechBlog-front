@@ -4,15 +4,14 @@ import { UI_CONSTANTS } from "@/constants/ui";
 import { PostDetailResponse } from "@/generated/api";
 import Image from "next/image";
 import { isValidTagArray } from "../../../lib/typeGuards";
-import { PostActionsDropdown } from "./PostActionsDropdown";
+import PostAuthorActions from "./PostAuthorActions";
 
 interface PostHeaderProps {
   post: PostDetailResponse;
   postId: number;
-  isCurrentUserAuthor?: boolean;
 }
 
-export default function PostHeader({ post, postId, isCurrentUserAuthor = false }: PostHeaderProps) {
+export default function PostHeader({ post, postId }: PostHeaderProps) {
   return (
     <header>
       <h1 className="text-[24px] font-extrabold text-[#1C222E] sm:text-[28px] md:text-[32px]">
@@ -57,8 +56,8 @@ export default function PostHeader({ post, postId, isCurrentUserAuthor = false }
           {post.createdAt ? new Date(post.createdAt).toLocaleDateString("ko-KR") : "날짜 없음"}
         </time>
 
-        {/* 게시글 작성자인 경우에만 액션 드롭다운 표시 */}
-        {isCurrentUserAuthor && <PostActionsDropdown postId={postId} />}
+        {/* 작성자 판별은 클라이언트에서 (라우트 정적화를 위해 렌더 이후로 분리) */}
+        <PostAuthorActions postId={postId} postWriter={post.writer || ""} />
       </div>
 
       <ul className="flex gap-2 text-[14px]" role="list">

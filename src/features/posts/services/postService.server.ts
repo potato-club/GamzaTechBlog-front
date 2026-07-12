@@ -10,7 +10,11 @@ import type {
   PostRequest,
   PostResponse,
 } from "@/generated/api";
-import { backendFetch, createBackendApiClient } from "@/lib/serverApiClient";
+import {
+  backendFetch,
+  createBackendApiClient,
+  createPublicBackendApiClient,
+} from "@/lib/serverApiClient";
 import { unwrapData } from "@/lib/unwrapData";
 
 type NextOptions = { revalidate?: number | false; tags?: string[] };
@@ -39,6 +43,9 @@ const mergeNextOptions = (
  */
 export const createPostServiceServer = () => {
   const api = createBackendApiClient();
+  // 게시글 상세는 공개 데이터 — 쿠키를 읽지 않는 공용 클라이언트로 조회해야
+  // 상세 라우트가 정적화(ISR)되고, 응답이 공유 캐시에 안전하게 저장된다.
+  const publicApi = createPublicBackendApiClient();
   const basePath = process.env.NEXT_PUBLIC_API_BASE_URL || "";
   const fetchFn = backendFetch as typeof fetch;
 
@@ -76,7 +83,7 @@ export const createPostServiceServer = () => {
 
     async getPostById(postId: number, options?: RequestInitWithNext): Promise<PostDetailResponse> {
       const mergedOptions = mergeNextOptions(options, [`post-${postId}`]);
-      const response = await api.getPostDetail({ postId }, mergedOptions);
+      const response = await publicApi.getPostDetail({ postId }, mergedOptions);
       return unwrapData(response);
     },
 

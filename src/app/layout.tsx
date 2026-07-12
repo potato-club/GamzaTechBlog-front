@@ -5,8 +5,6 @@ import BlogHeader from "@/components/shared/layout/BlogHeader";
 import Footer from "@/components/shared/layout/Footer";
 import { Toaster } from "@/components/ui";
 import ChatBot from "@/features/chatbot/components/ChatBot";
-import { createUserServiceServer } from "@/features/user/services/userService.server";
-import type { UserProfileResponse } from "@/generated/api/models";
 import Providers from "@/providers/Providers";
 import { pretendard } from "./fonts";
 import "./globals.css";
@@ -78,26 +76,13 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function RootLayout({ children }: RootLayoutProps) {
-  let initialUserRole: string | null = null;
-  let initialUserProfile: UserProfileResponse | null = null;
-
-  try {
-    const userService = createUserServiceServer();
-    const personalCache: RequestInit = { cache: "no-store" };
-    initialUserRole = await userService.getUserRole(personalCache);
-
-    if (initialUserRole && initialUserRole !== "PRE_REGISTER") {
-      initialUserProfile = await userService.getProfile(personalCache);
-    }
-  } catch (error) {
-    console.warn("Failed to fetch auth state for layout:", error);
-  }
-
+export default function RootLayout({ children }: RootLayoutProps) {
+  // 인증 상태는 클라이언트(AuthProvider)가 /api/users/me로 부트스트랩한다.
+  // 여기서 쿠키를 읽으면 하위 전체 라우트가 동적화되어 상세 페이지 ISR이 불가능해진다.
   return (
     <html lang="ko" className={pretendard.variable}>
       <body className={`bg-white antialiased ${pretendard.className}`}>
-        <Providers initialUserRole={initialUserRole} initialUserProfile={initialUserProfile}>
+        <Providers>
           <Link
             href="#main-content"
             className="sr-only z-50 rounded bg-[#20242B] px-4 py-2 text-white transition-all focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:ring-2 focus:ring-white focus:outline-none"

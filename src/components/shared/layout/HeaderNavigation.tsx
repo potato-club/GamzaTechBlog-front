@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useLoadingDots } from "@/hooks/useLoadingDots";
 import { DropdownActionItem } from "@/types/dropdown";
@@ -188,7 +189,10 @@ export const HeaderNavigation = () => {
       </form>
 
       <>
-        {isLoggedIn && userProfile ? (
+        {isLoading ? (
+          // 인증 판별 전: 크기 고정 스켈레톤으로 자리 예약 (틀린 상태 노출·CLS 방지)
+          <Skeleton data-testid="auth-skeleton" className="h-8 w-20 rounded-full" />
+        ) : isLoggedIn && userProfile ? (
           // 로그인된 상태: 프로필 이미지 표시
           <>
             {canCreatePost(userProfile) && (

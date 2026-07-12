@@ -32,6 +32,7 @@ jest.mock("next/link", () => ({
 
 jest.mock("next/image", () => ({
   __esModule: true,
+  // eslint-disable-next-line @next/next/no-img-element -- 테스트 mock: next/image를 단순 img로 대체
   default: (props: React.ComponentProps<"img">) => <img {...props} />,
 }));
 
@@ -53,6 +54,25 @@ describe("HeaderNavigation", () => {
     currentPathname = "/";
   });
 
+  it("인증 판별 전(isLoading)에는 로그인/프로필 대신 스켈레톤을 노출해야 함", () => {
+    // Given: 부트스트랩 조회 중
+    useAuthMock.mockReturnValue({
+      isLoggedIn: false,
+      userProfile: null,
+      isLoading: true,
+      needsProfileCompletion: false,
+      logout: jest.fn(),
+      refetchAuthStatus: jest.fn(),
+    });
+
+    render(<HeaderNavigation />);
+
+    // Then: 스켈레톤 자리 예약 — 로그인 버튼도 프로필도 아직 그리지 않는다(틀린 상태 노출·CLS 방지)
+    expect(screen.getByTestId("auth-skeleton")).toBeInTheDocument();
+    expect(screen.queryByText(/Login with/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("글쓰기")).not.toBeInTheDocument();
+  });
+
   it("로그인되지 않은 경우 로그인 버튼을 노출해야 함", () => {
     useAuthMock.mockReturnValue({
       isLoggedIn: false,
@@ -67,6 +87,7 @@ describe("HeaderNavigation", () => {
 
     expect(screen.getByText(/Login with/i)).toBeInTheDocument();
     expect(screen.getByAltText("GitHub")).toBeInTheDocument();
+    expect(screen.queryByTestId("auth-skeleton")).not.toBeInTheDocument();
   });
 
   it("로그인된 경우 글쓰기 버튼을 노출해야 함", () => {
