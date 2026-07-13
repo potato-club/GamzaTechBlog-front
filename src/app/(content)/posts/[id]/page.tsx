@@ -5,6 +5,7 @@ import {
 import PostHeader from "@/features/posts/components/PostHeader";
 import PostStats from "@/features/posts/components/PostStats";
 import { createPostServiceServer } from "@/features/posts/services/postService.server";
+import { isNotFoundError } from "@/lib/apiError";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -162,7 +163,14 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
       </div>
     );
   } catch (error) {
+    // 백엔드가 "글 없음(404)"이라고 확정한 경우만 not-found로 처리한다(캐시 가능한 확정 상태).
+    if (isNotFoundError(error)) {
+      notFound();
+    }
+    // 5xx·네트워크 등 일시적 오류는 재던진다 — ISR은 렌더 결과를 캐시하므로,
+    // 에러 페이지를 not-found로 렌더하면 그게 캐시에 박혀(최대 revalidate 기간)
+    // 백엔드 복구 후에도 계속 서빙된다(캐시 오염). 재던지면 Next가 캐시하지 않는다.
     console.error("Error fetching post:", error);
-    notFound();
+    throw error;
   }
 }
