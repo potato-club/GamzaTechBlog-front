@@ -167,9 +167,15 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     if (isNotFoundError(error)) {
       notFound();
     }
+
     // 5xx·네트워크 등 일시적 오류는 재던진다 — ISR은 렌더 결과를 캐시하므로,
-    // 에러 페이지를 not-found로 렌더하면 그게 캐시에 박혀(최대 revalidate 기간)
-    // 백엔드 복구 후에도 계속 서빙된다(캐시 오염). 재던지면 Next가 캐시하지 않는다.
+    // 에러를 not-found로 렌더하면 그게 캐시에 박혀(최대 revalidate 기간) 백엔드 복구 후에도
+    // 계속 서빙된다(캐시 오염). 재던지면 Next가 캐시하지 않는다.
+    //
+    // 참고: 캐시에 없는 글을 장애 중 최초 요청하면 ISR 온디맨드 "생성"이 실패하는 것이라
+    // error.tsx 바운더리를 거치지 않고 Next 기본 500이 나간다(프레임워크 제약).
+    // error.tsx는 동적 렌더·클라이언트 네비게이션 경로의 오류를 담당한다.
+    // 이미 캐시된 글은 장애 중에도 stale-while-revalidate로 정상 서빙된다.
     console.error("Error fetching post:", error);
     throw error;
   }
