@@ -21,15 +21,17 @@ export function isAuthenticated(userProfile: UserProfileResponse | null | undefi
 }
 
 /**
- * 사용자가 특정 게시글을 수정할 수 있는지 확인
- * 관리자이거나 게시글 작성자 본인인 경우
+ * 사용자가 특정 게시글을 수정/삭제할 수 있는지 확인
+ *
+ * 작성자 본인만 가능하다. 백엔드 API가 작성자가 아니면 수정/삭제를 거부하므로,
+ * 관리자에게도 버튼을 노출하지 않는다(눌러도 실패하는 오해성 UI 방지).
  */
 export function canEditPost(
   userProfile: UserProfileResponse | null | undefined,
   postWriter: string
 ): boolean {
   if (!userProfile) return false;
-  return isAdmin(userProfile) || userProfile.nickname === postWriter;
+  return userProfile.nickname === postWriter;
 }
 
 /**

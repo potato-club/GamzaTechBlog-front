@@ -42,7 +42,7 @@ describe("PostAuthorActions (수정/삭제 버튼 클라이언트 게이팅)", (
     expect(screen.getByTestId("post-actions")).toHaveTextContent("actions:7");
   });
 
-  it("관리자면 타인 글이어도 액션을 노출해야 함", () => {
+  it("관리자여도 타인 글이면 액션을 노출하지 않아야 함 (백엔드가 작성자만 허용)", () => {
     // Given
     const admin: UserProfileResponse = { nickname: "admin", role: "ADMIN" };
     useAuthMock.mockReturnValue({ userProfile: admin, isLoading: false });
@@ -51,7 +51,8 @@ describe("PostAuthorActions (수정/삭제 버튼 클라이언트 게이팅)", (
     render(<PostAuthorActions postId={7} postWriter="someone-else" />);
 
     // Then
-    expect(screen.getByTestId("post-actions")).toBeInTheDocument();
+    expect(screen.queryByTestId("post-actions")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("post-actions-placeholder")).not.toBeInTheDocument();
   });
 
   it("타인(비작성자)이면 아무것도 렌더하지 않아야 함", () => {
